@@ -21,7 +21,7 @@ const cspMeta = (mode: string): PluginOption => ({
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob:",
       "font-src 'self' data:",
-      `connect-src 'self' ${fireroad} https://analytics.mit.edu`,
+      `connect-src 'self' data: ${fireroad} https://analytics.mit.edu`,
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
