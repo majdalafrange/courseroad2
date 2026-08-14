@@ -45,7 +45,7 @@ export default defineConfig(({ mode }) => ({
   test: {
     // Lib tests are pure TS and run in node; jsdom is opt-in, for the
     // store specs here and via a file pragma where a lib spec touches
-    // the DOM. environmentMatchGlobs is the vitest 2 mechanism.
+    // the DOM. 
     environment: "node",
     projects: [
       {
