@@ -188,6 +188,13 @@ watch(
   background: var(--g-surface-sunken);
 }
 
+/* clear the fixed bottom navigation on small screens */
+@media (max-width: 859px) {
+  .g-toast-host {
+    bottom: calc(var(--space-4) + 56px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 /* Toasts rise into place and settle; leaving slides down and fades. */
 .g-toast-enter-active {
   transition:
