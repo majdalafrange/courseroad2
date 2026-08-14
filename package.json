@@ -1,57 +1,66 @@
 {
   "name": "courseroad",
-  "version": "1.0.0",
-  "description": "Course planning for MIT undergrads",
+  "version": "2.0.0",
+  "description": "Degree planning for MIT undergrads",
   "author": "courseroad-dev team",
+  "type": "module",
   "scripts": {
-    "test:unit": "vue-cli-service test:unit --coverage",
-    "test:e2e": "vue-cli-service test:e2e",
-    "test:e2e-headless": "vue-cli-service test:e2e --headless",
-    "test:e2e-record": "vue-cli-service test:e2e --headless --record",
-    "lint": "eslint --ext .js,.vue --ignore-path .gitignore",
-    "build-dev": "vite build --mode staging --base /dev",
-    "build-prod": "vite build",
     "dev": "vite dev",
     "devdev": "vite dev --mode devdev",
-    "lint-fix": "eslint --ext .js,.vue --ignore-path .gitignore --fix src",
-    "format": "prettier .  --write",
-    "test": "npm run test:unit && npm run test:e2e-headless"
+    "build-dev": "vite build --mode staging --base /dev",
+    "build-prod": "vite build",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.app.json && vue-tsc --noEmit -p tsconfig.vitest.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "lint": "eslint .",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "palette": "node scripts/generate-palette.mjs"
   },
-  "main": "index.js",
+  "engines": {
+    "node": ">=22"
+  },
   "dependencies": {
-    "@fontsource/roboto": "^5.0.13",
-    "@vitejs/plugin-vue2": "^2.3.3",
-    "axios": "^1.6.8",
-    "cgi": "^0.3.1",
-    "jquery": "^3.6.0",
-    "moment": "^2.29.4",
-    "msgpack-lite": "^0.1.26",
-    "ua-parser-js": "^1.0.1",
-    "url-loader": "^4.1.1",
-    "vite": "^5.2.11",
-    "vue-context": "^6.0.0",
-    "vue-cookies": "^1.7.4",
-    "vue-router": "^3.5.2",
-    "vue-scrolling-table": "^1.0.4",
-    "vuetify": "^2.7.2",
-    "vuex": "^3.6.0"
+    "@fontsource-variable/space-grotesk": "^5.2.10",
+    "@fontsource/ibm-plex-mono": "^5.2.7",
+    "@fontsource/ibm-plex-sans": "^5.2.8",
+    "@msgpack/msgpack": "^3.1.3",
+    "axios": "^1.19.0",
+    "pinia": "^2.2.2",
+    "ua-parser-js": "^1.0.41",
+    "vue": "^3.5.0",
+    "vue-router": "^4.4.0"
+  },
+  "overrides": {
+    "postcss": "^8.5.23"
   },
   "devDependencies": {
-    "@mdi/font": "^7.4.47",
-    "@vue/test-utils": "^1.2.2",
-    "cypress-file-upload": "^5.0.8",
-    "deepmerge": "^4.3.1",
-    "eslint": "^8.57.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.1.3",
-    "eslint-plugin-vue": "^9.26.0",
-    "eslint-plugin-vuetify": "^1.1.0",
+    "@eslint/js": "^9.39.5",
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^24.13.3",
+    "@types/ua-parser-js": "^0.7.39",
+    "@vitejs/plugin-vue": "^5.1.0",
+    "@vitest/coverage-v8": "~2.1.9",
+    "@vue/test-utils": "^2.4.11",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vue": "^10.10.0",
+    "globals": "^15.15.0",
+    "jsdom": "^24.1.0",
+    "moment": "^2.29.4",
     "prettier": "3.2.5",
-    "sass": "~1.32",
-    "vue": "^2.7.0"
+    "puppeteer-core": "^25.1.0",
+    "typescript": "~5.5.0",
+    "typescript-eslint": "^8.67.0",
+    "vite": "^5.2.11",
+    "vitest": "^2.0.0",
+    "vue-tsc": "^2.0.29"
   },
   "bugs": {
-    "url": "https://github.com/npfoss/courseroad2/issues"
+    "url": "https://github.com/sipb/courseroad2/issues"
   },
   "homepage": "https://courseroad.mit.edu",
   "keywords": [
@@ -61,7 +70,6 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/npfoss/courseroad2.git"
-  },
-  "type": "module"
+    "url": "git+https://github.com/sipb/courseroad2.git"
+  }
 }

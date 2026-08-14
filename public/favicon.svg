@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <rect x="0" y="0" width="24" height="24" rx="3" fill="#a31f34"/>
+  <!-- three treads rising left to right; see GWordmark, which copies this -->
+  <path d="M5 18.5 H9.8 V13.5 H14.6 V8.5 H19" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

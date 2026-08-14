@@ -1,662 +1,846 @@
-<!-- direct from the Vuetify website: this is the proper nesting: v-container » v-layout » v-flex (» v-card) -->
 <template>
-  <v-app id="app-wrapper">
-    <v-dialog v-model="showMobile" fullscreen>
-      <v-card height="100%">
-        <v-container fill-height>
-          <v-layout column>
-            <v-flex grow>
-              <v-card-title primary-title>
-                <h1 class="text-h3">Hello there!</h1>
-              </v-card-title>
-              <v-card-text>
-                <p class="text-h5">
-                  Courseroad is currently not optimized for mobile use! For a
-                  better experience, please browse from a desktop computer.
-                </p>
-              </v-card-text>
-            </v-flex>
-            <v-flex shrink align-self-center>
-              <v-btn block href="#" color="info" @click="showMobile = false">
-                Take me to the desktop site
-              </v-btn>
-            </v-flex>
-          </v-layout>
-        </v-container>
-      </v-card>
-    </v-dialog>
-    <v-app-bar app fixed dense :elevation="2">
-      <road-tabs
-        slot="extension"
-        @delete-road="$refs.authcomponent.deleteRoad($event)"
-        @add-road="addRoad(...arguments)"
-        @retrieve="$refs.authcomponent.retrieveRoad($event)"
-      />
-
-      <import-export @add-road="addRoad(...arguments)" />
-
-      <auth
-        ref="authcomponent"
-        :just-loaded="justLoaded"
-        :conflict-info="conflictInfo"
-        @conflict="conflict"
-        @resolve-conflict="resolveConflict"
-      />
-
-      <v-layout justify-end>
-        <v-text-field
-          id="searchInputTF"
-          v-model="searchInput"
-          hide-details
-          data-cy="classSearchInput"
-          autocomplete="off"
-          class="expanded-search"
-          prepend-icon="mdi-magnify"
-          placeholder="Add classes"
-          autofocus
-          style="width: 100%"
-          @click.native="
-            clickSearch($event);
-            $event.stopPropagation();
-          "
-          @input="typeSearch"
-          @keydown.esc="searchOpen = false"
-          @keyup.enter="$refs.searchMenu.openFirstClass"
-        />
-      </v-layout>
-    </v-app-bar>
-
-    <v-navigation-drawer
-      id="left-panel"
-      width="350"
-      mobile-breakpoint="600"
-      class="side-panel elevation-2 scroller"
-      app
-    >
-      <v-container fill-height style="padding: 0">
-        <v-layout fill-height column>
-          <v-layout
-            shrink
-            style="padding: 14px; padding-bottom: 0"
-            align-center
-          >
-            <v-flex
-              shrink
-              class="blue-grey"
-              :class="[$vuetify.theme.dark ? 'darken-4' : 'lighten-4']"
-              style="
-                user-select: none;
-                color: inherit;
-                text-decoration: none;
-                border-radius: 2px;
-                padding: 6px 8px;
-                display: inline-block;
-              "
-            >
-              <v-icon size="1.3em" color="#00b300">
-                mdi-checkbox-marked
-              </v-icon>
-              <h3 style="display: inline">{{ " C o u r s e R o a d " }}</h3>
-            </v-flex>
-            <theme-toggler />
-            <v-flex>
-              <v-dialog
-                v-model="aboutDialog"
-                fullscreen
-                hide-overlay
-                transition="dialog-bottom-transition"
-              >
-                <template #activator="{ on, attrs }">
-                  <v-btn
-                    fab
-                    small
-                    dark
-                    color="primary"
-                    style="float: right"
-                    v-bind="attrs"
-                    v-on="on"
-                  >
-                    <v-icon dark> mdi-information-variant </v-icon>
-                  </v-btn>
-                </template>
-                <v-card>
-                  <v-container>
-                    <v-btn icon text @click="aboutDialog = false">
-                      <v-icon>mdi-arrow-left</v-icon>
-                    </v-btn>
-                    <about />
-                  </v-container>
-                </v-card>
-              </v-dialog>
-            </v-flex>
-          </v-layout>
-          <audit
-            v-if="activeRoad !== ''"
-            :req-trees="reqTrees"
-            :selected-reqs="roads[activeRoad].contents.coursesOfStudy"
-            :selected-subjects="roads[activeRoad].contents.selectedSubjects"
-            :req-list="reqList"
-            :progress-overrides="roads[activeRoad].contents.progressOverrides"
-            data-cy="audit"
-          />
-          <v-flex
-            shrink
-            style="padding: 14px; padding-bottom: 0"
-            data-cy="unofficialWarning"
-          >
-            <p>
-              <b>Warning:</b> This is an unofficial tool that may not accurately
-              reflect degree progress. Please view the
-              <a
-                target="_blank"
-                href="https://student.mit.edu/cgi-bin/shrwsdau.sh"
-                >official audit</a
-              >,
-              <a target="_blank" href="http://student.mit.edu/catalog/index.cgi"
-                >course catalog</a
-              >, and
-              <a target="_blank" href="http://catalog.mit.edu/degree-charts/"
-                >degree charts</a
-              >
-              and confirm with your department advisors.
-            </p>
-            <p>
-              Problems with the course requirements? Request edits
-              <a target="_blank" href="https://fireroad.mit.edu/requirements/"
-                >here</a
-              >
-              or send an email to
-              <a target="_blank" href="mailto:courseroad@mit.edu"
-                >courseroad@mit.edu</a
-              >.
-            </p>
-          </v-flex>
-        </v-layout>
-      </v-container>
-      <!-- TODO: will need to add event for when the child can edit selectedReqs probably -->
-    </v-navigation-drawer>
-
-    <v-main id="center-panel" app>
-      <v-tabs-items v-model="activeRoad">
-        <v-tab-item
-          v-for="roadId in Object.keys(roads)"
-          :key="roadId"
-          :value="roadId"
-        >
-          <road
-            :selected-subjects="roads[roadId].contents.selectedSubjects"
-            :road-i-d="roadId"
-            :adding-from-card="addingFromCard && activeRoad === roadId"
-            :drag-semester-num="activeRoad === roadId ? dragSemesterNum : -1"
-            :data-cy="'road_' + roadId"
-            @change-year="$refs.authcomponent.changeSemester($event)"
-          />
-        </v-tab-item>
-      </v-tabs-items>
-
-      <conflict-dialog
-        ref="conflictdialog"
-        :conflict-info="conflictInfo"
-        :conflict-dialog="conflictDialog"
-        @update-local="updateLocal"
-        @update-remote="updateRemote"
-      />
-    </v-main>
-
-    <v-card
-      v-show="searchOpen"
-      id="searchMenuCard"
-      class="elevation-8"
-      @click.native="$event.stopPropagation()"
-    >
-      <class-search
-        id="searchMenu"
-        ref="searchMenu"
-        class="search-menu"
-        :search-input="searchInput"
-      />
-    </v-card>
-
-    <class-info
-      v-if="$store.state.classInfoStack.length"
-      @click.native="$event.stopPropagation()"
+  <div
+    class="shell"
+    :class="{
+      'is-mobile': isMobile,
+      'show-plan': !isExplore && mobileView === 'plan',
+      'show-progress': !isExplore && mobileView === 'progress',
+    }"
+  >
+    <shell-header
+      @open-search="paletteOpen = true"
+      @undo="doUndo"
+      @redo="doRedo"
+      @create-road="createRoad"
+      @switch-road="switchRoad"
+      @duplicate-road="duplicateRoad"
+      @delete-road="deleteRoadWithUndo"
+      @open-import="importOpen = true"
+      @open-compare="compareOpen = true"
+      @open-share="shareOpen = true"
+      @open-about="aboutOpen = true"
+      @toggle-theme="toggleTheme"
+      @navigate-mode="navigateMode"
     />
 
-    <v-footer v-if="!dismissedCookies" fixed :color="'#34627d'" app>
-      <v-layout column>
-        <v-flex v-if="!dismissedCookies" class="py-1 px-2">
-          <v-layout align-center>
-            <v-flex style="color: white">
-              This website uses cookies and session storage to store your data
-              and login token, and important features like saving roads will not
-              work without them. <br />
-              <span v-if="cookiesAllowed === undefined"
-                >By continuing to use this website or clicking "I accept", you
-                consent to the use of cookies.</span
+    <div class="shell-body">
+      <div class="shell-main">
+        <connections-page v-if="isExplore" />
+
+        <main v-else id="canvasScroll" class="canvas">
+          <!-- The glyph field sizes to the plan, not the viewport, so it
+               scrolls with the cards instead of sitting still behind them. -->
+          <div class="canvas-sheet">
+            <canvas-glyphs />
+            <div v-if="store.catalogError" class="catalog-error" role="alert">
+              <div>
+                <strong>The subject catalog didn't load.</strong>
+                <span
+                  >Check your connection. Your plan is safe in the
+                  meantime.</span
+                >
+              </div>
+              <g-button
+                variant="primary"
+                size="sm"
+                @click="store.retryCatalog()"
               >
-              <span v-if="cookiesAllowed !== undefined"
-                >By continuing to use this website, you have consented to the
-                use of cookies, but may opt out by clicking the button to the
-                right.</span
+                Try again
+              </g-button>
+            </div>
+            <div v-else-if="offline" class="offline-note" role="status">
+              <g-icon name="cloud" :size="14" />
+              Offline. You can keep planning; changes sync when you're back.
+            </div>
+
+            <div
+              v-if="showEmptyState && !store.catalogError"
+              class="empty-state"
+            >
+              <h2 class="empty-title">Search for a class</h2>
+              <p class="empty-copy">
+                Place it in a term, or add a major or minor on the right to see
+                requirements.
+              </p>
+              <div class="empty-actions">
+                <g-button variant="primary" @click.stop="focusSearch">
+                  Add classes
+                </g-button>
+              </div>
+            </div>
+
+            <road-canvas
+              v-if="activeRoad !== '' && activeRoad in roads"
+              :key="activeRoad"
+              :selected-subjects="roads[activeRoad].contents.selectedSubjects"
+              :road-i-d="activeRoad"
+              @change-year="auth.changeSemester($event)"
+            />
+          </div>
+        </main>
+      </div>
+
+      <aside v-if="!isExplore" class="progress-panel">
+        <audit-panel
+          v-if="activeRoad !== '' && activeRoad in roads"
+          :ledger="detailOpen && !isMobile"
+          data-cy="audit"
+        />
+        <!-- One mount at a time (aside or sheet) so ClassDetail's window
+             keydown listener never registers twice. Crossing 860px remounts
+             the detail and loses its scroll position. -->
+        <class-detail v-if="detailOpen && !isMobile" class="panel-detail" />
+        <div class="progress-foot" data-cy="unofficialWarning">
+          <span class="foot-line">
+            Unofficial tool. Confirm with the
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://student.mit.edu/cgi-bin/shrwsdau.sh"
+              >official audit</a
+            >
+          </span>
+          <g-popover v-model="footLinksOpen" align="end" placement="top">
+            <template #anchor>
+              <button
+                class="foot-more"
+                :aria-expanded="footLinksOpen"
+                @click="footLinksOpen = !footLinksOpen"
               >
-            </v-flex>
-            <v-flex shrink>
-              <v-btn
-                small
-                depressed
-                color="green"
-                class="ma-1"
-                data-cy="acceptCookies"
-                style="color: rgb(255 255 255)"
-                @click="
-                  $store.commit('allowCookies');
-                  dismissCookies();
-                "
+                more
+              </button>
+            </template>
+            <div class="foot-links" @click.stop>
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://student.mit.edu/catalog/index.cgi"
+                >Subject listing ↗</a
               >
-                I accept
-              </v-btn>
-            </v-flex>
-            <v-flex shrink>
-              <v-btn
-                small
-                depressed
-                text
-                outlined
-                class="ma-1"
-                color="rgb(255 255 255 / 70%)"
-                @click="disallowCookies"
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://catalog.mit.edu/degree-charts/"
+                >Degree charts ↗</a
               >
-                Opt out
-              </v-btn>
-            </v-flex>
-          </v-layout>
-        </v-flex>
-      </v-layout>
-    </v-footer>
-  </v-app>
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://fireroad.mit.edu/requirements/"
+                >Requirement wrong? Request an edit ↗</a
+              >
+              <a href="mailto:courseroad@mit.edu">courseroad@mit.edu</a>
+            </div>
+          </g-popover>
+        </div>
+      </aside>
+    </div>
+
+    <detail-sheet
+      v-if="!isExplore && isMobile && detailOpen"
+      @close="store.clearClassInfoStack()"
+    >
+      <class-detail />
+    </detail-sheet>
+
+    <command-palette
+      ref="paletteRef"
+      v-model="paletteOpen"
+      @action="onPaletteAction"
+    />
+
+    <custom-class ref="customClassRef" />
+
+    <conflict-dialog />
+    <import-dialog v-model="importOpen" @add-road="addRoad" />
+    <about-sheet v-model="aboutOpen" />
+    <share-sheet v-model="shareOpen" />
+    <compare-roads v-model="compareOpen" />
+    <onboarding v-model="onboardingOpen" @seed="seedFromOnboarding" />
+    <cookie-consent />
+    <mobile-nav
+      v-if="isMobile"
+      :active="isExplore ? 'explore' : mobileView"
+      @navigate="onMobileNavigate"
+      @search="paletteOpen = true"
+    />
+  </div>
 </template>
 
-<script>
-import Audit from "./../components/Audit.vue";
-import ClassSearch from "./../components/ClassSearch.vue";
-import Road from "./../components/Road.vue";
-import RoadTabs from "./../components/RoadTabs.vue";
-import ConflictDialog from "./../components/ConflictDialog.vue";
-import Auth from "./../components/Auth.vue";
-import axios from "axios";
-import $ from "jquery";
-import moment from "moment";
-import UAParser from "ua-parser-js";
-import Vue from "vue";
-import ClassInfo from "./../components/ClassInfo.vue";
-import ImportExport from "./../components/ImportExport.vue";
-import ThemeToggler from "./../components/ThemeToggler.vue";
-import About from "./../components/About.vue";
+<script setup lang="ts">
+import {
+  computed,
+  defineAsyncComponent,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from "vue";
+import { useRoute, useRouter } from "vue-router";
 
-const DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss.SSS000Z";
+import AboutSheet from "../components/sheets/AboutSheet.vue";
+import AuditPanel from "../components/audit/AuditPanel.vue";
+import ClassDetail from "../components/detail/ClassDetail.vue";
+import DetailSheet from "../components/detail/DetailSheet.vue";
+import CommandPalette from "../components/palette/CommandPalette.vue";
+import CompareRoads from "../components/sheets/CompareRoads.vue";
+import ConflictDialog from "../components/sheets/ConflictDialog.vue";
+import CookieConsent from "../components/shell/CookieConsent.vue";
+import CustomClass from "../components/sheets/CustomClass.vue";
+import ImportDialog from "../components/sheets/ImportDialog.vue";
+import Onboarding from "../components/sheets/Onboarding.vue";
+import ShareSheet from "../components/sheets/ShareSheet.vue";
+import RoadCanvas from "../components/canvas/RoadCanvas.vue";
+import MobileNav from "../components/shell/MobileNav.vue";
+import ShellHeader from "../components/shell/ShellHeader.vue";
+import GButton from "../design/components/GButton.vue";
+import CanvasGlyphs from "../components/canvas/CanvasGlyphs.vue";
+import GIcon from "../design/components/GIcon.vue";
+import GPopover from "../design/components/GPopover.vue";
 
-export default {
-  components: {
-    audit: Audit,
-    "class-search": ClassSearch,
-    road: Road,
-    "road-tabs": RoadTabs,
-    "conflict-dialog": ConflictDialog,
-    auth: Auth,
-    "class-info": ClassInfo,
-    "import-export": ImportExport,
-    "theme-toggler": ThemeToggler,
-    about: About,
-  },
-  data: function () {
-    return {
-      aboutDialog: false,
-      reqTrees: {},
-      reqList: [],
-      dragSemesterNum: -1,
-      gettingUserData: false,
-      cookieName: "Default Cookie",
-      accessInfo: undefined,
-      rightDrawer: true,
-      newRoadName: "",
-      justLoaded: true,
-      currentlySaving: false,
-      saveWarnings: [],
-      conflictDialog: false,
-      conflictInfo: undefined,
-      searchInput: "",
-      dismissedAndroidWarning: false,
-      dismissedCookies: false,
-      searchOpen: false,
-      updatingFulfillment: false,
-      showMobile:
-        ["mobile", "tabvar"].indexOf(
-          new UAParser(navigator.userAgent).getDevice().type,
-        ) !== -1,
-    };
-  },
-  computed: {
-    activeRoad: {
-      get() {
-        return this.$store.state.activeRoad;
-      },
-      set(value) {
-        this.$store.commit("setActiveRoad", value);
-      },
-    },
-    addingFromCard() {
-      return this.$store.state.addingFromCard;
-    },
-    cookiesAllowed() {
-      return this.$store.state.cookiesAllowed;
-    },
-    roads() {
-      return this.$store.state.roads;
-    },
-    roadref: function () {
-      return "#road" + this.activeRoad;
-    },
-  },
-  watch: {
-    // call fireroad to check fulfillment if you change active roads or change something about a road
-    activeRoad: function (newRoad) {
-      if (
-        this.$store.state.unretrieved.indexOf(newRoad) >= 0 &&
-        !this.$refs.authcomponent.gettingUserData
-      ) {
-        const _this = this;
-        this.$refs.authcomponent.retrieveRoad(newRoad).then(function () {
-          _this.$store.commit("setRetrieved", newRoad);
-        });
-      } else if (newRoad !== "") {
-        this.updateFulfillment(this.$store.state.fulfillmentNeeded);
-      }
-      // If just loaded, store isn't loaded yet
-      // and so we can't overwrite the router just yet
-      if (newRoad !== "" && !this.justLoaded) {
-        this.$router.push({ path: `/road/${newRoad}` });
-      }
-      this.justLoaded = false;
-    },
-    cookiesAllowed: function (newCA) {
-      if (newCA) {
-        this.$cookies.set(
-          "dismissedAndroidWarning",
-          this.dismissedAndroidWarning,
-        );
-      }
-    },
-    roads: {
-      handler: function () {
-        this.justLoaded = false;
-        if (this.cookiesAllowed === undefined) {
-          this.$store.commit("allowCookies");
-        }
-        if (this.activeRoad !== "") {
-          this.updateFulfillment(this.$store.state.fulfillmentNeeded);
-        }
-        this.$store.commit("resetFulfillmentNeeded");
+// Lazy: the whole Connections engine (~5k LOC of graph code) loads on
+// first entry to Explore instead of riding along with every plan view.
+const ConnectionsPage = defineAsyncComponent(
+  () => import("./ConnectionsPage.vue"),
+);
 
-        if (!this.$store.state.ignoreRoadChanges) {
-          this.$refs.authcomponent.save(this.activeRoad);
-        } else {
-          this.$store.commit("watchRoadChanges");
-        }
-      },
-      deep: true,
-    },
-  },
-  created() {
-    if (
-      this.cookiesAllowed &&
-      this.$cookies.get("versionNumber") !== this.$store.state.versionNumber
-    ) {
-      console.log("Warning: the version number has changed.");
-      // do whatever needs to happen when the version changed, probably including clearing local storage
-      // then update the version number cookie
-      localStorage.clear();
-      this.$cookies.set("versionNumber", this.$store.state.versionNumber);
-    }
-  },
-  mounted() {
-    const today = new Date();
-    const month = today.getMonth();
-    this.$store.commit("setCurrentSemester", month >= 4 && month <= 10 ? 1 : 3);
-    if (
-      localStorage.courseRoadStore !== undefined &&
-      this.cookiesAllowed &&
-      this.$store.state.loggedIn
-    ) {
-      this.$store.commit(
-        "setFromLocalStorage",
-        JSON.parse(localStorage.courseRoadStore),
-      );
-    }
-    const borders = $(".v-navigation-drawer__border");
-    const scrollers = $(".scroller");
-    const scrollWidth = scrollers.width();
-    // moves nav drawer border with scroll
-    // if the effect proves too annoying we can remove the borders instead
-    scrollers.scroll(function () {
-      const scrollPosition = scrollers.scrollLeft();
-      borders.css({ top: 0, left: scrollWidth - 1 + scrollPosition });
-    });
+import { toast } from "../design/toast";
+import {
+  STORAGE_KEYS,
+  clearAppStorage,
+  hasValue,
+  readValue,
+  writeValue,
+} from "../lib/appStorage";
+import { DEMO_ROAD, DEMO_ROAD_NAME } from "../lib/demoRoad";
+import { defaultCurrentSemester } from "../lib/offering";
+import {
+  loadPersistedStore,
+  persistedCurrentSemester,
+  savePersistedStore,
+} from "../lib/persistedStore";
+import { useGlobalShortcuts } from "../composables/useGlobalShortcuts";
+import { useTheme } from "../composables/useTheme";
+import {
+  DEFAULT_ROAD_ID,
+  DEFAULT_ROAD_NAME,
+  newRoad,
+  parseRoadFile,
+} from "../lib/roads";
+import { flatten, type SelectedSubject } from "../lib/types";
+import { useAuditStore } from "../stores/audit";
+import { useAuthStore } from "../stores/auth";
+import { onRoadChange, useCourseDataStore } from "../stores/courseData";
+import { onDragBegin } from "../stores/dragdrop";
+import { history } from "../stores/history";
+import { paletteRequest } from "../stores/palette";
+import {
+  addRoad,
+  createRoad,
+  deleteRoadWithUndo,
+  duplicateRoad,
+  exportActiveRoad,
+  switchRoad,
+} from "../stores/roadOps";
 
-    this.setActiveRoad();
+const store = useCourseDataStore();
+const auth = useAuthStore();
+const auditStore = useAuditStore();
+const route = useRoute();
+const router = useRouter();
 
-    axios
-      .get(import.meta.env.VITE_FIREROAD_URL + "/requirements/list_reqs/")
-      .then((response) => {
-        this.reqList = Object.keys(response.data)
-          .map((m) => {
-            return Object.assign(response.data[m], { key: m });
-          })
-          .sort();
-      });
+const aboutOpen = ref(false);
+const importOpen = ref(false);
+const shareOpen = ref(false);
+const compareOpen = ref(false);
+const onboardingOpen = ref(false);
+const footLinksOpen = ref(false);
+const paletteOpen = ref(false);
+const paletteRef = ref<InstanceType<typeof CommandPalette>>();
+const customClassRef = ref<InstanceType<typeof CustomClass>>();
 
-    // Update fulfillment for all majors on load
-    this.updateFulfillment("all");
+/* ---- responsive ---- */
+const viewportWidth = ref(window.innerWidth);
+const isMobile = computed(() => viewportWidth.value < 860);
+const mobileView = ref<"plan" | "progress">("plan");
+function onResize() {
+  viewportWidth.value = window.innerWidth;
+}
 
-    document.body.addEventListener(
-      "click",
-      function () {
-        this.searchOpen = false;
-      }.bind(this),
+/* ---- network ---- */
+const offline = ref(!navigator.onLine);
+function onOnline() {
+  offline.value = false;
+}
+function onOffline() {
+  offline.value = true;
+}
+
+const roads = computed(() => store.roads);
+const activeRoad = computed(() => store.activeRoad);
+const detailOpen = computed(() => store.classInfoStack.length > 0);
+const isExplore = computed(() => route.path === "/explore");
+const showEmptyState = computed(() => {
+  const road = store.roads[store.activeRoad];
+  if (road === undefined) {
+    return false;
+  }
+  return flatten(road.contents.selectedSubjects).length === 0;
+});
+
+/* ---- theme ---- */
+const { toggleTheme } = useTheme();
+
+/* ---- Plan ⁄ Explore mode ---- */
+function navigateMode(mode: "plan" | "explore") {
+  if (mode === "explore") {
+    router.push("/explore");
+  } else {
+    router.push(
+      store.activeRoad !== "" ? `/road/${store.activeRoad}` : "/road",
     );
+  }
+}
 
-    window.addEventListener("beforeunload", () => {
-      if (this.cookiesAllowed && this.$store.state.loggedIn) {
-        const subjectsInfoNoDescriptions = this.$store.state.subjectsInfo.map(
-          function (x) {
-            x = {
-              subject_id: x.subject_id,
-              title: x.title,
-              offered_fall: x.offered_fall,
-              offered_spring: x.offered_spring,
-              offered_iap: x.offered_iap,
-            };
-            return x;
-          },
-        );
-        this.$store.commit("setSubjectsInfo", subjectsInfoNoDescriptions);
-        localStorage.courseRoadStore = JSON.stringify(this.$store.state);
+/** Bottom-nav taps. Progress lives in plan mode, so it navigates there too. */
+function onMobileNavigate(view: "plan" | "progress" | "explore") {
+  if (view === "explore") {
+    navigateMode("explore");
+    return;
+  }
+  mobileView.value = view;
+  if (isExplore.value) {
+    navigateMode("plan");
+  }
+}
+
+/* ---- road-change orchestration (replaces the legacy deep watcher) ---- */
+onRoadChange((event) => {
+  auth.justLoaded = false;
+  if (store.activeRoad !== "") {
+    auditStore.updateFulfillment(event.fulfillment);
+  }
+  store.fulfillmentNeeded = "all";
+  if (event.save) {
+    const saveTarget = event.roadID ?? store.activeRoad;
+    if (saveTarget !== "" && saveTarget in store.roads) {
+      auth.queueSave(saveTarget);
+    }
+  }
+});
+
+/* ---- active road switching ---- */
+watch(
+  () => store.activeRoad,
+  (newRoad) => {
+    if (store.unretrieved.indexOf(newRoad) >= 0 && !auth.gettingUserData) {
+      auth.retrieveRoad(newRoad).then(() => {
+        store.setRetrieved(newRoad);
+      });
+    } else if (newRoad !== "") {
+      auditStore.updateFulfillment(store.fulfillmentNeeded);
+    }
+    if (newRoad !== "" && !auth.justLoaded) {
+      router.push({ path: `/road/${newRoad}` });
+    }
+    auth.justLoaded = false;
+  },
+);
+
+watch(
+  () => store.cookiesAllowed,
+  (newCA) => {
+    if (newCA) {
+      writeValue(STORAGE_KEYS.dismissedAndroidWarning, "true");
+    }
+  },
+);
+
+/** Route palette actions to their shell behaviors. */
+function onPaletteAction(name: string, payload?: string) {
+  switch (name) {
+    case "toggle-theme":
+      toggleTheme();
+      break;
+    case "create-road":
+      createRoad();
+      break;
+    case "switch-road":
+      if (payload !== undefined) {
+        switchRoad(payload);
       }
-    });
+      break;
+    case "open-import":
+      importOpen.value = true;
+      break;
+    case "export-road":
+      exportActiveRoad();
+      break;
+    case "open-about":
+      aboutOpen.value = true;
+      break;
+    case "new-custom-activity":
+      customClassRef.value?.openNewClass();
+      break;
+    case "open-explore":
+      router.push("/explore");
+      break;
+    case "undo":
+      doUndo();
+      break;
+    case "redo":
+      doRedo();
+      break;
+  }
+}
 
-    if (this.$cookies.isKey("dismissedAndroidWarning")) {
-      this.dismissedAndroidWarning = JSON.parse(
-        this.$cookies.get("dismissedAndroidWarning"),
+// Dragging a result out of the palette: yield to the canvas.
+onDragBegin(() => {
+  paletteOpen.value = false;
+});
+
+// Audit gap-to-action: open the palette pre-scoped.
+watch(paletteRequest, (request) => {
+  if (request === null) {
+    return;
+  }
+  paletteOpen.value = true;
+  nextTick(() => {
+    if (request.tokens?.length) {
+      paletteRef.value?.openWithTokens(request.tokens);
+    }
+    if (request.query !== undefined) {
+      paletteRef.value?.openWithQuery(request.query);
+    }
+    paletteRequest.value = null;
+  });
+});
+
+/* ---- onboarding ---- */
+
+// Skip and Finish both close the wizard, and either counts as having seen
+// it. Recorded on the close itself, without the consent gate: on a true
+// first run the cookie banner is still unanswered behind the wizard's
+// scrim, and gating on it made the wizard reopen on every load.
+watch(onboardingOpen, (open) => {
+  if (!open) {
+    writeValue(STORAGE_KEYS.hasOnboarded, "true");
+  }
+});
+
+function seedFromOnboarding(payload: {
+  year: number;
+  coursesOfStudy: string[];
+  selectedSubjects: SelectedSubject[][];
+}) {
+  // Apply year (best-effort; changeSemester also syncs the server if logged in)
+  auth.changeSemester(payload.year);
+  // Seed the active (default) road in place so we don't fork an extra road.
+  const id = store.activeRoad;
+  const road = newRoad(
+    store.roads[id]?.name ?? DEFAULT_ROAD_NAME,
+    payload.coursesOfStudy,
+    payload.selectedSubjects,
+  );
+  store.setRoad({ id, road, ignoreSet: false });
+  store.fulfillmentNeeded = "all";
+  history.clear();
+  toast.ok(
+    payload.year === 0 ? "Starting plan created" : "Road set up",
+    payload.year === 0
+      ? "GIR placeholders are in freshman year. Drag in real classes anytime."
+      : "Terms start empty. Search (⌘K) to add classes.",
+  );
+}
+
+/* ---- undo/redo ---- */
+function doUndo() {
+  const label = history.undo();
+  if (label !== undefined) {
+    toast.show(`Undid: ${label}`, { duration: 2500 });
+  }
+}
+
+function doRedo() {
+  const label = history.redo();
+  if (label !== undefined) {
+    toast.show(`Redid: ${label}`, { duration: 2500 });
+  }
+}
+
+/* ---- search ---- */
+function focusSearch() {
+  paletteOpen.value = true;
+}
+
+/* ---- keyboard ---- */
+useGlobalShortcuts({
+  togglePalette: () => (paletteOpen.value = !paletteOpen.value),
+  undo: doUndo,
+  redo: doRedo,
+});
+
+/** Dev-only: seed the demo Course 6-3 road (screenshots, design review). */
+function seedDemoRoad() {
+  if (Object.values(store.roads).some((road) => road.name === DEMO_ROAD_NAME)) {
+    return;
+  }
+  try {
+    const parsed = parseRoadFile(JSON.stringify(DEMO_ROAD), store.catalog);
+    history.silence(() => {
+      const id = addRoad(
+        DEMO_ROAD_NAME,
+        parsed.coursesOfStudy,
+        parsed.selectedSubjects,
+        parsed.progressOverrides,
       );
-      this.$store.commit("allowCookies");
-    }
-    if (this.$cookies.isKey("dismissedCookies")) {
-      this.dismissedCookies = JSON.parse(this.$cookies.get("dismissedCookies"));
-      this.$store.commit("allowCookies");
-    }
+      store.setActiveRoad(id);
+    });
+  } catch (error) {
+    console.warn("Demo seed failed:", error);
+  }
+}
 
-    // developer.mit.edu version commented out because I couldn't get it to work. filed an issue to resolve it.
-    // axios.get('https://mit-course-catalog-v2.cloudhub.io/coursecatalog/v2/terms/2018FA/subjects', {headers:{client_id:'01fce9ed7f9d4d26939a68a4126add9b', client_secret:'D4ce51aA6A32421DA9AddF4188b93255'}})
-    // , 'Accept': 'application/json'} ?
-    // full=true is ~3x bigger but has some great info like "in_class_hours" and "rating"
-    this.$store
-      .dispatch("loadAllSubjects")
-      .then(() => {
-        console.log("Subjects were loaded successfully!");
-      })
-      .catch((e) => {
-        console.log("There was an error loading subjects: \n" + e);
-      });
-  },
-  methods: {
-    updateFulfillment: function (fulfillmentNeeded) {
-      if (!this.updatingFulfillment && fulfillmentNeeded !== "none") {
-        this.updatingFulfillment = true;
-        const _this = this;
-        // list of majors to get audit fulfillment for depending on fulfillmentNeeded
-        const fulfillments =
-          fulfillmentNeeded === "all"
-            ? this.roads[this.activeRoad].contents.coursesOfStudy
-            : [fulfillmentNeeded];
-        for (let r = 0; r < fulfillments.length; r++) {
-          const req = fulfillments[r];
-          const alteredRoadContents = Object.assign(
-            {},
-            _this.roads[_this.activeRoad].contents,
-          );
-          alteredRoadContents.selectedSubjects = this.flatten(
-            alteredRoadContents.selectedSubjects,
-          );
-          axios
-            .post(
-              import.meta.env.VITE_FIREROAD_URL +
-                "/requirements/progress/" +
-                req +
-                "/",
-              alteredRoadContents,
-            )
-            .then(
-              function (response) {
-                // This is necessary so Vue knows about the new property on reqTrees
-                Vue.set(this.data.reqTrees, this.req, response.data);
-              }.bind({ data: this, req }),
-            );
-        }
-        Vue.nextTick(
-          function () {
-            this.updatingFulfillment = false;
-          }.bind(this),
-        );
+/* ---- routing helpers ---- */
+function setActiveRoadFromRoute(): boolean {
+  const roadRequested = route.params.road as string | undefined;
+  if (roadRequested !== undefined && roadRequested in store.roads) {
+    store.setActiveRoad(roadRequested);
+    return true;
+  } else if (!hasValue(STORAGE_KEYS.accessInfo) && !isExplore.value) {
+    // On /explore there is no :road param by design; keep the active road
+    // as-is rather than bouncing back to /road. The roads are hydrated
+    // before this runs, so the active road is the one actually shown and
+    // an unknown id in the URL rewrites to a road that exists.
+    const shownRoadId = store.activeRoad;
+    router.replace({ path: `/road/${shownRoadId}` });
+  }
+  return false;
+}
+
+/* ---- boot ---- */
+onMounted(() => {
+  // A stored version that differs resets local state. An absent one is
+  // stamped without a reset: the stamp is written only on consented
+  // boots, so the first boot after consent always saw it absent, treated
+  // that as a version change, and wiped the flags written before consent
+  // (hasOnboarded among them, which reopened the first-run wizard).
+  const storedVersion = readValue<string>(STORAGE_KEYS.versionNumber);
+  if (store.cookiesAllowed && storedVersion !== store.versionNumber) {
+    if (storedVersion !== undefined) {
+      console.warn("Warning: the version number has changed.");
+      clearAppStorage();
+    }
+    writeValue(STORAGE_KEYS.versionNumber, store.versionNumber);
+  }
+
+  // The stored choice wins over the clock-derived default; logged in, a
+  // later verify() replaces it with the server's value.
+  store.setCurrentSemester(
+    persistedCurrentSemester() ?? defaultCurrentSemester(),
+  );
+
+  const persisted = loadPersistedStore();
+  if (persisted !== undefined && store.cookiesAllowed && store.loggedIn) {
+    store.setFromLocalStorage(persisted);
+  }
+
+  // Hydrate the logged-out roads (and start the logged-in sync) BEFORE
+  // anything reads store.roads. Running this last meant the route
+  // resolution, the first audit recompute, and the onboarding gate all
+  // saw only the empty default road.
+  auth.restoreFromStorage(route.params.road as string | undefined);
+
+  setActiveRoadFromRoute();
+
+  auditStore.loadReqList();
+  auditStore.updateFulfillment("all");
+
+  window.addEventListener("resize", onResize);
+  window.addEventListener("online", onOnline);
+  window.addEventListener("offline", onOffline);
+
+  // First-run onboarding: a fresh, logged-out visitor with the untouched
+  // default road who hasn't seen it before.
+  if (
+    !hasValue(STORAGE_KEYS.accessInfo) &&
+    !isExplore.value &&
+    readValue<string>(STORAGE_KEYS.hasOnboarded) !== "true" &&
+    readValue<string>(STORAGE_KEYS.hasLoggedIn) !== "true" &&
+    store.activeRoad === DEFAULT_ROAD_ID &&
+    flatten(store.roads[DEFAULT_ROAD_ID]?.contents.selectedSubjects ?? [])
+      .length === 0 &&
+    !(import.meta.env.DEV && window.location.search.includes("demo"))
+  ) {
+    onboardingOpen.value = true;
+  }
+
+  window.addEventListener("beforeunload", onBeforeUnload);
+
+  auth.attemptLogin();
+
+  // Dev-only demo seed for screenshots/design review: /road?demo=1
+  // (read before routing normalizes the URL and drops the query)
+  const demoRequested =
+    import.meta.env.DEV &&
+    new URLSearchParams(window.location.search).has("demo");
+
+  store
+    .loadAllSubjects()
+    .then(() => {
+      if (demoRequested) {
+        seedDemoRoad();
       }
-    },
-    setActiveRoad: function () {
-      const roadRequested = this.$route.params.road;
-      if (this.$route.params.road in this.roads) {
-        this.$store.commit("setActiveRoad", roadRequested);
-        return true;
-      } else if (!this.$cookies.isKey("accessInfo")) {
-        // If user isn't logged in, and bad road id in url, then redirect to default road
-        const defaultRoadId = this.$store.state.activeRoad;
-        this.$router.replace({ path: `/road/${defaultRoadId}` });
-      }
-      return false;
-    },
-    addRoad: function (
-      roadName,
-      cos = ["girs"],
-      ss = Array.from(Array(16), () => []),
-      overrides = {},
-    ) {
-      const tempRoadID = "$" + this.$refs.authcomponent.newRoads.length + "$";
-      const newContents = {
-        coursesOfStudy: cos,
-        selectedSubjects: ss,
-        progressOverrides: overrides,
-        progressAssertions: {},
-      };
-      const newRoad = {
-        downloaded: moment().format(DATE_FORMAT),
-        changed: moment().format(DATE_FORMAT),
-        name: roadName,
-        agent: "",
-        contents: newContents,
-      };
-      this.$store.commit("setRoad", {
-        id: tempRoadID,
-        road: newRoad,
-        ignoreSet: false,
-      });
-      this.$store.commit("resetFulfillmentNeeded");
-      this.$store.commit("setActiveRoad", tempRoadID);
-      this.$refs.authcomponent.newRoads.push(tempRoadID);
-    },
-    conflict: function (conflictInfo) {
-      this.$refs.conflictdialog.startConflict();
-      this.conflictInfo = conflictInfo;
-    },
-    resolveConflict: function () {
-      this.$refs.conflictdialog.resolveConflict();
-      this.conflictInfo = undefined;
-    },
-    disallowCookies: function () {
-      this.$store.commit("disallowCookies");
-      this.dismissCookies();
-      const cookieKeys = this.$cookies.keys();
-      for (let k = 0; k < cookieKeys.length; k++) {
-        this.$cookies.remove(cookieKeys[k]);
-      }
-    },
-    updateLocal: function (id) {
-      this.$refs.authcomponent.updateLocal(id);
-    },
-    updateRemote: function (id) {
-      this.$refs.authcomponent.updateRemote(id);
-    },
-    dismissOld: function () {
-      this.dismissedAndroidWarning = true;
-      if (this.cookiesAllowed) {
-        this.$cookies.set("dismissedAndroidWarning", true);
-      }
-    },
-    dismissCookies: function () {
-      this.dismissedCookies = true;
-      if (this.cookiesAllowed) {
-        this.$cookies.set("dismissedCookies", true);
-      }
-    },
-    clickSearch: function () {
-      this.searchOpen = !this.searchOpen;
-    },
-    typeSearch: function (searchString) {
-      this.searchOpen = searchString.length > 0;
-    },
-  },
-};
+    })
+    .catch((e) => console.error("There was an error loading subjects:", e));
+});
+
+function onBeforeUnload() {
+  if (store.cookiesAllowed && store.loggedIn) {
+    savePersistedStore(store);
+  }
+  // A logged-out edit inside the save debounce would die with the tab.
+  auth.flushPendingSaves();
+}
+
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", onResize);
+  window.removeEventListener("online", onOnline);
+  window.removeEventListener("offline", onOffline);
+  // Named so it can come off again: the anonymous version accumulated
+  // one listener per MainPage remount (every /styleguide round trip).
+  window.removeEventListener("beforeunload", onBeforeUnload);
+});
 </script>
 
 <style scoped>
-#searchMenuCard {
-  position: fixed;
-  top: 37px;
-  right: 24px;
-  z-index: 100;
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--g-bg);
+  color: var(--g-ink);
+  font: var(--text-body);
   overflow: hidden;
 }
 
-@media only screen and (max-width: 959px) {
-  #searchMenuCard {
-    right: 16px;
+.shell-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.shell-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.canvas {
+  flex: 1;
+  overflow-y: auto;
+  /* The padding is named so the glyph field can stretch back across it
+     (see CanvasGlyphs.vue); keep the two declarations together. */
+  --canvas-pad-top: var(--space-4);
+  --canvas-pad-x: var(--space-5);
+  --canvas-pad-bottom: var(--space-16);
+  padding: var(--canvas-pad-top) var(--canvas-pad-x) var(--canvas-pad-bottom);
+}
+/* Holds the plan and the glyph field together. The field is absolute against
+   this sheet, so it spans the whole plan rather than one screen of it, and
+   every card stacks above it. */
+.canvas-sheet {
+  position: relative;
+  min-height: 100%;
+  /* Contain child margins: the empty state's top margin used to collapse
+     through the sheet, shifting it (and the field with it) 20px down and
+     leaving the top run of padding bare. */
+  display: flow-root;
+}
+.canvas-sheet > *:not(.glyph-field) {
+  position: relative;
+  z-index: 1;
+}
+
+.progress-panel {
+  width: 384px;
+  flex-shrink: 0;
+  background: var(--g-surface);
+  border-left: 1px solid var(--g-line);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* With a detail open the audit above it compresses to a ledger, and the
+   detail takes the remaining height with its own scroll. */
+.progress-panel .panel-detail {
+  flex: 1;
+  min-height: 0;
+  border-top: 1px solid var(--g-line);
+  animation: detail-enter var(--motion-standard) var(--ease-out);
+}
+@keyframes detail-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
   }
 }
-.scroller {
-  overflow-x: auto;
+@media (prefers-reduced-motion: reduce) {
+  .progress-panel .panel-detail {
+    animation: none;
+  }
 }
-.v-navigation-drawer__border {
-  display: none !important;
+
+/* The disclaimer holds one quiet line; the rest lives behind “more”. */
+.progress-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font: var(--text-small);
+  color: var(--g-ink-3);
+  padding: var(--space-2) var(--space-4);
+  border-top: 1px solid var(--g-line);
 }
-/* .search-menu {
-  background: white;
-} */
-.expanded-search {
-  max-width: 22em;
+.progress-foot a {
+  color: var(--g-ink-2);
+}
+.foot-line {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.foot-more {
+  font: var(--text-small);
+  color: var(--g-ink-3);
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.foot-more:hover {
+  color: var(--g-ink);
+}
+.foot-more:focus-visible {
+  outline: none;
+  box-shadow: var(--g-focus-ring);
+  border-radius: var(--radius-xs);
+}
+.foot-links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font: var(--text-small);
+}
+.foot-links a {
+  color: var(--g-ink-2);
+  text-decoration: none;
+}
+.foot-links a:hover {
+  color: var(--g-accent);
+}
+
+.empty-state {
+  /* Wide enough to hold the instruction on one line (it measures 467px). */
+  max-width: 480px;
+  margin: var(--space-5) auto var(--space-5);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+.empty-title {
+  font: var(--text-display);
+  letter-spacing: var(--tracking-tight);
+  margin: 0;
+}
+.empty-copy {
+  font: var(--text-body);
+  color: var(--g-ink-2);
+  margin: 0;
+}
+.empty-actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.catalog-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  max-width: 1080px;
+  margin: 0 auto var(--space-3);
+  background: var(--g-danger-tint);
+  border: 1px solid var(--g-danger);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+}
+.catalog-error strong {
+  font: var(--text-body-strong);
+  color: var(--g-ink);
+  display: block;
+}
+.catalog-error span {
+  font: var(--text-small);
+  color: var(--g-ink-2);
+}
+.offline-note {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  max-width: 1080px;
+  margin: 0 auto var(--space-3);
+  font: var(--text-small);
+  color: var(--g-ink-2);
+  background: var(--g-surface-2);
+  border: 1px solid var(--g-line);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 859px) {
+  .shell.is-mobile {
+    height: 100dvh;
+  }
+  .shell.is-mobile .shell-body {
+    flex-direction: column;
+  }
+  .shell.is-mobile .shell-main,
+  .shell.is-mobile .progress-panel {
+    width: 100%;
+    height: auto;
+    flex: 1;
+    min-height: 0;
+    border-left: none;
+  }
+  .shell.is-mobile .canvas {
+    --canvas-pad-top: var(--space-3);
+    --canvas-pad-x: var(--space-3);
+    --canvas-pad-bottom: calc(64px + var(--space-4));
+    padding: var(--canvas-pad-top) var(--canvas-pad-x) var(--canvas-pad-bottom);
+  }
+  .shell.is-mobile .progress-panel {
+    padding-bottom: 64px;
+  }
+  /* Show one pane at a time; MobileNav switches. The class detail is not
+     part of this trade: below 860px it renders in DetailSheet, over the
+     whole shell, so a palette result is visible from either pane. */
+  .shell.is-mobile.show-plan .progress-panel {
+    display: none;
+  }
+  .shell.is-mobile.show-progress .shell-main {
+    display: none;
+  }
 }
 </style>

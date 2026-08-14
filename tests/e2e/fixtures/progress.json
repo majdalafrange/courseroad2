@@ -1,0 +1,30 @@
+{
+  "list-id": "major6-3.reql",
+  "title": "Bachelor of Science in Computer Science and Engineering",
+  "medium-title": "6-3 Major",
+  "short-title": "6-3",
+  "percent_fulfilled": 50,
+  "fulfilled": false,
+  "progress": 1,
+  "max": 2,
+  "threshold-desc": "",
+  "sat-courses": [],
+  "reqs": [
+    {
+      "req": "8.01",
+      "fulfilled": true,
+      "percent_fulfilled": 100,
+      "progress": 1,
+      "max": 1,
+      "sat-courses": ["8.01"]
+    },
+    {
+      "req": "6.006",
+      "fulfilled": false,
+      "percent_fulfilled": 0,
+      "progress": 0,
+      "max": 1,
+      "sat-courses": []
+    }
+  ]
+}

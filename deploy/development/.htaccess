@@ -1,1 +1,10 @@
 ErrorDocument 404 /dev/index.html
+<IfModule mod_headers.c>
+Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://analytics.mit.edu; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://fireroad.mit.edu https://fireroad-dev.mit.edu https://analytics.mit.edu; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+Header always set X-Content-Type-Options "nosniff"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+# Same host as production, so this HSTS value applies site-wide. See the
+# note in deploy/production/.htaccess before raising max-age.
+Header always set Strict-Transport-Security "max-age=86400"
+</IfModule>

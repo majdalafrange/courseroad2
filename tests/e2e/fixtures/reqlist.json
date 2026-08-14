@@ -1,0 +1,23 @@
+{
+  "girs": {
+    "list-id": "girs.reql",
+    "short-title": "GIRs",
+    "medium-title": "General Institute Requirements",
+    "title-no-degree": "GIRs",
+    "title": "General Institute Requirements"
+  },
+  "major6-3": {
+    "list-id": "major6-3.reql",
+    "short-title": "6-3",
+    "medium-title": "6-3 Major",
+    "title-no-degree": "Computer Science and Engineering",
+    "title": "Bachelor of Science in Computer Science and Engineering"
+  },
+  "minor18": {
+    "list-id": "minor18.reql",
+    "short-title": "18",
+    "medium-title": "18 Minor",
+    "title-no-degree": "Mathematics",
+    "title": "Minor in Mathematics"
+  }
+}

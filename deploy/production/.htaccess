@@ -1,1 +1,11 @@
 ErrorDocument 404 /index.html
+<IfModule mod_headers.c>
+Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://analytics.mit.edu; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://fireroad.mit.edu https://analytics.mit.edu; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+Header always set X-Content-Type-Options "nosniff"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+# max-age starts at one day. Raise it to 31536000 once a deploy has been
+# confirmed to serve these headers (curl -sI https://courseroad.mit.edu/):
+# a long max-age is cached by browsers and cannot be shortened quickly.
+Header always set Strict-Transport-Security "max-age=86400"
+</IfModule>

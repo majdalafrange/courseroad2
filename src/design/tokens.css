@@ -1,0 +1,360 @@
+/**
+ * CourseRoad design tokens.
+ *
+ * The language is built like a fine map of a degree: cool MIT-institute
+ * neutrals, structured contour-like hue families, a deep MIT garnet accent,
+ * and motion that always explains where things come from.
+ *
+ * TYPE: three voices, all self-hosted:
+ *   · Space Grotesk (display/headings/wordmark): geometric with just
+ *     enough quirk to feel drawn, not defaulted; its engineering flavor
+ *     suits MIT without cosplay.
+ *   · IBM Plex Sans (UI/body): sober, deliberately engineered humanist
+ *     sans with excellent legibility at small sizes, and pointedly not
+ *     the ubiquitous default UI font.
+ *   · IBM Plex Mono (subject ids, numbers): subject ids like "6.006" are
+ *     the atomic unit of this product; giving them tabular mono treatment
+ *     makes them scan like coordinates on a chart.
+ *
+ * Light and dark are designed as siblings, not inversions: light is
+ * garnet-led on cool paper; dark is basalt where MIT silver carries every
+ * interactive state and cardinal red (--g-brand) is reserved for identity
+ * (the wordmark, the MIT login), so red never reads as an alert on black.
+ * Department colors live in departmentColors.css
+ * (generated; fixed OKLCH bands so contrast is guaranteed by design).
+ *
+ * INTERACTION-STATE STANDARD (every component complies; transitions always
+ * list explicit properties, never `transition: all`):
+ *
+ *   Buttons (and button-shaped things)
+ *     hover     background steps one level (accent → accent-hover,
+ *               surface → surface-2, transparent → accent-tint);
+ *               background-color var(--motion-quick) var(--ease-out);
+ *               no transform.
+ *     active    background steps again + translateY(0.5px) scale(0.99)
+ *               over var(--motion-instant).
+ *     focus     outline: none; box-shadow: var(--g-focus-ring).
+ *     disabled  authored, never opacity: color → --g-ink-disabled,
+ *               background → --g-surface-sunken, borders → --g-line.
+ *     loading   aria-busy, pointer-events none, 12px currentColor spinner;
+ *               reduced motion swaps rotation for an opacity pulse.
+ *
+ *   Inputs (the GInput shell; ad-hoc inputs must adopt it, not re-derive)
+ *     rest      inset 0 0 0 1px var(--g-line-strong)
+ *     hover     inset ring → var(--g-ink-3)
+ *     focus     inset 0 0 0 1.5px var(--g-accent), 0 0 0 3px
+ *               var(--g-accent-tint)
+ *     invalid   same recipe with --g-danger / --g-danger-tint
+ *     disabled  sunken bg + line ring
+ *
+ *   Rows (menu items, palette rows, leaf/branch rows, road lists)
+ *     hover --g-surface-2 (neutral lists) or --g-accent-tint (menus);
+ *     selected --g-accent-tint (+ 3px accent rail where the list has one);
+ *     no transform, no shadow.
+ *
+ *   Reveal-on-hover (card bubbles, row actions)
+ *     opacity 0 + pointer-events none → opacity 1 over var(--motion-quick),
+ *     with the box reserved so rows never reflow. Never display: none.
+ *
+ *   Course chips (reference chips): rest = hairline inset ring, no shadow;
+ *     hover (interactive only) = --g-accent-tint bg; no lift.
+ *     One anatomy, implemented locally where used:
+ *       font: var(--text-id-small); height: 22px; padding: 0 var(--space-2);
+ *       border-radius: var(--radius-sm); background: var(--g-surface);
+ *       box-shadow: inset 0 0 0 1px var(--g-line);
+ *       border-left: 3px solid var(--dept-rest);
+ *
+ *   Caps labels (--text-micro + --tracking-caps + uppercase) are reserved
+ *     for command-palette section heads and term-cell season labels. Every
+ *     other label is sentence case at --text-small.
+ */
+
+:root {
+  /* ---------- department color ----------
+     courseColor() sets --dept-color per element. Full chroma is an
+     interaction state (hover, selection, drag, audit cross-highlight); at
+     rest a rail mixes toward the hairline, so a term column holding five
+     departments reads as encoding rather than as a highlighter set.
+
+     --dept-rest-mix is the one knob: raise it if departments stop being
+     separable, lower it if the canvas still reads loud. The mix itself is
+     written at each point of use, NOT derived into a token here: a custom
+     property resolves its var()s on the element that declares it, so a
+     :root-level --dept-rest would resolve --dept-color to its fallback once
+     and hand every rail the same grey. The rest-state recipe is
+
+       background: color-mix(
+         in srgb,
+         var(--dept-color, var(--g-line-strong)) var(--dept-rest-mix),
+         var(--g-line-strong)
+       );
+
+     and the interaction state is plain var(--dept-color). */
+  --dept-rest-mix: 70%;
+
+  /* ---------- type ---------- */
+  --font-display: "Space Grotesk Variable", "Space Grotesk", "Avenir Next",
+    "Segoe UI", sans-serif;
+  --font-text: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", "SF Mono", "Cascadia Mono", monospace;
+
+  /* type scale: 1.25 ratio anchored at 14px body */
+  --text-display: 600 1.75rem/1.2 var(--font-display); /* 28px */
+  --text-title: 600 1.375rem/1.25 var(--font-display); /* 22px */
+  --text-heading: 600 1.0625rem/1.35 var(--font-display); /* 17px */
+  --text-body-lg: 400 1rem/1.5 var(--font-text); /* 16px, hero inputs (palette) */
+  --text-body: 400 0.875rem/1.5 var(--font-text); /* 14px */
+  --text-body-strong: 600 0.875rem/1.5 var(--font-text);
+  --text-small: 400 0.78125rem/1.45 var(--font-text); /* 12.5px */
+  --text-micro: 500 0.6875rem/1.4 var(--font-text); /* 11px, use with --tracking-caps */
+  --text-id-lg: 600 1.5rem/1.3 var(--font-mono); /* 24px, detail-panel subject id */
+  --text-data: 600 1.375rem/1.25 var(--font-mono); /* 22px, stat values */
+  --text-id: 500 0.875rem/1.4 var(--font-mono); /* subject ids */
+  --text-id-small: 500 0.78125rem/1.35 var(--font-mono);
+  --tracking-caps: 0.06em;
+  /* Space Grotesk sets wide at display sizes; tighten anything ≥22px */
+  --tracking-tight: -0.01em;
+
+  /* ---------- spacing / radius ---------- */
+  /* --space-05 is for optical nudges only (icon baselines, rail gaps);
+     layout stays on the 4px grid */
+  --space-05: 2px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Corners cut like paper, not app icons: the rectilinear MIT plainness.
+     Chips and pills keep --radius-full; that contrast is the point.
+
+     Radius by role (locked; don't flatten this to one value):
+       --radius-xs (3)    micro elements: kbd, tiny row-actions, rename
+                          input, crumbs
+       --radius-sm (4)    controls: buttons, inputs, class cards, menu rows,
+                          term-fit
+       --radius-md (6)    containers: term cells, program cards, strips,
+                          toasts, anchored popovers
+       --radius-lg (10)   scene floats: command palette, sheets/modals
+       --radius-full      pills & bubbles: chips, gauges, dots, year pill,
+                          remove/warn bubbles */
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-full: 999px;
+
+  /* ---------- motion ---------- */
+  /* Choreography rules:
+     1. Things come from where they were and go where they're going;
+        never fade in from nowhere when an origin exists.
+     2. Enter eases out (decelerate into place); exit eases in.
+     3. Distance ∝ duration: small moves are --motion-quick, panel-scale
+        moves are --motion-standard, scene changes --motion-deliberate.
+     4. Settling (drop, completion) may use --ease-settle's slight
+        overshoot; navigation never overshoots. */
+  --motion-instant: 80ms;
+  --motion-quick: 140ms;
+  --motion-standard: 220ms;
+  --motion-deliberate: 340ms;
+  --ease-out: cubic-bezier(0.22, 0.8, 0.36, 1);
+  --ease-in: cubic-bezier(0.55, 0.06, 0.68, 0.19);
+  --ease-in-out: cubic-bezier(0.6, 0.04, 0.3, 1);
+  --ease-settle: cubic-bezier(0.34, 1.36, 0.44, 1);
+}
+
+/* ---------- light: institute paper ---------- */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  --g-bg: #f4f4f5; /* cool institute off-white */
+  --g-surface: #ffffff;
+  --g-surface-2: #f8f8f9; /* nested panels on white */
+  --g-surface-sunken: #eaeaec; /* wells, empty slots */
+  /* the term-cell working surface: white objects on the drafting paper in
+     light; the lifted level in dark */
+  --g-cell: #ffffff;
+
+  --g-ink: #1a1c1f;
+  --g-ink-2: #494d52;
+  /* hints, captions; toward MIT silver. Dark enough to clear 4.5:1 at
+     12.5px on every light surface (5.11 on white, 4.65 on --g-bg). */
+  --g-ink-3: #6b6e75;
+  --g-ink-disabled: #b0b2b8;
+
+  --g-line: #e4e4e7; /* hairlines */
+  --g-line-strong: #cbcbcf;
+
+  /* Plan canvas material: numerals and operators used as a substance, after
+     the lattice of characters in the Alchemist on the Stratton lawn. Drawn by
+     CanvasGlyphs.vue as an SVG pattern rather than a gradient, because the
+     glyphs need the page's own Plex Mono. This token is only the ink.
+
+     Kept at hairline weight: the plan is the hero and the field must never
+     compete with a card. The Connections graph uses --canvas-lattice instead,
+     since its contents pan and zoom. */
+  --canvas-glyph: #e0e0e4;
+
+  /* Graph canvas material: a dot lattice. The tile's size and offset are set
+     on the element from the viewport, so the surface pans and zooms with the
+     graph and dragging has something to move against. Dots rather than
+     contours or ruled lines: the graph's own edges run straight at every
+     angle, and a background stroke near one reads as an edge that isn't
+     there. A lattice has no large-scale structure to mistake for content.
+     The dot sits at the tile origin, so halving the tile drops alternate
+     dots instead of sliding the whole field. */
+  --canvas-lattice: radial-gradient(
+    circle at 0 0,
+    color-mix(in srgb, var(--g-line-strong) 62%, transparent) 0 1.1px,
+    transparent 1.6px
+  );
+
+  /* cardinal: MIT's own red (#A31F34, the Institute's brand cardinal),
+     not a near-miss: the accent is literally the school color. Deep enough
+     to hold white text (7.5:1), never used to mean status. */
+  --g-accent: #a31f34;
+  --g-accent-hover: #8b1a2c;
+  --g-accent-active: #731523;
+  --g-accent-tint: rgba(163, 31, 52, 0.09);
+  --g-accent-tint-strong: rgba(163, 31, 52, 0.17);
+  --g-on-accent: #ffffff;
+
+  /* solid fill for the one primary action: follows the accent in light;
+     dark lightens the silver so the CTA never reads as a disabled slab */
+  --g-accent-fill: var(--g-accent);
+  --g-accent-fill-hover: var(--g-accent-hover);
+  --g-accent-fill-active: var(--g-accent-active);
+
+  /* brand punctuation (wordmark, MIT login); in light it is the accent */
+  --g-brand: #a31f34;
+
+  /* the wordmark tile. Cardinal in both themes, deliberately not overridden
+     below: the mark is one fixed lockup, and the .ico beside it cannot
+     follow a theme. Its white treads carry the contrast (7.5:1). */
+  --g-mark: #a31f34;
+
+  /* degree-progress fill: one calm tonal green; progress is not a warning,
+     so it never borrows the amber. Distinct from --g-ok (functional success
+     like valid drop targets) so that signal stays distinct. */
+  --g-progress: #2f6a4a;
+  --g-progress-tint: rgba(47, 106, 74, 0.12);
+
+  /* semantics */
+  --g-ok: #20762f;
+  --g-ok-tint: rgba(32, 118, 47, 0.12);
+  --g-warn: #92610a;
+  --g-warn-tint: rgba(146, 97, 10, 0.14);
+  --g-danger: #b3261e;
+  --g-danger-tint: rgba(179, 38, 30, 0.1);
+  --g-info: #1c6e8c;
+  --g-info-tint: rgba(28, 110, 140, 0.12);
+
+  --g-focus-ring: 0 0 0 2px var(--g-bg), 0 0 0 4px var(--g-accent);
+
+  --shadow-1: 0 1px 2px rgba(26, 28, 31, 0.08),
+    0 0 0 1px rgba(26, 28, 31, 0.045);
+  /* hover step for small items (class cards, cards); shadow-1 → shadow-2
+     is a popover-scale jump on a 44px card */
+  --shadow-15: 0 2px 6px rgba(26, 28, 31, 0.09),
+    0 0 0 1px rgba(26, 28, 31, 0.045);
+  --shadow-2: 0 2px 10px rgba(26, 28, 31, 0.1),
+    0 0 0 1px rgba(26, 28, 31, 0.045);
+  --shadow-3: 0 10px 32px rgba(26, 28, 31, 0.18),
+    0 0 0 1px rgba(26, 28, 31, 0.05);
+  /* recessed wells (sunken cards, drop zones); themed so dark can deepen it */
+  --shadow-well: inset 0 1px 3px rgba(26, 28, 31, 0.07);
+
+  /* edge of floating surfaces (popovers, toasts, palette); transparent in
+     light because --shadow-3's built-in ring already draws the edge */
+  --g-overlay-line: transparent;
+
+  --g-scrim: rgba(26, 28, 31, 0.4);
+}
+
+/* ---------- dark: basalt, silver-led ---------- */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --g-bg: #151619;
+  --g-surface: #1d1e22;
+  --g-surface-2: #25262b;
+  --g-surface-sunken: #101113;
+  --g-cell: #25262b;
+
+  --g-ink: #ececee;
+  --g-ink-2: #b6b7bc;
+  --g-ink-3: #8f9197; /* 5.29:1 on --g-surface; clears AA at caption sizes */
+  --g-ink-disabled: #565a61;
+
+  --g-line: #2c2d33;
+  --g-line-strong: #42434b;
+
+  /* Glyph field on basalt: lifted just off the background, never up to the
+     hairline, so the field stays behind the cards rather than beside them. */
+  --canvas-glyph: #26272d;
+
+  /* silver workhorse: MIT gray carries every interactive state in dark,
+     so the brand red is never mistaken for an alert */
+  --g-accent: #a6b2bb;
+  --g-accent-hover: #b8c2ca;
+  --g-accent-active: #94a0a9;
+  --g-accent-tint: rgba(166, 178, 187, 0.15);
+  --g-accent-tint-strong: rgba(166, 178, 187, 0.24);
+  --g-on-accent: #10141a;
+
+  /* primary-action fill: the same silver two steps lighter, so the one CTA
+     is unmistakably lit (12.4:1 with --g-on-accent) instead of a mid-gray
+     slab that pattern-matches "disabled" */
+  --g-accent-fill: #cdd5db;
+  --g-accent-fill-hover: #dde3e8;
+  --g-accent-fill-active: #bfc9d0;
+
+  /* cardinal stays for identity only (wordmark, MIT login); 4.66:1 on bg */
+  --g-brand: #d4586c;
+
+  /* degree-progress fill, softened so the tonal green reads on basalt */
+  --g-progress: #74c096;
+  --g-progress-tint: rgba(116, 192, 150, 0.16);
+
+  --g-ok: #69c97c;
+  --g-ok-tint: rgba(105, 201, 124, 0.16);
+  --g-warn: #d9a13f;
+  --g-warn-tint: rgba(217, 161, 63, 0.16);
+  --g-danger: #e57373;
+  --g-danger-tint: rgba(229, 115, 115, 0.14);
+  --g-info: #5db3d4;
+  --g-info-tint: rgba(93, 179, 212, 0.14);
+
+  --g-focus-ring: 0 0 0 2px var(--g-bg), 0 0 0 4px var(--g-accent);
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.045);
+  --shadow-15: 0 2px 6px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-2: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-3: 0 12px 36px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
+  --shadow-well: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+
+  /* dark leans on hairlines: shadows alone can't separate #1d1e22 from
+     #1d1e22, so floating surfaces get a real edge here */
+  --g-overlay-line: #42434b;
+
+  --g-scrim: rgba(0, 0, 0, 0.55);
+}
+
+/* Reduced motion: durations collapse, nothing depends on animation. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-instant: 0.01ms;
+    --motion-quick: 0.01ms;
+    --motion-standard: 0.01ms;
+    --motion-deliberate: 0.01ms;
+  }
+}

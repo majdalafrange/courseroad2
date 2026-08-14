@@ -1,0 +1,91 @@
+[
+  {
+    "subject_id": "8.01",
+    "title": "Classical Mechanics",
+    "total_units": 12,
+    "offered_fall": true,
+    "offered_IAP": false,
+    "offered_spring": true,
+    "offered_summer": false,
+    "gir_attribute": "PHY1",
+    "in_class_hours": 5,
+    "out_of_class_hours": 9
+  },
+  {
+    "subject_id": "18.01",
+    "title": "Calculus",
+    "total_units": 12,
+    "offered_fall": true,
+    "offered_IAP": false,
+    "offered_spring": true,
+    "offered_summer": false,
+    "gir_attribute": "CAL1"
+  },
+  {
+    "subject_id": "18.02",
+    "title": "Multivariable Calculus",
+    "total_units": 12,
+    "offered_fall": true,
+    "offered_IAP": false,
+    "offered_spring": true,
+    "offered_summer": false,
+    "gir_attribute": "CAL2",
+    "prerequisites": "GIR:CAL1"
+  },
+  {
+    "subject_id": "8.02",
+    "title": "Electricity and Magnetism",
+    "total_units": 12,
+    "offered_fall": true,
+    "offered_IAP": false,
+    "offered_spring": true,
+    "offered_summer": false,
+    "gir_attribute": "PHY2",
+    "prerequisites": "GIR:PHY1",
+    "corequisites": "GIR:CAL2"
+  },
+  {
+    "subject_id": "6.0001",
+    "title": "Introduction to CS Programming in Python",
+    "total_units": 6,
+    "offered_fall": true,
+    "offered_IAP": false,
+    "offered_spring": true,
+    "offered_summer": false,
+    "quarter_information": "0,apr 15",
+    "prerequisites": "GIR:CAL1"
+  },
+  {
+    "subject_id": "6.0002",
+    "title": "Introduction to Computational Thinking",
+    "total_units": 6,
+    "offered_fall": true,
+    "offered_IAP": false,
+    "offered_spring": true,
+    "offered_summer": false,
+    "quarter_information": "1,apr 15",
+    "prerequisites": "6.0001"
+  },
+  {
+    "subject_id": "6.006",
+    "title": "Introduction to Algorithms",
+    "total_units": 12,
+    "offered_fall": true,
+    "offered_IAP": false,
+    "offered_spring": true,
+    "offered_summer": false,
+    "prerequisites": "(6.0001/6.00/6.01), (6.042/6.1200/18.062)",
+    "in_class_hours": 4,
+    "out_of_class_hours": 10
+  },
+  {
+    "subject_id": "21M.301",
+    "title": "Harmony and Counterpoint I",
+    "total_units": 12,
+    "offered_fall": true,
+    "offered_IAP": false,
+    "offered_spring": true,
+    "offered_summer": false,
+    "hass_attribute": "HASS-A"
+  }
+]

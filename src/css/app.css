@@ -1,26 +1,105 @@
-@import "@fontsource/roboto/100.css";
-@import "@fontsource/roboto/300.css";
-@import "@fontsource/roboto/400.css";
-@import "@fontsource/roboto/500.css";
-@import "@fontsource/roboto/700.css";
-@import "@fontsource/roboto/900.css";
+/* Global base styles. Design tokens live in src/design/tokens.css. */
 
-.v-expansion-panel-content__wrap {
-  padding: 0 !important;
+/* One box model everywhere. Without this, divs measure content-box while
+   form controls get border-box from the UA stylesheet, so any padded
+   width:100% element (e.g. palette rows) silently overflows its parent. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-.v-treeview-node__label {
-  overflow: visible !important;
+html {
+  overflow-y: auto;
 }
 
-.v-treeview-node__root:before {
-  background-color: transparent !important;
+body {
+  background: var(--g-bg);
+  color: var(--g-ink);
+  font-family: var(--font-text);
+  margin: 0;
 }
 
-.v-treeview-node__level {
-  width: 8px !important;
+#app-wrapper {
+  min-height: 100vh;
 }
 
-.v-treeview--dense .v-treeview-node__root {
-  min-height: 36px !important;
+/* Theme switch crossfade: enabled for ~300ms only while toggling, so
+   normal interactions stay snappy (see applyThemeAttribute). */
+.theme-transitioning,
+.theme-transitioning *:not(.drag-ghost) {
+  transition:
+    background-color var(--motion-standard) var(--ease-in-out),
+    border-color var(--motion-standard) var(--ease-in-out),
+    color var(--motion-standard) var(--ease-in-out),
+    box-shadow var(--motion-standard) var(--ease-in-out) !important;
+}
+
+/* The drag ghost lives outside any component (created by the drag
+   controller), so its styles are global. */
+.drag-ghost {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--g-surface);
+  border-left: 6px solid var(--ghost-color, var(--g-ink-3));
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-3);
+  padding: 6px 10px;
+  max-width: 220px;
+  will-change: transform;
+}
+.drag-ghost-id {
+  font: var(--text-id-small);
+  color: var(--g-ink);
+}
+.drag-ghost-title {
+  font: var(--text-small);
+  color: var(--g-ink-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* "Jump to it" flash when the detail view points you at a term cell. */
+.jump-flash {
+  animation: jump-flash 1.2s var(--ease-out);
+}
+@keyframes jump-flash {
+  0%,
+  100% {
+    box-shadow: none;
+  }
+  30% {
+    box-shadow:
+      0 0 0 2px var(--g-accent),
+      0 0 0 6px var(--g-accent-tint-strong);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jump-flash {
+    animation: none;
+  }
+}
+
+/* Quiet, consistent scrollbars. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--g-line-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--g-line-strong);
+  border-radius: var(--radius-full);
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
 }
