@@ -7,6 +7,7 @@
       'show-progress': !isExplore && mobileView === 'progress',
     }"
   >
+    <mobile-notice v-if="isMobile" />
     <shell-header
       @open-search="paletteOpen = true"
       @undo="doUndo"
@@ -188,6 +189,7 @@ import CookieConsent from "../components/shell/CookieConsent.vue";
 import CustomClass from "../components/sheets/CustomClass.vue";
 import RoadCanvas from "../components/canvas/RoadCanvas.vue";
 import MobileNav from "../components/shell/MobileNav.vue";
+import MobileNotice from "../components/shell/MobileNotice.vue";
 import ShellHeader from "../components/shell/ShellHeader.vue";
 import GButton from "../design/components/GButton.vue";
 import CanvasGlyphs from "../components/canvas/CanvasGlyphs.vue";

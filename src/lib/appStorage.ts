@@ -31,6 +31,7 @@ export const STORAGE_KEYS = {
   versionNumber: "versionNumber",
   hasOnboarded: "hasOnboarded",
   dismissedAndroidWarning: "dismissedAndroidWarning",
+  dismissedMobileNotice: "dismissedMobileNotice",
   hideIAP: "hideIAP",
   showFifthYear: "showFifthYear",
   /** Set once the legacy cookie migration has run; see legacyStorage.ts. */
