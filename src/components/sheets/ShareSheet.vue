@@ -58,12 +58,13 @@ import { computed, watch, ref } from "vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GSheet from "../../design/components/GSheet.vue";
 import { toast } from "../../design/toast";
+import { useIsMobile } from "../../composables/useIsMobile";
 import { downloadRoadFile } from "../../lib/download";
 import {
   buildRoadPoster,
-  downloadPng,
   preparePosterFonts,
   rasterizeToPng,
+  savePng as savePngFile,
 } from "../../lib/poster";
 import { useCourseDataStore } from "../../stores/courseData";
 
@@ -79,6 +80,7 @@ const store = useCourseDataStore();
 
 const road = computed(() => store.roads[store.activeRoad]);
 const roadName = computed(() => road.value?.name ?? "");
+const isMobile = useIsMobile();
 
 const posterSvg = ref("");
 
@@ -115,8 +117,18 @@ async function exportSvg(): Promise<string> {
 async function savePng() {
   try {
     const png = await rasterizeToPng(await exportSvg(), 2);
-    downloadPng(png, `${roadName.value}.png`);
-    toast.ok("Your image is saved!");
+    const outcome = await savePngFile(
+      png,
+      `${roadName.value}.png`,
+      isMobile.value,
+    );
+    if (outcome !== "cancelled") {
+      toast.ok(
+        outcome === "shared"
+          ? "Your image is ready to save."
+          : "Your image is saved!",
+      );
+    }
   } catch {
     toast.danger("We couldn't render the image", "Try the PDF option instead.");
   }

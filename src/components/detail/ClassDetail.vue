@@ -125,9 +125,9 @@
         *Hours averaged over all {{ subject.subject_id }} subjects.
       </p>
 
-      <!-- explore connections -->
+      <!-- explore connections: not offered on mobile -->
       <button
-        v-if="inCatalog"
+        v-if="inCatalog && !isMobile"
         class="explore-link"
         data-cy="exploreFromDetail"
         @click="exploreFromHere"
@@ -313,6 +313,7 @@ import GButton from "../../design/components/GButton.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GTooltip from "../../design/components/GTooltip.vue";
 import PrereqTree from "./PrereqTree.vue";
+import { useIsMobile } from "../../composables/useIsMobile";
 import { courseColor } from "../../lib/colors";
 import { safeHref } from "../../lib/courseLinks";
 import {
@@ -335,6 +336,7 @@ import { pointerDown } from "../../stores/dragdrop";
 const store = useCourseDataStore();
 const router = useRouter();
 const bodyEl = ref<HTMLElement>();
+const isMobile = useIsMobile();
 
 /** Seed Connections from this subject (the highest-intent entry point). */
 function exploreFromHere() {

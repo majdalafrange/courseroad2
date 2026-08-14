@@ -16,15 +16,6 @@
       <g-icon name="check" :size="18" />
       <span>Progress</span>
     </button>
-    <button
-      class="mobile-tab"
-      :class="{ active: active === 'explore' }"
-      data-cy="mobileExploreTab"
-      @click="emit('navigate', 'explore')"
-    >
-      <g-icon name="graph" :size="18" />
-      <span>Explore</span>
-    </button>
     <button class="mobile-tab search-tab" @click="emit('search')">
       <g-icon name="search" :size="18" />
       <span>Find</span>
@@ -36,11 +27,11 @@
 import GIcon from "../../design/components/GIcon.vue";
 
 defineProps<{
-  active: "plan" | "progress" | "explore";
+  active: "plan" | "progress";
 }>();
 
 const emit = defineEmits<{
-  (e: "navigate", view: "plan" | "progress" | "explore"): void;
+  (e: "navigate", view: "plan" | "progress"): void;
   (e: "search"): void;
 }>();
 </script>

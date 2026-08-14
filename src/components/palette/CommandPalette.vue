@@ -187,6 +187,7 @@ import {
 } from "vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GKbd from "../../design/components/GKbd.vue";
+import { useIsMobile } from "../../composables/useIsMobile";
 import { courseColor } from "../../lib/colors";
 import { subjectHoursLabel } from "../../lib/hours";
 import {
@@ -214,6 +215,7 @@ const emit = defineEmits<{
 
 const store = useCourseDataStore();
 const auditStore = useAuditStore();
+const isMobile = useIsMobile();
 
 const inputEl = ref<HTMLInputElement>();
 const listEl = ref<HTMLElement>();
@@ -326,13 +328,6 @@ const baseActions = computed<PaletteAction[]>(() => {
       run: () => emit("action", "toggle-theme"),
     },
     {
-      label: "Explore connections",
-      detail: "Open Connections to discover subjects related to yours",
-      icon: "graph",
-      keywords: "explore connections graph discover related crossings",
-      run: () => emit("action", "open-explore"),
-    },
-    {
       label: "New road",
       icon: "plus",
       keywords: "new road create plan",
@@ -378,6 +373,17 @@ const baseActions = computed<PaletteAction[]>(() => {
       icon: "redo",
       keywords: "redo again forward",
       run: () => emit("action", "redo"),
+    });
+  }
+  // Connections' graph isn't offered on mobile: it's easy to expand into
+  // something heavy enough to slow down or crash the browser there.
+  if (!isMobile.value) {
+    actions.push({
+      label: "Explore connections",
+      detail: "Open Connections to discover subjects related to yours",
+      icon: "graph",
+      keywords: "explore connections graph discover related crossings",
+      run: () => emit("action", "open-explore"),
     });
   }
   // jump to roads

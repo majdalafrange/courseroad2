@@ -26,7 +26,9 @@
 
     <div class="shell-body">
       <div class="shell-main">
-        <connections-page v-if="isExplore" />
+        <!-- Never mounted on mobile: the graph can grow heavy enough to
+             slow down or crash a phone's browser. -->
+        <connections-page v-if="isExplore && !isMobile" />
 
         <main v-else id="canvasScroll" class="canvas">
           <!-- The glyph field sizes to the plan, not the viewport, so it
@@ -54,6 +56,10 @@
               You're offline, but you can keep planning. We'll sync your changes
               when you're back.
             </div>
+            <div v-else-if="roadLoading" class="road-loading" role="status">
+              <span class="road-loading-spinner" aria-hidden="true" />
+              Loading this plan…
+            </div>
 
             <div
               v-if="showEmptyState && !store.catalogError"
@@ -72,7 +78,7 @@
             </div>
 
             <road-canvas
-              v-if="activeRoad !== '' && activeRoad in roads"
+              v-if="activeRoad !== '' && activeRoad in roads && !roadLoading"
               :key="activeRoad"
               :selected-subjects="roads[activeRoad].contents.selectedSubjects"
               :road-i-d="activeRoad"
@@ -162,7 +168,7 @@
     <cookie-consent />
     <mobile-nav
       v-if="isMobile"
-      :active="isExplore ? 'explore' : mobileView"
+      :active="mobileView"
       @navigate="onMobileNavigate"
       @search="paletteOpen = true"
     />
@@ -315,7 +321,16 @@ const roads = computed(() => store.roads);
 const activeRoad = computed(() => store.activeRoad);
 const detailOpen = computed(() => store.classInfoStack.length > 0);
 const isExplore = computed(() => route.path === "/explore");
+// True while the active road is still a blank placeholder awaiting its
+// first fetch (see auth.retrieveRoad). Without this its empty placeholder
+// reads as "Search for a class" instead of "still loading".
+const roadLoading = computed(() =>
+  store.unretrieved.includes(activeRoad.value),
+);
 const showEmptyState = computed(() => {
+  if (roadLoading.value) {
+    return false;
+  }
   const road = store.roads[store.activeRoad];
   if (road === undefined) {
     return false;
@@ -328,7 +343,8 @@ const { toggleTheme } = useTheme();
 
 /* ---- Plan ⁄ Explore mode ---- */
 function navigateMode(mode: "plan" | "explore") {
-  if (mode === "explore") {
+  // Every entry point already hides itself on mobile; this is the backstop.
+  if (mode === "explore" && !isMobile.value) {
     router.push("/explore");
   } else {
     router.push(
@@ -338,16 +354,21 @@ function navigateMode(mode: "plan" | "explore") {
 }
 
 /** Bottom-nav taps. Progress lives in plan mode, so it navigates there too. */
-function onMobileNavigate(view: "plan" | "progress" | "explore") {
-  if (view === "explore") {
-    navigateMode("explore");
-    return;
-  }
+function onMobileNavigate(view: "plan" | "progress") {
   mobileView.value = view;
-  if (isExplore.value) {
-    navigateMode("plan");
-  }
 }
+
+// Explore's URL is still reachable directly on mobile (a bookmark, a
+// resize while it's open); bounce back to the plan instead.
+watch(
+  [isMobile, isExplore],
+  ([mobile, explore]) => {
+    if (mobile && explore) {
+      navigateMode("plan");
+    }
+  },
+  { immediate: true },
+);
 
 /* ---- road-change orchestration (replaces the legacy deep watcher) ---- */
 onRoadChange((event) => {
@@ -369,8 +390,10 @@ watch(
   () => store.activeRoad,
   (newRoad) => {
     if (store.unretrieved.indexOf(newRoad) >= 0 && !auth.gettingUserData) {
+      // retrieveRoad marks the road retrieved itself on success; this just
+      // needs to run the audit once the fetch lands.
       auth.retrieveRoad(newRoad).then(() => {
-        store.setRetrieved(newRoad);
+        auditStore.updateFulfillment(store.fulfillmentNeeded);
       });
     } else if (newRoad !== "") {
       auditStore.updateFulfillment(store.fulfillmentNeeded);
@@ -828,7 +851,8 @@ onBeforeUnmount(() => {
   font: var(--text-small);
   color: var(--g-ink-2);
 }
-.offline-note {
+.offline-note,
+.road-loading {
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -840,6 +864,26 @@ onBeforeUnmount(() => {
   border: 1px solid var(--g-line);
   border-radius: var(--radius-md);
   padding: var(--space-2) var(--space-4);
+}
+.road-loading-spinner {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  animation: road-loading-spin 800ms linear infinite;
+}
+@keyframes road-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .road-loading-spinner {
+    animation: none;
+    border-color: currentColor;
+  }
 }
 
 /* ---------- responsive ---------- */

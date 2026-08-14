@@ -139,16 +139,6 @@
         </template>
         <div class="more-menu" @click.stop>
           <button
-            class="more-item mobile-only"
-            @click="
-              moreOpen = false;
-              emit('navigate-mode', isExplore ? 'plan' : 'explore');
-            "
-          >
-            <g-icon name="graph" :size="14" />
-            {{ isExplore ? "Back to the plan" : "Explore subjects" }}
-          </button>
-          <button
             class="more-item"
             data-cy="shareRoadButton"
             @click="closeAnd('open-share')"

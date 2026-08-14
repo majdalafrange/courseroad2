@@ -39,6 +39,17 @@ import { useCourseDataStore } from "./courseData";
 const SAVE_DEBOUNCE_MS = 600;
 
 /**
+ * Road ids with a getRoad request in flight, keyed to that request's
+ * promise. A background prefetch (see getUserData) and a manual switch to
+ * the same road can now overlap; this lets the second caller share the
+ * first's result instead of firing a redundant fetch.
+ */
+const roadFetchesInFlight = new Map<
+  string,
+  Promise<Awaited<ReturnType<typeof fireroad.getRoad>> | undefined>
+>();
+
+/**
  * Whether an error is evidence the login itself is gone (missing token,
  * or the server refusing it) rather than a transient network/server
  * failure. Only auth failures may wipe local state: logoutUser() clears
@@ -126,31 +137,60 @@ export const useAuthStore = defineStore("auth", {
       return Promise.reject(new Error("Token not valid"));
     },
 
-    async retrieveRoad(roadID: string) {
-      const store = useCourseDataStore();
-      this.gettingUserData = true;
-      const roadData = await fireroad.getRoad(roadID);
-      if (!(
-        roadData.status === 200 &&
-        roadData.data.success &&
-        roadData.data.file
-      )) {
-        // Server error, deleted road, or malformed payload: skip gracefully
-        // instead of dereferencing an absent `file`. Dereferencing it here
-        // throws, and the caller's catch runs logoutUser() →
-        // localStorage.clear() + reload; a corrupt cloud road would wipe
-        // the user's local data and loop them out of login.
-        this.gettingUserData = false;
-        return roadData;
+    async retrieveRoad(roadID: string, options: { background?: boolean } = {}) {
+      // Already in flight (e.g. a background prefetch): share its result.
+      const existing = roadFetchesInFlight.get(roadID);
+      if (existing !== undefined) {
+        return existing;
       }
-      roadData.data.file.downloaded = formatFireroadDate();
-      roadData.data.file.changed = formatFireroadDate();
-      sanitizeRoad(roadData.data.file);
-      store.setRoad({ id: roadID, road: roadData.data.file, ignoreSet: true });
-      store.setRetrieved(roadID);
-      store.waitAndMigrateOldSubjects(roadID);
-      this.gettingUserData = false;
-      return roadData;
+      const store = useCourseDataStore();
+      // Background prefetches skip gettingUserData: it drives the header's
+      // "Loading…" state, which shouldn't flash for work the user never
+      // asked for.
+      if (options.background !== true) {
+        this.gettingUserData = true;
+      }
+      const fetchPromise = (async () => {
+        try {
+          const roadData = await fireroad.getRoad(roadID);
+          if (!(
+            roadData.status === 200 &&
+            roadData.data.success &&
+            roadData.data.file
+          )) {
+            // Server error, deleted road, or malformed payload: skip
+            // gracefully instead of dereferencing an absent `file`, and
+            // leave it in `unretrieved` so switching to it again retries.
+            return roadData;
+          }
+          roadData.data.file.downloaded = formatFireroadDate();
+          roadData.data.file.changed = formatFireroadDate();
+          sanitizeRoad(roadData.data.file);
+          store.setRoad({
+            id: roadID,
+            road: roadData.data.file,
+            ignoreSet: true,
+          });
+          store.setRetrieved(roadID);
+          store.waitAndMigrateOldSubjects(roadID);
+          return roadData;
+        } catch (err) {
+          // A dropped request (flaky connection, a blocked/blocking
+          // extension, ...): leave the road in `unretrieved` so the next
+          // switch retries instead of the caller hanging on this forever.
+          console.error(`Road retrieval failed for ${roadID}:`, err);
+          return undefined;
+        }
+      })();
+      roadFetchesInFlight.set(roadID, fetchPromise);
+      try {
+        return await fetchPromise;
+      } finally {
+        roadFetchesInFlight.delete(roadID);
+        if (options.background !== true) {
+          this.gettingUserData = false;
+        }
+      }
     },
 
     async getUserData(routeRoadID?: string) {
@@ -214,6 +254,15 @@ export const useAuthStore = defineStore("auth", {
           }
         }
         this.gettingUserData = false;
+        // Warm the rest of the user's roads in the background, one at a
+        // time, so switching to them later finds the data already there.
+        void (async () => {
+          for (const id of fileKeys) {
+            if (store.unretrieved.includes(id)) {
+              await this.retrieveRoad(id, { background: true });
+            }
+          }
+        })();
       } catch (err) {
         this.gettingUserData = false;
         if (
