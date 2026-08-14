@@ -95,7 +95,7 @@ export function convertReqToID(category: string): RegExp | string {
   if (category.indexOf('"') === category.length - 1) {
     category = category.slice(0, -1);
   }
-  let idCategory: RegExp | string = "";
+  let idCategory: RegExp | string;
   if (
     category === "Comparative" ||
     category === "CMS" ||

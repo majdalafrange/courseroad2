@@ -114,8 +114,11 @@ function isSnapshot(value: unknown): value is ConnectionsSnapshot {
  */
 export class SessionConnectionsPersistence implements ConnectionsPersistence {
   private memory = new InMemoryConnectionsPersistence();
+  private allowed: () => boolean;
 
-  constructor(private allowed: () => boolean = () => true) {}
+  constructor(allowed: () => boolean = () => true) {
+    this.allowed = allowed;
+  }
 
   load(): ConnectionsSnapshot | undefined {
     if (!this.allowed()) {

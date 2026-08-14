@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.vitest.tsbuildinfo",
+    // Specs may read fixtures from disk; src stays node-free (the app
+    // tsconfig has no node types, so an fs import in src fails there).
+    "types": ["node", "vite/client"]
+  },
+  "include": ["tests/**/*"]
+}
