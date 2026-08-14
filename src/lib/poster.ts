@@ -335,18 +335,13 @@ export function rasterizeToPng(svg: string, scale = 2): Promise<string> {
 export type SavePngOutcome = "shared" | "downloaded" | "cancelled";
 
 /**
- * Save a PNG data URL, preferring the OS share sheet on mobile.
- *
- * `<a download>` on a data: URL works on desktop but not on mobile WebKit
- * (Safari, and anything else on iOS): tapping it just opens the image, and
- * `.click()` never throws to say so. The Web Share API's file sheet is
- * what actually saves there, via the OS's own "Save Image" action.
+ * Save a PNG data URL, preferring the OS share sheet on a touch device.
  */
 export async function savePng(
   dataUrl: string,
   filename: string,
-  preferShare: boolean,
 ): Promise<SavePngOutcome> {
+  const preferShare = matchMedia("(pointer: coarse)").matches;
   if (preferShare && navigator.canShare !== undefined) {
     try {
       const blob = await (await fetch(dataUrl)).blob();
