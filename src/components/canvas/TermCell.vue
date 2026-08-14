@@ -113,7 +113,7 @@
     <div v-if="!collapsedPrior" class="term-classes">
       <class-card
         v-for="(subject, subjIndex) in subjects"
-        :key="subject.subject_id + '-' + subjIndex"
+        :key="subjectKeys[subjIndex]"
         :subject="subject"
         :semester-index="index"
         :class-index="subjIndex"
@@ -243,6 +243,24 @@ function openPaletteForTerm() {
 }
 
 const info = computed(() => semesterInformation(props.subjects, store.catalog));
+
+/**
+ * Stable per-card keys: subject_id alone, unless the same id repeats in this
+ * term (two identically-named custom activities), in which case later
+ * occurrences get a suffix. Plain subject_id (not subject_id + array index,
+ * as before) means reordering cards in this term via drag or keyboard-move
+ * no longer changes every surviving card's key, so Vue patches the moved
+ * DOM node instead of tearing down and recreating the whole row.
+ */
+const subjectKeys = computed<string[]>(() => {
+  const seen = new Map<string, number>();
+  return props.subjects.map((subject) => {
+    const id = subject.subject_id;
+    const occurrence = seen.get(id) ?? 0;
+    seen.set(id, occurrence + 1);
+    return occurrence === 0 ? id : `${id}-${occurrence}`;
+  });
+});
 
 /** 60h/week ≈ a death semester; the gauge tops out there. */
 const loadPercent = computed(() =>

@@ -167,8 +167,7 @@ const pickerResults = computed(() => {
         query === "" ||
         entry["medium-title"].toLowerCase().includes(query) ||
         entry.key.toLowerCase().includes(query),
-    )
-    .slice(0, 12);
+    );
 });
 
 function openPicker() {

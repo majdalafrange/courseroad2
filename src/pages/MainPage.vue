@@ -179,18 +179,12 @@ import {
 } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
-import AboutSheet from "../components/sheets/AboutSheet.vue";
 import AuditPanel from "../components/audit/AuditPanel.vue";
 import ClassDetail from "../components/detail/ClassDetail.vue";
 import DetailSheet from "../components/detail/DetailSheet.vue";
 import CommandPalette from "../components/palette/CommandPalette.vue";
-import CompareRoads from "../components/sheets/CompareRoads.vue";
-import ConflictDialog from "../components/sheets/ConflictDialog.vue";
 import CookieConsent from "../components/shell/CookieConsent.vue";
 import CustomClass from "../components/sheets/CustomClass.vue";
-import ImportDialog from "../components/sheets/ImportDialog.vue";
-import Onboarding from "../components/sheets/Onboarding.vue";
-import ShareSheet from "../components/sheets/ShareSheet.vue";
 import RoadCanvas from "../components/canvas/RoadCanvas.vue";
 import MobileNav from "../components/shell/MobileNav.vue";
 import ShellHeader from "../components/shell/ShellHeader.vue";
@@ -203,6 +197,32 @@ import GPopover from "../design/components/GPopover.vue";
 // first entry to Explore instead of riding along with every plan view.
 const ConnectionsPage = defineAsyncComponent(
   () => import("./ConnectionsPage.vue"),
+);
+
+// Lazy: none of these render on first paint (each is gated behind a v-model
+// a menu click flips), so shipping them in the initial chunk only delays
+// time-to-interactive for the plan canvas every visit pays for. No typed
+// template ref reaches into any of them, so the async wrapper costs nothing
+// at the call sites below. CustomClass and CommandPalette stay eager: both
+// are reached through a typed ref (openNewClass/openWithTokens), and the
+// palette in particular is expected to answer ⌘K instantly.
+const AboutSheet = defineAsyncComponent(
+  () => import("../components/sheets/AboutSheet.vue"),
+);
+const CompareRoads = defineAsyncComponent(
+  () => import("../components/sheets/CompareRoads.vue"),
+);
+const ConflictDialog = defineAsyncComponent(
+  () => import("../components/sheets/ConflictDialog.vue"),
+);
+const ImportDialog = defineAsyncComponent(
+  () => import("../components/sheets/ImportDialog.vue"),
+);
+const Onboarding = defineAsyncComponent(
+  () => import("../components/sheets/Onboarding.vue"),
+);
+const ShareSheet = defineAsyncComponent(
+  () => import("../components/sheets/ShareSheet.vue"),
 );
 
 import { toast } from "../design/toast";
