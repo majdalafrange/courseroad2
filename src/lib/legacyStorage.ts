@@ -1,30 +1,24 @@
 /**
- * One-time move of legacy cookie state into origin-isolated storage.
+ * One-time move of legacy cookie state into origin-isolated storage, run
+ * once per browser before the app reads any state. After this the app
+ * never reads `document.cookie` again, so a cookie planted by another
+ * `*.mit.edu` host is inert. The guarantee comes from ignoring cookies,
+ * not clearing them (a `Domain=.mit.edu` cookie can't be deleted from
+ * this origin anyway).
  *
- * Runs once per browser, before the app reads any state. After it has run
- * the app never reads `document.cookie` again, so a cookie planted by
- * another `*.mit.edu` host is inert from then on. That matters because a
- * cookie carrying `Domain=.mit.edu` cannot be deleted from this origin (a
- * host-only delete does not match it); the guarantee comes from ignoring
- * cookies entirely, not from clearing them.
+ * Rule for what crosses: migrate DATA, never authority/control flags. A
+ * cookie present at migration time can't be told apart from an
+ * attacker's plant.
  *
- * The rule for what crosses the boundary: migrate DATA, never authority or
- * control flags. A cookie present at migration time cannot be told apart
- * from one an attacker planted, so anything that grants access or triggers
- * a destructive branch is dropped rather than trusted.
- *
- * - `accessInfo` (the bearer token) is dropped: importing it would carry a
- *   session-fixation risk across the very boundary this establishes. Users
- *   log in once more; their roads are already in FireRoad.
- * - `versionNumber` is dropped and rewritten to the current version: a
- *   mismatched value triggers the local-state reset, so honoring a planted
- *   one would hand an attacker a remote wipe.
- * - `hasLoggedIn` and the consent answer are dropped: both are decisions,
- *   and re-asking once is cheaper than honoring a forged answer.
- * - Roads created while logged out ARE migrated, through the same
- *   validator the cookie path used. They are the student's own work, they
- *   are visible and deletable in the UI, and losing them is the worse
- *   failure.
+ * - `accessInfo` (bearer token): dropped, avoids a session-fixation risk;
+ *   users just log in again.
+ * - `versionNumber`: dropped and rewritten, since a planted mismatch
+ *   would trigger the local-state-reset branch (a remote wipe).
+ * - `hasLoggedIn`/consent answer: dropped; re-asking once is cheaper than
+ *   honoring a forged answer.
+ * - Roads created while logged out: migrated (through the same validator
+ *   the cookie path uses), since they're the student's own work, and
+ *   losing them is the worse failure.
  */
 
 import { APP_VERSION, STORAGE_KEYS, readValue, writeValue } from "./appStorage";

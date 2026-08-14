@@ -1,15 +1,12 @@
 /**
- * Core types for Connections, CourseRoad's course-discovery graph.
+ * Core types for Connections, CourseRoad's course-discovery graph. Built
+ * entirely from the cached FireRoad catalog: nodes are real subjects,
+ * edges are prerequisite relationships. Framework-free, derived from a
+ * `CatalogView`: no Vue, no Pinia, no DOM.
  *
- * The graph is built entirely from the cached FireRoad catalog: nodes are
- * real subjects, edges are prerequisite relationships between them.
- * Everything here is framework-free and derived from a `CatalogView`; no
- * Vue, no Pinia, no DOM. This is the unit-tested heart of the feature.
- *
- * A note on identity: an edge is keyed by the *unordered* pair of its
- * endpoints, so two subjects are connected by at most one edge no matter
- * how many reasons relate them. Direction is carried as a property of the
- * edge, not as a second parallel edge.
+ * An edge is keyed by the *unordered* pair of its endpoints, so two
+ * subjects share at most one edge no matter how many reasons relate
+ * them; direction is a property of the edge, not a second parallel edge.
  */
 
 /**

@@ -143,7 +143,7 @@
         </section>
       </div>
       <div v-else class="compare-same">
-        Pick two different roads to compare them.
+        Pick two different roads and we'll compare them side by side.
       </div>
     </div>
   </g-sheet>
@@ -302,6 +302,7 @@ function close() {
 }
 .road-select {
   flex: 1;
+  min-width: 0;
   font: var(--text-body-strong);
   color: var(--g-ink);
   background: var(--g-surface-2);

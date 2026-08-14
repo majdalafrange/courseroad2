@@ -1,21 +1,13 @@
 /**
- * Degree fit: ordering every major and minor by how far the active road
- * already carries a student toward it.
+ * Degree fit: ranks majors/minors by progress toward the active road.
+ * Never re-derives fulfillment, reads FireRoad's own `percent_fulfilled`
+ * from the same `/requirements/progress/` tree the audit panel renders. No
+ * scoring model, no inference.
  *
- * This module never re-derives fulfillment. The audit is FireRoad's, and
- * the ranking reads the same `/requirements/progress/` tree the audit panel
- * renders, ordering programs by FireRoad's own top-level
- * `percent_fulfilled` (the number `ProgramSection` shows as "N% complete").
- * There is no scoring model and no inference here.
- *
- * Why percent, and not a count of subjects left: a program's top-level
- * `max` is FireRoad's normalized progress scale, not a subject count.
- * 16-ENG has a 72-unit child requirement and still reports a top-level max
- * of 16, so raw counts are not comparable across programs. Percent is that
- * same ratio expressed on each program's own scale.
- *
- * For the same reason majors and minors are ranked in separate groups: a
- * minor scored out of 6 and a major scored out of 16 are not one list.
+ * Percent, not a subject count: a program's top-level `max` is FireRoad's
+ * normalized scale, not a subject count (16-ENG's max is 16 for a 72-unit
+ * requirement), so raw counts aren't comparable across programs. For
+ * the same reason, majors and minors rank in separate groups.
  */
 
 import type { ReqListEntry, RequirementNode } from "./types";

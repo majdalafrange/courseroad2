@@ -1,14 +1,12 @@
 /**
- * Per-class warning computation for a semester bucket.
+ * Per-class warning computation for a semester bucket. Ported exactly
+ * from Semester.vue's `warnings`, including the quarter-aware
+ * prerequisite window (a second-half-term class may use first-half-term
+ * classes in the same semester as prereqs).
  *
- * Ported exactly from Semester.vue's `warnings` computed property,
- * including the quarter-aware prerequisite window (a second-half-term
- * class may use first-half-term classes in the same semester as prereqs)
- * and the HTML warning strings shown in the UI.
- *
- * WARNING: warning strings are rendered as HTML. They only ever embed
- * catalog data from FireRoad (never user input from custom activities,
- * which are skipped entirely); keep it that way to avoid XSS.
+ * WARNING: these strings render as HTML. They only ever embed FireRoad
+ * catalog data. Never user input from custom activities (skipped
+ * entirely). Keep it that way to avoid XSS.
  */
 
 import type { CatalogView, SelectedSubject, Subject } from "./types";

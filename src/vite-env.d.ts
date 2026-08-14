@@ -2,15 +2,14 @@
 
 interface ViteTypeOptions {
   // disallows unknown keys
-  strictImportMetaEnv: unknown
+  strictImportMetaEnv: unknown;
 }
 
 interface ImportMetaEnv {
-  readonly VITE_URL: string
-  readonly VITE_FIREROAD_URL: string
+  readonly VITE_URL: string;
+  readonly VITE_FIREROAD_URL: string;
 }
 
 interface ImportMeta {
-  readonly env: ImportMetaEnv
+  readonly env: ImportMetaEnv;
 }
-  

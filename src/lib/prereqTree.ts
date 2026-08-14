@@ -1,12 +1,11 @@
 /**
  * Parses FireRoad prerequisite/corequisite strings (e.g.
  * "6.0001/(6.01, 6.02)") into a recursive any/all tree with live
- * fulfilled-state from the student's own plan, for the class-detail view.
- *
- * Ported exactly from ClassInfo.vue's parseRequirements, including the
- * legacy quirk that `firstAppearance === -1` (class not on the road)
- * evaluates fulfillment against `selectedSubjects.slice(0, -1)`: all
- * buckets but the last. Behavior is pinned in tests.
+ * fulfilled-state, for the class-detail view. Ported exactly from
+ * ClassInfo.vue's parseRequirements, including the legacy quirk that
+ * `firstAppearance === -1` (class not on the road) evaluates against
+ * `selectedSubjects.slice(0, -1)`: all buckets but the last. Pinned in
+ * tests.
  */
 
 import type { CatalogView, SelectedSubject, Subject } from "./types";

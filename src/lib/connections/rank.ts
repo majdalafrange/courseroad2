@@ -1,14 +1,11 @@
 /**
  * Neighbor ranking for the side panel: the convergent companion to the
- * divergent graph. Given a selected node, this produces its
- * connections as a ranked, reasoned list: each with a transparent score
- * (relationship strength + quality + popularity), a plain-language reason,
- * and the status/requirement badges the UI needs to make every row
- * actionable. This is also the **accessible, non-visual equivalent** of the
- * graph, so it must stand entirely on its own.
- *
- * Pure and framework-free: road status and requirement badges are passed in
- * as plain data, so the whole thing is unit-testable.
+ * divergent graph. Given a selected node, produces its connections as a
+ * ranked, reasoned list: transparent score (relationship strength +
+ * quality + popularity), plain-language reason, status/requirement
+ * badges. Also the **accessible, non-visual equivalent** of the graph,
+ * so it must stand entirely on its own. Pure, framework-free: road
+ * status and requirement badges pass in as plain data.
  */
 
 import type { CatalogView, Subject } from "../types";

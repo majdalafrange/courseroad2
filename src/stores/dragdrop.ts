@@ -1,12 +1,10 @@
 /**
- * Pointer-based drag-and-drop controller for the planner canvas.
- *
- * Native HTML5 DnD can't deliver a designed ghost, live eligibility, or
- * auto-scroll, so the canvas drives drags from pointer events: a drag
- * starts after a small movement threshold, a ghost element follows the
- * pointer via direct style writes (no per-frame Vue render), term cells
- * register their rects for hit-testing, and the scroll container creeps
- * when the pointer nears its edges.
+ * Pointer-based drag-and-drop controller for the planner canvas. Native
+ * HTML5 DnD can't deliver a designed ghost, live eligibility, or
+ * auto-scroll, so drags run off pointer events: a small movement
+ * threshold starts the drag, a ghost follows the pointer via direct
+ * style writes (no per-frame Vue render), term cells register their
+ * rects for hit-testing, and the scroll container creeps near its edges.
  */
 
 import { reactive } from "vue";

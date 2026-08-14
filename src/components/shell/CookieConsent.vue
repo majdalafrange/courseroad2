@@ -7,9 +7,9 @@
       aria-label="Cookies"
     >
       <p class="consent-text">
-        CourseRoad stores your roads and login in this browser. Cookies and
-        local storage are how saving works. Opt out and changes won't survive
-        this tab.
+        We use cookies and local storage in this browser to save your roads and
+        keep you logged in. Opt out and we won't be able to keep your changes
+        past this tab.
       </p>
       <div class="consent-actions">
         <g-button

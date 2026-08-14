@@ -1,8 +1,7 @@
 /**
  * Live consequence analysis: given a subject, which classes on the road
  * feed it (prerequisite ancestors) and which does it feed (dependents)?
- * Powers the canvas's hover/drag illumination, the "physical system
- * with tension in it".
+ * Powers the canvas's hover/drag illumination.
  */
 
 import type { CatalogView, SelectedSubject, Subject } from "./types";

@@ -1,10 +1,8 @@
 /**
  * Renders a road as a self-contained, typeset SVG poster: the whole-road
- * canvas in print/image form, independent of the live DOM, with no app
- * chrome. Vector, so it scales without rasterization artifacts.
- *
- * SVG is the source format (vector, tiny, themeable); rasterizeToPng turns
- * it into a PNG via an offscreen canvas with no external dependencies.
+ * canvas in print/image form, independent of the live DOM, no app
+ * chrome. Vector so it scales cleanly; rasterizeToPng turns it into a
+ * PNG via an offscreen canvas, no external dependencies.
  */
 
 import type { CatalogView, Road } from "./types";
@@ -16,6 +14,45 @@ import {
   semesterCalendarYearShort,
   semesterType,
 } from "./offering";
+import ibmPlexSansRegularUrl from "@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-400-normal.woff2?url";
+import ibmPlexSansBoldUrl from "@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-600-normal.woff2?url";
+import ibmPlexMonoMediumUrl from "@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-500-normal.woff2?url";
+
+let fontFaceCss = "";
+let fontFacesPromise: Promise<void> | undefined;
+
+async function toBase64(url: string): Promise<string> {
+  const buffer = await (await fetch(url)).arrayBuffer();
+  let binary = "";
+  for (const byte of new Uint8Array(buffer)) {
+    binary += String.fromCharCode(byte);
+  }
+  return btoa(binary);
+}
+
+/** Fetch and cache the poster's embedded fonts once; safe to call repeatedly. */
+export function preparePosterFonts(): Promise<void> {
+  fontFacesPromise ??= (async () => {
+    try {
+      const [sansRegular, sansBold, monoMedium] = await Promise.all([
+        toBase64(ibmPlexSansRegularUrl),
+        toBase64(ibmPlexSansBoldUrl),
+        toBase64(ibmPlexMonoMediumUrl),
+      ]);
+      fontFaceCss =
+        `<style>` +
+        `@font-face{font-family:'IBM Plex Sans';font-weight:400;src:url(data:font/woff2;base64,${sansRegular}) format('woff2');}` +
+        `@font-face{font-family:'IBM Plex Sans';font-weight:600;src:url(data:font/woff2;base64,${sansBold}) format('woff2');}` +
+        `@font-face{font-family:'IBM Plex Mono';font-weight:500;src:url(data:font/woff2;base64,${monoMedium}) format('woff2');}` +
+        `</style>`;
+    } catch {
+      // Offline or blocked: still renders, just without the embed (falls
+      // back to the system font, same as before this existed).
+      fontFaceCss = "";
+    }
+  })();
+  return fontFacesPromise;
+}
 
 export interface PosterTheme {
   bg: string;
@@ -203,6 +240,7 @@ export function buildRoadPoster(
   `;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+${fontFaceCss}
 ${header}
 ${parts.join("\n")}
 </svg>`;

@@ -483,14 +483,13 @@ const totalHours = computed(() => {
 });
 
 /**
- * Hours relative to the units norm (1 unit ≈ 1 h/week).
- *
- * The band is ±35%, and it is symmetric on purpose. Evaluation hours run
- * systematically below the nominal unit count across the catalog, so the
- * older −15% floor fired on 57% of all subjects with hours: it marked the
- * norm, not an exception. Keep these thresholds algebraically identical to
- * `hoursVerdict` below (ratio ≥ 1.35 is diff ≥ 0.35 × units, ratio ≤ 0.65
- * is diff ≤ −0.35 × units) so the tint and the sentence can never disagree.
+ * Hours relative to the units norm (1 unit ≈ 1 h/week), ±35% band,
+ * symmetric on purpose. Evaluation hours run systematically below the
+ * nominal count, so the old −15% floor fired on 57% of subjects with
+ * hours (it marked the norm, not an exception). Keep these thresholds
+ * algebraically identical to `hoursVerdict` below (ratio ≥ 1.35 ==
+ * diff ≥ 0.35×units; ratio ≤ 0.65 == diff ≤ −0.35×units) so the tint and
+ * the sentence never disagree.
  */
 const hoursTone = computed(() => {
   if (totalHours.value === null || subject.value?.total_units === undefined) {

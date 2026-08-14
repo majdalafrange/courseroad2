@@ -31,7 +31,7 @@
                 @keydown="onInputKeydown"
               />
             </div>
-            <kbd class="palette-kbd">esc</kbd>
+            <g-kbd class="palette-kbd" :keys="['esc']" />
           </div>
 
           <div v-if="tokenSuggestions.length" class="token-suggest-row">
@@ -186,6 +186,7 @@ import {
   watch,
 } from "vue";
 import GIcon from "../../design/components/GIcon.vue";
+import GKbd from "../../design/components/GKbd.vue";
 import { courseColor } from "../../lib/colors";
 import { subjectHoursLabel } from "../../lib/hours";
 import {
@@ -734,14 +735,6 @@ defineExpose({
 }
 .palette-input::placeholder {
   color: var(--g-ink-3);
-}
-/* kbd chip: same recipe as the header's ⌘K chip; keep them identical */
-.palette-kbd {
-  font: var(--text-id-small);
-  color: var(--g-ink-3);
-  border: 1px solid var(--g-line-strong);
-  border-radius: var(--radius-xs);
-  padding: 1px var(--space-1) 0;
 }
 
 .token-suggest-row {

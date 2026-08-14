@@ -1,21 +1,16 @@
 /**
- * Origin-isolated app storage.
+ * Origin-isolated app storage: localStorage only, never cookies. Security
+ * boundary, not preference: a cookie set with `Domain=.mit.edu` from any
+ * MIT subdomain reaches courseroad.mit.edu and was attacker-writable:
+ * planting `accessInfo` substituted the user's FireRoad token (roads
+ * would sync into someone else's account); planting `versionNumber`
+ * triggered the version-change branch that clears localStorage.
+ * localStorage is origin-keyed, so no other host can touch it.
  *
- * All client-side state lives in localStorage, never in cookies. This is a
- * security boundary, not a preference: a cookie set with `Domain=.mit.edu`
- * by ANY MIT subdomain is delivered to courseroad.mit.edu and shows up in
- * `document.cookie`, so cookie-backed state was attacker-writable. Planting
- * an `accessInfo` cookie substituted the user's FireRoad token (their roads
- * would sync into someone else's account), and planting a `versionNumber`
- * cookie triggered the version-change branch that clears localStorage.
- * localStorage is keyed by origin, so no other host can read or write it.
- *
- * Nothing here is ever sent to a server: the FireRoad token travels in an
- * `Authorization: Bearer` header (see lib/fireroad.ts), so no value in this
- * app needs cookie delivery semantics.
- *
- * localStorage has no expiry, so entries carry their own: a value written
- * with a ttl is treated as absent once it passes, and dropped on read.
+ * Nothing here reaches a server: the FireRoad token travels in an
+ * `Authorization: Bearer` header (lib/fireroad.ts). localStorage has no
+ * expiry, so entries carry their own: a ttl'd value reads as absent once
+ * past it, and is dropped on read.
  */
 
 /** Every key this app owns. Used to clear storage on opt-out and logout. */

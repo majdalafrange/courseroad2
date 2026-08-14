@@ -245,12 +245,9 @@ function openPaletteForTerm() {
 const info = computed(() => semesterInformation(props.subjects, store.catalog));
 
 /**
- * Stable per-card keys: subject_id alone, unless the same id repeats in this
- * term (two identically-named custom activities), in which case later
- * occurrences get a suffix. Plain subject_id (not subject_id + array index,
- * as before) means reordering cards in this term via drag or keyboard-move
- * no longer changes every surviving card's key, so Vue patches the moved
- * DOM node instead of tearing down and recreating the whole row.
+ * Stable per-card keys: subject_id alone, so reordering within a term
+ * patches the moved card instead of recreating every row. Suffixed only
+ * for a genuine duplicate id (two identically-named custom activities).
  */
 const subjectKeys = computed<string[]>(() => {
   const seen = new Map<string, number>();

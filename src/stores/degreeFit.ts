@@ -1,15 +1,11 @@
 /**
- * Degree-fit store: runs the active road against every major and minor and
- * holds the ranked outcome.
- *
- * The scan is one `/requirements/progress/` call per program, the same
- * endpoint the audit panel uses for the programs already on a road. That is
- * ~133 requests against FireRoad, so this only ever runs on an explicit
- * click, at bounded concurrency, and caches its result against a
- * fingerprint of the road so re-opening an unchanged plan costs nothing.
- *
- * Ordering, grouping and failure classification live in `lib/degreeFit.ts`.
- * This layer owns the network, cancellation, and staleness only.
+ * Degree-fit store: runs the active road against every major/minor,
+ * holds the ranked outcome. One `/requirements/progress/` call per
+ * program (the same endpoint the audit panel uses): ~133 requests, so
+ * this only runs on an explicit click, at bounded concurrency, cached
+ * against a fingerprint of the road so reopening an unchanged plan costs
+ * nothing. Ordering/grouping/failure classification live in
+ * `lib/degreeFit.ts`; this layer owns network, cancellation, staleness.
  */
 
 import { computed, ref, shallowRef } from "vue";

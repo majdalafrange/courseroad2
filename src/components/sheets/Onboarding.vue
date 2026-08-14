@@ -15,10 +15,11 @@
       <!-- step 1: welcome + year -->
       <div v-if="step === 0" class="onboard-step">
         <g-wordmark size="lg" />
-        <h1 class="onboard-title">Set up your road</h1>
+        <h1 class="onboard-title">Welcome! Let's set up your road</h1>
         <p class="onboard-copy">
-          CourseRoad lays out every term from here to your degree. Two questions
-          seed a starting plan, and everything is editable after.
+          CourseRoad lays out every term from here to your degree. Answer two
+          quick questions and we'll seed a starting plan (you can change
+          anything after that).
         </p>
         <span class="onboard-label">Where are you now?</span>
         <div class="year-grid">
@@ -41,8 +42,8 @@
       <div v-else class="onboard-step">
         <h1 class="onboard-title">What are you thinking of majoring in?</h1>
         <p class="onboard-copy">
-          Add a major, a minor, or both. You can skip this and change it at any
-          time.
+          Add a major, a minor, or both. You can also skip this for now or
+          change it later.
         </p>
         <div class="program-search">
           <g-icon name="search" :size="15" style="color: var(--g-ink-3)" />

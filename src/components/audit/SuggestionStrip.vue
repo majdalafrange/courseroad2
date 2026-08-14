@@ -16,14 +16,10 @@
             </button>
           </template>
           <p class="strip-explain">
-            Suggestions are computed in the page by fixed rules; no
-            recommendation service is involved. The rules read the audit's open
-            requirements (HASS-A/S/H/E, CI-H/HW, Lab and REST GIR), the classes
-            already on the road, the hours planned in the target term, and each
-            candidate's catalog attributes, offered terms, rating, and hours.
-            Computing them sends nothing; the audit itself comes from the
-            progress request the app already sends to FireRoad with the road's
-            contents, and picking or dismissing a suggestion is not recorded.
+            Not a recommendation service: fixed rules read your open
+            requirements, the classes already on your road, and each candidate's
+            terms, rating, and hours. Nothing extra is sent (the audit already
+            came from FireRoad) and dismissing a suggestion isn't recorded.
           </p>
         </g-popover>
       </div>

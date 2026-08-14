@@ -1,11 +1,9 @@
 /**
- * Road data plumbing: bucket conversion, sanitization of roads arriving
- * from FireRoad or `.road` files, save/export formatting, renumbered
- * subject-id migration, and road-name deduplication.
- *
- * Ported from sanitizeSubjects.js, Auth.vue, ImportExport.vue and the
- * Vuex store. The flattened save format is FireRoad's contract; keep it
- * byte-compatible.
+ * Road data plumbing: bucket conversion, sanitizing roads from FireRoad
+ * or `.road` files, save/export formatting, renumbered subject-id
+ * migration, road-name deduplication. Ported from sanitizeSubjects.js,
+ * Auth.vue, ImportExport.vue, the Vuex store. The flattened save format
+ * is FireRoad's contract; keep it byte-compatible.
  */
 
 import type {

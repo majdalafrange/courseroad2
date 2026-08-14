@@ -1,19 +1,48 @@
 /**
  * Captures the planner canvas for docs/ (uses the dev server's ?demo=1
- * seed). Usage: node scripts/screenshot.mjs [url] [outfile] [width] [height]
+ * seed). Usage: node scripts/screenshot.mjs [url] [outfile] [width] [height] [theme]
  */
 
 import puppeteer from "puppeteer-core";
+import { parseArgs } from "node:util";
 
-const url = process.argv[2] ?? "http://localhost:8080/road?demo=1";
-const outfile = process.argv[3] ?? "docs/canvas.png";
-const width = Number(process.argv[4] ?? 1500);
-const height = Number(process.argv[5] ?? 1280);
-const theme = process.argv[6]; // optional "dark"
+const OPTIONS = {
+  url: {
+    type: "string",
+    short: "u",
+    default: "http://localhost:8080/road?demo=1",
+  },
+  outfile: {
+    type: "string",
+    short: "o",
+    default: "docs/canvas.png",
+  },
+  width: {
+    type: "string",
+    short: "w",
+    default: "1500",
+  },
+  height: {
+    type: "string",
+    short: "h",
+    default: "1280",
+  },
+  theme: {
+    type: "string",
+    short: "t",
+    default: "light",
+  },
+};
+
+const { values } = parseArgs({ options: OPTIONS });
+const url = values.url;
+const outfile = values.outfile;
+const width = Number(values.width);
+const height = Number(values.height);
+const theme = values.theme; // optional "dark"
 
 const browser = await puppeteer.launch({
-  executablePath:
-    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  channel: "chrome",
   headless: true,
 });
 const page = await browser.newPage();
@@ -29,11 +58,14 @@ await page.evaluate(() => {
     .querySelector('[data-cy="acceptCookies"]')
     ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 });
+if (theme === "light") {
+  await page.evaluate(() => {
+    document.documentElement.setAttribute("data-theme", "light");
+  });
+}
 if (theme === "dark") {
   await page.evaluate(() => {
-    [...document.querySelectorAll(".rail-action")]
-      .find((b) => /Dark/.test(b.textContent))
-      ?.click();
+    document.documentElement.setAttribute("data-theme", "dark");
   });
 }
 await new Promise((resolve) => setTimeout(resolve, 900));

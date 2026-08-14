@@ -34,7 +34,7 @@
             <canvas-glyphs />
             <div v-if="store.catalogError" class="catalog-error" role="alert">
               <div>
-                <strong>The subject catalog didn't load.</strong>
+                <strong>We couldn't load the subject catalog.</strong>
                 <span
                   >Check your connection. Your plan is safe in the
                   meantime.</span
@@ -50,7 +50,8 @@
             </div>
             <div v-else-if="offline" class="offline-note" role="status">
               <g-icon name="cloud" :size="14" />
-              Offline. You can keep planning; changes sync when you're back.
+              You're offline, but you can keep planning. We'll sync your changes
+              when you're back.
             </div>
 
             <div
@@ -59,8 +60,8 @@
             >
               <h2 class="empty-title">Search for a class</h2>
               <p class="empty-copy">
-                Place it in a term, or add a major or minor on the right to see
-                requirements.
+                Place it in a term, or add a major or minor on the right and
+                we'll show you what's left.
               </p>
               <div class="empty-actions">
                 <g-button variant="primary" @click.stop="focusSearch">
@@ -199,13 +200,9 @@ const ConnectionsPage = defineAsyncComponent(
   () => import("./ConnectionsPage.vue"),
 );
 
-// Lazy: none of these render on first paint (each is gated behind a v-model
-// a menu click flips), so shipping them in the initial chunk only delays
-// time-to-interactive for the plan canvas every visit pays for. No typed
-// template ref reaches into any of them, so the async wrapper costs nothing
-// at the call sites below. CustomClass and CommandPalette stay eager: both
-// are reached through a typed ref (openNewClass/openWithTokens), and the
-// palette in particular is expected to answer ⌘K instantly.
+// Lazy: none of these render on first paint, only after a menu click.
+// CustomClass and CommandPalette stay eager: both are reached through a
+// typed ref, and the palette should answer its shortcut instantly.
 const AboutSheet = defineAsyncComponent(
   () => import("../components/sheets/AboutSheet.vue"),
 );
@@ -235,6 +232,7 @@ import {
 } from "../lib/appStorage";
 import { DEMO_ROAD, DEMO_ROAD_NAME } from "../lib/demoRoad";
 import { defaultCurrentSemester } from "../lib/offering";
+import { shortcutLabel } from "../lib/platform";
 import {
   loadPersistedStore,
   persistedCurrentSemester,
@@ -467,10 +465,10 @@ function seedFromOnboarding(payload: {
   store.fulfillmentNeeded = "all";
   history.clear();
   toast.ok(
-    payload.year === 0 ? "Starting plan created" : "Road set up",
+    payload.year === 0 ? "Your starting plan is ready!" : "You're all set up!",
     payload.year === 0
-      ? "GIR placeholders are in freshman year. Drag in real classes anytime."
-      : "Terms start empty. Search (⌘K) to add classes.",
+      ? "We've put GIR placeholders in freshman year. Drag in real classes anytime."
+      : `Terms start empty. Search (${shortcutLabel("K")}) whenever you're ready to add classes.`,
   );
 }
 

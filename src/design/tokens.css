@@ -1,28 +1,19 @@
 /**
- * CourseRoad design tokens.
+ * CourseRoad design tokens: cool MIT-institute neutrals, contour-like hue
+ * families, a deep MIT garnet accent, motion that explains where things
+ * come from.
  *
- * The language is built like a fine map of a degree: cool MIT-institute
- * neutrals, structured contour-like hue families, a deep MIT garnet accent,
- * and motion that always explains where things come from.
+ * TYPE, two voices, self-hosted: IBM Plex Sans (display/headings/wordmark
+ * AND UI/body, matching Hydrant, MIT's other SIPB
+ * planning tool) and IBM Plex Mono (subject ids/numbers, tabular so
+ * "6.006" scans like a coordinate; also shared with Hydrant).
  *
- * TYPE: two voices, all self-hosted:
- *   · IBM Plex Sans (display/headings/wordmark AND UI/body): sober,
- *     deliberately engineered humanist sans with excellent legibility at
- *     small sizes, and pointedly not the ubiquitous default UI font. One
- *     face for both headings and body — the same pairing Hydrant (MIT's
- *     other SIPB planning tool) uses — so a student moving between the
- *     two reads them as siblings instead of relearning a typeface.
- *   · IBM Plex Mono (subject ids, numbers): subject ids like "6.006" are
- *     the atomic unit of this product; giving them tabular mono treatment
- *     makes them scan like coordinates on a chart. Also shared with
- *     Hydrant, which mono-sets subject numbers the same way.
- *
- * Light and dark are designed as siblings, not inversions: light is
- * garnet-led on cool paper; dark is basalt where MIT silver carries every
- * interactive state and cardinal red (--g-brand) is reserved for identity
- * (the wordmark, the MIT login), so red never reads as an alert on black.
- * Department colors live in departmentColors.css
- * (generated; fixed OKLCH bands so contrast is guaranteed by design).
+ * Light/dark are siblings, not inversions: light is garnet-led on cool
+ * paper; dark is basalt where MIT silver carries every interactive state
+ * and cardinal red (--g-brand) is reserved for identity (wordmark, MIT
+ * login), so red never reads as an alert on black. Department colors
+ * live in departmentColors.css (generated; fixed OKLCH bands guarantee
+ * contrast).
  *
  * INTERACTION-STATE STANDARD (every component complies; transitions always
  * list explicit properties, never `transition: all`):
@@ -71,26 +62,16 @@
  */
 
 :root {
-  /* ---------- department color ----------
-     courseColor() sets --dept-color per element. Full chroma is an
-     interaction state (hover, selection, drag, audit cross-highlight); at
-     rest a rail mixes toward the hairline, so a term column holding five
-     departments reads as encoding rather than as a highlighter set.
-
-     --dept-rest-mix is the one knob: raise it if departments stop being
-     separable, lower it if the canvas still reads loud. The mix itself is
-     written at each point of use, NOT derived into a token here: a custom
-     property resolves its var()s on the element that declares it, so a
-     :root-level --dept-rest would resolve --dept-color to its fallback once
-     and hand every rail the same grey. The rest-state recipe is
-
-       background: color-mix(
-         in srgb,
-         var(--dept-color, var(--g-line-strong)) var(--dept-rest-mix),
-         var(--g-line-strong)
-       );
-
-     and the interaction state is plain var(--dept-color). */
+  /* department color: courseColor() sets --dept-color per element. Full
+     chroma is an interaction state (hover/selection/drag/cross-highlight);
+     at rest a rail mixes toward the hairline, so departments read as
+     encoding, not a highlighter set. --dept-rest-mix is the one knob.
+     Written at each point of use, not a :root token (a :root-level
+     --dept-rest would resolve --dept-color to its fallback once, giving
+     every rail the same grey):
+       background: color-mix(in srgb, var(--dept-color, var(--g-line-strong))
+         var(--dept-rest-mix), var(--g-line-strong));
+     interaction state is plain var(--dept-color). */
   --dept-rest-mix: 70%;
 
   /* ---------- type ---------- */
@@ -132,19 +113,13 @@
   --space-12: 48px;
   --space-16: 64px;
 
-  /* Corners cut like paper, not app icons: the rectilinear MIT plainness.
-     Chips and pills keep --radius-full; that contrast is the point.
-
-     Radius by role (locked; don't flatten this to one value):
-       --radius-xs (3)    micro elements: kbd, tiny row-actions, rename
-                          input, crumbs
-       --radius-sm (4)    controls: buttons, inputs, class cards, menu rows,
-                          term-fit
-       --radius-md (6)    containers: term cells, program cards, strips,
-                          toasts, anchored popovers
-       --radius-lg (10)   scene floats: command palette, sheets/modals
-       --radius-full      pills & bubbles: chips, gauges, dots, year pill,
-                          remove/warn bubbles */
+  /* Corners cut like paper, not app icons. Chips/pills keep --radius-full
+     for contrast. Radius by role (locked, don't flatten to one value):
+       --radius-xs (3)  micro: kbd, row-actions, rename input, crumbs
+       --radius-sm (4)  controls: buttons, inputs, class cards, menu rows
+       --radius-md (6)  containers: term cells, program cards, toasts
+       --radius-lg (10) scene floats: palette, sheets/modals
+       --radius-full    pills & bubbles: chips, gauges, dots, year pill */
   --radius-xs: 3px;
   --radius-sm: 4px;
   --radius-md: 6px;
@@ -193,24 +168,19 @@
   --g-line: #e4e4e7; /* hairlines */
   --g-line-strong: #cbcbcf;
 
-  /* Plan canvas material: numerals and operators used as a substance, after
-     the lattice of characters in the Alchemist on the Stratton lawn. Drawn by
-     CanvasGlyphs.vue as an SVG pattern rather than a gradient, because the
-     glyphs need the page's own Plex Mono. This token is only the ink.
-
-     Kept at hairline weight: the plan is the hero and the field must never
-     compete with a card. The Connections graph uses --canvas-lattice instead,
-     since its contents pan and zoom. */
+  /* Plan canvas material: numerals/operators as a substance (after the
+     Alchemist character-lattice on the Stratton lawn). Drawn by
+     CanvasGlyphs.vue as an SVG pattern, not a gradient, since the glyphs
+     need the page's own Plex Mono. Hairline weight only. Connections graph uses --canvas-lattice instead (its
+     content pans/zooms). */
   --canvas-glyph: #e0e0e4;
 
-  /* Graph canvas material: a dot lattice. The tile's size and offset are set
-     on the element from the viewport, so the surface pans and zooms with the
-     graph and dragging has something to move against. Dots rather than
-     contours or ruled lines: the graph's own edges run straight at every
-     angle, and a background stroke near one reads as an edge that isn't
-     there. A lattice has no large-scale structure to mistake for content.
-     The dot sits at the tile origin, so halving the tile drops alternate
-     dots instead of sliding the whole field. */
+  /* Graph canvas material: a dot lattice, sized/offset from the viewport
+     so it pans and zooms with the graph. Dots, not contours/lines: the
+     graph's own edges run straight at every angle, and a background
+     stroke near one would read as a phantom edge. Dot sits at the tile
+     origin, so halving the tile drops alternate dots instead of sliding
+     the field. */
   --canvas-lattice: radial-gradient(
     circle at 0 0,
     color-mix(in srgb, var(--g-line-strong) 62%, transparent) 0 1.1px,

@@ -1,28 +1,23 @@
 /**
- * Edge extraction: turning the catalog's relational signals into typed,
- * reasoned, deduplicated graph edges. This is where the catalog's edge
- * cases live, so this is where the tests pay off.
+ * Edge extraction: turns the catalog's relational signals into typed,
+ * reasoned, deduplicated graph edges. The catalog's edge cases live
+ * here, so the tests pay off here.
  *
- * The one signal, client-side, from the cached catalog: the prerequisite
- * graph, forward (this subject's own prereqs, which lead into it) and
- * reverse (subjects that require this one). Curated relateds, shared
- * prerequisites, and topical similarity were tried and removed: they
- * crowded the canvas without telling a student anything actionable.
+ * The one signal used, client-side from the cached catalog: the
+ * prerequisite graph (forward + reverse). Curated relateds, shared
+ * prereqs, and topical similarity were tried and dropped: they crowded
+ * the canvas without telling a student anything actionable.
  *
- * Invariants enforced here:
- *   • prereq strings are parsed to *leaf subject ids only*: boolean
- *     operators, parentheses, GIR/HASS/CI tokens, quoted phrases
- *     ("permission of instructor") and ranges never become nodes;
- *   • references resolve through `old_id` to the current subject; anything
- *     unresolvable is dropped silently (no ghost nodes);
- *   • generic placeholders (PHY1, HASS-A, CI-H…) and custom activities are
- *     never nodes;
- *   • no self-edges; one merged edge per unordered pair, carrying every
- *     reason and a combined weight (never parallel edges);
- *   • hub fan-out is bounded and ranked so expansion can cap it.
+ * Invariants: prereq strings parse to *leaf subject ids only* (booleans,
+ * parens, GIR/HASS/CI tokens, quoted phrases, ranges never become nodes);
+ * references resolve through `old_id`, unresolvable ones drop silently
+ * (no ghost nodes); generic placeholders and custom activities are never
+ * nodes; no self-edges, one merged edge per pair carrying every reason
+ * and a combined weight; hub fan-out is bounded and ranked so expansion
+ * can cap it.
  *
- * Memoization: per-subject extraction, the reverse-prereq scan, and
- * the prereq-leaf parse are each cached, so repeated expansion is cheap.
+ * Memoized per-subject: extraction, the reverse-prereq scan, and the
+ * prereq-leaf parse, so repeated expansion is cheap.
  */
 
 import type { CatalogView, Subject } from "../types";

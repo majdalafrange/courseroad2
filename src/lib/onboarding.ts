@@ -1,15 +1,12 @@
 /**
- * First-run seeding: a newcomer picks a class year and intended
- * program(s), and lands on a road with the obvious starting structure:
- * the canonical first-year science/math GIRs as real MIT subjects, and
- * their programs already in the audit.
+ * First-run seeding: a newcomer picks a class year and program(s), lands
+ * on a road with the obvious starting structure: canonical first-year
+ * science/math GIRs as real MIT subjects, programs already in the audit.
  *
- * We deliberately seed *real* subjects (8.01, 18.01, …), not generic
- * placeholders: a freshman year's science/math GIRs have well-known
- * default subjects, and one real card reads far more clearly than an
- * invented "Generic Physics 1". HASS/CI requirements have no single
- * default subject, so they are left for the student to choose rather than
- * guessed at.
+ * Seeds *real* subjects (8.01, 18.01, …), not generic placeholders: a
+ * freshman year's GIRs have well-known defaults, and one real card reads
+ * more clearly than an invented "Generic Physics 1". HASS/CI have no
+ * single default, so those are left for the student to choose.
  */
 
 import type { CatalogView, SelectedSubject } from "./types";

@@ -1,19 +1,15 @@
 /**
  * The Connections graph state machine: pure, deterministic, unit-tested.
+ * Every operation takes a `GraphState` and returns a new one (never
+ * mutated). Grows only on demand: starts as the student's road (anchors),
+ * each expansion reveals a capped, ranked set of neighbors.
  *
- * Every operation takes a `GraphState` and returns a new one (the input is
- * never mutated), so transitions are easy to reason about and test. The
- * graph grows only on demand: it starts as the student's road (anchors) and
- * each expansion reveals a capped, ranked set of a node's neighbors.
- *
- * The single trickiest invariant is collapse without orphaning.
- * Reference-counting introductions is *not* enough: it strands introducer
- * cycles (expand A→N, expand N→M, expand M re-introduces N; collapsing A
- * leaves N and M pointing only at each other with no root). So collapse
- * recomputes reachability by **mark-and-sweep from the roots**
- * (anchors ∪ pinned), propagating only through nodes that are still
- * expanded. Anything not reached is swept. Node counts are bounded, so this
- * is cheap and always correct.
+ * Trickiest invariant: collapse without orphaning. Reference-counting
+ * introductions isn't enough, it strands introducer cycles (expand A→N,
+ * N→M, M re-introduces N; collapsing A leaves N/M pointing only at each
+ * other). So collapse recomputes reachability by mark-and-sweep from the
+ * roots (anchors ∪ pinned); anything not reached is swept. Bounded node
+ * counts keep this cheap.
  */
 
 import type { EdgeEngine } from "./edges";

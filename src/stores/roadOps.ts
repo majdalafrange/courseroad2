@@ -1,9 +1,9 @@
 /**
- * Road lifecycle operations shared by the shell surfaces (header switcher,
- * command palette, import dialog, onboarding seeding). Moved out of
- * MainPage.vue verbatim; a plain module rather than a Pinia store, like
- * `history`. Each function resolves its stores at call time; these run on
- * user action, after Pinia is installed.
+ * Road lifecycle operations shared by the shell surfaces (header
+ * switcher, palette, import dialog, onboarding seeding). Moved out of
+ * MainPage.vue verbatim; a plain module, not a Pinia store (like
+ * `history`): each function resolves its stores at call time, since
+ * these run on user action after Pinia is installed.
  */
 
 import { toast } from "../design/toast";
@@ -178,5 +178,5 @@ export function exportActiveRoad(): void {
     return;
   }
   downloadRoadFile(road.name, road.contents);
-  toast.ok(`Exported “${road.name}.road”`);
+  toast.ok(`Your road is exported as “${road.name}.road”`);
 }

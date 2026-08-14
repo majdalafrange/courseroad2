@@ -1,15 +1,12 @@
 /**
- * Guarded reads of persisted app state.
- *
- * localStorage and the `newRoads` cookie are untrusted input: localStorage
- * can hold a truncated or hand-edited blob, and a cookie scoped to
- * `.mit.edu` can be planted by any other MIT subdomain. Nothing from either
- * source reaches the store without passing through here: parse failures
- * yield `undefined` instead of throwing, keys outside the allowlist are
- * dropped (`loggedIn` and `cookiesAllowed` especially; restoring those
- * would forge login/consent state), `__proto__`-style keys are discarded,
- * and every restored object is rebuilt onto a fresh literal rather than
- * merged in place.
+ * Guarded reads of persisted app state. localStorage and the `newRoads`
+ * cookie are untrusted input (localStorage can hold a truncated/hand-edited
+ * blob; a `.mit.edu`-scoped cookie can be planted by any MIT subdomain), so
+ * nothing reaches the store without passing through here: parse failures
+ * yield `undefined`, allowlist-excluded keys are dropped (`loggedIn`/
+ * `cookiesAllowed` especially, since restoring those would forge login/consent),
+ * `__proto__`-style keys are discarded, and restored objects are rebuilt
+ * onto a fresh literal rather than merged in place.
  */
 
 import type {

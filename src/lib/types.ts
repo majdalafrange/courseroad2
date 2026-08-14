@@ -1,12 +1,10 @@
 /**
- * Core domain types for CourseRoad.
+ * Core domain types for CourseRoad: the implicit contracts with the
+ * FireRoad API and this app's own persistence formats (localStorage,
+ * cookies, `.road` files). Single source of truth for every module in
+ * `src/lib`. Treat this file as the public SDK surface.
  *
- * These types document the implicit contracts the app has always had with
- * the FireRoad API and with its own persistence formats (localStorage,
- * cookies, `.road` files). They are the single source of truth for every
- * module in `src/lib`; treat this file as the public SDK surface.
- *
- * IMPORTANT: field names here mirror FireRoad's JSON exactly (snake_case and
+ * IMPORTANT: field names mirror FireRoad's JSON exactly (snake_case and
  * all). Renaming a field breaks byte-compatibility with saved user data.
  */
 

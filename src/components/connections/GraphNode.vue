@@ -95,10 +95,9 @@ const height = computed(() =>
 );
 
 /**
- * The card's department hue, plus the decorative entrance: a freshly
- * revealed node starts at the node that revealed it and settles into its
- * (already final) layout position, one beat after its stronger siblings.
- * Never load-bearing.
+ * Department hue, plus the decorative entrance: a freshly revealed node
+ * starts at the node that revealed it, settling into its final position
+ * one beat after its stronger siblings. Never load-bearing.
  */
 const nodeStyle = computed(() => {
   const style: Record<string, string> = { "--dept-color": props.node.color };

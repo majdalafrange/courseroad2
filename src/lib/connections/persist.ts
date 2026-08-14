@@ -1,19 +1,15 @@
 /**
- * Persistence: ephemeral *behavior* now, account-ready *architecture*.
+ * Persistence: ephemeral *behavior* now, account-ready *architecture*. An
+ * exploration serializes to a compact, catalog-independent snapshot: the
+ * seed, the expanded/pinned/removed ids, the viewport. Derived edges and
+ * positions are NEVER serialized: rebuilt from the live catalog on load,
+ * so a snapshot survives a catalog that changed underneath it (vanished
+ * subjects dropped, renumbered ones followed via old_id).
  *
- * An exploration serializes to a compact, catalog-independent snapshot:
- * the seed, the ids that were expanded / pinned / removed, and the viewport.
- * Derived edges and computed positions are NEVER serialized; they are
- * rebuilt from the live catalog on load, so a snapshot survives a catalog
- * that has changed underneath it (vanished subjects dropped, renumbered ones
- * followed via old_id).
- *
- * All persistence flows through the `ConnectionsPersistence` seam. The live
- * implementation is per-tab sessionStorage (consent-gated, with an in-memory
- * fallback), so an exploration survives a reload but still ends with the
- * visit; swapping in account-backed storage for a logged-in (MIT-kerberos)
- * student later touches only an implementation of this interface, with no
- * redesign.
+ * All persistence flows through the `ConnectionsPersistence` seam. The
+ * live implementation is per-tab sessionStorage (consent-gated, in-memory
+ * fallback): an exploration survives a reload but ends with the visit.
+ * Account-backed storage later is just a new implementation of this seam.
  */
 
 import type { EdgeEngine } from "./edges";

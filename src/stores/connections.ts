@@ -1,16 +1,13 @@
 /**
- * Connections store: the reactive bridge between the pure graph engine in
- * `src/lib/connections/` and the Vue canvas. The store owns no graph logic of
- * its own: it calls the pure transitions, holds the resulting immutable
- * state in a `shallowRef` (so reassignment is the only reactive trigger and
- * the engine's internal caches never get proxied), and projects view models
- * for rendering.
+ * Connections store: reactive bridge between the pure graph engine in
+ * `src/lib/connections/` and the canvas. Owns no graph logic itself: calls
+ * the pure transitions, holds state in a `shallowRef` (reassignment is the
+ * only reactive trigger; engine caches never get proxied), projects view
+ * models for rendering.
  *
- * An exploration lives for the visit: it is held per browser tab through the
- * `ConnectionsPersistence` seam (sessionStorage when storage consent is
- * granted, memory otherwise), so a reload keeps it and closing the tab ends
- * it. Account-backed saving for a logged-in student is a later drop-in
- * behind the same seam.
+ * Exploration lives per tab via `ConnectionsPersistence` (sessionStorage
+ * with consent, memory otherwise): reload keeps it, closing the tab ends
+ * it. Account-backed saving is a later drop-in behind the same seam.
  */
 
 import { computed, ref, shallowRef } from "vue";

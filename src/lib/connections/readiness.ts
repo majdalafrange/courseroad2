@@ -1,25 +1,20 @@
 /**
- * Readiness: "can I actually take this, and when?" (the decision layer).
+ * Readiness: "can I actually take this, and when?" Classifies how
+ * takeable a subject is, given the student's road:
  *
- * Given a subject and the student's road, classify how takeable it is:
+ *   • `ready`: prereqs satisfied by what's already behind the current term
+ *   • `ready-after`: satisfied once planned courses complete; carries the
+ *     earliest bucket it could be placed in
+ *   • `missing`: not satisfiable by the current plan; carries the
+ *     smallest set of unmet prerequisite subjects
+ *   • `unknown`: the only unmet requirements aren't subjects we can point
+ *     to (e.g. "permission of instructor"); never claims what it can't
+ *     evaluate
  *
- *   • `ready`:        its prerequisites are satisfied by what's already
- *                      behind the current term;
- *   • `ready-after`:  satisfied once planned courses complete; carries the
- *                      earliest bucket where it could be placed;
- *   • `missing`:      not satisfiable by the current plan; carries the
- *                      smallest set of unmet prerequisite subjects (the next
- *                      hops of an exploration);
- *   • `unknown`:      the only unmet requirements aren't subjects we can
- *                      point to (e.g. "permission of instructor"); we never
- *                      claim what we can't evaluate.
- *
- * Semantics deliberately reuse the app's own prerequisite evaluation
- * (`reqsFulfilled`, `parseRequirements`), so a "Ready" badge here always
- * agrees with the class detail's fulfillment checkmarks. Corequisites are
- * excluded; they can be taken concurrently by definition.
- *
- * Pure and framework-free, like the rest of `src/lib/connections/`.
+ * Reuses the app's own prerequisite evaluation (`reqsFulfilled`,
+ * `parseRequirements`), so a "Ready" badge always agrees with the class
+ * detail's checkmarks. Corequisites excluded: takeable concurrently by
+ * definition. Pure, framework-free.
  */
 
 import type { CatalogView, SelectedSubject, Subject } from "../types";

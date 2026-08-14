@@ -1,12 +1,11 @@
 /**
- * Rule-based class suggestions: connect audit gaps to the catalog using
+ * Rule-based class suggestions: connects audit gaps to the catalog using
  * data the app already has (unfulfilled attribute requirements, offered
- * terms, ratings, hours) and the road's per-term load. No external AI.
- *
- * The scope is deliberately narrow: attribute-style requirements
- * (HASS-A/S/H/E, CI-H/HW, GIR:LAB/REST) where "any subject with this
- * attribute" is a meaningful answer. Specific-subject requirements
- * ("take 6.1200") aren't suggestion-shaped; the audit already names them.
+ * terms, ratings, hours) and per-term load. No external AI. Scope is
+ * deliberately narrow: attribute-style requirements (HASS-A/S/H/E,
+ * CI-H/HW, GIR:LAB/REST) where "any subject with this attribute" is a
+ * meaningful answer. Specific-subject requirements ("take 6.1200")
+ * aren't suggestion-shaped; the audit already names them.
  */
 
 import type {

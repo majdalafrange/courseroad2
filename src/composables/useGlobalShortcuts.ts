@@ -2,7 +2,7 @@
  * The window-level keyboard chords, with their lifecycle handled:
  * listeners attach on mount and detach on unmount. Cmd/Ctrl+K toggles
  * the palette; Cmd/Ctrl+Z and Shift reverse run the history service.
- * Everything else stays element-scoped or on the escape layering (see
+ * Everything else stays element-scoped or on its own escape layering.
  */
 
 import { onBeforeUnmount, onMounted } from "vue";

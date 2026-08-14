@@ -1,11 +1,10 @@
 /**
  * Auth + cloud-sync store: MIT login via FireRoad OAuth, road
- * retrieval/saving with conflict detection, and the logged-out
- * cookie-persistence path. Extracted from the legacy Auth.vue component;
- * payload formats and cookie keys are unchanged. Departures from legacy:
- * cookie-restored roads are validated (lib/persistedStore.ts), and only
- * genuine auth failures log out; transient network errors keep local
- * data and skip cloud sync for the session.
+ * retrieval/saving with conflict detection, logged-out cookie-persistence.
+ * Extracted from legacy Auth.vue; payload formats and cookie keys
+ * unchanged. Departures: cookie-restored roads are now validated
+ * (lib/persistedStore.ts), and only genuine auth failures log out;
+ * transient network errors keep local data and skip cloud sync instead.
  */
 
 import { defineStore } from "pinia";
@@ -636,10 +635,10 @@ export const useAuthStore = defineStore("auth", {
           toast.warn(
             dropped === 1
               ? "A saved road couldn't be read"
-              : `${dropped} saved roads couldn't be read`,
+              : `We couldn't read ${dropped} saved roads`,
             restoredCount > 0
-              ? "The others were restored."
-              : "The plan starts fresh.",
+              ? "The rest came back fine."
+              : "Your plan starts fresh from here.",
           );
         }
         // Restores the in-memory flag: this entry can only exist because
@@ -651,7 +650,7 @@ export const useAuthStore = defineStore("auth", {
         // silence is not.
         toast.warn(
           "Saved roads couldn't be read",
-          "The stored copy was unreadable, so the plan starts fresh.",
+          "The stored copy was unreadable, so we're starting your plan fresh.",
         );
       }
 

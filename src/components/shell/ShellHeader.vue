@@ -66,7 +66,11 @@
       >
         <g-icon name="search" :size="14" />
         <span class="search-trigger-text">Add classes</span>
-        <kbd class="search-trigger-kbd">⌘K</kbd>
+        <g-kbd
+          class="search-trigger-kbd"
+          :keys="shortcut.keys"
+          :joiner="shortcut.joiner"
+        />
       </button>
 
       <nav class="mode-switch" aria-label="Mode">
@@ -196,12 +200,14 @@
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import GIcon from "../../design/components/GIcon.vue";
+import GKbd from "../../design/components/GKbd.vue";
 import GPopover from "../../design/components/GPopover.vue";
 import GTooltip from "../../design/components/GTooltip.vue";
 import GWordmark from "../../design/components/GWordmark.vue";
 import RoadSwitcher from "./RoadSwitcher.vue";
 import ThemeToggle from "./ThemeToggle.vue";
 import { semesterInformation } from "../../lib/hours";
+import { shortcutKeys } from "../../lib/platform";
 import { history } from "../../stores/history";
 import { useAuthStore } from "../../stores/auth";
 import { useCourseDataStore } from "../../stores/courseData";
@@ -228,6 +234,7 @@ const route = useRoute();
 
 const isExplore = computed(() => route.path === "/explore");
 const isDark = computed(() => Boolean(store.isDarkMode));
+const shortcut = shortcutKeys("K");
 const moreOpen = ref(false);
 
 /* Feedback and issue-report form. */
@@ -265,7 +272,7 @@ const saveState = computed<SaveState>(() => {
   if (auth.gettingUserData) {
     return {
       label: "Loading…",
-      detail: "Fetching your roads from FireRoad.",
+      detail: "Grabbing your roads from FireRoad.",
       tone: "busy",
     };
   }
@@ -274,7 +281,7 @@ const saveState = computed<SaveState>(() => {
       label: "Saving…",
       detail: auth.loggedIn
         ? "Syncing your changes to FireRoad."
-        : "Writing your changes to this browser.",
+        : "Saving your changes in this browser.",
       tone: "busy",
     };
   }
@@ -289,19 +296,19 @@ const saveState = computed<SaveState>(() => {
     if (store.cookiesAllowed === false) {
       return {
         label: "Not saved",
-        detail: "Cookies are off, so changes stay only in this tab.",
+        detail: "Cookies are off, so we can only keep changes in this tab.",
         tone: "warn",
       };
     }
     return {
       label: "Saved in this browser",
-      detail: "Log in with MIT to sync across devices.",
+      detail: "Log in with MIT and we'll sync it across your devices.",
       tone: "muted",
     };
   }
   return {
     label: "Saved",
-    detail: "All changes synced with FireRoad.",
+    detail: "You're all synced up with FireRoad.",
     tone: "ok",
   };
 });
@@ -457,15 +464,6 @@ const saveState = computed<SaveState>(() => {
   flex: 1;
   text-align: left;
 }
-/* kbd chip: same recipe as the palette's esc chip; keep them identical */
-.search-trigger-kbd {
-  font: var(--text-id-small);
-  color: var(--g-ink-3);
-  border: 1px solid var(--g-line-strong);
-  border-radius: var(--radius-xs);
-  padding: 1px var(--space-1) 0;
-}
-
 /* Plan ⁄ Explore is a mode, so it reads as a segmented control, not a CTA. */
 .mode-switch {
   display: inline-flex;

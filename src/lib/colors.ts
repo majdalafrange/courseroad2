@@ -1,10 +1,9 @@
 /**
- * Department/course color assignments.
- *
- * Stage 1 port of the legacy colorMixin: the same ~50 hex values keyed by
- * department, generic-GIR/HASS/CI categories, and the 42-color custom
- * activity palette. (Stage 2 replaces the palette with a perceptually
- * coherent system; the keying logic here is the stable contract.)
+ * Department/course color assignments. Ported keying from the legacy
+ * colorMixin: department, generic-GIR/HASS/CI, and 42-color custom
+ * activity keys. The perceptually coherent hex values live in
+ * generate-palette.mjs/departmentColors.css; this is the stable contract
+ * they key off.
  */
 
 import type { Subject, SelectedSubject } from "./types";

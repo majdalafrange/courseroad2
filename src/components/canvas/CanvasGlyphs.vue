@@ -29,14 +29,11 @@
 import { computed } from "vue";
 
 /**
- * The planning canvas material: numerals and operators used as a substance
- * rather than as labels, after the lattice of characters in the Alchemist on
- * the Stratton lawn. The technique is the borrowed part. No figure is drawn.
- *
- * Rendered as an SVG pattern rather than a background-image data URI so the
- * glyphs get the page's own Plex Mono and the theme's own tokens. The tile
- * repeats to any height, and living inside the scrolled content means the
- * field moves with the plan the way the old contour paper did.
+ * The planning canvas material: numerals/operators as a substance, not
+ * labels. Based on the character-lattice in the Alchemist on the Stratton
+ * lawn. Rendered as an SVG pattern (not a background-image data URI) so
+ * glyphs get the page's own Plex Mono and theme tokens; the tile repeats
+ * to any height and scrolls with the content.
  */
 
 interface Glyph {
@@ -55,10 +52,9 @@ interface Glyph {
 const TILE = 220;
 
 /**
- * Laid out on a jittered grid at roughly 31px pitch. Even coverage is the
- * point: the sculpture's characters interlock into a fabric, and a loose
- * scatter of large numerals reads as wallpaper instead. Small and packed,
- * so the field is a material the cards sit on rather than something to read.
+ * Jittered grid at ~31px pitch: even coverage so characters interlock
+ * into a fabric rather than reading as a loose numeral scatter. Small
+ * and packed: a material the cards sit on, not something to read.
  */
 const GLYPHS: Glyph[] = [
   { c: "8", x: 12, y: 18, s: 17, r: -14, o: 0.85 },

@@ -1,14 +1,10 @@
 /**
- * Deterministic incremental layout, the craft that keeps the graph "calm."
- *
- * There is no live force simulation. New children are placed radially around
- * the node that introduced them, in free space, and **existing nodes never
- * move** (the stability invariant). Collision avoidance is local: only
- * the incoming node searches outward for an open spot; a placed node is
- * never displaced. Everything is deterministic: fixed candidate angles,
- * ids processed in sorted order, no randomness. The same graph and the
- * same expansion order always yield the same layout (correct without any
- * requestAnimationFrame loop).
+ * Deterministic incremental layout: no live force simulation. New
+ * children are placed radially around the node that introduced them, in
+ * free space; **existing nodes never move**. Collision avoidance is
+ * local: only the incoming node searches outward for an open spot.
+ * Fixed candidate angles, ids in sorted order, no randomness: same
+ * graph and expansion order always yields the same layout.
  *
  * Pinned/dragged positions are authoritative and survive every pass,
  * including the optional one-shot "tidy."

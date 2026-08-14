@@ -1,8 +1,7 @@
 /**
- * Degree-audit helpers: smart ordering of the program picker, client-side
- * list-id assignment on requirement trees, and petition/ignore state.
- *
- * Ported from Audit.vue.
+ * Degree-audit helpers: smart ordering of the program picker,
+ * client-side list-id assignment on requirement trees, petition/ignore
+ * state. Ported from Audit.vue.
  */
 
 import type { ProgressAssertion, ReqListEntry, RequirementNode } from "./types";

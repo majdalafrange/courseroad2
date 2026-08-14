@@ -1,14 +1,11 @@
 /**
- * Undo/redo service: a store-level history of road mutations.
- *
- * Every user-initiated road mutation (class add/move/remove, road
- * create/delete/rename, program add/remove, petitions, manual progress)
- * records an inverse pair here. ⌘Z / ⌘⇧Z walk the stacks. This service is
- * load-bearing for the whole product: destructive actions are "confirmed"
- * with undo, never with dialogs.
- *
- * A plain reactive module (not Pinia) so courseData can import it without
- * store-in-store cycles.
+ * Undo/redo service: store-level history of road mutations. Every
+ * user-initiated mutation (class add/move/remove, road create/delete/
+ * rename, program add/remove, petitions, manual progress) records an
+ * inverse pair here; ⌘Z/⌘⇧Z walk the stacks. Load-bearing for the whole
+ * product: destructive actions are "confirmed" with undo, never
+ * dialogs. Plain reactive module (not Pinia) so courseData can import it
+ * without store-in-store cycles.
  */
 
 import { reactive } from "vue";

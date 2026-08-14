@@ -1,19 +1,16 @@
 /**
- * Prerequisite/corequisite fulfillment engine.
+ * Prerequisite/corequisite fulfillment engine. Ported verbatim from the
+ * legacy `reqFulfillment` mixin. Years of bug-report fixes are baked
+ * into these edge cases (CMS/History "one subject in" strings, the
+ * Brain-and-Cognitive-Sciences comma quirk, film matching by title). Do
+ * not "clean up" behavior here without pinned tests.
  *
- * Ported verbatim from the legacy `reqFulfillment` mixin. Years of student
- * bug reports are baked into these edge cases (CMS/History "one subject in"
- * strings, the Brain-and-Cognitive-Sciences comma quirk, film matching by
- * title). Do not "clean up" behavior here without pinned tests.
- *
- * Two intentional changes from legacy:
- * - The final boolean expression is evaluated by a tiny recursive-descent
- *   parser instead of `eval()`. Equivalence with `eval` is property-tested
- *   in tests/unit/lib/requirements.spec.ts.
- * - The final assembly parenthesizes under the shared requirement grammar
- *   (comma binds loose, slash binds tight; see reqGrammar.ts) instead of
- *   inheriting JS operator precedence, so this flag agrees with the
- *   prereq tree in prereqTree.ts on strings like "A,B/C".
+ * Two intentional changes from legacy: the final boolean expression uses
+ * a tiny recursive-descent parser instead of `eval()` (equivalence
+ * property-tested in tests/unit/lib/requirements.spec.ts), and assembly
+ * follows the shared requirement grammar's precedence (comma loose,
+ * slash tight; reqGrammar.ts) instead of JS's, so this agrees with the
+ * prereq tree in prereqTree.ts on strings like "A,B/C".
  */
 
 import type { CatalogView, SelectedSubject } from "./types";

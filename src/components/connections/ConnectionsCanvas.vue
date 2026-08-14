@@ -421,12 +421,10 @@ function fit() {
 /* ------------------------------------------------------- framing */
 
 /**
- * Serve the store's frame requests: fit everything when no ids are named,
- * otherwise pan (and zoom out, never in) just enough that those cards are
- * inside the view. Freshly revealed nodes stay reachable without the camera
- * ever lurching for changes that are already visible.
+ * Serve a frame request: fit everything when no ids are named, otherwise
+ * pan (zoom out only, never in) just enough to bring those cards into
+ * view. False only when the canvas has no size to aim at.
  */
-/** Serve a frame ask. False only when the canvas has no size to aim at. */
 function frameNodes(ids?: string[], floor?: number): boolean {
   const size = visibleCanvasSize();
   if (size === undefined) {

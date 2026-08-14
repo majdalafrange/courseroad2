@@ -50,8 +50,8 @@
       </label>
 
       <p v-if="badinput" class="import-error">
-        That didn't look like a valid <code>.road</code> file. Make sure the
-        road has a unique name and the file came from CourseRoad.
+        Hmm, that didn't look like a valid <code>.road</code> file. Make sure it
+        has a unique name and came from CourseRoad.
       </p>
 
       <div class="import-actions">
@@ -195,8 +195,8 @@ function importRoad() {
           : "";
       toast.warn(
         parsed.droppedSubjects.length === 1
-          ? "One entry was left out"
-          : `${parsed.droppedSubjects.length} entries were left out`,
+          ? "We had to leave one entry out"
+          : `We had to leave ${parsed.droppedSubjects.length} entries out`,
         `Not in the subject catalog: ${listed}${more}.`,
       );
     }

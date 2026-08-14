@@ -1,10 +1,8 @@
 /**
- * Semester arithmetic and subject-offering rules.
- *
- * The road has 16 buckets: index 0 is Prior Credit, then 5 years of
- * (Fall, IAP, Spring). `currentSemester` (1-based, from FireRoad's
- * set_semester) anchors which bucket "now" is; `userYear` is derived from
- * it. All rules ported exactly from Semester.vue / schedule.js.
+ * Semester arithmetic and subject-offering rules. The road has 16
+ * buckets: index 0 is Prior Credit, then 5 years of (Fall, IAP, Spring).
+ * `currentSemester` (1-based, FireRoad's set_semester) anchors "now";
+ * `userYear` derives from it. Ported exactly from Semester.vue/schedule.js.
  */
 
 import type { Subject } from "./types";

@@ -1,11 +1,10 @@
 /**
- * Generic subject-filter engine (Regex / Math-range / Boolean / Array
- * filters over arbitrary attributes, composable in AND/OR groups), plus
- * the concrete search filters the UI uses (GIR/HASS/CI/Level/Units/Term/
- * Virtual and the text/instructor filters).
- *
- * Ported from utilities/filters.js + ClassSearch.vue with identical
- * matching and ranking semantics (pinned by tests/unit/filter/*).
+ * Generic subject-filter engine (Regex/Math-range/Boolean/Array filters
+ * over arbitrary attributes, composable in AND/OR groups), plus the
+ * concrete search filters the UI uses (GIR/HASS/CI/Level/Units/Term/
+ * Virtual, text/instructor). Ported from utilities/filters.js +
+ * ClassSearch.vue with identical matching/ranking (pinned by
+ * tests/unit/filter/*).
  */
 
 type CombineMode = "AND" | "OR";

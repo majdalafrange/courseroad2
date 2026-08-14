@@ -1,14 +1,12 @@
 /**
- * Generates src/design/departmentColors.css, the perceptually coherent
- * department color system.
+ * Generates src/design/departmentColors.css.
  *
- * Design: every department color is an OKLCH color with a FIXED
- * lightness/chroma band per theme, so chips are equally vivid, text
- * contrast is guaranteed by construction, and only hue (+ a "deep" tier)
- * distinguishes departments. Hue assignments group departments into
- * meaningful families (computing = azure, sciences = green/teal,
- * humanities = warm gold/coral, arts = magenta), so the canvas reads
- * as a landscape rather than confetti.
+ * Every department is an OKLCH color at a FIXED lightness/chroma band per
+ * theme, so chips are equally vivid and text contrast holds by
+ * construction; only hue (+ a "deep" tier) distinguishes departments.
+ * Hues are matched to the legacy app's per-department color (see
+ * src/mixins/colorMixin.js on master) rather than grouped into clean
+ * families, so returning students' color sense carries over.
  *
  * Light theme: L=0.53 C=0.115 (white text, ≥4.5:1 by construction)
  * Dark theme:  L=0.70 C=0.10  (ink text, ≥7:1 by construction)
@@ -72,81 +70,96 @@ const WHITE = [1, 1, 1];
 const INK = oklchToRgb(0.22, 0.012, 250); // --g-ink dark text
 
 /**
- * Department → [hue, tier] assignments.
- * Families: 200–250 computing/engineering blues · 130–185 sciences ·
- * 25–95 humanities warm range · 300–345 arts/media · greys for ROTC.
+ * Department → [hue, tier] assignments, matched from the legacy app's
+ * per-department hex (hue = its HSL hue; tier 1 = the muted ~30-40%
+ * saturation half of that palette, tier 0 = the ~70% saturated half).
+ * A few hues that would otherwise collide get a 1° nudge to keep every
+ * department's final hex distinct (enforced by assertDistinct below).
  */
 const assignments = {
   // Engineering
-  1: [185, 0], // Civil & Environmental: sea teal
-  2: [215, 1], // Mechanical: deep steel
-  3: [50, 1], // Materials: bronze
-  6: [240, 0], // EECS: azure
-  10: [95, 1], // Chemical: olive
-  16: [205, 0], // AeroAstro: sky steel
-  20: [160, 1], // Biological Eng: deep emerald
-  22: [260, 1], // Nuclear: deep cobalt
+  1: [0, 0], // Civil & Environmental
+  2: [20, 0], // Mechanical
+  3: [225, 0], // Materials
+  6: [210, 0], // EECS
+  10: [0, 1], // Chemical
+  16: [197, 0], // AeroAstro
+  20: [135, 1], // Biological Eng
+  22: [1, 1], // Nuclear
   // Sciences
-  5: [150, 0], // Chemistry: emerald
-  7: [130, 0], // Biology: green
-  8: [262, 0], // Physics: cobalt
-  9: [285, 0], // Brain & Cog: indigo
-  12: [105, 0], // EAPS: moss
-  18: [300, 0], // Math: violet
+  5: [162, 0], // Chemistry
+  7: [218, 1], // Biology
+  8: [267, 1], // Physics
+  9: [264, 0], // Brain & Cog
+  12: [125, 0], // EAPS
+  18: [236, 1], // Math
   // HASS
-  4: [330, 0], // Architecture: magenta
-  11: [70, 1], // Urban Studies: ochre
-  14: [40, 0], // Economics: copper
-  15: [25, 1], // Management: deep ember
-  17: [10, 0], // Political Science: brick rose
-  24: [295, 1], // Linguistics & Philosophy: deep violet
-  // Course 21 family: the humanities ridge (warm golds & corals)
-  21: [65, 0],
-  "21A": [58, 0],
-  "21G": [80, 0],
-  "21H": [30, 0],
-  "21L": [45, 0],
-  "21M": [340, 0], // Music sits with the arts
-  "21T": [350, 0], // Theater
-  "21W": [20, 0],
+  4: [128, 1], // Architecture
+  11: [342, 1], // Urban Studies
+  14: [30, 0], // Economics
+  15: [3, 1], // Management
+  17: [315, 0], // Political Science
+  24: [260, 1], // Linguistics & Philosophy
+  // Course 21 family
+  21: [138, 1],
+  "21A": [139, 1], // Anthropology
+  "21G": [162, 1], // Global Languages
+  "21H": [170, 1], // History
+  "21L": [178, 1], // Literature
+  "21M": [186, 1], // Music
+  "21T": [188, 1], // Theater Arts
+  "21W": [146, 1], // Writing
   // Interdisciplinary & misc
-  CC: [120, 1], // Concourse
-  CMS: [320, 0], // Comparative Media: orchid
-  CSB: [225, 1], // Computational & Systems Bio
-  EC: [140, 1], // Edgerton
-  EM: [250, 1],
-  ES: [275, 1],
-  HST: [170, 0], // Health Sciences: clinical teal
-  IDS: [230, 1], // IDSS
-  MAS: [310, 0], // Media Arts: fuchsia
-  SCM: [90, 0], // Supply Chain
-  STS: [55, 1],
-  WGS: [345, 1],
-  SP: [265, 0],
-  SWE: [35, 1],
+  CC: [115, 0], // Concourse
+  CMS: [154, 1], // Comparative Media
+  CSB: [197, 1], // Computational & Systems Bio
+  EC: [100, 1], // Edgerton
+  EM: [225, 1], // Engineering and Management
+  ES: [242, 1], // ESG
+  HST: [217, 1], // Health Sciences
+  IDS: [150, 1], // IDSS
+  MAS: [122, 1], // Media Arts
+  SCM: [137, 1], // Supply Chain
+  STS: [276, 1], // Science, Technology & Society
+  WGS: [194, 1], // Women's & Gender Studies
+  SP: [240, 0], // Special Programs (e.g., Interphase, Terrascope, etc.)
+  SWE: [13, 1], // Engineering School-Wide
 };
 
-/* Generic categories keep their own recognizable hues. */
+/* Generic categories: same legacy-hue-match rule as departments above. */
 const genericAssignments = {
-  "generic-GIR": [45, 1], // amber bronze: "foundation"
-  "generic-HASS-A": [330, 0],
-  "generic-HASS-H": [30, 0],
-  "generic-HASS-S": [70, 0],
-  "generic-HASS-E": [110, 0],
-  "generic-CI-H": [200, 0],
-  "generic-CI-HW": [255, 0],
+  "generic-GIR": [18, 0],
+  "generic-HASS-A": [198, 0],
+  "generic-HASS-H": [234, 0],
+  "generic-HASS-S": [270, 0],
+  "generic-HASS-E": [163, 0], // nudged 1° off course-5 (coincidental collision)
+  "generic-CI-H": [306, 0],
+  "generic-CI-HW": [342, 0],
   "course-none": null, // neutral, defined by hand below
 };
 
+/* "No department" fallback grey; distinct from the ROTC tints below, as
+   in the legacy app (#999999 vs #b0b0b0). */
 const NEUTRAL = {
   light: "#8a8f98",
   dark: "#9aa0a8",
 };
-const ROTC = ["AS", "MS", "NS"];
+/* ROTC (AS/MS/NS): legacy app painted all three the same grey. Each gets
+   a faint chroma at its own hue instead, so they stay distinct too. */
+const ROTC = {
+  AS: [250, 0.02], // Air Force: faint cool/blue-grey
+  MS: [40, 0.02], // Army: faint warm/olive-grey
+  NS: [150, 0.02], // Navy: faint green-grey
+};
 
 function tone(band, hue) {
   return hex(oklchToRgb(band.L, band.C, hue));
 }
+
+/* Lightness matching NEUTRAL at C≈0, so ROTC tints sit at the same
+   visual weight instead of jumping to the department L/C bands. */
+const NEUTRAL_LIGHT_L = 0.655;
+const NEUTRAL_DARK_L = 0.708;
 
 const entries = {};
 let minLight = Infinity;
@@ -166,8 +179,11 @@ for (const [dept, [hue, tier]] of Object.entries(assignments)) {
   );
   entries[`course-${dept}`] = { light, dark };
 }
-for (const dept of ROTC) {
-  entries[`course-${dept}`] = NEUTRAL;
+for (const [dept, [hue, chroma]] of Object.entries(ROTC)) {
+  entries[`course-${dept}`] = {
+    light: hex(oklchToRgb(NEUTRAL_LIGHT_L, chroma, hue)),
+    dark: hex(oklchToRgb(NEUTRAL_DARK_L, chroma, hue)),
+  };
 }
 for (const [key, assignment] of Object.entries(genericAssignments)) {
   if (assignment === null) {
@@ -184,6 +200,23 @@ for (const [key, assignment] of Object.entries(genericAssignments)) {
 console.log(
   `min contrast: light(white text) ${minLight.toFixed(2)}, dark(ink text) ${minDark.toFixed(2)}`,
 );
+
+/** Fails loudly on any two departments sharing a final hex per theme. */
+function assertDistinct(themeKey) {
+  const seen = new Map();
+  for (const [dept, value] of Object.entries(entries)) {
+    const hexValue = value[themeKey];
+    if (seen.has(hexValue)) {
+      throw new Error(
+        `Duplicate ${themeKey} color ${hexValue}: ${seen.get(hexValue)} and ${dept}. ` +
+          `Nudge one of their hues in the assignments above.`,
+      );
+    }
+    seen.set(hexValue, dept);
+  }
+}
+assertDistinct("light");
+assertDistinct("dark");
 
 /* ---- emit CSS custom properties ---- */
 let css = `/* GENERATED by scripts/generate-palette.mjs. Do not edit. */\n:root {\n`;

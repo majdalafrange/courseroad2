@@ -1,14 +1,11 @@
 /**
- * Central app store (Pinia port of the legacy Vuex store).
- *
- * The state shape mirrors the Vuex original field-for-field because the
- * whole state is serialized to localStorage ("courseRoadStore") on unload
- * and restored on load; existing users' snapshots must keep working.
- *
- * The legacy deep `roads` watcher (which fired autosave + audit recompute
- * on every nested change) is replaced by explicit `notifyRoadChange`
- * calls from each mutating action: targeted and debounced instead of
- * cascade-triggered.
+ * Central app store (Pinia port of the legacy Vuex store). State shape
+ * mirrors the Vuex original field-for-field: the whole state is
+ * serialized to localStorage ("courseRoadStore") on unload, so existing
+ * users' snapshots must keep working. The legacy deep `roads` watcher
+ * (autosave + audit recompute on every nested change) is replaced by
+ * explicit `notifyRoadChange` calls per mutating action: targeted and
+ * debounced instead of cascade-triggered.
  */
 
 import { defineStore } from "pinia";

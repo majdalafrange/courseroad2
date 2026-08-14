@@ -18,7 +18,7 @@
       <div class="cc-body">
         <p class="cc-hint">
           Anything that takes time but isn't in the catalog: a UROP, a sport, a
-          job. It counts toward your units and hours.
+          job. It'll count toward your units and hours, just like a class.
         </p>
 
         <g-input

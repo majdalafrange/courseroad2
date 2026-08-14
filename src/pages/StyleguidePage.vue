@@ -442,7 +442,7 @@ const deptSwatches = [
   { key: "generic-GIR", label: "GIR", name: "Generic GIR" },
   { key: "generic-HASS-A", label: "H-A", name: "HASS Arts" },
   { key: "generic-CI-H", label: "CI-H", name: "Comm Intensive" },
-  { key: "course-none", label: "—", name: "Unknown" },
+  { key: "course-none", label: "?", name: "Unknown" },
 ];
 </script>
 

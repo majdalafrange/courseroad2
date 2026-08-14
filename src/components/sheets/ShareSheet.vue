@@ -44,7 +44,9 @@
         <g-icon name="upload" :size="16" />
         <span class="option-text">
           <strong>Export .road file</strong>
-          <small>Re-importable here, or by anyone using CourseRoad</small>
+          <small
+            >You (or anyone else on CourseRoad) can import it back in</small
+          >
         </span>
       </button>
     </div>
@@ -57,7 +59,12 @@ import GIcon from "../../design/components/GIcon.vue";
 import GSheet from "../../design/components/GSheet.vue";
 import { toast } from "../../design/toast";
 import { downloadRoadFile } from "../../lib/download";
-import { buildRoadPoster, downloadPng, rasterizeToPng } from "../../lib/poster";
+import {
+  buildRoadPoster,
+  downloadPng,
+  preparePosterFonts,
+  rasterizeToPng,
+} from "../../lib/poster";
 import { useCourseDataStore } from "../../stores/courseData";
 
 const props = defineProps<{
@@ -83,26 +90,45 @@ watch(
         userYear: store.userYear,
         dark: Boolean(store.isDarkMode),
       });
+      // Warm the embedded-font cache now (usually instant: same files
+      // main.ts already loaded) so Save/Print don't wait on it later.
+      void preparePosterFonts();
     }
   },
 );
 
+/**
+ * The live preview (posterSvg, injected via v-html) already renders in
+ * the right font since it's part of this document. Save/Print open
+ * the SVG *outside* this document, so they need the fonts embedded in
+ * it; rebuilding here (after the cache is warm) is cheap and guarantees
+ * whichever path runs first still gets the embed.
+ */
+async function exportSvg(): Promise<string> {
+  await preparePosterFonts();
+  return buildRoadPoster(road.value, store.catalog, {
+    userYear: store.userYear,
+    dark: Boolean(store.isDarkMode),
+  });
+}
+
 async function savePng() {
   try {
-    const png = await rasterizeToPng(posterSvg.value, 2);
+    const png = await rasterizeToPng(await exportSvg(), 2);
     downloadPng(png, `${roadName.value}.png`);
-    toast.ok("Image saved");
+    toast.ok("Your image is saved!");
   } catch {
-    toast.danger("Couldn't render the image", "Try the PDF option instead.");
+    toast.danger("We couldn't render the image", "Try the PDF option instead.");
   }
 }
 
-function printPoster() {
+async function printPoster() {
   const win = window.open("", "_blank");
   if (win === null) {
-    toast.warn("Pop-up blocked", "Allow pop-ups to print this road.");
+    toast.warn("Pop-up blocked", "Allow pop-ups and we'll get this printing.");
     return;
   }
+  const svg = await exportSvg();
   // The road name is NOT interpolated into markup: it is assigned via
   // document.title (plain text, never HTML-parsed) so a hostile road name
   // like `</title><img src=x onerror=…>` cannot inject script into this
@@ -111,7 +137,7 @@ function printPoster() {
   win.document.write(
     `<!doctype html><html><head>` +
       `<style>@page { margin: 12mm; } body { margin: 0; } svg { width: 100%; height: auto; }</style>` +
-      `</head><body>${posterSvg.value}</body></html>`,
+      `</head><body>${svg}</body></html>`,
   );
   win.document.close();
   win.document.title = roadName.value;
@@ -122,7 +148,7 @@ function printPoster() {
 function saveRoadFile() {
   if (road.value) {
     downloadRoadFile(road.value.name, road.value.contents);
-    toast.ok(`Exported “${roadName.value}.road”`);
+    toast.ok(`Your road is exported as “${roadName.value}.road”`);
   }
 }
 
