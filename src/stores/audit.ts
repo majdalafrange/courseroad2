@@ -13,7 +13,16 @@ import { useCourseDataStore } from "./courseData";
 
 export const useAuditStore = defineStore("audit", {
   state: () => ({
-    reqList: [] as ReqListEntry[],
+    reqList: [
+      // add a dummy entry so the audit tree renders something before first fetch is done
+      {
+        key: "girs",
+        "short-title": "GIRs",
+        "medium-title": "GIRs",
+        "title-no-degree": "",
+        title: "General Institute Requirements",
+      },
+    ] as ReqListEntry[],
     reqTrees: {} as Record<string, RequirementNode>,
     updatingFulfillment: false,
     /**
