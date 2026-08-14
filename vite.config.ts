@@ -41,6 +41,7 @@ export default defineConfig(({ mode }) => ({
   server: {
     port: 8080,
   },
+  base: mode === "staging" ? "/dev/" : "/",
   plugins: [vue(), cspMeta(mode)],
   test: {
     // Lib tests are pure TS and run in node; jsdom is opt-in, for the
