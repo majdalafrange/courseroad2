@@ -6,7 +6,6 @@ import App from "./App.vue";
 import MainPage from "./pages/MainPage.vue";
 
 // Fonts and design tokens.
-import "@fontsource-variable/space-grotesk";
 import "@fontsource/ibm-plex-sans/400.css";
 import "@fontsource/ibm-plex-sans/500.css";
 import "@fontsource/ibm-plex-sans/600.css";

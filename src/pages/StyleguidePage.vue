@@ -80,9 +80,9 @@
     <section class="sg-section">
       <h2 class="sg-h2">Type</h2>
       <p class="sg-body sg-note">
-        Space Grotesk for display, IBM Plex Sans for the interface, IBM Plex
-        Mono for subject ids and numeric data. Ids are always mono, because they
-        are the atomic unit of the product.
+        IBM Plex Sans for both display and interface and IBM Plex Mono for
+        subject ids and numeric data. Ids are always mono, because they are the
+        atomic unit of the product.
       </p>
       <g-card class="sg-type-ramp">
         <div class="sg-type-row">

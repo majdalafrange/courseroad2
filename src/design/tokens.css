@@ -5,16 +5,17 @@
  * neutrals, structured contour-like hue families, a deep MIT garnet accent,
  * and motion that always explains where things come from.
  *
- * TYPE: three voices, all self-hosted:
- *   · Space Grotesk (display/headings/wordmark): geometric with just
- *     enough quirk to feel drawn, not defaulted; its engineering flavor
- *     suits MIT without cosplay.
- *   · IBM Plex Sans (UI/body): sober, deliberately engineered humanist
- *     sans with excellent legibility at small sizes, and pointedly not
- *     the ubiquitous default UI font.
+ * TYPE: two voices, all self-hosted:
+ *   · IBM Plex Sans (display/headings/wordmark AND UI/body): sober,
+ *     deliberately engineered humanist sans with excellent legibility at
+ *     small sizes, and pointedly not the ubiquitous default UI font. One
+ *     face for both headings and body — the same pairing Hydrant (MIT's
+ *     other SIPB planning tool) uses — so a student moving between the
+ *     two reads them as siblings instead of relearning a typeface.
  *   · IBM Plex Mono (subject ids, numbers): subject ids like "6.006" are
  *     the atomic unit of this product; giving them tabular mono treatment
- *     makes them scan like coordinates on a chart.
+ *     makes them scan like coordinates on a chart. Also shared with
+ *     Hydrant, which mono-sets subject numbers the same way.
  *
  * Light and dark are designed as siblings, not inversions: light is
  * garnet-led on cool paper; dark is basalt where MIT silver carries every
@@ -93,9 +94,9 @@
   --dept-rest-mix: 70%;
 
   /* ---------- type ---------- */
-  --font-display:
-    "Space Grotesk Variable", "Space Grotesk", "Avenir Next", "Segoe UI",
-    sans-serif;
+  /* --font-display and --font-text are the same stack on purpose (see the
+     TYPE note above): one voice for headings and body, matching Hydrant. */
+  --font-display: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
   --font-text: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "IBM Plex Mono", "SF Mono", "Cascadia Mono", monospace;
 
@@ -113,7 +114,7 @@
   --text-id: 500 0.875rem/1.4 var(--font-mono); /* subject ids */
   --text-id-small: 500 0.78125rem/1.35 var(--font-mono);
   --tracking-caps: 0.06em;
-  /* Space Grotesk sets wide at display sizes; tighten anything ≥22px */
+  /* Plex Sans opens up slightly at display sizes; tighten anything ≥22px */
   --tracking-tight: -0.01em;
 
   /* ---------- spacing / radius ---------- */

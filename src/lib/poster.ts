@@ -165,7 +165,7 @@ export function buildRoadPoster(
     const rowH = termHeaderH + maxCardsByYear[y] * (cardH + cardGap) + 16;
     // year label
     parts.push(
-      `<text x="${padding}" y="${cursorY - 8}" font-family="'Space Grotesk',sans-serif" font-size="16" font-weight="600" fill="${theme.ink}">${esc(yearNames[y])}</text>`,
+      `<text x="${padding}" y="${cursorY - 8}" font-family="'IBM Plex Sans',sans-serif" font-size="16" font-weight="600" fill="${theme.ink}">${esc(yearNames[y])}</text>`,
     );
     for (let c = 0; c < 3; c++) {
       const index = 1 + y * 3 + c;
@@ -198,7 +198,7 @@ export function buildRoadPoster(
     <rect x="0" y="0" width="${width}" height="${height}" fill="${theme.bg}"/>
     <rect x="${padding}" y="${padding - 8}" width="24" height="24" rx="3" fill="${MARK_TILE}"/>
     <path d="M${padding + 5} ${padding + 10.5} H${padding + 9.8} V${padding + 5.5} H${padding + 14.6} V${padding + 0.5} H${padding + 19}" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-    <text x="${padding + 34}" y="${padding + 10}" font-family="'Space Grotesk',sans-serif" font-size="22" font-weight="600" fill="${theme.ink}">${esc(truncateTitle(road.name))}</text>
+    <text x="${padding + 34}" y="${padding + 10}" font-family="'IBM Plex Sans',sans-serif" font-size="22" font-weight="600" fill="${theme.ink}">${esc(truncateTitle(road.name))}</text>
     <text x="${padding + 34}" y="${padding + 32}" font-family="'IBM Plex Sans',sans-serif" font-size="13" fill="${theme.ink3}">${totalUnits} units · planned in CourseRoad</text>
   `;
 
@@ -211,7 +211,7 @@ ${parts.join("\n")}
 /**
  * Cap the header title the way subject titles are capped below: SVG text
  * does not wrap or clip, so an unbounded road name ran past the poster's
- * right edge. 48 characters of 22px Space Grotesk fit the 812px sheet.
+ * right edge. 48 characters of 22px IBM Plex Sans fit the 812px sheet.
  * Sliced by code point, not code unit, so the cut can never split an
  * astral character and emit invalid XML.
  */

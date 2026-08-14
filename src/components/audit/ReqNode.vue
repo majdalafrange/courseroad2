@@ -501,6 +501,7 @@ export default { name: "ReqNode" };
   min-width: 0;
   overflow: hidden;
   display: -webkit-box;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
@@ -509,7 +510,6 @@ export default { name: "ReqNode" };
   color: var(--g-ink-3);
   font-style: italic;
   white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
 }
 .branch-percent {
