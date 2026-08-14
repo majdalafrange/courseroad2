@@ -47,7 +47,16 @@ export default defineConfig(({ mode }) => ({
     // store specs here and via a file pragma where a lib spec touches
     // the DOM. environmentMatchGlobs is the vitest 2 mechanism.
     environment: "node",
-    environmentMatchGlobs: [["tests/unit/stores/**", "jsdom"]],
+    projects: [
+      {
+        extends: true,
+        test: {
+          include: ["tests/unit/stores/**"],
+          name: "stores",
+          environment: "jsdom",
+        },
+      },
+    ],
     include: ["tests/unit/**/*.spec.ts"],
     coverage: {
       provider: "v8",

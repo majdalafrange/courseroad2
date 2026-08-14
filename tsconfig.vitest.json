@@ -1,9 +1,0 @@
-{
-  "extends": "./tsconfig.app.json",
-  "compilerOptions": {
-    // Specs may read fixtures from disk; src stays node-free (the app
-    // tsconfig has no node types, so an fs import in src fails there).
-    "types": ["node"]
-  },
-  "include": ["src/**/*.ts", "src/**/*.vue", "tests/**/*.ts"]
-}

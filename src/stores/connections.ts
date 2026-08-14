@@ -74,11 +74,7 @@ import { useCourseDataStore } from "./courseData";
 import { useAuditStore } from "./audit";
 
 export type ConnectionsStatus =
-  | "idle"
-  | "loading"
-  | "ready"
-  | "empty"
-  | "error";
+  "idle" | "loading" | "ready" | "empty" | "error";
 
 /** Node geometry, shared by the renderer and edge trimming. Cards are
  *  stadiums: full-round end caps, so the cap radius is half the height and

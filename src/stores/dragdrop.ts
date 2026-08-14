@@ -51,8 +51,7 @@ let scrollRaf: number | null = null;
 let scrollVelocity = 0;
 let dropHandler: DropHandler | null = null;
 let eligibilityProvider:
-  | ((subject: Subject) => PlacementStatus["kind"][])
-  | null = null;
+  ((subject: Subject) => PlacementStatus["kind"][]) | null = null;
 
 const termRects = new Map<number, DOMRect>();
 const termElements = new Map<number, HTMLElement>();

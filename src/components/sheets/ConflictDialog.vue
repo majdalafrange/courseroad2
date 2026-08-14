@@ -94,7 +94,7 @@ function agentFor(side: string): string {
   }
   return side === "remote"
     ? conflictInfo.value.other_agent
-    : roads.value[conflictInfo.value.id]?.agent ?? "";
+    : (roads.value[conflictInfo.value.id]?.agent ?? "");
 }
 
 function dateFor(side: string): string {
@@ -104,7 +104,7 @@ function dateFor(side: string): string {
   const raw =
     side === "remote"
       ? conflictInfo.value.other_date
-      : roads.value[conflictInfo.value.id]?.changed ?? "";
+      : (roads.value[conflictInfo.value.id]?.changed ?? "");
   const parsed = new Date(raw);
   return isNaN(parsed.getTime()) ? raw : parsed.toLocaleString();
 }

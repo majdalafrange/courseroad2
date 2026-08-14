@@ -252,8 +252,7 @@ function animateViewportTo(viewport: Viewport): void {
  */
 const bgPointers = new Map<number, { x: number; y: number }>();
 let gestureAnchor:
-  | { x: number; y: number; dist: number; viewport: Viewport }
-  | undefined;
+  { x: number; y: number; dist: number; viewport: Viewport } | undefined;
 
 function gesturePoint(): { x: number; y: number; dist: number } {
   const pts = [...bgPointers.values()];

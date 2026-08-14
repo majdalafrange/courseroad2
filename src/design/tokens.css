@@ -93,8 +93,9 @@
   --dept-rest-mix: 70%;
 
   /* ---------- type ---------- */
-  --font-display: "Space Grotesk Variable", "Space Grotesk", "Avenir Next",
-    "Segoe UI", sans-serif;
+  --font-display:
+    "Space Grotesk Variable", "Space Grotesk", "Avenir Next", "Segoe UI",
+    sans-serif;
   --font-text: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "IBM Plex Mono", "SF Mono", "Cascadia Mono", monospace;
 
@@ -257,16 +258,16 @@
 
   --g-focus-ring: 0 0 0 2px var(--g-bg), 0 0 0 4px var(--g-accent);
 
-  --shadow-1: 0 1px 2px rgba(26, 28, 31, 0.08),
-    0 0 0 1px rgba(26, 28, 31, 0.045);
+  --shadow-1:
+    0 1px 2px rgba(26, 28, 31, 0.08), 0 0 0 1px rgba(26, 28, 31, 0.045);
   /* hover step for small items (class cards, cards); shadow-1 → shadow-2
      is a popover-scale jump on a 44px card */
-  --shadow-15: 0 2px 6px rgba(26, 28, 31, 0.09),
-    0 0 0 1px rgba(26, 28, 31, 0.045);
-  --shadow-2: 0 2px 10px rgba(26, 28, 31, 0.1),
-    0 0 0 1px rgba(26, 28, 31, 0.045);
-  --shadow-3: 0 10px 32px rgba(26, 28, 31, 0.18),
-    0 0 0 1px rgba(26, 28, 31, 0.05);
+  --shadow-15:
+    0 2px 6px rgba(26, 28, 31, 0.09), 0 0 0 1px rgba(26, 28, 31, 0.045);
+  --shadow-2:
+    0 2px 10px rgba(26, 28, 31, 0.1), 0 0 0 1px rgba(26, 28, 31, 0.045);
+  --shadow-3:
+    0 10px 32px rgba(26, 28, 31, 0.18), 0 0 0 1px rgba(26, 28, 31, 0.05);
   /* recessed wells (sunken cards, drop zones); themed so dark can deepen it */
   --shadow-well: inset 0 1px 3px rgba(26, 28, 31, 0.07);
 
@@ -333,13 +334,14 @@
 
   --g-focus-ring: 0 0 0 2px var(--g-bg), 0 0 0 4px var(--g-accent);
 
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.45),
-    0 0 0 1px rgba(255, 255, 255, 0.045);
-  --shadow-15: 0 2px 6px rgba(0, 0, 0, 0.45),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
-  --shadow-2: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
-  --shadow-3: 0 12px 36px rgba(0, 0, 0, 0.6),
-    0 0 0 1px rgba(255, 255, 255, 0.06);
+  --shadow-1:
+    0 1px 2px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.045);
+  --shadow-15:
+    0 2px 6px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-2:
+    0 2px 10px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-3:
+    0 12px 36px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06);
   --shadow-well: inset 0 1px 3px rgba(0, 0, 0, 0.5);
 
   /* dark leans on hairlines: shadows alone can't separate #1d1e22 from

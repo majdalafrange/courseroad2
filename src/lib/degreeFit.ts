@@ -52,8 +52,7 @@ export interface ProgramFit {
 
 /** The outcome of one `/requirements/progress/` call. */
 export type ProgramProbe =
-  | { ok: true; tree: RequirementNode }
-  | { ok: false; error: string };
+  { ok: true; tree: RequirementNode } | { ok: false; error: string };
 
 export interface FitGroups {
   majors: ProgramFit[];

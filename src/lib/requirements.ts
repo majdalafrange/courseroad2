@@ -286,7 +286,7 @@ export function reqsFulfilled(
         // like '"One subject In X"' can pass them without a lowercase
         // "in" token; falling back to parts[0] here would match a wrong
         // category instead of none.
-        const category = inIndex >= 0 ? parts[inIndex + 1] ?? "" : "";
+        const category = inIndex >= 0 ? (parts[inIndex + 1] ?? "") : "";
         idCategory = convertReqToID(category);
         splitReq[i] = checkForNumRequired(allIDs, idCategory, numRequired);
         const matchesTitles =

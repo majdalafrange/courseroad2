@@ -131,13 +131,11 @@ export const useAuthStore = defineStore("auth", {
       const store = useCourseDataStore();
       this.gettingUserData = true;
       const roadData = await fireroad.getRoad(roadID);
-      if (
-        !(
-          roadData.status === 200 &&
-          roadData.data.success &&
-          roadData.data.file
-        )
-      ) {
+      if (!(
+        roadData.status === 200 &&
+        roadData.data.success &&
+        roadData.data.file
+      )) {
         // Server error, deleted road, or malformed payload: skip gracefully
         // instead of dereferencing an absent `file`. Dereferencing it here
         // throws, and the caller's catch runs logoutUser() →
