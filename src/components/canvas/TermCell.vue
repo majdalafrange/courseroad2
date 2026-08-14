@@ -558,6 +558,20 @@ const placementAriaLabel = computed(() => {
   min-width: 180px;
   flex: 0 1 auto;
 }
+/* On a phone, prior credit stacks full-width like the other terms
+   instead of wrapping 180px-min cards, which never fit more than one
+   per row anyway. */
+@media (max-width: 859px) {
+  .is-prior-credit .term-classes {
+    flex-direction: column;
+  }
+  .is-prior-credit .term-classes > * {
+    /* flex: 0 1 auto above assumes a row; it no longer stretches width
+       once flex-direction flips to column, so width is set explicitly. */
+    min-width: 0;
+    width: 100%;
+  }
+}
 
 /* A control that whispers: it opens the palette scoped to this term,
    and its label surfaces on cell hover or its own focus so an empty

@@ -104,4 +104,12 @@ const emit = defineEmits<{
     transition: none;
   }
 }
+/* Widen the tap target toward the 44px touch-target guideline; the
+   visual chip stays the same size via the SVG's own fixed 15px icon. */
+@media (max-width: 859px) {
+  .theme-toggle {
+    width: 40px;
+    height: 40px;
+  }
+}
 </style>

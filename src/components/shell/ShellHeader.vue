@@ -574,7 +574,8 @@ const saveState = computed<SaveState>(() => {
 @media (max-width: 859px) {
   .shell-header {
     padding: 0 var(--space-3);
-    min-height: 48px;
+    /* 40px touch targets need more headroom than the old 48px row gave. */
+    min-height: 56px;
     gap: var(--space-2);
   }
   .header-brand :deep(.g-name) {
@@ -583,12 +584,27 @@ const saveState = computed<SaveState>(() => {
   .header-sep {
     display: none;
   }
+  .header-left :deep(.switch-trigger) {
+    /* Caps well under the desktop width so it ellipses instead of
+       crowding the touch targets on the other side of the row. */
+    max-width: 40vw;
+  }
   .search-trigger {
     width: auto;
+    /* Icon-only here (text/kbd hidden below): widen toward the 44px
+       touch-target guideline instead of sizing to the icon alone. */
+    min-width: 40px;
+    height: 40px;
   }
   .search-trigger-text,
   .search-trigger-kbd {
     display: none;
+  }
+  /* Undo/redo/feedback/more: same reasoning as .search-trigger. (Theme
+     toggle is sized in its own component, ThemeToggle.vue.) */
+  .header-icon-btn {
+    width: 40px;
+    height: 40px;
   }
   .mode-switch {
     display: none;
@@ -601,6 +617,15 @@ const saveState = computed<SaveState>(() => {
   }
   .more-item.mobile-only {
     display: flex;
+  }
+}
+
+/* On the narrowest phones the road name has almost no room left; the
+   brand mark is icon-only already and the bottom nav covers navigation,
+   so it's the cheapest thing to drop. */
+@media (max-width: 380px) {
+  .header-brand {
+    display: none;
   }
 }
 </style>

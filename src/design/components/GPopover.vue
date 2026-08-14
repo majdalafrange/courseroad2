@@ -145,6 +145,7 @@ onBeforeUnmount(() => {
 .g-popover-anchor {
   position: relative;
   display: inline-flex;
+  min-width: 0;
 }
 .g-popover {
   position: fixed;

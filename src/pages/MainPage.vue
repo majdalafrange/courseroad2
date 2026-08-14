@@ -286,6 +286,20 @@ function onResize() {
   viewportWidth.value = window.innerWidth;
 }
 
+// Placement mode only makes sense with the canvas visible: switch to
+// Plan and close any class-detail popup covering it. Every entry point
+// (ClassDetail, palette, suggestions) already funnels through this
+// flag, so one watcher covers them all.
+watch(
+  () => store.addingFromCard,
+  (adding) => {
+    if (adding) {
+      mobileView.value = "plan";
+      store.clearClassInfoStack();
+    }
+  },
+);
+
 /* ---- network ---- */
 const offline = ref(!navigator.onLine);
 function onOnline() {

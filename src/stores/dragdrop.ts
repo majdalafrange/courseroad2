@@ -81,9 +81,13 @@ export function configureDrag(options: {
   scrollContainer = options.scrollEl;
 }
 
-/** Begin tracking a possible drag (pointer down on a draggable). */
+/**
+ * Begin tracking a possible drag (pointer down on a draggable). Touch is
+ * excluded: it fights the page's own scroll gesture, and every capability
+ * here already has a tap-based equivalent.
+ */
 export function pointerDown(event: PointerEvent, source: DragSource): void {
-  if (event.button !== 0) {
+  if (event.button !== 0 || event.pointerType === "touch") {
     return;
   }
   startPoint = { x: event.clientX, y: event.clientY };

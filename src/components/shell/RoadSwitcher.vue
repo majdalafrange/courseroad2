@@ -239,6 +239,7 @@ function cancelRename() {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+  min-width: 0;
   max-width: 340px;
   font: var(--text-heading);
   color: var(--g-ink);

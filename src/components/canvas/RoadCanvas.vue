@@ -31,9 +31,11 @@
             data-cy="semester_title"
             @click="settingsOpen = !settingsOpen"
           >
-            <g-icon name="map" :size="14" />
-            <span>{{ yearNames[store.userYear] }} · {{ termLabelNow }}</span>
-            <g-icon name="chevronDown" :size="12" />
+            <g-icon name="map" :size="14" class="year-pill-icon" />
+            <span class="year-pill-text">
+              {{ yearNames[store.userYear] }} · {{ termLabelNow }}
+            </span>
+            <g-icon name="chevronDown" :size="12" class="year-pill-icon" />
           </button>
         </template>
         <div class="settings-pop" @click.stop>
@@ -422,6 +424,7 @@ void dragState;
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+  min-width: 0;
   font: var(--text-small);
   font-weight: 500;
   color: var(--g-ink-2);
@@ -443,6 +446,15 @@ void dragState;
 .year-pill:focus-visible {
   outline: none;
   box-shadow: var(--g-focus-ring);
+}
+.year-pill-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.year-pill-icon {
+  flex-shrink: 0;
 }
 .iap-toggle {
   display: inline-flex;
@@ -601,12 +613,13 @@ void dragState;
   color: var(--g-ink-3);
 }
 
-/* On a phone, the year grid stacks: the label sits on top, the three
-   terms flow into a single column so each is full-width and tappable. */
+/* On a phone, the year grid stacks into a single column. minmax(0, 1fr),
+   not bare 1fr: a bare track's automatic minimum size still comes from
+   its content, so it can force the column wider than the viewport. */
 @media (max-width: 859px) {
   .year-row,
   .year-row.no-iap {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-2);
   }
   .year-label {
