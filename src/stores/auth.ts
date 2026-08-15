@@ -640,6 +640,15 @@ export const useAuthStore = defineStore("auth", {
             // the only one. It persists like hideIAP and the theme do.
             store.setCurrentSemester(sem);
             persistCurrentSemester(sem);
+          } else {
+            // Logged in but the request itself failed (offline, a 500):
+            // without this, the picker looked like it silently ignored
+            // the click.
+            console.error("Semester change failed:", err);
+            toast.danger(
+              "Couldn't change your semester",
+              "Check your connection and try again.",
+            );
           }
         });
     },

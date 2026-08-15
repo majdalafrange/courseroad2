@@ -214,9 +214,14 @@ function commitRename() {
     return;
   }
   renamingId.value = null;
+  const road = store.roads[roadId];
+  if (road === undefined) {
+    // Deleted out from under the still-focused rename input (e.g. from
+    // another open menu) before its blur fired.
+    return;
+  }
   const newName = renameValue.value.trim();
-  const oldName = store.roads[roadId].name;
-  if (newName === "" || newName === oldName) {
+  if (newName === "" || newName === road.name) {
     return;
   }
   if (otherRoadHasName(store.roads, roadId, newName)) {

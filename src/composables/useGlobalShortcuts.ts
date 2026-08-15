@@ -33,7 +33,7 @@ export function useGlobalShortcuts(handlers: GlobalShortcutHandlers): void {
     if (!mod) {
       return;
     }
-    if (event.key.toLowerCase() === "k") {
+    if (event.key.toLowerCase() === "k" && !isEditableTarget(event)) {
       event.preventDefault();
       handlers.togglePalette();
       return;

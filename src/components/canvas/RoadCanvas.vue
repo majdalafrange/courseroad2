@@ -266,8 +266,14 @@ const eligibleMoveTargets = computed<number[]>(() => {
   if (moveSource.value === null) {
     return [];
   }
+  // The source card can vanish out from under an in-progress keyboard
+  // move (e.g. deleting an earlier card in the same term shifts this
+  // index): bail rather than crash on the next arrow-key/Enter press.
   const placedSubject =
     props.selectedSubjects[moveSource.value.semester][moveSource.value.index];
+  if (placedSubject === undefined) {
+    return [];
+  }
   const subject =
     store.subjectsInfo[store.subjectsIndex[placedSubject.subject_id]] ??
     store.genericCourses[store.genericIndex[placedSubject.subject_id]];
@@ -329,9 +335,11 @@ function onCanvasKeydown(event: KeyboardEvent) {
     event.preventDefault();
     const source = moveSource.value;
     const target = moveTarget.value;
-    if (source !== null && target !== null) {
-      const currentClass =
-        props.selectedSubjects[source.semester][source.index];
+    const currentClass =
+      source !== null
+        ? props.selectedSubjects[source.semester][source.index]
+        : undefined;
+    if (source !== null && target !== null && currentClass !== undefined) {
       store.moveClass({
         currentClass,
         classIndex: source.index,

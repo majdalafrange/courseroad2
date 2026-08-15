@@ -121,12 +121,12 @@ watch(
 );
 
 const hasDuplicateName = computed(() => {
-  if (!roadtitle.value) {
+  const title = roadtitle.value.trim().toLowerCase();
+  if (!title) {
     return false;
   }
   return Object.keys(store.roads).some(
-    (road) =>
-      store.roads[road].name.toLowerCase() === roadtitle.value.toLowerCase(),
+    (road) => store.roads[road].name.trim().toLowerCase() === title,
   );
 });
 
@@ -154,7 +154,7 @@ function onFileChange(event: Event) {
   if (!file) {
     return;
   }
-  if (file.name.substring(file.name.length - 5) !== ".road") {
+  if (!file.name.toLowerCase().endsWith(".road")) {
     flagBadInput();
     return;
   }

@@ -287,11 +287,15 @@ function termBlock(
     parts.push(
       `<rect x="${x + 10}" y="${cy}" width="5" height="${cardH}" rx="2.5" fill="${color}"/>`,
     );
+    // A subject missing subject_id/title (a pre-migration save, or a
+    // hand-edited/malformed .road import) would otherwise throw here and
+    // take down the whole poster instead of just this one card.
+    const subjectId = subj.subject_id ?? "?";
     parts.push(
-      `<text x="${x + 22}" y="${cy + 13}" font-family="'IBM Plex Mono',monospace" font-size="11" font-weight="500" fill="${theme.ink}">${esc(subj.subject_id)}</text>`,
+      `<text x="${x + 22}" y="${cy + 13}" font-family="'IBM Plex Mono',monospace" font-size="11" font-weight="500" fill="${theme.ink}">${esc(subjectId)}</text>`,
     );
-    const title =
-      subj.title.length > 28 ? subj.title.slice(0, 27) + "…" : subj.title;
+    const rawTitle = subj.title ?? "";
+    const title = rawTitle.length > 28 ? rawTitle.slice(0, 27) + "…" : rawTitle;
     parts.push(
       `<text x="${x + 22}" y="${cy + 24}" font-family="'IBM Plex Sans',sans-serif" font-size="10" fill="${theme.ink2}">${esc(title)}</text>`,
     );

@@ -162,6 +162,12 @@ const ariaLabel = computed(() => {
 
 /** Keyboard shortcuts mirror the side panel so the graph is operable. */
 function onKeydown(event: KeyboardEvent) {
+  // A modified chord (Cmd/Ctrl/Alt+<letter>) is the browser's or OS's,
+  // not this node's: without this, Cmd+A on a focused card opened the
+  // term-placement flow instead of "select all".
+  if (event.ctrlKey || event.metaKey || event.altKey) {
+    return;
+  }
   switch (event.key) {
     case "Enter":
     case " ":

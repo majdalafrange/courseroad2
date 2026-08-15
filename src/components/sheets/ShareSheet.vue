@@ -134,27 +134,45 @@ async function printPoster() {
     toast.warn("Pop-up blocked", "Allow pop-ups and we'll get this printing.");
     return;
   }
-  const svg = await exportSvg();
-  // The road name is NOT interpolated into markup: it is assigned via
-  // document.title (plain text, never HTML-parsed) so a hostile road name
-  // like `</title><img src=x onerror=…>` cannot inject script into this
-  // same-origin window. posterSvg is safe by construction (poster.ts esc()s
-  // every text node; colors are dictionary lookups).
-  win.document.write(
-    `<!doctype html><html><head>` +
-      `<style>@page { margin: 12mm; } body { margin: 0; } svg { width: 100%; height: auto; }</style>` +
-      `</head><body>${svg}</body></html>`,
-  );
-  win.document.close();
-  win.document.title = roadName.value;
-  // Give the SVG fonts a beat to lay out, then print.
-  win.setTimeout(() => win.print(), 350);
+  try {
+    const svg = await exportSvg();
+    // The road name is NOT interpolated into markup: it is assigned via
+    // document.title (plain text, never HTML-parsed) so a hostile road
+    // name like `</title><img src=x onerror=…>` cannot inject script into
+    // this same-origin window. posterSvg is safe by construction
+    // (poster.ts esc()s every text node; colors are dictionary lookups).
+    win.document.write(
+      `<!doctype html><html><head>` +
+        `<style>@page { margin: 12mm; } body { margin: 0; } svg { width: 100%; height: auto; }</style>` +
+        `</head><body>${svg}</body></html>`,
+    );
+    win.document.close();
+    win.document.title = roadName.value;
+    // Give the SVG fonts a beat to lay out, then print.
+    win.setTimeout(() => win.print(), 350);
+  } catch {
+    // road.value can go undefined mid-render (e.g. the active road was
+    // switched via the palette while this sheet was still open); without
+    // this, the already-opened blank tab was left dangling with no
+    // explanation.
+    win.close();
+    toast.danger("We couldn't render the poster", "Try again in a moment.");
+  }
 }
 
-function saveRoadFile() {
+async function saveRoadFile() {
   if (road.value) {
-    downloadRoadFile(road.value.name, road.value.contents);
-    toast.ok(`Your road is exported as “${roadName.value}.road”`);
+    const outcome = await downloadRoadFile(
+      road.value.name,
+      road.value.contents,
+    );
+    if (outcome !== "cancelled") {
+      toast.ok(
+        outcome === "shared"
+          ? "Your road is ready to save."
+          : `Your road is exported as “${roadName.value}.road”`,
+      );
+    }
   }
 }
 

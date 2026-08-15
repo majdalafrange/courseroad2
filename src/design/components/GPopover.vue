@@ -102,10 +102,10 @@ function onDocumentClick(event: MouseEvent) {
 }
 
 function onKeydown(event: KeyboardEvent) {
-  if (props.modelValue && event.key === "Escape") {
+  if (props.modelValue && event.key === "Escape" && !event.defaultPrevented) {
     // Mark the Escape consumed so window-level listeners (canvas, class
-    // detail) skip it; one keypress closes one layer. Document listeners
-    // run before window listeners, so the mark is visible to them.
+    // detail) skip it, and so a second open popover doesn't also close
+    // on the same keypress; one keypress closes one layer.
     event.preventDefault();
     close();
   }

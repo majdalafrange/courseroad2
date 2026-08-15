@@ -171,6 +171,19 @@ describe("remove + reset", () => {
     expect(g.expanded.size).toBe(0);
     expect(g.removed.size).toBe(0);
   });
+
+  it("reset restores an anchor that was itself removed", () => {
+    // Anchors are documented as permanent roots; removing one from view
+    // must not revoke that, or Reset can no longer bring it back.
+    const engine = new EdgeEngine(chainCatalog());
+    let g = seedGraph(engine, ["1.001", "2.002"]);
+    g = removeNode(g, "2.002");
+    expect(g.nodes.has("2.002")).toBe(false);
+    expect(g.anchors.has("2.002")).toBe(true);
+    g = resetGraph(g, engine);
+    expect(g.nodes.has("2.002")).toBe(true);
+    expect(g.anchors.has("2.002")).toBe(true);
+  });
 });
 
 describe("revealNeighbor (side-panel 'show on graph')", () => {

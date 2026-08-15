@@ -171,12 +171,18 @@ export function deleteRoadWithUndo(roadID: string): void {
   });
 }
 
-export function exportActiveRoad(): void {
+export async function exportActiveRoad(): Promise<void> {
   const store = useCourseDataStore();
   const road = store.roads[store.activeRoad];
   if (road === undefined) {
     return;
   }
-  downloadRoadFile(road.name, road.contents);
-  toast.ok(`Your road is exported as “${road.name}.road”`);
+  const outcome = await downloadRoadFile(road.name, road.contents);
+  if (outcome !== "cancelled") {
+    toast.ok(
+      outcome === "shared"
+        ? "Your road is ready to save."
+        : `Your road is exported as “${road.name}.road”`,
+    );
+  }
 }

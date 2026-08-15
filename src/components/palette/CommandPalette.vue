@@ -417,9 +417,11 @@ const programActions = computed<PaletteAction[]>(() => {
       label: `Add program: ${entry["medium-title"]}`,
       icon: "check",
       keywords: "",
+      // runAction() below keeps the palette open after this action, so a
+      // student can add several programs in one session; closing here
+      // too would make that guard dead code.
       run: () => {
         store.addReq(entry.key);
-        close();
       },
     }));
 });

@@ -16,11 +16,16 @@ import type {
   Subject,
 } from "./types";
 import { flatten } from "./types";
+import { STORAGE_KEYS } from "./appStorage";
 import { isCustomColor } from "./colors";
 import { formatFireroadDate } from "./dates";
 import { getSimpleSelectedSubjects } from "./roads";
 
-export const PERSISTED_STORE_KEY = "courseRoadStore";
+// Single source of truth for this key: clearAppStorage (appStorage.ts)
+// iterates STORAGE_KEYS to wipe everything on opt-out/logout, so a copy
+// hard-coded here instead of importing it could silently drift out of
+// sync with what that clear actually reaches.
+export const PERSISTED_STORE_KEY = STORAGE_KEYS.store;
 
 /**
  * Keys restored from a persisted snapshot into the courseData store.
@@ -126,6 +131,12 @@ function cleanSelectedSubject(value: unknown): SelectedSubject | undefined {
   for (const key of safeKeys(value)) {
     subject[key] = value[key];
   }
+  // A save from before the id -> subject_id rename (SelectedSubject.id's
+  // doc comment: "Legacy field still found in old saves") validates above
+  // via the id fallback but never actually carries subject_id; this is
+  // the localStorage-path equivalent of roads.ts's normalizeIncomingSubject.
+  subject.subject_id = id;
+  delete subject.id;
   // A color that does not name a palette entry is dropped rather than
   // carried: the render path falls back to the department color for a
   // missing value, but a malformed one used to reach the poster as undefined.

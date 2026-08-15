@@ -55,7 +55,10 @@ function placeNode(
 /** Drop a node and every edge touching it, plus all its bookkeeping. */
 function deleteNode(state: GraphState, id: string): void {
   state.nodes.delete(id);
-  state.anchors.delete(id);
+  // anchors are documented as permanent roots, never swept: removing a
+  // seed subject's card from view (Delete key, the Remove action) must
+  // not also revoke its anchor status, or "Reset to your starting
+  // subjects" can no longer bring it back.
   state.pinned.delete(id);
   state.expanded.delete(id);
   state.shownCount.delete(id);
@@ -317,10 +320,11 @@ export function resetGraph(state: GraphState, engine: EdgeEngine): GraphState {
   const next = emptyGraphState();
   next.anchors = new Set(state.anchors);
   next.pinned = new Set(state.pinned);
-  for (const id of state.nodes.keys()) {
-    if (keep.has(id)) {
-      placeNode(next, engine, id, state.anchors.has(id));
-    }
+  // Iterates `keep`, not state.nodes.keys(): a removed anchor has no
+  // node entry anymore but is still in `keep`, and needs placeNode to
+  // rejoin `nodes` here.
+  for (const id of keep) {
+    placeNode(next, engine, id, state.anchors.has(id));
   }
   return next;
 }

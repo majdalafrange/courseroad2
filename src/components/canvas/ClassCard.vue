@@ -101,16 +101,11 @@ import type { SelectedSubject, Subject } from "../../lib/types";
 import { getSubject } from "../../lib/types";
 import { dragState, pointerDown } from "../../stores/dragdrop";
 import {
-  clearHighlight,
+  clearHighlightIfOwnedBy,
   highlightState,
   highlightSubject,
 } from "../../stores/highlight";
 import { useCourseDataStore } from "../../stores/courseData";
-
-// The highlight begins on a 120ms timer; a card removed inside that
-// window (keyboard delete, road switch) must not fire a stale highlight
-// into global state after it is gone.
-onBeforeUnmount(clearHighlight);
 
 const props = defineProps<{
   subject: SelectedSubject;
@@ -125,6 +120,11 @@ const emit = defineEmits<{
 }>();
 
 const store = useCourseDataStore();
+
+// The highlight begins on a 120ms timer; a card removed inside that
+// window must not fire a stale highlight after it's gone. Scoped to this
+// subject so removing an unrelated card doesn't clear someone else's.
+onBeforeUnmount(() => clearHighlightIfOwnedBy(props.subject.subject_id));
 
 const warningsOpen = ref(false);
 const hovering = ref(false);
@@ -211,7 +211,7 @@ function onClick() {
 }
 
 function removeSelf() {
-  clearHighlight();
+  clearHighlightIfOwnedBy(props.subject.subject_id);
   store.removeClass({
     classInfo: props.subject,
     classIndex: props.classIndex,
@@ -232,7 +232,7 @@ function onHoverStart() {
 
 function onHoverEnd() {
   hovering.value = false;
-  clearHighlight();
+  clearHighlightIfOwnedBy(props.subject.subject_id);
 }
 </script>
 

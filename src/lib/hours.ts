@@ -80,10 +80,13 @@ function expectedHours(subj: Subject): SubjectHours {
 }
 
 function isInQuarter(subj: Subject, quarter: number): boolean {
-  return (
-    subj.quarter_information === undefined ||
-    parseInt(subj.quarter_information.split(",")[0]) === quarter
-  );
+  // An empty (but defined) string parseInts to NaN, matching neither
+  // quarter and dropping the subject's hours from both. Treat it the
+  // same as quarter_information being absent: no restriction.
+  if (!subj.quarter_information) {
+    return true;
+  }
+  return parseInt(subj.quarter_information.split(",")[0]) === quarter;
 }
 
 /** Compute units and quarter-aware expected hours for one bucket. */

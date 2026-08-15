@@ -125,12 +125,12 @@ const form = reactive({
 });
 
 const shortError = computed(() => {
-  if (!form.shortTitle) return "A short code is required.";
+  if (!form.shortTitle.trim()) return "A short code is required.";
   if (form.shortTitle.length > 8) return "Keep it to 8 characters.";
   return undefined;
 });
 const fullError = computed(() =>
-  !form.fullTitle ? "A title is required." : undefined,
+  !form.fullTitle.trim() ? "A title is required." : undefined,
 );
 
 const editing = computed(() => store.customClassEditing);
@@ -167,9 +167,11 @@ function submit() {
   const newClass = {
     subject_id: form.shortTitle,
     title: form.fullTitle,
-    total_units: Number(form.units) || 0,
-    in_class_hours: Number(form.inClassHours) || 0,
-    out_of_class_hours: Number(form.outOfClassHours) || 0,
+    // min="0" is advisory only; a typed "-5" survives Number() as a
+    // truthy value the || 0 fallback never catches.
+    total_units: Math.max(0, Number(form.units) || 0),
+    in_class_hours: Math.max(0, Number(form.inClassHours) || 0),
+    out_of_class_hours: Math.max(0, Number(form.outOfClassHours) || 0),
     custom_color: color,
     public: false,
     offered_fall: true,

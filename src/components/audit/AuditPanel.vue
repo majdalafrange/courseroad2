@@ -116,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, toRaw } from "vue";
 import GButton from "../../design/components/GButton.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GInput from "../../design/components/GInput.vue";
@@ -206,7 +206,10 @@ function treeFor(req: string, index: number): RequirementNode | null {
   if (tree === undefined) {
     return null;
   }
-  return assignListIDs(Object.assign({}, tree) as RequirementNode, index);
+  // assignListIDs mutates its input; a deep clone keeps that from reaching
+  // into the cached tree, which every program's index shares. toRaw()
+  // first, since structuredClone can't walk a Vue reactive Proxy.
+  return assignListIDs(structuredClone(toRaw(tree)), index);
 }
 
 function onSeeAll(tokens: string[]) {
@@ -217,10 +220,9 @@ const previewTreeWithIds = computed(() => {
   if (auditStore.previewTree === null) {
     return null;
   }
-  return assignListIDs(
-    Object.assign({}, auditStore.previewTree) as RequirementNode,
-    999,
-  );
+  // Same reasoning as treeFor() above: assignListIDs mutates by design,
+  // and toRaw() unwraps the reactive Proxy structuredClone can't handle.
+  return assignListIDs(structuredClone(toRaw(auditStore.previewTree)), 999);
 });
 </script>
 

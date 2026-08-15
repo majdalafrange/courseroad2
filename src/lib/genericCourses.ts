@@ -89,8 +89,14 @@ function getMatchingAttributes(
       out_of_class_hours: 0,
     },
   );
-  totalObject.in_class_hours /= matchingClasses.length;
-  totalObject.out_of_class_hours /= matchingClasses.length;
+  // No subject in the loaded catalog matches this attribute combination
+  // (a real possibility, not just a malformed-data case): dividing by 0
+  // would leave NaN hours on the generic course, poisoning every semester
+  // total it's later summed into.
+  if (matchingClasses.length > 0) {
+    totalObject.in_class_hours /= matchingClasses.length;
+    totalObject.out_of_class_hours /= matchingClasses.length;
+  }
   return totalObject;
 }
 

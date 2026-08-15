@@ -39,6 +39,12 @@ const visible = ref(false);
 let timer: ReturnType<typeof setTimeout> | undefined;
 
 function show() {
+  // Focus and hover each call this independently; without clearing the
+  // old timer first, a stale one can outlive a later hide() and pop the
+  // tooltip open with nothing left to anchor it to.
+  if (timer !== undefined) {
+    clearTimeout(timer);
+  }
   timer = setTimeout(() => {
     visible.value = true;
   }, props.delay);

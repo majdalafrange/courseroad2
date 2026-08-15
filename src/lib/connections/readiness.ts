@@ -164,7 +164,10 @@ export function createReadinessEvaluator(
     // an engine bug; the graph still renders while it gets fixed.
     try {
       return reqsFulfilled(catalog, prereqs, cumulative[t]);
-    } catch {
+    } catch (err) {
+      // Log it: silently returning false here would make every readiness
+      // badge for this subject go "not ready" with no trace of why.
+      console.error(`reqsFulfilled failed for "${prereqs}":`, err);
       return false;
     }
   }

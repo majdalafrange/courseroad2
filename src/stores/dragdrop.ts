@@ -90,6 +90,13 @@ export function pointerDown(event: PointerEvent, source: DragSource): void {
   if (event.button !== 0 || event.pointerType === "touch") {
     return;
   }
+  if (dragState.pending !== null || dragState.active) {
+    // A second pointerdown before the first's pointerup (a stray/duplicate
+    // event, a pen+mouse combo) would otherwise overwrite startPoint and
+    // dragState.pending, hijacking the drag onto this new source. The
+    // first press keeps ownership until it resolves.
+    return;
+  }
   startPoint = { x: event.clientX, y: event.clientY };
   pressedElement =
     event.currentTarget instanceof HTMLElement ? event.currentTarget : null;

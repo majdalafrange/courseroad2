@@ -17,10 +17,17 @@ function contents(): RoadContents {
 
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe("downloadRoadFile", () => {
-  it("downloads <name>.road as an inert data:text/plain URL", () => {
+  it("downloads <name>.road as an inert data:text/plain URL", async () => {
+    // jsdom doesn't implement matchMedia; a fine (non-touch) pointer keeps
+    // this on the direct-download path the rest of the test verifies.
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn().mockReturnValue({ matches: false } as MediaQueryList),
+    );
     const click = vi
       .spyOn(HTMLElement.prototype, "click")
       .mockImplementation(() => {});
@@ -34,8 +41,9 @@ describe("downloadRoadFile", () => {
       return el;
     });
 
-    downloadRoadFile("My Road", contents());
+    const outcome = await downloadRoadFile("My Road", contents());
 
+    expect(outcome).toBe("downloaded");
     expect(click).toHaveBeenCalledOnce();
     expect(anchor?.getAttribute("download")).toBe("My Road.road");
     const href = anchor?.getAttribute("href") ?? "";
@@ -50,5 +58,28 @@ describe("downloadRoadFile", () => {
     expect(decoded.coursesOfStudy).toEqual(["girs"]);
     // The anchor is cleaned up after the click.
     expect(anchor?.isConnected).toBe(false);
+  });
+
+  it("shares instead of downloading on a touch (coarse-pointer) device", async () => {
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn().mockReturnValue({ matches: true } as MediaQueryList),
+    );
+    const share = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal("navigator", {
+      ...navigator,
+      canShare: () => true,
+      share,
+    });
+    const click = vi
+      .spyOn(HTMLElement.prototype, "click")
+      .mockImplementation(() => {});
+
+    const outcome = await downloadRoadFile("My Road", contents());
+
+    expect(outcome).toBe("shared");
+    expect(share).toHaveBeenCalledOnce();
+    // The unreliable <a download> path was never touched.
+    expect(click).not.toHaveBeenCalled();
   });
 });

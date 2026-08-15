@@ -40,9 +40,13 @@ function dismiss(id: number): void {
 function push(toast: Omit<Toast, "id">): number {
   const id = nextId++;
   state.toasts.push({ ...toast, id });
-  // Keep at most 3 visible; oldest yields first.
+  // Keep at most 3 visible. Prefer evicting a plain toast over an
+  // undoable one, since losing an undo affordance loses the only way
+  // back from a destructive action; falls back to the oldest if every
+  // visible toast is undoable.
   while (state.toasts.length > 3) {
-    state.toasts.shift();
+    const evictIndex = state.toasts.findIndex((t) => t.action === undefined);
+    state.toasts.splice(evictIndex >= 0 ? evictIndex : 0, 1);
   }
   return id;
 }

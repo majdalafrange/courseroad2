@@ -15,6 +15,7 @@ import "./design/tokens.css";
 import "./design/departmentColors.css";
 import "./css/app.css";
 import { applyThemeAttribute } from "./design/tokens";
+import { fatalError } from "./lib/errorBoundary";
 import { migrateLegacyCookies } from "./lib/legacyStorage";
 import { persistedIsDarkMode } from "./lib/persistedStore";
 
@@ -50,4 +51,14 @@ const pinia = createPinia();
 const app = createApp(App);
 app.use(pinia);
 app.use(router);
+
+// Last resort: an uncaught error in render, a watcher, or a lifecycle
+// hook otherwise leaves whatever the crash froze on screen, with no
+// affordance to recover. Roads are already persisted locally as they're
+// edited, so a reload is safe, not a data-loss risk.
+app.config.errorHandler = (err, _instance, info) => {
+  console.error("Unhandled error:", err, info);
+  fatalError.value = true;
+};
+
 app.mount("#app");

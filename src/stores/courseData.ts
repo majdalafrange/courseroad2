@@ -265,6 +265,13 @@ export const useCourseDataStore = defineStore("courseData", {
 
     addReq(event: string) {
       const roadID = this.activeRoad;
+      if (this.roads[roadID].contents.coursesOfStudy.includes(event)) {
+        // Already on the road: a stale "undo" toast for this same program
+        // (clicked after the program was independently re-added through
+        // the picker) would otherwise push a second copy, giving two
+        // program-section rows the same v-for key.
+        return;
+      }
       this.roads[roadID].contents.coursesOfStudy.push(event);
       this.roads[roadID].changed = formatFireroadDate();
       this.fulfillmentNeeded = event;

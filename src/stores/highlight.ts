@@ -37,6 +37,8 @@ export function clearAuditHighlight(): void {
 }
 
 let hoverTimer: ReturnType<typeof setTimeout> | undefined;
+/** Whichever subject the pending timer above (if any) is for. */
+let pendingSubjectId: string | undefined;
 
 /** Begin highlighting after a beat (prevents flicker while scanning). */
 export function highlightSubject(
@@ -46,6 +48,7 @@ export function highlightSubject(
   delay = 120,
 ): void {
   clearTimeout(hoverTimer);
+  pendingSubjectId = subject.subject_id;
   hoverTimer = setTimeout(() => {
     const { ancestors, dependents } = computeConsequences(
       subject,
@@ -55,12 +58,29 @@ export function highlightSubject(
     highlightState.subjectId = subject.subject_id;
     highlightState.ancestors = ancestors;
     highlightState.dependents = dependents;
+    pendingSubjectId = undefined;
   }, delay);
 }
 
 export function clearHighlight(): void {
   clearTimeout(hoverTimer);
+  pendingSubjectId = undefined;
   highlightState.subjectId = null;
   highlightState.ancestors = new Set();
   highlightState.dependents = new Set();
+}
+
+/**
+ * Clear the highlight only if it belongs (or is about to belong, via the
+ * pending timer) to this subject. Used on a card's unmount: an unrelated
+ * card being removed elsewhere on the canvas shouldn't wipe the highlight
+ * of whatever's still actually hovered.
+ */
+export function clearHighlightIfOwnedBy(subjectId: string): void {
+  if (
+    highlightState.subjectId === subjectId ||
+    pendingSubjectId === subjectId
+  ) {
+    clearHighlight();
+  }
 }

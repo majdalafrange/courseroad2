@@ -150,8 +150,7 @@ const programResults = computed(() => {
     .filter(
       (entry) =>
         query === "" || entry["medium-title"].toLowerCase().includes(query),
-    )
-    .slice(0, 8);
+    );
 });
 
 function titleFor(key: string): string {

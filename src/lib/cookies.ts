@@ -9,7 +9,11 @@
 type CookieValue = string | number | boolean | object;
 
 function escapeKey(key: string): string {
-  return encodeURIComponent(key).replace(/[-.+*]/g, "\\$&");
+  // encodeURIComponent leaves -.!~*'() unescaped; of those, only the
+  // regex metacharacters need a backslash before this becomes part of a
+  // RegExp below (get(), isKey()). Parens were missing: a key containing
+  // one built an unbalanced/mismatching group.
+  return encodeURIComponent(key).replace(/[-.+*()]/g, "\\$&");
 }
 
 /** Parse an expires spec like "3d"/"12h" (subset vue-cookies supported). */
