@@ -7,6 +7,7 @@
       {
         'is-prior-credit': index === 0,
         'is-collapsed-prior': collapsedPrior,
+        'is-empty': subjects.length === 0,
         'is-iap': isIAP,
         'is-current': isCurrentTerm,
         'is-move-target': moveTarget,
@@ -374,6 +375,9 @@ const placementAriaLabel = computed(() => {
 .term-cell.is-current {
   border-color: var(--g-accent);
   box-shadow: 0 0 0 1px var(--g-accent);
+}
+.term-cell.is-empty {
+  background: transparent;
 }
 .term-cell.is-prior-credit {
   background: transparent;
