@@ -1,12 +1,14 @@
+import { UAParser } from "ua-parser-js";
+
 /**
  * Keyboard-shortcut display, matched to the OS running the app: Cmd on a
  * Mac, Ctrl elsewhere. useGlobalShortcuts.ts already accepts both
  * metaKey and ctrlKey, so only the on-screen hint needs to pick the
- * right label. navigator.platform is deprecated
- * but is the same check agent.ts already uses to stamp saves.
+ * right label. ua-parser-js instead of the deprecated navigator.platform;
+ * the same library agent.ts already uses to stamp saves.
  */
 export function isMac(): boolean {
-  return /mac/i.test(navigator.platform);
+  return /mac/i.test(UAParser(navigator.userAgent).os.name ?? "");
 }
 
 /** Flat "⌘K"/"Ctrl+K" string for plain-text contexts (toasts) that can't

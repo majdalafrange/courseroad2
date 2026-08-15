@@ -326,6 +326,7 @@ watch(
 .program.is-ledger .program-title {
   font: var(--text-body-strong);
   -webkit-line-clamp: 1;
+  line-clamp: 1;
 }
 .program-head:focus-visible {
   outline: none;
@@ -375,6 +376,7 @@ watch(
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 .program-sub {
   font: var(--text-small);

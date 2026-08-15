@@ -11,7 +11,7 @@ end-to-end tests under Playwright.
 
 ## Install
 
-Node 22 or newer (`.nvmrc` names the CI version).
+Node 22 or newer (CI uses the requirements in `package.json`).
 
 ```sh
 npm install

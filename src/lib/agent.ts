@@ -20,7 +20,7 @@ function readTabs(): TabIds | undefined {
 /** Agent string sent with every road save. */
 export function getAgent(tabID: string): string {
   const ua = UAParser(navigator.userAgent);
-  return navigator.platform + " " + ua.browser.name + " Tab " + tabID;
+  return (ua.os.name ?? "") + " " + ua.browser.name + " Tab " + tabID;
 }
 
 /** Random fallback tab id (used before cookies are allowed). */
