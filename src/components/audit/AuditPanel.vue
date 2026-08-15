@@ -23,7 +23,7 @@
           <g-input
             ref="pickerInput"
             v-model="pickerQuery"
-            placeholder="Majors, minors, GIRs…"
+            placeholder="Majors, minors, GIRs..."
             @keydown.esc.stop="pickerOpen = false"
           />
           <div class="picker-list">

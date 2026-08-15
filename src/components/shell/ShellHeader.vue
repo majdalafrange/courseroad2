@@ -143,7 +143,7 @@
             data-cy="shareRoadButton"
             @click="closeAnd('open-share')"
           >
-            <g-icon name="upload" :size="14" /> Share this road…
+            <g-icon name="upload" :size="14" /> Share this road...
           </button>
           <button class="more-item" @click="closeAnd('open-about')">
             <g-icon name="info" :size="14" /> About CourseRoad
@@ -261,14 +261,14 @@ interface SaveState {
 const saveState = computed<SaveState>(() => {
   if (auth.gettingUserData) {
     return {
-      label: "Loading…",
+      label: "Loading...",
       detail: "Grabbing your roads from FireRoad.",
       tone: "busy",
     };
   }
   if (auth.currentlySaving) {
     return {
-      label: "Saving…",
+      label: "Saving...",
       detail: auth.loggedIn
         ? "Syncing your changes to FireRoad."
         : "Saving your changes in this browser.",

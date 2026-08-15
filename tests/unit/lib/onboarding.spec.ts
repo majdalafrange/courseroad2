@@ -38,7 +38,7 @@ describe("seedSelectedSubjects", () => {
     expect(spring).toContain("18.02");
     expect(spring).toContain("8.02");
     expect(spring).toContain("5.111");
-    // real subjects carry their catalog title, never an invented "Generic …"
+    // real subjects carry their catalog title, never an invented "Generic ..."
     expect(grid[1][0].title).toBe("Calculus I");
     expect(grid.flat().every((s) => !s.title.includes("Generic"))).toBe(true);
     expect(grid[1][0].overrideWarnings).toBe(false);

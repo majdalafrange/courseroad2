@@ -91,7 +91,7 @@ function optOut() {
 .cookie-consent {
   position: fixed;
   bottom: var(--space-4);
-  left: var(--space-4);
+  right: var(--space-4);
   z-index: 90;
   width: 340px;
   max-width: calc(100vw - 32px);

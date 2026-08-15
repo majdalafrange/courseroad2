@@ -31,7 +31,7 @@ import { reqsFulfilled } from "./requirements";
  * Escape a value before embedding it in a warning's HTML string. Catalog
  * data is trusted content but a compromised/MITM'd FireRoad response is in
  * scope, so escaping here is defense-in-depth against a hostile field like
- * `not_offered_year: "<img src=x onerror=…>"` reaching ClassCard's v-html.
+ * `not_offered_year: "<img src=x onerror=...>"` reaching ClassCard's v-html.
  */
 function escapeHtml(value: unknown): string {
   return String(value ?? "")

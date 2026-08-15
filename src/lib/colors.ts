@@ -199,7 +199,7 @@ export function courseColorClassFromId(id: string | undefined): string {
 }
 
 /**
- * Palette key for a custom-activity color reference ("@0" … "@41"), or
+ * Palette key for a custom-activity color reference ("@0" ... "@41"), or
  * undefined when the value does not name a real palette entry.
  *
  * `custom_color` is untrusted: it rides through `parseRoadFile` and the

@@ -341,7 +341,7 @@ export function persistThemePreference(isDark: boolean): void {
  * Write only the current-semester choice into the persisted blob, the
  * same mid-session single-key write persistThemePreference does. Logged
  * in, the choice also syncs to FireRoad; logged out this copy is the
- * only one, so without it the "I am a…" year reset on every reload.
+ * only one, so without it the "I am a..." year reset on every reload.
  */
 export function persistCurrentSemester(semester: number): void {
   try {

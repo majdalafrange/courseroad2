@@ -39,7 +39,7 @@
           </button>
         </template>
         <div class="settings-pop" @click.stop>
-          <label class="settings-label" for="year-choices">I am a…</label>
+          <label class="settings-label" for="year-choices">I am a...</label>
           <span class="settings-select-wrap">
             <select
               id="year-choices"
@@ -638,6 +638,18 @@ void dragState;
   }
   .road-canvas {
     gap: var(--space-2);
+  }
+}
+
+/* larger screens get larger maximum widths */
+@media (min-width: 1600px) {
+  .road-canvas {
+    max-width: 1320px;
+  }
+}
+@media (min-width: 2200px) {
+  .road-canvas {
+    max-width: 1500px;
   }
 }
 </style>

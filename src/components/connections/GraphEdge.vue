@@ -119,7 +119,7 @@ const arrowPoints = computed(() => {
   opacity: 0.16;
 }
 
-/* the emphasized node's own connections come forward… */
+/* the emphasized node's own connections come forward... */
 .edge.active .edge-line {
   stroke: var(--edge-color, var(--g-ink-3));
   stroke-width: 2.5;
@@ -129,7 +129,7 @@ const arrowPoints = computed(() => {
   stroke: var(--edge-color, var(--g-ink-3));
   opacity: 1;
 }
-/* …everything else recedes (opacity only, nothing moves) */
+/* ...everything else recedes (opacity only, nothing moves) */
 .edge.dimmed .edge-line,
 .edge.dimmed .edge-arrow {
   opacity: 0.14;

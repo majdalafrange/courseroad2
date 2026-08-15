@@ -24,7 +24,7 @@ describe("sanitizeColorToken (poster SVG fill guard)", () => {
     expect(sanitizeColorToken("rebeccapurple")).toBe("rebeccapurple");
   });
 
-  it('falls back to a neutral color for anything that could break out of fill="…"', () => {
+  it('falls back to a neutral color for anything that could break out of fill="..."', () => {
     // The exact breakout a hostile subject_id produces via courseColor()'s
     // dept/generic branch (which echoes the id verbatim into the var name).
     expect(
@@ -97,7 +97,7 @@ describe("buildRoadPoster escaping", () => {
     expect(titleMatch).not.toBeNull();
     const title = titleMatch![1];
     expect(Array.from(title).length).toBeLessThanOrEqual(48);
-    expect(title.endsWith("…")).toBe(true);
+    expect(title.endsWith("...")).toBe(true);
     expect(title).toContain("Ω");
     expect(svg).not.toContain("🚀");
     // A short name passes through whole.

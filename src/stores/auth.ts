@@ -145,7 +145,7 @@ export const useAuthStore = defineStore("auth", {
       }
       const store = useCourseDataStore();
       // Background prefetches skip gettingUserData: it drives the header's
-      // "Loading…" state, which shouldn't flash for work the user never
+      // "Loading..." state, which shouldn't flash for work the user never
       // asked for.
       if (options.background !== true) {
         this.gettingUserData = true;
@@ -384,7 +384,7 @@ export const useAuthStore = defineStore("auth", {
       if (!(roadID in store.roads)) {
         // The road was deleted/renamed away before this debounced save
         // fired. Reset the flag we optimistically set in queueSave, or the
-        // header's "Saving…" indicator sticks on forever.
+        // header's "Saving..." indicator sticks on forever.
         this.currentlySaving = false;
         return;
       }

@@ -10,7 +10,7 @@
   >
     <div class="picker-head">
       <span class="picker-title">
-        Add <span class="picker-id">{{ subject.subject_id }}</span> to…
+        Add <span class="picker-id">{{ subject.subject_id }}</span> to...
       </span>
       <button
         class="picker-close"

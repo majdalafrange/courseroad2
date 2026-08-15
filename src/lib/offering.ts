@@ -25,7 +25,7 @@ export function semesterTypeShort(index: number): string {
   return index === 0 ? "" : ["f", "i", "s"][(index - 1) % 3];
 }
 
-/** "Freshman" … "Fifth Year" ("" for Prior Credit). */
+/** "Freshman" ... "Fifth Year" ("" for Prior Credit). */
 export function semesterYearName(index: number): string {
   if (index === 0) {
     return "";

@@ -35,7 +35,7 @@ export const useAuditStore = defineStore("audit", {
     /**
      * Programs whose last progress request failed (an unresolvable key,
      * or FireRoad unreachable). Keyed by program; the audit renders these
-     * as a terminal state with a retry instead of "computing…" forever.
+     * as a terminal state with a retry instead of "computing..." forever.
      */
     failedPrograms: {} as Record<string, boolean>,
     /** What-if preview: a program tried against the road, uncommitted. */

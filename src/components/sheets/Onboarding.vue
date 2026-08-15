@@ -15,13 +15,13 @@
       <!-- step 1: welcome + year -->
       <div v-if="step === 0" class="onboard-step">
         <g-wordmark size="lg" />
-        <h1 class="onboard-title">Welcome! Let's set up your road</h1>
+        <h1 class="onboard-title">Welcome! Let's set up your road.</h1>
         <p class="onboard-copy">
           CourseRoad lays out every term from here to your degree. Answer two
-          quick questions and we'll seed a starting plan (you can change
-          anything after that).
+          quick questions and we'll get you started (you can change anything
+          after that).
         </p>
-        <span class="onboard-label">Where are you now?</span>
+        <span class="onboard-label">Where year are you?</span>
         <div class="year-grid">
           <button
             v-for="year in years"
@@ -51,7 +51,7 @@
             ref="programInput"
             v-model="programQuery"
             class="program-input"
-            placeholder="Search majors and minors…"
+            placeholder="Search majors and minors..."
           />
         </div>
         <div v-if="chosenPrograms.length" class="chosen-programs">

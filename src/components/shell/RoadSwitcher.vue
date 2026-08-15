@@ -98,7 +98,7 @@
 
       <button class="switch-op" data-cy="importRoadButton" @click="openImport">
         <g-icon name="download" :size="14" />
-        Import a road…
+        Import a road...
       </button>
       <button
         v-if="roadIds.length > 1"
@@ -107,7 +107,7 @@
         @click="openCompare"
       >
         <g-icon name="map" :size="14" />
-        Compare roads…
+        Compare roads...
       </button>
     </div>
   </g-popover>

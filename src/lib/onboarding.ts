@@ -3,7 +3,7 @@
  * on a road with the obvious starting structure: canonical first-year
  * science/math GIRs as real MIT subjects, programs already in the audit.
  *
- * Seeds *real* subjects (8.01, 18.01, …), not generic placeholders: a
+ * Seeds *real* subjects (8.01, 18.01, ...), not generic placeholders: a
  * freshman year's GIRs have well-known defaults, and one real card reads
  * more clearly than an invented "Generic Physics 1". HASS/CI have no
  * single default, so those are left for the student to choose.

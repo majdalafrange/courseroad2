@@ -476,10 +476,10 @@ function frameNodes(ids?: string[], floor?: number): boolean {
       (size.height - 2 * pad) / Math.max(1, maxY - minY),
     ),
   );
-  // keep the view center fixed across the zoom change…
+  // keep the view center fixed across the zoom change...
   let x = size.width / 2 - ((size.width / 2 - v.x) / v.zoom) * zoom;
   let y = size.height / 2 - ((size.height / 2 - v.y) / v.zoom) * zoom;
-  // …then pan the minimum that brings the bounds inside the padding
+  // ...then pan the minimum that brings the bounds inside the padding
   const sMinX = minX * zoom + x;
   const sMaxX = maxX * zoom + x;
   if (sMinX < pad) {

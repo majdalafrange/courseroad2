@@ -51,7 +51,7 @@
               Retry
             </button>
           </template>
-          <template v-else>computing…</template>
+          <template v-else>computing...</template>
         </span>
       </div>
       <button
@@ -208,7 +208,7 @@ const percent = computed(() => {
 
 /* A program whose progress request failed (an unresolvable key, or
    FireRoad unreachable) and that has no tree to show. A terminal state
-   with a retry, where it used to read "computing…" forever. */
+   with a retry, where it used to read "computing..." forever. */
 const failed = computed(
   () =>
     !props.preview &&

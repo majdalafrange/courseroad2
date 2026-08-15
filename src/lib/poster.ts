@@ -101,7 +101,7 @@ function esc(s: string): string {
 
 /**
  * Restrict a value to a safe CSS color token before it is interpolated into
- * an SVG `fill="…"` attribute. courseColor() can echo a subject_id verbatim
+ * an SVG `fill="..."` attribute. courseColor() can echo a subject_id verbatim
  * into the token (the dept/generic branch does), so a hostile id arriving
  * from a MITM'd sync or a poisoned newRoads cookie could otherwise break out
  * of the attribute and inject a live <image onerror>. Anything not shaped
@@ -257,7 +257,7 @@ ${parts.join("\n")}
  */
 function truncateTitle(name: string): string {
   const chars = Array.from(name);
-  return chars.length > 48 ? chars.slice(0, 47).join("") + "…" : name;
+  return chars.length > 48 ? chars.slice(0, 45).join("") + "..." : name;
 }
 
 function termBlock(
@@ -297,7 +297,8 @@ function termBlock(
       `<text x="${x + 22}" y="${cy + 13}" font-family="'IBM Plex Mono',monospace" font-size="11" font-weight="500" fill="${theme.ink}">${esc(subjectId)}</text>`,
     );
     const rawTitle = subj.title ?? "";
-    const title = rawTitle.length > 28 ? rawTitle.slice(0, 27) + "…" : rawTitle;
+    const title =
+      rawTitle.length > 28 ? rawTitle.slice(0, 25) + "..." : rawTitle;
     parts.push(
       `<text x="${x + 22}" y="${cy + 24}" font-family="'IBM Plex Sans',sans-serif" font-size="10" fill="${theme.ink2}">${esc(title)}</text>`,
     );

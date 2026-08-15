@@ -8,7 +8,7 @@
         <div class="skeleton-graph" aria-hidden="true">
           <span v-for="i in 6" :key="i" class="skeleton-node" />
         </div>
-        <p class="state-text">Building the graph…</p>
+        <p class="state-text">Building the graph...</p>
       </div>
 
       <!-- catalog error -->
@@ -35,7 +35,7 @@
           <g-input
             ref="seedInput"
             v-model="seedQuery"
-            placeholder="Search for a class to start from…"
+            placeholder="Search for a class to start from..."
             aria-label="Search for a starting class"
             role="combobox"
             aria-autocomplete="list"

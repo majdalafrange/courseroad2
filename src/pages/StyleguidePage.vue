@@ -224,7 +224,7 @@
           <g-button variant="danger">Delete road</g-button>
           <g-button variant="primary" disabled>Disabled</g-button>
           <g-button variant="subtle" disabled>Disabled</g-button>
-          <g-button variant="primary" loading>Importing…</g-button>
+          <g-button variant="primary" loading>Importing...</g-button>
           <g-button variant="subtle" size="sm">Small</g-button>
         </div>
       </g-card>

@@ -39,7 +39,7 @@
       </label>
 
       <label class="import-paste">
-        <span class="import-paste-label">…or paste a road here</span>
+        <span class="import-paste-label">...or paste a road here</span>
         <textarea
           v-model="inputtext"
           class="import-textarea"

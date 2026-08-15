@@ -35,7 +35,7 @@ export type Readiness =
       kind: "missing";
       /** Unmet prerequisite subject ids (smallest choice among any-branches). */
       missing: string[];
-      /** True when non-subject requirements (GIRs, permission…) were also unmet. */
+      /** True when non-subject requirements (GIRs, permission...) were also unmet. */
       approximate: boolean;
     }
   | { kind: "unknown" };

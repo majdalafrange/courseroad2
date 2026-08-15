@@ -25,69 +25,6 @@
     />
 
     <div class="shell-body">
-      <div class="shell-main">
-        <!-- Never mounted on mobile: the graph can grow heavy enough to
-             slow down or crash a phone's browser. -->
-        <connections-page v-if="isExplore && !isMobile" />
-
-        <main v-else id="canvasScroll" class="canvas">
-          <!-- The glyph field sizes to the plan, not the viewport, so it
-               scrolls with the cards instead of sitting still behind them. -->
-          <div class="canvas-sheet">
-            <canvas-glyphs />
-            <div v-if="store.catalogError" class="catalog-error" role="alert">
-              <div>
-                <strong>We couldn't load the subject catalog.</strong>
-                <span
-                  >Check your connection. Your plan is safe in the
-                  meantime.</span
-                >
-              </div>
-              <g-button
-                variant="primary"
-                size="sm"
-                @click="store.retryCatalog()"
-              >
-                Try again
-              </g-button>
-            </div>
-            <div v-else-if="offline" class="offline-note" role="status">
-              <g-icon name="cloud" :size="14" />
-              You're offline, but you can keep planning. We'll sync your changes
-              when you're back.
-            </div>
-            <div v-else-if="roadLoading" class="road-loading" role="status">
-              <span class="road-loading-spinner" aria-hidden="true" />
-              Loading this plan…
-            </div>
-
-            <div
-              v-if="showEmptyState && !store.catalogError"
-              class="empty-state"
-            >
-              <h2 class="empty-title">Search for a class</h2>
-              <p class="empty-copy">
-                Place it in a term, or add a major or minor on the right and
-                we'll show you what's left.
-              </p>
-              <div class="empty-actions">
-                <g-button variant="primary" @click.stop="focusSearch">
-                  Add classes
-                </g-button>
-              </div>
-            </div>
-
-            <road-canvas
-              v-if="activeRoad !== '' && activeRoad in roads && !roadLoading"
-              :key="activeRoad"
-              :selected-subjects="roads[activeRoad].contents.selectedSubjects"
-              :road-i-d="activeRoad"
-              @change-year="auth.changeSemester($event)"
-            />
-          </div>
-        </main>
-      </div>
-
       <aside v-if="!isExplore" class="progress-panel">
         <audit-panel
           v-if="activeRoad !== '' && activeRoad in roads"
@@ -142,6 +79,68 @@
           </g-popover>
         </div>
       </aside>
+
+      <div class="shell-main">
+        <!-- Never mounted on mobile: the graph can grow heavy enough to
+             slow down or crash a phone's browser. -->
+        <connections-page v-if="isExplore && !isMobile" />
+
+        <main v-else id="canvasScroll" class="canvas">
+          <!-- The glyph field sizes to the plan, not the viewport, so it
+               scrolls with the cards instead of sitting still behind them. -->
+          <div class="canvas-sheet">
+            <canvas-glyphs />
+            <div v-if="store.catalogError" class="catalog-error" role="alert">
+              <div>
+                <strong>We couldn't load the subject catalog.</strong>
+                <span>
+                  Check your connection. Your plan is safe in the meantime.
+                </span>
+              </div>
+              <g-button
+                variant="primary"
+                size="sm"
+                @click="store.retryCatalog()"
+              >
+                Try again
+              </g-button>
+            </div>
+            <div v-else-if="offline" class="offline-note" role="status">
+              <g-icon name="cloud" :size="14" />
+              You're offline, but you can keep planning. We'll sync your changes
+              when you're back.
+            </div>
+            <div v-else-if="roadLoading" class="road-loading" role="status">
+              <span class="road-loading-spinner" aria-hidden="true" />
+              Loading this road...
+            </div>
+
+            <div
+              v-if="showEmptyState && !store.catalogError"
+              class="empty-state"
+            >
+              <h2 class="empty-title">Search for a class</h2>
+              <p class="empty-copy">
+                Place it in a term, or add a major or minor on the left and
+                we'll show you what's left.
+              </p>
+              <div class="empty-actions">
+                <g-button variant="primary" @click.stop="focusSearch">
+                  Add classes
+                </g-button>
+              </div>
+            </div>
+
+            <road-canvas
+              v-if="activeRoad !== '' && activeRoad in roads && !roadLoading"
+              :key="activeRoad"
+              :selected-subjects="roads[activeRoad].contents.selectedSubjects"
+              :road-i-d="activeRoad"
+              @change-year="auth.changeSemester($event)"
+            />
+          </div>
+        </main>
+      </div>
     </div>
 
     <detail-sheet

@@ -91,7 +91,7 @@ test("a persisted road's audit computes on load (one request per program)", asyn
   expect(progressBodies.get("major6-3")).toContain("8.01");
   // MainPage's data-cy="audit" overrides the panel's own hook.
   await expect(cy(page, "audit")).toContainText("% complete");
-  await expect(cy(page, "audit")).not.toContainText("computing…");
+  await expect(cy(page, "audit")).not.toContainText("computing...");
 });
 
 test("an unknown road id rewrites the URL to the road actually shown", async ({

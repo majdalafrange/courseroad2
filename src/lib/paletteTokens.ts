@@ -1,6 +1,6 @@
 /**
  * Command-palette filter tokens: the typed grammar ("hass", "9u",
- * "not-ci", …) mapped onto the search filter groups in lib/filters.ts.
+ * "not-ci", ...) mapped onto the search filter groups in lib/filters.ts.
  * Pure data + one projection, kept out of the palette component so the
  * grammar is testable and greppable on its own.
  */

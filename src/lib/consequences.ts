@@ -14,7 +14,7 @@ export function placedKey(semester: number, index: number): string {
 }
 
 /**
- * Extract the requirement tokens (subject ids / GIR:… / HASS-… / CI-…)
+ * Extract the requirement tokens (subject ids / GIR:... / HASS-... / CI-...)
  * from a FireRoad requirement string, dropping punctuation and quoted
  * free-text requirements.
  */

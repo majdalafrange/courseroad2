@@ -19,7 +19,7 @@ import { useAuditStore } from "../../../src/stores/audit";
 
 /**
  * A program whose progress request failed renders a terminal state with
- * a retry, instead of reading "computing…" forever (N9).
+ * a retry, instead of reading "computing..." forever (N9).
  */
 
 let wrapper: VueWrapper | undefined;
@@ -44,7 +44,7 @@ describe("ProgramSection failure state", () => {
       props: { programKey: "major18", tree: null, title: "18 Major" },
     });
     expect(wrapper.text()).toContain("progress didn't load");
-    expect(wrapper.text()).not.toContain("computing…");
+    expect(wrapper.text()).not.toContain("computing...");
 
     await wrapper.find('[data-cy="programRetryButton"]').trigger("click");
     // The retry recomputes exactly this program (the default road exists,
@@ -53,11 +53,11 @@ describe("ProgramSection failure state", () => {
     expect(mocks.getProgress.mock.calls[0][0]).toBe("major18");
   });
 
-  it("keeps 'computing…' for a program still in flight", () => {
+  it("keeps 'computing...' for a program still in flight", () => {
     wrapper = mount(ProgramSection, {
       props: { programKey: "major6-3", tree: null, title: "6-3 Major" },
     });
-    expect(wrapper.text()).toContain("computing…");
+    expect(wrapper.text()).toContain("computing...");
     expect(wrapper.text()).not.toContain("progress didn't load");
   });
 });

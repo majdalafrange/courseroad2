@@ -1,5 +1,5 @@
 /**
- * Generic placeholder courses (PHY1, CAL2, HASS-A, CI-H, …), synthesized
+ * Generic placeholder courses (PHY1, CAL2, HASS-A, CI-H, ...), synthesized
  * from GIR/HASS/CI attribute combinations so requirements can be planned
  * before choosing a real class. Offered-terms and hours are aggregated
  * over all catalog subjects carrying the attribute.

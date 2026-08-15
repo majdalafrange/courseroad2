@@ -269,7 +269,7 @@ describe("localStorage readers", () => {
   });
 });
 
-describe("current-semester persistence (the “I am a…” year)", () => {
+describe("current-semester persistence (the “I am a...” year)", () => {
   it("round-trips the choice through the persisted blob", () => {
     // hideIAP and the theme both survived a reload; this one was lost.
     expect(persistedCurrentSemester()).toBeUndefined();

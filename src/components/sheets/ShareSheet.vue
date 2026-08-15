@@ -138,7 +138,7 @@ async function printPoster() {
     const svg = await exportSvg();
     // The road name is NOT interpolated into markup: it is assigned via
     // document.title (plain text, never HTML-parsed) so a hostile road
-    // name like `</title><img src=x onerror=…>` cannot inject script into
+    // name like `</title><img src=x onerror=...>` cannot inject script into
     // this same-origin window. posterSvg is safe by construction
     // (poster.ts esc()s every text node; colors are dictionary lookups).
     win.document.write(

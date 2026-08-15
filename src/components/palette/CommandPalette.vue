@@ -25,7 +25,7 @@
                 v-model="query"
                 class="palette-input"
                 data-cy="classSearchInput"
-                placeholder="Search classes, filters, commands…"
+                placeholder="Search classes, filters, commands..."
                 autocomplete="off"
                 spellcheck="false"
                 @keydown="onInputKeydown"

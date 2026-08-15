@@ -270,7 +270,7 @@ export function parseRoadFile(
   };
 }
 
-/** "Name (2)", "Name (3)", …: first numbered name not in otherNames. */
+/** "Name (2)", "Name (3)", ...: first numbered name not in otherNames. */
 export function renumberName(name: string, otherNames: string[]): string {
   let newName;
   let copyIndex = 2;
