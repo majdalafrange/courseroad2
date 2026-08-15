@@ -8,11 +8,14 @@
       aria-hidden="true"
     >
       <rect x="0" y="0" width="24" height="24" rx="3" class="mark-tile" />
-      <!-- three treads rising left to right; copied in public/favicon.svg,
-           public/favicon.ico, and the poster header in src/lib/poster.ts -->
-      <path d="M5 18.5 H9.8 V13.5 H14.6 V8.5 H19" class="mark-stroke" />
+      <!-- a road narrowing into the distance, two lane-marking dashes;
+           copied in public/favicon.svg, public/favicon.ico, and the poster
+           header in src/lib/poster.ts -->
+      <path d="M4.5 20.5 L9.3 6 L14.7 6 L19.5 20.5 Z" class="mark-road" />
+      <line x1="12" y1="18" x2="12" y2="14.3" class="mark-dash" />
+      <line x1="12" y1="11.3" x2="12" y2="8.8" class="mark-dash mark-dash-sm" />
     </svg>
-    <span class="g-name">CourseRoad</span>
+    <span class="g-name">Course<span class="name-road">Road</span></span>
   </span>
 </template>
 
@@ -39,20 +42,30 @@ const markSize = computed(() => ({ sm: 18, md: 22, lg: 30 })[props.size]);
 .mark-tile {
   fill: var(--g-mark);
 }
-.mark-stroke {
-  /* paper, not --g-surface: the treads never invert, so the mark reads the
+.mark-road {
+  /* paper, not --g-surface: the tile never inverts, so the mark reads the
      same way on either theme's brand tile */
-  stroke: #fff;
-  stroke-width: 3;
+  fill: #fff;
+}
+.mark-dash {
+  stroke: var(--g-mark);
+  stroke-width: 2.1;
   stroke-linecap: round;
-  stroke-linejoin: round;
-  fill: none;
+}
+.mark-dash-sm {
+  stroke-width: 1.7;
 }
 .g-name {
   font-family: var(--font-display);
   font-weight: 600;
   color: var(--g-ink);
   letter-spacing: -0.015em;
+}
+/* Echoes Hydrant's own two-tone wordmark ("hydr" + "ant"): --g-brand, not
+   --g-accent, since accent goes neutral-silver in dark mode and this half
+   is meant to stay the road's own red in both themes. */
+.name-road {
+  color: var(--g-brand);
 }
 .g-wordmark.sm .g-name {
   font: var(--text-body-lg);

@@ -234,7 +234,9 @@ export function buildRoadPoster(
   const header = `
     <rect x="0" y="0" width="${width}" height="${height}" fill="${theme.bg}"/>
     <rect x="${padding}" y="${padding - 8}" width="24" height="24" rx="3" fill="${MARK_TILE}"/>
-    <path d="M${padding + 5} ${padding + 10.5} H${padding + 9.8} V${padding + 5.5} H${padding + 14.6} V${padding + 0.5} H${padding + 19}" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M${padding + 4.5} ${padding + 12.5} L${padding + 9.3} ${padding - 2} L${padding + 14.7} ${padding - 2} L${padding + 19.5} ${padding + 12.5} Z" fill="#ffffff"/>
+    <line x1="${padding + 12}" y1="${padding + 10}" x2="${padding + 12}" y2="${padding + 6.3}" stroke="${MARK_TILE}" stroke-width="2.1" stroke-linecap="round"/>
+    <line x1="${padding + 12}" y1="${padding + 3.3}" x2="${padding + 12}" y2="${padding + 0.8}" stroke="${MARK_TILE}" stroke-width="1.7" stroke-linecap="round"/>
     <text x="${padding + 34}" y="${padding + 10}" font-family="'IBM Plex Sans',sans-serif" font-size="22" font-weight="600" fill="${theme.ink}">${esc(truncateTitle(road.name))}</text>
     <text x="${padding + 34}" y="${padding + 32}" font-family="'IBM Plex Sans',sans-serif" font-size="13" fill="${theme.ink3}">${totalUnits} units · planned in CourseRoad</text>
   `;
