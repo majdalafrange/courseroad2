@@ -54,11 +54,9 @@
       </h3>
       <p class="sg-body sg-note">
         Every department sits in a fixed OKLCH lightness/chroma band, so chips
-        are equally vivid and on-color text passes contrast by construction. Hue
-        families carry meaning: azure for computing, green and teal for the
-        sciences, warm golds and corals for the humanities, magenta and violet
-        for the arts. Full chroma is an interaction state, so rails sit muted at
-        rest.
+        are equally vivid and on-color text passes contrast by construction.
+        Hues are carried over from the legacy CourseRoad, providing familiarity
+        to users.
       </p>
       <div class="sg-dept-grid">
         <div
