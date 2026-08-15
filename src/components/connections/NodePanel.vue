@@ -166,7 +166,12 @@
                 <span class="neighbor-text">
                   <span class="neighbor-id-row">
                     <span class="neighbor-id">{{ n.id }}</span>
-                    <span v-if="n.crossing" class="cross-flag">crossing</span>
+                    <span
+                      v-if="n.crossing"
+                      class="cross-flag"
+                      title="Connects a different department"
+                      >crossing</span
+                    >
                     <span
                       v-if="n.onCanvas"
                       class="oncanvas-flag"
