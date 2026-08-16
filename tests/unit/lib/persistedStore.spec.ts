@@ -1,14 +1,14 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from "vitest";
 import {
-  DEFAULT_DARK_MODE,
+  DEFAULT_THEME_MODE,
   PERSISTED_STORE_KEY,
   loadPersistedStore,
   parsePersistedBlob,
   persistCurrentSemester,
-  persistThemePreference,
+  persistThemeMode,
   persistedCurrentSemester,
-  persistedIsDarkMode,
+  persistedThemeMode,
   sanitizePersistedStore,
   sanitizeRoadMap,
 } from "../../../src/lib/persistedStore";
@@ -219,13 +219,18 @@ describe("sanitizePersistedStore", () => {
     expect(clean.currentSemester).toBe(4);
   });
 
-  it("rejects non-finite currentSemester and non-boolean flags", () => {
+  it("rejects non-finite currentSemester, non-boolean flags, and an unknown themeMode", () => {
     const clean = sanitizePersistedStore({
       currentSemester: Infinity,
       hideIAP: "yes",
-      isDarkMode: 1,
+      themeMode: "sepia",
     });
     expect(clean).toEqual({});
+  });
+
+  it("keeps a valid themeMode", () => {
+    const clean = sanitizePersistedStore({ themeMode: "dark" });
+    expect(clean).toEqual({ themeMode: "dark" });
   });
 });
 
@@ -235,37 +240,59 @@ describe("localStorage readers", () => {
     expect(loadPersistedStore()).toBeUndefined();
   });
 
-  it("persistedIsDarkMode takes a stored boolean either way", () => {
+  it("persistedThemeMode takes a stored mode as-is", () => {
+    localStorage.setItem(PERSISTED_STORE_KEY, '{"themeMode":"dark"}');
+    expect(persistedThemeMode()).toBe("dark");
+    localStorage.setItem(PERSISTED_STORE_KEY, '{"themeMode":"light"}');
+    expect(persistedThemeMode()).toBe("light");
+    localStorage.setItem(PERSISTED_STORE_KEY, '{"themeMode":"system"}');
+    expect(persistedThemeMode()).toBe("system");
+  });
+
+  it('migrates a pre-"System Default" blob\'s legacy isDarkMode flag', () => {
     localStorage.setItem(PERSISTED_STORE_KEY, '{"isDarkMode":true}');
-    expect(persistedIsDarkMode()).toBe(true);
+    expect(persistedThemeMode()).toBe("dark");
     localStorage.setItem(PERSISTED_STORE_KEY, '{"isDarkMode":false}');
-    expect(persistedIsDarkMode()).toBe(false);
+    expect(persistedThemeMode()).toBe("light");
   });
 
-  it("persistedIsDarkMode falls back to the default when unset or garbage", () => {
-    expect(persistedIsDarkMode()).toBe(DEFAULT_DARK_MODE);
+  it("prefers a stored themeMode over a stale legacy isDarkMode", () => {
+    localStorage.setItem(
+      PERSISTED_STORE_KEY,
+      '{"themeMode":"system","isDarkMode":false}',
+    );
+    expect(persistedThemeMode()).toBe("system");
+  });
+
+  it("persistedThemeMode falls back to the default when unset or garbage", () => {
+    expect(persistedThemeMode()).toBe(DEFAULT_THEME_MODE);
+    localStorage.setItem(PERSISTED_STORE_KEY, '{"themeMode":"sepia"}');
+    expect(persistedThemeMode()).toBe(DEFAULT_THEME_MODE);
     localStorage.setItem(PERSISTED_STORE_KEY, '{"isDarkMode":"yes"}');
-    expect(persistedIsDarkMode()).toBe(DEFAULT_DARK_MODE);
+    expect(persistedThemeMode()).toBe(DEFAULT_THEME_MODE);
     localStorage.setItem(PERSISTED_STORE_KEY, "{oops");
-    expect(persistedIsDarkMode()).toBe(DEFAULT_DARK_MODE);
+    expect(persistedThemeMode()).toBe(DEFAULT_THEME_MODE);
   });
 
-  it("persistThemePreference writes the flag without touching the rest", () => {
+  it("persistThemeMode writes the mode without touching the rest, clearing any legacy flag", () => {
     localStorage.setItem(
       PERSISTED_STORE_KEY,
       '{"activeRoad":"a","isDarkMode":false}',
     );
-    persistThemePreference(true);
-    expect(loadPersistedStore()).toEqual({ activeRoad: "a", isDarkMode: true });
-    expect(persistedIsDarkMode()).toBe(true);
+    persistThemeMode("dark");
+    expect(loadPersistedStore()).toEqual({
+      activeRoad: "a",
+      themeMode: "dark",
+    });
+    expect(persistedThemeMode()).toBe("dark");
   });
 
-  it("persistThemePreference starts a blob when none exists or it is corrupt", () => {
-    persistThemePreference(true);
-    expect(persistedIsDarkMode()).toBe(true);
+  it("persistThemeMode starts a blob when none exists or it is corrupt", () => {
+    persistThemeMode("dark");
+    expect(persistedThemeMode()).toBe("dark");
     localStorage.setItem(PERSISTED_STORE_KEY, "{oops");
-    persistThemePreference(false);
-    expect(loadPersistedStore()).toEqual({ isDarkMode: false });
+    persistThemeMode("light");
+    expect(loadPersistedStore()).toEqual({ themeMode: "light" });
   });
 });
 
@@ -280,12 +307,12 @@ describe("current-semester persistence (the “I am a...” year)", () => {
   it("writes the one key without touching the rest of the blob", () => {
     localStorage.setItem(
       PERSISTED_STORE_KEY,
-      '{"activeRoad":"a","isDarkMode":false}',
+      '{"activeRoad":"a","themeMode":"light"}',
     );
     persistCurrentSemester(4);
     expect(loadPersistedStore()).toEqual({
       activeRoad: "a",
-      isDarkMode: false,
+      themeMode: "light",
       currentSemester: 4,
     });
   });

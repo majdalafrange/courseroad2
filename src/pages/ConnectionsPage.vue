@@ -86,6 +86,9 @@
       <!-- ready -->
       <connections-canvas v-else @open="onOpen" @add="onAdd" />
 
+      <!-- DOM order stays canvas-then-panel (node-panel's v-if would break
+           the v-else chain above if moved first); order:-1 in the stylesheet
+           makes it match the audit panel. -->
       <node-panel v-if="showPanel" @open="onOpen" @add="onAdd" />
     </div>
   </div>

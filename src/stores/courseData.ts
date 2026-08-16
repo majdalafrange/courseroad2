@@ -20,9 +20,7 @@ import {
   APP_VERSION,
   STORAGE_KEYS,
   readRawFlag,
-  readValue,
   writeRawFlag,
-  writeValue,
 } from "../lib/appStorage";
 import { formatFireroadDate } from "../lib/dates";
 import { buildIndex, parseGenericCourses } from "../lib/genericCourses";
@@ -33,9 +31,13 @@ import {
   migrateOldSubjects,
 } from "../lib/roads";
 import {
-  persistedIsDarkMode,
+  persistedPanelSide,
+  persistedThemeMode,
   sanitizePersistedStore,
+  type PanelSide,
+  type ThemeMode,
 } from "../lib/persistedStore";
+import { systemPrefersDark } from "../design/tokens";
 import { loadCachedCatalog, saveCachedCatalog } from "../lib/catalogCache";
 import { bucketName, userYearFromSemester } from "../lib/offering";
 import { fireroad } from "./fireroadClient";
@@ -52,20 +54,6 @@ export interface RoadChangeEvent {
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
-}
-
-/** Which edge the progress panel sits on. */
-export type PanelSide = "left" | "right";
-
-/**
- * The side a returning student last chose. Anything else in storage (an
- * older value, a hand edit) reads as absent and takes the default, so a
- * malformed entry can never leave the panel unplaced.
- */
-function readPanelSide(): PanelSide {
-  return readValue<string>(STORAGE_KEYS.panelSide) === "left"
-    ? "left"
-    : "right";
 }
 
 type RoadChangeSubscriber = (event: RoadChangeEvent) => void;
@@ -122,7 +110,6 @@ const getDefaultState = () => {
     // localStorage read here crashed the whole boot where storage throws
     // (Safari private mode).
     hideIAP: readRawFlag(STORAGE_KEYS.hideIAP),
-    panelSide: readPanelSide(),
     roads: {
       [DEFAULT_ROAD_ID]: {
         downloaded: formatFireroadDate(),
@@ -153,7 +140,11 @@ const getDefaultState = () => {
     /** Set when the catalog can't load and nothing is cached. */
     catalogError: false,
     roadsToMigrate: [] as string[],
-    isDarkMode: persistedIsDarkMode(),
+    themeMode: persistedThemeMode() as ThemeMode,
+    // The live OS/browser preference for light/dark mode, used to resolve themeMode === "system".
+    systemPrefersDark: systemPrefersDark(),
+    // Which side the audit panel (plan) and node panel (explore) render on.
+    panelSide: persistedPanelSide() as PanelSide,
   };
 };
 
@@ -173,6 +164,13 @@ export const useCourseDataStore = defineStore("courseData", {
     },
     activeRoadObject(state): Road | undefined {
       return state.roads[state.activeRoad];
+    },
+    /** The effective light/dark state: themeMode resolved against the
+        live OS preference when it's "system". */
+    isDarkMode(state): boolean {
+      return state.themeMode === "system"
+        ? state.systemPrefersDark
+        : state.themeMode === "dark";
     },
   },
   actions: {
@@ -812,11 +810,6 @@ export const useCourseDataStore = defineStore("courseData", {
       writeRawFlag(STORAGE_KEYS.hideIAP, value);
     },
 
-    /** Move the progress panel to the other edge and remember the choice. */
-    setPanelSide(side: PanelSide) {
-      this.panelSide = side;
-      writeValue(STORAGE_KEYS.panelSide, side);
-    },
 
     setRoadProp<K extends keyof Road>({
       id,
@@ -966,8 +959,12 @@ export const useCourseDataStore = defineStore("courseData", {
       this.roadsToMigrate = [];
     },
 
-    changeTheme() {
-      this.isDarkMode = !this.isDarkMode;
+    setThemeMode(mode: ThemeMode) {
+      this.themeMode = mode;
+    },
+
+    setPanelSide(side: PanelSide) {
+      this.panelSide = side;
     },
 
     /* ---- catalog loading (IndexedDB cache + background refresh) ---- */

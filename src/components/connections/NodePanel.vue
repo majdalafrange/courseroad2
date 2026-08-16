@@ -1,5 +1,9 @@
 <template>
-  <aside class="node-panel" aria-label="Connections">
+  <aside
+    class="node-panel"
+    :class="{ 'panel-right': courseData.panelSide === 'right' }"
+    aria-label="Connections"
+  >
     <!-- inline "add to a term"; discovery never leaves the graph -->
     <term-picker v-if="store.placementRequest" />
 
@@ -241,6 +245,7 @@ import GIcon from "../../design/components/GIcon.vue";
 import TermPicker from "./TermPicker.vue";
 import { courseColor } from "../../lib/colors";
 import { useConnectionsStore, type NodeView } from "../../stores/connections";
+import { useCourseDataStore } from "../../stores/courseData";
 import type { RankedNeighbor } from "../../lib/connections/rank";
 
 const emit = defineEmits<{
@@ -249,6 +254,7 @@ const emit = defineEmits<{
 }>();
 
 const store = useConnectionsStore();
+const courseData = useCourseDataStore();
 
 const subject = computed(() => store.selectedSubject);
 const neighbors = computed<RankedNeighbor[]>(() => store.rankedNeighbors);
@@ -385,14 +391,22 @@ function toggleExpand() {
 
 <style scoped>
 .node-panel {
+  /* DOM order is canvas-then-panel (see ConnectionsPage.vue); this puts
+     it first visually. */
+  order: -1;
   width: 384px;
   flex-shrink: 0;
   height: 100%;
   background: var(--g-surface);
-  border-left: 1px solid var(--g-line);
+  border-right: 1px solid var(--g-line);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+.node-panel.panel-right {
+  order: 1;
+  border-right: none;
+  border-left: 1px solid var(--g-line);
 }
 @media (max-width: 1100px) {
   .node-panel {
@@ -411,6 +425,7 @@ function toggleExpand() {
     width: 100%;
     height: auto;
     max-height: min(60dvh, 520px);
+    border-right: none;
     border-left: none;
     border-top: 1px solid var(--g-line);
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;

@@ -1122,6 +1122,7 @@ export const useConnectionsStore = defineStore("connections", () => {
     open,
     seedFrom,
     reseedFromRoad,
+    requestFrame,
     expand,
     collapse,
     reveal,

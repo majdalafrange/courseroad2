@@ -202,4 +202,8 @@ onBeforeUnmount(() => {
 .g-sheet-leave-to {
   opacity: 0;
 }
+/* Full takeover for onboarding screen. */
+.g-sheet-scrim.opaque.g-sheet-enter-from {
+  opacity: 1;
+}
 </style>

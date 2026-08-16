@@ -3,6 +3,8 @@
  * tokens.css are the source of truth for rendering).
  */
 
+import type { ThemeMode } from "../lib/persistedStore";
+
 export type ThemeName = "light" | "dark";
 
 let themeTransitionTimer: ReturnType<typeof setTimeout> | undefined;
@@ -28,4 +30,16 @@ export function applyThemeAttribute(theme: ThemeName): void {
 
 export function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+/** Live OS/browser color-scheme preference, for the "system" theme mode. */
+export function systemPrefersDark(): boolean {
+  return typeof matchMedia === "function"
+    ? matchMedia("(prefers-color-scheme: dark)").matches
+    : true;
+}
+
+/** Resolve a stored preference (possibly "system") to a concrete theme. */
+export function resolveTheme(mode: ThemeMode, prefersDark: boolean): ThemeName {
+  return mode === "system" ? (prefersDark ? "dark" : "light") : mode;
 }

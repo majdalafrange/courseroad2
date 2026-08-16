@@ -406,8 +406,9 @@ function visibleCanvasSize(): { width: number; height: number } | undefined {
   const panel = hostEl.value?.parentElement?.querySelector(".node-panel");
   if (panel !== null && panel !== undefined) {
     const p = panel.getBoundingClientRect();
-    // overlaying sheet: full-width and anchored over the canvas bottom
-    if (p.top < rect.bottom && p.left <= rect.left + 1) {
+    // overlaying sheet, so the canvas area above it is what can be seen
+    const overlapsX = p.left < rect.right && p.right > rect.left;
+    if (p.top < rect.bottom && overlapsX) {
       height = Math.max(160, p.top - rect.top);
     }
   }

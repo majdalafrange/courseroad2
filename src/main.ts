@@ -14,17 +14,21 @@ import "@fontsource/ibm-plex-mono/500.css";
 import "./design/tokens.css";
 import "./design/departmentColors.css";
 import "./css/app.css";
-import { applyThemeAttribute } from "./design/tokens";
+import {
+  applyThemeAttribute,
+  resolveTheme,
+  systemPrefersDark,
+} from "./design/tokens";
 import { fatalError } from "./lib/errorBoundary";
 import { migrateLegacyCookies } from "./lib/legacyStorage";
-import { persistedIsDarkMode } from "./lib/persistedStore";
+import { persistedThemeMode } from "./lib/persistedStore";
 
 // Move any legacy cookie state into origin-isolated storage before
 // anything reads it. After this the app never reads document.cookie.
 migrateLegacyCookies();
 
 // Apply the persisted theme before first paint to avoid a flash.
-applyThemeAttribute(persistedIsDarkMode() ? "dark" : "light");
+applyThemeAttribute(resolveTheme(persistedThemeMode(), systemPrefersDark()));
 
 const routes = [
   { path: "/", redirect: "/road" },

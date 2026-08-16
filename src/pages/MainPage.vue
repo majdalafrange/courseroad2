@@ -20,7 +20,7 @@
       @open-compare="compareOpen = true"
       @open-share="shareOpen = true"
       @open-about="aboutOpen = true"
-      @toggle-theme="toggleTheme"
+      @open-settings="settingsOpen = true"
       @navigate-mode="navigateMode"
     />
 
@@ -69,8 +69,8 @@
             >
               <h2 class="empty-title">Search for a class</h2>
               <p class="empty-copy">
-                Place it in a term, or add a major or minor on the left and
-                we'll show you what's left.
+                Place it in a term, or add a major or minor on the
+                {{ store.panelSide }} and we'll show you what's left.
               </p>
               <div class="empty-actions">
                 <g-button variant="primary" @click.stop="focusSearch">
@@ -164,6 +164,7 @@
     <conflict-dialog />
     <import-dialog v-model="importOpen" @add-road="addRoad" />
     <about-sheet v-model="aboutOpen" />
+    <settings-sheet v-model="settingsOpen" />
     <share-sheet v-model="shareOpen" />
     <compare-roads v-model="compareOpen" />
     <onboarding v-model="onboardingOpen" @seed="seedFromOnboarding" />
@@ -228,6 +229,9 @@ const ImportDialog = defineAsyncComponent(
 const Onboarding = defineAsyncComponent(
   () => import("../components/sheets/Onboarding.vue"),
 );
+const SettingsSheet = defineAsyncComponent(
+  () => import("../components/sheets/SettingsSheet.vue"),
+);
 const ShareSheet = defineAsyncComponent(
   () => import("../components/sheets/ShareSheet.vue"),
 );
@@ -249,7 +253,7 @@ import {
   savePersistedStore,
 } from "../lib/persistedStore";
 import { useGlobalShortcuts } from "../composables/useGlobalShortcuts";
-import { useTheme } from "../composables/useTheme";
+import { useSystemThemeSync } from "../composables/useTheme";
 import {
   DEFAULT_ROAD_ID,
   DEFAULT_ROAD_NAME,
@@ -279,6 +283,7 @@ const route = useRoute();
 const router = useRouter();
 
 const aboutOpen = ref(false);
+const settingsOpen = ref(false);
 const importOpen = ref(false);
 const shareOpen = ref(false);
 const compareOpen = ref(false);
@@ -340,8 +345,8 @@ const showEmptyState = computed(() => {
   return flatten(road.contents.selectedSubjects).length === 0;
 });
 
-/* ---- theme ---- */
-const { toggleTheme } = useTheme();
+/* ---- theme: keep the applied attribute in sync with "system" ---- */
+useSystemThemeSync();
 
 /* ---- Plan ⁄ Explore mode ---- */
 function navigateMode(mode: "plan" | "explore") {
@@ -419,8 +424,8 @@ watch(
 /** Route palette actions to their shell behaviors. */
 function onPaletteAction(name: string, payload?: string) {
   switch (name) {
-    case "toggle-theme":
-      toggleTheme();
+    case "open-settings":
+      settingsOpen.value = true;
       break;
     case "create-road":
       createRoad();
@@ -730,10 +735,18 @@ onBeforeUnmount(() => {
   width: 384px;
   flex-shrink: 0;
   background: var(--g-surface);
-  border-left: 1px solid var(--g-line);
+  border-right: 1px solid var(--g-line);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+/* Settings' panel-side choice: DOM order stays panel-then-main (the
+   default, left-side layout); "right" just reorders and re-sides the
+   border, so the aside's own v-if is never in play. */
+.shell-body.panel-right .progress-panel {
+  order: 1;
+  border-right: none;
+  border-left: 1px solid var(--g-line);
 }
 
 /* The panel follows the plan by default, which is the order the markup is
@@ -914,6 +927,7 @@ onBeforeUnmount(() => {
     height: auto;
     flex: 1;
     min-height: 0;
+    border-right: none;
     border-left: none;
   }
   .shell.is-mobile .canvas {

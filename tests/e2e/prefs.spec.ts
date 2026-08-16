@@ -2,14 +2,23 @@ import { expect, test } from "@playwright/test";
 import { cy, openApp } from "./support/app";
 
 test.beforeEach(async ({ context, page }) => {
+  // Deterministic system default: "System Default" needs a known OS
+  // preference to resolve against, and setting it here doesn't affect
+  // the other test in this file.
+  await page.emulateMedia({ colorScheme: "dark" });
   await openApp(context, page);
 });
 
-test("theme and IAP visibility survive a reload", async ({ page }) => {
-  // Dark is the default until a student picks one.
+test("theme follows the OS by default, and an explicit choice survives a reload", async ({
+  page,
+}) => {
+  // System Default is the starting preference; the OS says dark.
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await cy(page, "themeToggle").click();
+
+  await cy(page, "settingsButton").click();
+  await cy(page, "themeOption-light").click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await page.keyboard.press("Escape");
 
   await cy(page, "hideIapToggle").click();
   await expect(cy(page, "hideIapToggle")).toContainText("Show IAP");

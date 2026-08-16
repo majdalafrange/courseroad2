@@ -119,10 +119,15 @@
         Log in with MIT
       </button>
 
-      <g-tooltip
-        :text="isDark ? 'Switch to light theme' : 'Switch to dark theme'"
-      >
-        <theme-toggle :dark="isDark" @toggle="emit('toggle-theme')" />
+      <g-tooltip class="header-settings" text="Settings">
+        <button
+          class="header-icon-btn"
+          data-cy="settingsButton"
+          aria-label="Settings"
+          @click="emit('open-settings')"
+        >
+          <g-icon name="settings" :size="16" />
+        </button>
       </g-tooltip>
 
       <g-popover v-model="moreOpen" align="end" menu>
@@ -148,16 +153,11 @@
           <button class="more-item" @click="closeAnd('open-about')">
             <g-icon name="info" :size="14" /> About CourseRoad
           </button>
-          <!-- Desktop only: below 860px the panel is its own tab in the
-               bottom nav, so it has no edge to sit on. -->
           <button
-            v-if="!isMobile"
-            class="more-item"
-            data-cy="movePanelButton"
-            @click="movePanel"
+            class="more-item mobile-only"
+            @click="closeAnd('open-settings')"
           >
-            <g-icon name="map" :size="14" />
-            Move progress panel {{ panelSide === "left" ? "right" : "left" }}
+            <g-icon name="settings" :size="14" /> Settings
           </button>
           <a
             v-if="auth.loggedIn"
@@ -206,8 +206,6 @@ import GPopover from "../../design/components/GPopover.vue";
 import GTooltip from "../../design/components/GTooltip.vue";
 import GWordmark from "../../design/components/GWordmark.vue";
 import RoadSwitcher from "./RoadSwitcher.vue";
-import ThemeToggle from "./ThemeToggle.vue";
-import { useIsMobile } from "../../composables/useIsMobile";
 import { semesterInformation } from "../../lib/hours";
 import { shortcutKeys } from "../../lib/platform";
 import { history } from "../../stores/history";
@@ -226,7 +224,7 @@ const emit = defineEmits<{
   (e: "open-compare"): void;
   (e: "open-share"): void;
   (e: "open-about"): void;
-  (e: "toggle-theme"): void;
+  (e: "open-settings"): void;
   (e: "navigate-mode", mode: "plan" | "explore"): void;
 }>();
 
@@ -235,26 +233,20 @@ const auth = useAuthStore();
 const route = useRoute();
 
 const isExplore = computed(() => route.path === "/explore");
-const isDark = computed(() => Boolean(store.isDarkMode));
 const shortcut = shortcutKeys("K");
 const moreOpen = ref(false);
-const isMobile = useIsMobile();
-const panelSide = computed(() => store.panelSide);
-
-function movePanel() {
-  moreOpen.value = false;
-  store.setPanelSide(store.panelSide === "left" ? "right" : "left");
-}
 
 /* Feedback and issue-report form. */
 const feedbackFormUrl = "https://forms.gle/VAY3E7RbjmUrw3ww5";
 
-function closeAnd(event: "open-share" | "open-about") {
+function closeAnd(event: "open-share" | "open-about" | "open-settings") {
   moreOpen.value = false;
   if (event === "open-share") {
     emit("open-share");
-  } else {
+  } else if (event === "open-about") {
     emit("open-about");
+  } else {
+    emit("open-settings");
   }
 }
 
@@ -622,6 +614,9 @@ const saveState = computed<SaveState>(() => {
     display: none;
   }
   .header-login {
+    display: none;
+  }
+  .header-settings {
     display: none;
   }
   .more-item.mobile-only {

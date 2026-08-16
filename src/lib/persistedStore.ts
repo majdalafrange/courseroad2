@@ -27,6 +27,17 @@ import { getSimpleSelectedSubjects } from "./roads";
 // sync with what that clear actually reaches.
 export const PERSISTED_STORE_KEY = STORAGE_KEYS.store;
 
+export type ThemeMode = "light" | "dark" | "system";
+const THEME_MODES: readonly ThemeMode[] = ["light", "dark", "system"];
+
+/** The theme a visitor gets before they have chosen one: the OS setting. */
+export const DEFAULT_THEME_MODE: ThemeMode = "system";
+
+/** Which side the audit panel (plan) and node panel (explore) render on. */
+export type PanelSide = "left" | "right";
+const PANEL_SIDES: readonly PanelSide[] = ["left", "right"];
+export const DEFAULT_PANEL_SIDE: PanelSide = "left";
+
 /**
  * Keys restored from a persisted snapshot into the courseData store.
  * Everything else in the blob is session state (or worse) and is dropped.
@@ -37,7 +48,8 @@ const ALLOWED_KEYS = [
   "activeRoad",
   "roads",
   "hideIAP",
-  "isDarkMode",
+  "themeMode",
+  "panelSide",
   "subjectsInfo",
   "subjectsIndex",
   "genericCourses",
@@ -265,8 +277,23 @@ export function sanitizePersistedStore(
         }
         break;
       case "hideIAP":
-      case "isDarkMode":
         if (typeof value === "boolean") {
+          clean[key] = value;
+        }
+        break;
+      case "themeMode":
+        if (
+          typeof value === "string" &&
+          THEME_MODES.includes(value as ThemeMode)
+        ) {
+          clean[key] = value;
+        }
+        break;
+      case "panelSide":
+        if (
+          typeof value === "string" &&
+          PANEL_SIDES.includes(value as PanelSide)
+        ) {
           clean[key] = value;
         }
         break;
@@ -307,39 +334,73 @@ export function loadPersistedStore(): Record<string, unknown> | undefined {
   }
 }
 
-/** The theme a visitor gets before they have chosen one. */
-export const DEFAULT_DARK_MODE = true;
-
 /**
- * Pre-paint theme read. A stored boolean is the student's own choice and
- * wins either way; anything else (absent, or garbage in the blob) falls
- * back to the default.
+ * Pre-paint theme read. A stored mode is the student's own choice and
+ * wins either way. A pre-"System Default" blob (only the old binary
+ * `isDarkMode` flag, no `themeMode`) migrates to the equivalent explicit
+ * choice rather than silently becoming "system" out from under whoever
+ * set it. Anything else (absent, or garbage in the blob) is a visitor who
+ * has never chosen, and falls back to the default.
  */
-export function persistedIsDarkMode(): boolean {
-  const stored = loadPersistedStore()?.isDarkMode;
-  return typeof stored === "boolean" ? stored : DEFAULT_DARK_MODE;
+export function persistedThemeMode(): ThemeMode {
+  const blob = loadPersistedStore();
+  const stored = blob?.themeMode;
+  if (typeof stored === "string" && THEME_MODES.includes(stored as ThemeMode)) {
+    return stored as ThemeMode;
+  }
+  const legacy = blob?.isDarkMode;
+  if (typeof legacy === "boolean") {
+    return legacy ? "dark" : "light";
+  }
+  return DEFAULT_THEME_MODE;
 }
 
 /**
- * Write only the theme flag into the persisted blob, leaving the rest of
+ * Write only the theme mode into the persisted blob, leaving the rest of
  * the snapshot as it was. This runs mid-session, so it must not go
  * through savePersistedStore: that call strips descriptions off the live
  * catalog because it assumes the page is closing.
  */
-export function persistThemePreference(isDark: boolean): void {
+export function persistThemeMode(mode: ThemeMode): void {
   try {
     const blob =
       parsePersistedBlob(localStorage.getItem(PERSISTED_STORE_KEY)) ?? {};
-    blob.isDarkMode = isDark;
+    blob.themeMode = mode;
+    // Clear the legacy flag so a stale explicit choice can't resurface
+    // for persistedThemeMode's migration path after a newer pick.
+    delete blob.isDarkMode;
     localStorage.setItem(PERSISTED_STORE_KEY, JSON.stringify(blob));
   } catch {
-    // Storage unavailable; the toggle still applies for this session.
+    // Storage unavailable; the choice still applies for this session.
+  }
+}
+
+/** Pre-paint read of which side the audit/node panel renders on. */
+export function persistedPanelSide(): PanelSide {
+  const stored = loadPersistedStore()?.panelSide;
+  return typeof stored === "string" && PANEL_SIDES.includes(stored as PanelSide)
+    ? (stored as PanelSide)
+    : DEFAULT_PANEL_SIDE;
+}
+
+/**
+ * Write only the panel side into the persisted blob, the same
+ * mid-session single-key write persistThemeMode does.
+ */
+export function persistPanelSide(side: PanelSide): void {
+  try {
+    const blob =
+      parsePersistedBlob(localStorage.getItem(PERSISTED_STORE_KEY)) ?? {};
+    blob.panelSide = side;
+    localStorage.setItem(PERSISTED_STORE_KEY, JSON.stringify(blob));
+  } catch {
+    // Storage unavailable; the choice still applies for this session.
   }
 }
 
 /**
  * Write only the current-semester choice into the persisted blob, the
- * same mid-session single-key write persistThemePreference does. Logged
+ * same mid-session single-key write persistThemeMode does. Logged
  * in, the choice also syncs to FireRoad; logged out this copy is the
  * only one, so without it the "I am a..." year reset on every reload.
  */

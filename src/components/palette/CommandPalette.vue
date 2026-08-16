@@ -320,12 +320,11 @@ interface PaletteAction {
 const baseActions = computed<PaletteAction[]>(() => {
   const actions: PaletteAction[] = [
     {
-      label: store.isDarkMode
-        ? "Switch to light theme"
-        : "Switch to dark theme",
-      icon: store.isDarkMode ? "sun" : "moon",
-      keywords: "theme dark light mode switch",
-      run: () => emit("action", "toggle-theme"),
+      label: "Settings",
+      detail: "Open the settings dialog",
+      icon: "settings",
+      keywords: "theme dark light mode switch settings preferences system",
+      run: () => emit("action", "open-settings"),
     },
     {
       label: "New road",
