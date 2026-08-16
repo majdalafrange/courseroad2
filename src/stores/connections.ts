@@ -523,11 +523,10 @@ export const useConnectionsStore = defineStore("connections", () => {
 
   /**
    * Mark freshly revealed nodes/edges for their decorative entrance: nodes
-   * animate in from the node that revealed them (staggered by rank order;
-   * strongest connection lands first). A seed has no revealer, so its nodes
-   * glide outward from toward the center instead, inner ring first, and the
-   * circle blooms into place. Edges fade in after. Purely visual; final
-   * positions come from the layout alone.
+   * glide in from the node that revealed them, strongest connection first.
+   * A seed has no revealer, so its nodes bloom outward from the center
+   * instead, inner ring first. Edges fade in after. Visual only: final
+   * positions come from the layout.
    */
   function pulse(
     nodeIds: string[],
@@ -629,14 +628,9 @@ export const useConnectionsStore = defineStore("connections", () => {
   }
 
   /**
-   * Everything a destructive action (reset, re-seed) replaces.
-   *
-   * Held by reference on purpose: every graph and layout helper is
-   * copy-on-write: mutators clone before they write, `tidyLayout` and
-   * `setNodePosition` replace points rather than moving them, and seed and
-   * viewport are only ever reassigned whole. So the objects an action lets
-   * go of can never be written through afterwards, and work done while the
-   * undo toast is up can't corrupt the way back.
+   * Everything a destructive action (reset, re-seed) replaces. Held by
+   * reference safely: graph/layout mutators are all copy-on-write, so
+   * nothing written after this snapshot can corrupt the way back.
    */
   interface RestorePoint {
     graph: GraphState;
@@ -790,16 +784,16 @@ export const useConnectionsStore = defineStore("connections", () => {
     startFromSeed({ subjectIds: [resolved], origin: "manual" });
   }
 
-  /**
-   * Back to a fresh exploration of the current road. Drops the whole graph,
-   * so, like reset, it lands immediately and the toast carries the way
-   * back. The restore re-persists, since re-seeding cleared the save.
-   */
+  /** Drop the graph and reseed from the active road, no undo toast. */
   function quietReseedFromRoad(): void {
     persistence.clear();
     startFromSeed({ subjectIds: roadSeedIds(), origin: "road" });
   }
 
+  /**
+   * Back to a fresh exploration of the current road. Drops the whole graph,
+   * so, like reset, it lands immediately and the toast carries the way back.
+   */
   function reseedFromRoad(): void {
     const before = captureRestorePoint();
     quietReseedFromRoad();
@@ -1032,13 +1026,10 @@ export const useConnectionsStore = defineStore("connections", () => {
     }
     placementRequest.value = undefined;
     courseData.addFromCard(subject);
-    // Capture this placement's own history entry by identity, so the toast
-    // undoes exactly this action and nothing else. A length delta is unsound
-    // at the MAX_ENTRIES cap (record() pushes then shifts the bottom off, so
-    // the length is unchanged even though a new entry was recorded);
-    // comparing the top-of-stack reference detects the new entry regardless,
-    // and stays undefined if addAtPlaceholder recorded nothing (e.g. no
-    // active road), leaving the toast a safe no-op.
+    // Identify the new entry by reference, not a stack-length delta (unsound
+    // at the MAX_ENTRIES cap, where record() pushes and shifts in the same
+    // step). Stays undefined if nothing was recorded, making the toast a
+    // no-op instead of undoing the wrong thing.
     const stack = history.state.undoStack;
     const topBefore = stack[stack.length - 1];
     courseData.addAtPlaceholder(index);

@@ -335,12 +335,10 @@ export function loadPersistedStore(): Record<string, unknown> | undefined {
 }
 
 /**
- * Pre-paint theme read. A stored mode is the student's own choice and
- * wins either way. A pre-"System Default" blob (only the old binary
- * `isDarkMode` flag, no `themeMode`) migrates to the equivalent explicit
- * choice rather than silently becoming "system" out from under whoever
- * set it. Anything else (absent, or garbage in the blob) is a visitor who
- * has never chosen, and falls back to the default.
+ * Pre-paint theme read. A stored mode wins as-is; a pre-"System Default"
+ * blob (only the old `isDarkMode` flag) migrates to the equivalent
+ * explicit choice instead of silently becoming "system". Absent or
+ * garbage falls back to the default.
  */
 export function persistedThemeMode(): ThemeMode {
   const blob = loadPersistedStore();

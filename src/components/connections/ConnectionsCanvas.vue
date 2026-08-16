@@ -112,6 +112,7 @@ import {
   type EdgeView,
   type NodeView,
 } from "../../stores/connections";
+import { useCourseDataStore } from "../../stores/courseData";
 
 const emit = defineEmits<{
   (e: "open", id: string): void;
@@ -119,6 +120,7 @@ const emit = defineEmits<{
 }>();
 
 const store = useConnectionsStore();
+const courseData = useCourseDataStore();
 const hostEl = ref<HTMLElement>();
 const svgEl = ref<SVGSVGElement>();
 const panning = ref(false);
@@ -535,6 +537,13 @@ watch(
   },
   // after the DOM settles, so a just-opened panel sheet is measurable
   { flush: "post" },
+);
+
+// Settings' panel-side choice resizes the canvas; the existing pan/zoom
+// was framed for the old area and reads as off-center until reframed.
+watch(
+  () => courseData.panelSide,
+  () => store.requestFrame(),
 );
 
 /* ------------------------------------------------------- node drag/select */
