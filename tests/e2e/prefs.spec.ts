@@ -61,29 +61,30 @@ async function dividerEdge(page: import("@playwright/test").Page) {
 test("the progress panel side is a choice that survives a reload", async ({
   page,
 }) => {
-  // It follows the plan by default.
+  // It's on the left by default, facing the canvas with its divider.
+  expect(await panelIsLeftOfCanvas(page)).toBe(true);
+  expect(await dividerEdge(page)).toBe("right");
+
+  await cy(page, "settingsButton").click();
+  await cy(page, "panelSideOption-right").click();
+  await expect.poll(() => panelIsLeftOfCanvas(page)).toBe(false);
+  await page.keyboard.press("Escape");
+
+  await page.reload();
+  await cy(page, "roadSwitcher").waitFor();
   expect(await panelIsLeftOfCanvas(page)).toBe(false);
 
-  await page.getByRole("button", { name: "More", exact: true }).click();
-  await expect(cy(page, "movePanelButton")).toContainText("left");
-  await cy(page, "movePanelButton").click();
+  // The divider travels with the panel, so it always faces the canvas
+  // instead of drawing a hairline against the window.
+  expect(await dividerEdge(page)).toBe("left");
+
+  // The control now offers the way back, and takes it.
+  await cy(page, "settingsButton").click();
+  await cy(page, "panelSideOption-left").click();
   await expect.poll(() => panelIsLeftOfCanvas(page)).toBe(true);
+  await page.keyboard.press("Escape");
 
   await page.reload();
   await cy(page, "roadSwitcher").waitFor();
   expect(await panelIsLeftOfCanvas(page)).toBe(true);
-
-  // The divider travels with the panel, so it always faces the canvas
-  // instead of drawing a hairline against the window.
-  expect(await dividerEdge(page)).toBe("right");
-
-  // The control now offers the way back, and takes it.
-  await page.getByRole("button", { name: "More", exact: true }).click();
-  await expect(cy(page, "movePanelButton")).toContainText("right");
-  await cy(page, "movePanelButton").click();
-  await expect.poll(() => panelIsLeftOfCanvas(page)).toBe(false);
-
-  await page.reload();
-  await cy(page, "roadSwitcher").waitFor();
-  expect(await panelIsLeftOfCanvas(page)).toBe(false);
 });

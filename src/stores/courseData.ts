@@ -641,7 +641,7 @@ export const useCourseDataStore = defineStore("courseData", {
       const priorSnapshot = prior === undefined ? undefined : clone(prior);
       let next: ProgressAssertion | undefined;
       if (isIgnored) {
-        next = { ...(prior ?? {}), ignore: true };
+        next = { ...prior, ignore: true };
       } else if (prior?.substitutions !== undefined) {
         // Unignore but keep an existing substitution.
         next = { substitutions: prior.substitutions };
@@ -1039,7 +1039,7 @@ export const useCourseDataStore = defineStore("courseData", {
         // Just here to kick off loading if nothing else has yet; the
         // queued migration is drained by applyCatalog once subjects
         // arrive. A load failure leaves it queued with nothing to
-        // migrate against, which is fine — nothing else to do here.
+        // migrate against, which is fine.
         this.waitLoadSubjects().catch(() => {});
       }
     },

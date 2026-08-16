@@ -33,9 +33,9 @@ applyThemeAttribute(resolveTheme(persistedThemeMode(), systemPrefersDark()));
 const routes = [
   { path: "/", redirect: "/road" },
   { path: "/road/:road?", component: MainPage },
-  // Connections takes over the canvas area within the same shell, so it is the
-  // same page component, seedable via ?from=<id> and deep-linkable.
-  { path: "/explore", component: MainPage },
+  // Connections takes over the canvas area within the same shell, so it is
+  // the same page component, seedable via ?from=<id> and deep-linkable.
+  { path: "/explore/:road?", component: MainPage },
   {
     path: "/styleguide",
     component: () => import("./pages/StyleguidePage.vue"),

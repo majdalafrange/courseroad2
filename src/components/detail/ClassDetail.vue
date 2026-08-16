@@ -341,8 +341,10 @@ const isMobile = useIsMobile();
 /** Seed Connections from this subject (the highest-intent entry point). */
 function exploreFromHere() {
   if (subject.value !== undefined) {
+    const path =
+      store.activeRoad !== "" ? `/explore/${store.activeRoad}` : "/explore";
     void router.push({
-      path: "/explore",
+      path,
       query: { from: subject.value.subject_id },
     });
   }

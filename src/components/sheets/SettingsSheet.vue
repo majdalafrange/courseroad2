@@ -40,12 +40,8 @@
         <span id="panelSideLabel" class="settings-label">
           Audit &amp; connections panel
         </span>
-        <span
-          v-if="isMobile"
-          class="settings-label"
-          style="font-weight: 400; color: var(--g-ink-3)"
-        >
-          Panels are not not available on mobile!
+        <span v-if="isMobile" class="settings-hint">
+          Not available on mobile: one pane shows at a time either way.
         </span>
         <div
           class="option-list"
@@ -173,6 +169,11 @@ const PANEL_SIDE_OPTIONS: {
   font: var(--text-small);
   font-weight: 600;
   color: var(--g-ink-2);
+}
+.settings-hint {
+  font: var(--text-small);
+  color: var(--g-ink-3);
+  margin-top: calc(-1 * var(--space-1));
 }
 .option-list {
   display: flex;

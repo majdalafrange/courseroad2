@@ -34,8 +34,6 @@ export const STORAGE_KEYS = {
   dismissedMobileNotice: "dismissedMobileNotice",
   hideIAP: "hideIAP",
   showFifthYear: "showFifthYear",
-  /** Which edge the progress panel sits on: "left" or "right". */
-  panelSide: "panelSide",
   /** Set once the legacy cookie migration has run; see legacyStorage.ts. */
   migrated: "storageMigrated",
 } as const;

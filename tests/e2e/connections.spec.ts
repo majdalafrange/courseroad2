@@ -7,7 +7,9 @@ test.beforeEach(async ({ context, page }) => {
 
 test("the connections surface opens in the same shell", async ({ page }) => {
   await cy(page, "exploreButton").click();
-  await expect(page).toHaveURL(/\/explore$/);
+  // The :road segment travels with the mode, so switching roads while
+  // exploring updates it in place instead of bouncing back to the plan.
+  await expect(page).toHaveURL(/\/explore\/.+/);
   // An empty road shows the cold-start state naming the placement.
   await expect(
     page.getByText("Your road is empty. Pick a class to start from."),
@@ -48,8 +50,9 @@ test("the Explore panel sits on the side the plan panel does", async ({
   await page.getByText("Calculus", { exact: true }).first().click();
   await page.locator('[data-cy$="__semester_1"]').click();
 
-  await page.getByRole("button", { name: "More", exact: true }).click();
-  await cy(page, "movePanelButton").click();
+  await cy(page, "settingsButton").click();
+  await cy(page, "panelSideOption-right").click();
+  await page.keyboard.press("Escape");
 
   await cy(page, "exploreButton").click();
   await cy(page, "connectionNode_18_01").click();
@@ -58,6 +61,33 @@ test("the Explore panel sits on the side the plan panel does", async ({
 
   const box = await panel.boundingBox();
   const body = await page.locator(".connections-body").boundingBox();
-  // Leading edge of the row, not the trailing one.
-  expect(box!.x).toBeLessThan(body!.x + body!.width / 2);
+  // Trailing edge of the row, following the plan panel to the right.
+  expect(box!.x).toBeGreaterThan(body!.x + body!.width / 2);
+});
+
+test("switching roads while exploring stays on Explore and re-seeds", async ({
+  page,
+}) => {
+  // Seed the first road with a class and open Explore from it.
+  await page.locator("#searchInputTF").click();
+  await page.locator(".palette-input").fill("18.01");
+  await page.getByText("Calculus", { exact: true }).first().click();
+  await page.locator('[data-cy$="__semester_1"]').click();
+
+  await cy(page, "exploreButton").click();
+  await expect(cy(page, "connectionNode_18_01")).toBeVisible();
+
+  // A brand-new, empty road to switch to (creating it activates it
+  // immediately; naming it isn't needed for this).
+  await cy(page, "roadSwitcher").click();
+  await cy(page, "addRoadButton").click();
+  await page.keyboard.press("Escape");
+
+  // Still exploring, not bounced back to the plan...
+  await expect(page).toHaveURL(/\/explore\/.+/);
+  // ...and the graph re-seeded from the new (empty) road instead of
+  // carrying over 18.01 from the one that was left.
+  await expect(
+    page.getByText("Your road is empty. Pick a class to start from."),
+  ).toBeVisible();
 });

@@ -1,13 +1,16 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  DEFAULT_PANEL_SIDE,
   DEFAULT_THEME_MODE,
   PERSISTED_STORE_KEY,
   loadPersistedStore,
   parsePersistedBlob,
   persistCurrentSemester,
+  persistPanelSide,
   persistThemeMode,
   persistedCurrentSemester,
+  persistedPanelSide,
   persistedThemeMode,
   sanitizePersistedStore,
   sanitizeRoadMap,
@@ -232,6 +235,13 @@ describe("sanitizePersistedStore", () => {
     const clean = sanitizePersistedStore({ themeMode: "dark" });
     expect(clean).toEqual({ themeMode: "dark" });
   });
+
+  it("keeps a valid panelSide and rejects an unknown one", () => {
+    expect(sanitizePersistedStore({ panelSide: "right" })).toEqual({
+      panelSide: "right",
+    });
+    expect(sanitizePersistedStore({ panelSide: "center" })).toEqual({});
+  });
 });
 
 describe("localStorage readers", () => {
@@ -293,6 +303,32 @@ describe("localStorage readers", () => {
     localStorage.setItem(PERSISTED_STORE_KEY, "{oops");
     persistThemeMode("light");
     expect(loadPersistedStore()).toEqual({ themeMode: "light" });
+  });
+
+  it("persistedPanelSide defaults to left, and takes a stored side as-is", () => {
+    expect(persistedPanelSide()).toBe(DEFAULT_PANEL_SIDE);
+    expect(DEFAULT_PANEL_SIDE).toBe("left");
+    localStorage.setItem(PERSISTED_STORE_KEY, '{"panelSide":"right"}');
+    expect(persistedPanelSide()).toBe("right");
+    localStorage.setItem(PERSISTED_STORE_KEY, '{"panelSide":"left"}');
+    expect(persistedPanelSide()).toBe("left");
+  });
+
+  it("persistedPanelSide falls back to the default when unset or garbage", () => {
+    localStorage.setItem(PERSISTED_STORE_KEY, '{"panelSide":"center"}');
+    expect(persistedPanelSide()).toBe(DEFAULT_PANEL_SIDE);
+    localStorage.setItem(PERSISTED_STORE_KEY, "{oops");
+    expect(persistedPanelSide()).toBe(DEFAULT_PANEL_SIDE);
+  });
+
+  it("persistPanelSide writes the side without touching the rest", () => {
+    localStorage.setItem(PERSISTED_STORE_KEY, '{"activeRoad":"a"}');
+    persistPanelSide("right");
+    expect(loadPersistedStore()).toEqual({
+      activeRoad: "a",
+      panelSide: "right",
+    });
+    expect(persistedPanelSide()).toBe("right");
   });
 });
 

@@ -232,7 +232,7 @@ const store = useCourseDataStore();
 const auth = useAuthStore();
 const route = useRoute();
 
-const isExplore = computed(() => route.path === "/explore");
+const isExplore = computed(() => route.path.startsWith("/explore"));
 const shortcut = shortcutKeys("K");
 const moreOpen = ref(false);
 

@@ -26,8 +26,63 @@
 
     <div
       class="shell-body"
-      :class="{ 'panel-left': store.panelSide === 'left' }"
+      :class="{ 'panel-right': store.panelSide === 'right' }"
     >
+      <aside v-if="!isExplore" class="progress-panel">
+        <audit-panel
+          v-if="activeRoad !== '' && activeRoad in roads"
+          :ledger="detailOpen && !isMobile"
+          data-cy="audit"
+        />
+        <!-- One mount at a time (aside or sheet) so ClassDetail's window
+             keydown listener never registers twice. Crossing 860px remounts
+             the detail and loses its scroll position. -->
+        <class-detail v-if="detailOpen && !isMobile" class="panel-detail" />
+        <div class="progress-foot" data-cy="unofficialWarning">
+          <span class="foot-line">
+            Unofficial tool. Confirm with the
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://student.mit.edu/cgi-bin/shrwsdau.sh"
+              >official audit</a
+            >
+          </span>
+          <g-popover v-model="footLinksOpen" align="end" placement="top">
+            <template #anchor>
+              <button
+                class="foot-more"
+                :aria-expanded="footLinksOpen"
+                @click="footLinksOpen = !footLinksOpen"
+              >
+                more
+              </button>
+            </template>
+            <div class="foot-links" @click.stop>
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://student.mit.edu/catalog/index.cgi"
+                >Subject listing ↗</a
+              >
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://catalog.mit.edu/degree-charts/"
+                >Degree charts ↗</a
+              >
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://fireroad.mit.edu/requirements/"
+                >Requirement wrong? Request an edit ↗</a
+              >
+              <a href="mailto:courseroad@mit.edu">courseroad@mit.edu</a>
+            </div>
+          </g-popover>
+        </div>
+      </aside>
+
       <div class="shell-main">
         <!-- Never mounted on mobile: the graph can grow heavy enough to
              slow down or crash a phone's browser. -->
@@ -89,61 +144,6 @@
           </div>
         </main>
       </div>
-
-      <aside v-if="!isExplore" class="progress-panel">
-        <audit-panel
-          v-if="activeRoad !== '' && activeRoad in roads"
-          :ledger="detailOpen && !isMobile"
-          data-cy="audit"
-        />
-        <!-- One mount at a time (aside or sheet) so ClassDetail's window
-             keydown listener never registers twice. Crossing 860px remounts
-             the detail and loses its scroll position. -->
-        <class-detail v-if="detailOpen && !isMobile" class="panel-detail" />
-        <div class="progress-foot" data-cy="unofficialWarning">
-          <span class="foot-line">
-            Unofficial tool. Confirm with the
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://student.mit.edu/cgi-bin/shrwsdau.sh"
-              >official audit</a
-            >
-          </span>
-          <g-popover v-model="footLinksOpen" align="end" placement="top">
-            <template #anchor>
-              <button
-                class="foot-more"
-                :aria-expanded="footLinksOpen"
-                @click="footLinksOpen = !footLinksOpen"
-              >
-                more
-              </button>
-            </template>
-            <div class="foot-links" @click.stop>
-              <a
-                target="_blank"
-                rel="noopener noreferrer"
-                href="https://student.mit.edu/catalog/index.cgi"
-                >Subject listing ↗</a
-              >
-              <a
-                target="_blank"
-                rel="noopener noreferrer"
-                href="https://catalog.mit.edu/degree-charts/"
-                >Degree charts ↗</a
-              >
-              <a
-                target="_blank"
-                rel="noopener noreferrer"
-                href="https://fireroad.mit.edu/requirements/"
-                >Requirement wrong? Request an edit ↗</a
-              >
-              <a href="mailto:courseroad@mit.edu">courseroad@mit.edu</a>
-            </div>
-          </g-popover>
-        </div>
-      </aside>
     </div>
 
     <detail-sheet
@@ -327,7 +327,7 @@ function onOffline() {
 const roads = computed(() => store.roads);
 const activeRoad = computed(() => store.activeRoad);
 const detailOpen = computed(() => store.classInfoStack.length > 0);
-const isExplore = computed(() => route.path === "/explore");
+const isExplore = computed(() => route.path.startsWith("/explore"));
 // True while the active road is still a blank placeholder awaiting its
 // first fetch (see auth.retrieveRoad). Without this its empty placeholder
 // reads as "Search for a class" instead of "still loading".
@@ -351,13 +351,10 @@ useSystemThemeSync();
 /* ---- Plan ⁄ Explore mode ---- */
 function navigateMode(mode: "plan" | "explore") {
   // Every entry point already hides itself on mobile; this is the backstop.
-  if (mode === "explore" && !isMobile.value) {
-    void router.push("/explore");
-  } else {
-    void router.push(
-      store.activeRoad !== "" ? `/road/${store.activeRoad}` : "/road",
-    );
-  }
+  const prefix = mode === "explore" && !isMobile.value ? "/explore" : "/road";
+  void router.push(
+    store.activeRoad !== "" ? `${prefix}/${store.activeRoad}` : prefix,
+  );
 }
 
 /** Bottom-nav taps. Progress lives in plan mode, so it navigates there too. */
@@ -405,8 +402,12 @@ watch(
     } else if (newRoad !== "") {
       auditStore.updateFulfillment(store.fulfillmentNeeded);
     }
+    // The URL's :road segment follows the store either way, under
+    // whichever mode prefix is already active, so switching roads while
+    // exploring stays on /explore instead of bouncing back to the plan.
     if (newRoad !== "" && !auth.justLoaded) {
-      void router.push({ path: `/road/${newRoad}` });
+      const prefix = isExplore.value ? "/explore" : "/road";
+      void router.push({ path: `${prefix}/${newRoad}` });
     }
     auth.justLoaded = false;
   },
@@ -448,7 +449,7 @@ function onPaletteAction(name: string, payload?: string) {
       customClassRef.value?.openNewClass();
       break;
     case "open-explore":
-      void router.push("/explore");
+      navigateMode("explore");
       break;
     case "undo":
       doUndo();
@@ -573,10 +574,11 @@ function setActiveRoadFromRoute(): boolean {
     store.setActiveRoad(roadRequested);
     return true;
   } else if (!hasValue(STORAGE_KEYS.accessInfo) && !isExplore.value) {
-    // On /explore there is no :road param by design; keep the active road
-    // as-is rather than bouncing back to /road. The roads are hydrated
-    // before this runs, so the active road is the one actually shown and
-    // an unknown id in the URL rewrites to a road that exists.
+    // Missing or unknown id on /road rewrites to the road actually shown;
+    // the roads are hydrated before this runs, so store.activeRoad is
+    // already that road. /explore skips this: a stale id there just means
+    // the URL and the active road disagree until the next road switch
+    // corrects it, rather than bouncing the student out of exploring.
     const shownRoadId = store.activeRoad;
     void router.replace({ path: `/road/${shownRoadId}` });
   }
@@ -747,16 +749,6 @@ onBeforeUnmount(() => {
   order: 1;
   border-right: none;
   border-left: 1px solid var(--g-line);
-}
-
-/* The panel follows the plan by default, which is the order the markup is
-   written in. A student who prefers the older arrangement moves it to the
-   leading edge, and the divider moves with it so it always faces the
-   canvas rather than the window. */
-.shell-body.panel-left .progress-panel {
-  order: -1;
-  border-left: none;
-  border-right: 1px solid var(--g-line);
 }
 
 /* With a detail open the audit above it compresses to a ledger, and the

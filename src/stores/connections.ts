@@ -10,7 +10,7 @@
  * it. Account-backed saving is a later drop-in behind the same seam.
  */
 
-import { computed, ref, shallowRef } from "vue";
+import { computed, ref, shallowRef, watch } from "vue";
 import { defineStore } from "pinia";
 import type { RequirementNode, Subject } from "../lib/types";
 import { getSubject } from "../lib/types";
@@ -795,10 +795,14 @@ export const useConnectionsStore = defineStore("connections", () => {
    * so, like reset, it lands immediately and the toast carries the way
    * back. The restore re-persists, since re-seeding cleared the save.
    */
-  function reseedFromRoad(): void {
-    const before = captureRestorePoint();
+  function quietReseedFromRoad(): void {
     persistence.clear();
     startFromSeed({ subjectIds: roadSeedIds(), origin: "road" });
+  }
+
+  function reseedFromRoad(): void {
+    const before = captureRestorePoint();
+    quietReseedFromRoad();
 
     // Nothing to hand back if the canvas was empty, or if re-seeding landed
     // on the same graph it started from (a second click in a row).
@@ -810,6 +814,16 @@ export const useConnectionsStore = defineStore("connections", () => {
       announce("Re-seed undone.");
     });
   }
+
+  // Reseed quietly whenever the active road changes, but only if the canvas is already open and ready.
+  watch(
+    () => courseData.activeRoad,
+    (next, prev) => {
+      if (status.value === "ready" && next !== prev && next !== "") {
+        quietReseedFromRoad();
+      }
+    },
+  );
 
   function expand(id: string): void {
     const e = ensureEngine();
@@ -1084,8 +1098,7 @@ export const useConnectionsStore = defineStore("connections", () => {
   function retry(): void {
     // retryCatalog can reject (it rethrows a network failure so the
     // caller can react), but it also sets catalogError first, and the
-    // template already renders off that reactive flag — nothing else to
-    // do here on failure.
+    // template already renders off that reactive flag.
     courseData
       .retryCatalog()
       .then(() => open())
