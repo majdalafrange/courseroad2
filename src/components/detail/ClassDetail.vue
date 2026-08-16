@@ -341,7 +341,7 @@ const isMobile = useIsMobile();
 /** Seed Connections from this subject (the highest-intent entry point). */
 function exploreFromHere() {
   if (subject.value !== undefined) {
-    router.push({
+    void router.push({
       path: "/explore",
       query: { from: subject.value.subject_id },
     });
@@ -365,7 +365,7 @@ watch(subject, () => {
   bodyEl.value?.scrollTo({ top: 0 });
   unlockLimit.value = 24;
   // Keep the active crumb visible if the trail has scrolled.
-  nextTick(() => {
+  void nextTick(() => {
     trailPathEl.value
       ?.querySelector(".trail-crumb.current")
       ?.scrollIntoView({ inline: "nearest", block: "nearest" });

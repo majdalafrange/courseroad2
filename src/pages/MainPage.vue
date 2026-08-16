@@ -347,9 +347,9 @@ const { toggleTheme } = useTheme();
 function navigateMode(mode: "plan" | "explore") {
   // Every entry point already hides itself on mobile; this is the backstop.
   if (mode === "explore" && !isMobile.value) {
-    router.push("/explore");
+    void router.push("/explore");
   } else {
-    router.push(
+    void router.push(
       store.activeRoad !== "" ? `/road/${store.activeRoad}` : "/road",
     );
   }
@@ -394,14 +394,14 @@ watch(
     if (store.unretrieved.indexOf(newRoad) >= 0 && !auth.gettingUserData) {
       // retrieveRoad marks the road retrieved itself on success; this just
       // needs to run the audit once the fetch lands.
-      auth.retrieveRoad(newRoad).then(() => {
+      void auth.retrieveRoad(newRoad).then(() => {
         auditStore.updateFulfillment(store.fulfillmentNeeded);
       });
     } else if (newRoad !== "") {
       auditStore.updateFulfillment(store.fulfillmentNeeded);
     }
     if (newRoad !== "" && !auth.justLoaded) {
-      router.push({ path: `/road/${newRoad}` });
+      void router.push({ path: `/road/${newRoad}` });
     }
     auth.justLoaded = false;
   },
@@ -434,7 +434,7 @@ function onPaletteAction(name: string, payload?: string) {
       importOpen.value = true;
       break;
     case "export-road":
-      exportActiveRoad();
+      void exportActiveRoad();
       break;
     case "open-about":
       aboutOpen.value = true;
@@ -443,7 +443,7 @@ function onPaletteAction(name: string, payload?: string) {
       customClassRef.value?.openNewClass();
       break;
     case "open-explore":
-      router.push("/explore");
+      void router.push("/explore");
       break;
     case "undo":
       doUndo();
@@ -465,7 +465,7 @@ watch(paletteRequest, (request) => {
     return;
   }
   paletteOpen.value = true;
-  nextTick(() => {
+  void nextTick(() => {
     if (request.tokens?.length) {
       paletteRef.value?.openWithTokens(request.tokens);
     }
@@ -573,7 +573,7 @@ function setActiveRoadFromRoute(): boolean {
     // before this runs, so the active road is the one actually shown and
     // an unknown id in the URL rewrites to a road that exists.
     const shownRoadId = store.activeRoad;
-    router.replace({ path: `/road/${shownRoadId}` });
+    void router.replace({ path: `/road/${shownRoadId}` });
   }
   return false;
 }
@@ -613,7 +613,9 @@ onMounted(() => {
 
   setActiveRoadFromRoute();
 
-  auditStore.loadReqList();
+  auditStore
+    .loadReqList()
+    .catch((e: unknown) => console.warn("Failed to load the program list:", e));
   auditStore.updateFulfillment("all");
 
   window.addEventListener("resize", onResize);

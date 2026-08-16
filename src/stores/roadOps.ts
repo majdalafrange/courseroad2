@@ -105,7 +105,7 @@ export function duplicateRoad(sourceID: string): void {
     );
   };
   if (store.unretrieved.indexOf(sourceID) >= 0) {
-    auth.retrieveRoad(sourceID).then(go);
+    void auth.retrieveRoad(sourceID).then(go);
   } else {
     go();
   }
@@ -177,12 +177,17 @@ export async function exportActiveRoad(): Promise<void> {
   if (road === undefined) {
     return;
   }
-  const outcome = await downloadRoadFile(road.name, road.contents);
-  if (outcome !== "cancelled") {
-    toast.ok(
-      outcome === "shared"
-        ? "Your road is ready to save."
-        : `Your road is exported as “${road.name}.road”`,
-    );
+  try {
+    const outcome = await downloadRoadFile(road.name, road.contents);
+    if (outcome !== "cancelled") {
+      toast.ok(
+        outcome === "shared"
+          ? "Your road is ready to save."
+          : `Your road is exported as “${road.name}.road”`,
+      );
+    }
+  } catch (e) {
+    console.warn("Failed to export road:", e);
+    toast.danger("Couldn't export your road.");
   }
 }

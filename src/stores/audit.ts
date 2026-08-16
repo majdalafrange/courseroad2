@@ -162,12 +162,12 @@ export const useAuditStore = defineStore("audit", {
       }
       // Mirror the legacy nextTick release: allow the next change to
       // recompute once this batch has been dispatched.
-      Promise.resolve().then(() => {
+      void Promise.resolve().then(() => {
         this.updatingFulfillment = false;
       });
       // A road change invalidates the what-if preview too.
       if (this.previewProgram !== null) {
-        this.startPreview(this.previewProgram);
+        void this.startPreview(this.previewProgram);
       }
     },
 

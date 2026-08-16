@@ -139,7 +139,7 @@ const years = [
 
 watch(step, (s) => {
   if (s === 1) {
-    nextTick(() => programInput.value?.focus());
+    void nextTick(() => programInput.value?.focus());
   }
 });
 

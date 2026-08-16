@@ -37,7 +37,7 @@ describe("FireRoadClient endpoint bytes", () => {
 
   it("fetches the full catalog from /courses/all?full=true", () => {
     mockedGet.mockResolvedValueOnce({ data: [] });
-    makeClient().getFullCatalog();
+    void makeClient().getFullCatalog();
     expect(mockedGet).toHaveBeenCalledWith(
       "https://fireroad.mit.edu/courses/all?full=true",
     );
@@ -45,7 +45,7 @@ describe("FireRoadClient endpoint bytes", () => {
 
   it("fetches the requirements list from /requirements/list_reqs/", () => {
     mockedGet.mockResolvedValueOnce({ data: {} });
-    makeClient().getRequirementsList();
+    void makeClient().getRequirementsList();
     expect(mockedGet).toHaveBeenCalledWith(
       "https://fireroad.mit.edu/requirements/list_reqs/",
     );
@@ -59,7 +59,7 @@ describe("FireRoadClient endpoint bytes", () => {
       progressOverrides: {},
       progressAssertions: {},
     };
-    makeClient().getProgress("major6", contents);
+    void makeClient().getProgress("major6", contents);
     expect(mockedPost).toHaveBeenCalledWith(
       "https://fireroad.mit.edu/requirements/progress/major6/",
       contents,
@@ -68,7 +68,7 @@ describe("FireRoadClient endpoint bytes", () => {
 
   it("percent-encodes the requirement key in the progress path", () => {
     mockedPost.mockResolvedValueOnce({ data: {} });
-    makeClient().getProgress("a/b c", {
+    void makeClient().getProgress("a/b c", {
       coursesOfStudy: [],
       selectedSubjects: [],
       progressOverrides: {},
@@ -82,7 +82,7 @@ describe("FireRoadClient endpoint bytes", () => {
 
   it("percent-encodes the OIDC code in /fetch_token/", () => {
     mockedGet.mockResolvedValueOnce({ data: { success: true } });
-    makeClient().fetchToken("abc&code=evil");
+    void makeClient().fetchToken("abc&code=evil");
     expect(mockedGet).toHaveBeenCalledWith(
       "https://fireroad.mit.edu/fetch_token/?code=abc%26code%3Devil",
     );
@@ -91,9 +91,9 @@ describe("FireRoadClient endpoint bytes", () => {
   it("sends the bearer token on every authenticated GET", () => {
     mockedGet.mockResolvedValue({ data: { success: true } });
     const client = makeClient("secret");
-    client.verify();
-    client.getRoads();
-    client.getRoad("$defaultroad$");
+    void client.verify();
+    void client.getRoads();
+    void client.getRoad("$defaultroad$");
     expect(mockedGet.mock.calls).toEqual([
       [
         "https://fireroad.mit.edu/verify/",
@@ -114,9 +114,9 @@ describe("FireRoadClient endpoint bytes", () => {
     mockedPost.mockResolvedValue({ data: { success: true } });
     const client = makeClient();
     const road = { override: false, agent: "t" } as RoadToSend;
-    client.syncRoad(road);
-    client.deleteRoad("12345");
-    client.setSemester(7);
+    void client.syncRoad(road);
+    void client.deleteRoad("12345");
+    void client.setSemester(7);
     expect(mockedPost.mock.calls).toEqual([
       [
         "https://fireroad.mit.edu/sync/sync_road/",

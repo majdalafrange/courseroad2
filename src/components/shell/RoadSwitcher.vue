@@ -199,7 +199,7 @@ const renameInput = ref<HTMLInputElement[] | HTMLInputElement>();
 function startRename(roadId: string) {
   renamingId.value = roadId;
   renameValue.value = store.roads[roadId].name;
-  nextTick(() => {
+  void nextTick(() => {
     const el = Array.isArray(renameInput.value)
       ? renameInput.value[0]
       : renameInput.value;

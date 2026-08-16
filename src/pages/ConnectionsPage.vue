@@ -125,7 +125,7 @@ const fromId = computed(() => {
 watch(
   fromId,
   (id) => {
-    store.open(id);
+    void store.open(id);
   },
   { immediate: true },
 );
@@ -225,7 +225,7 @@ const showPanel = computed(() => {
     this push created. Explore itself keeps NodePanel. */
 function onOpen(id: string) {
   courseData.pushClassStack(id);
-  router.push({ path: `/road/${courseData.activeRoad}` });
+  void router.push({ path: `/road/${courseData.activeRoad}` });
 }
 
 /** Adding never leaves the exploration: the panel's term picker takes over. */

@@ -313,7 +313,7 @@ export const useAuthStore = defineStore("auth", {
           console.warn("Post-login verification failed:", err);
         });
         this.setLoggedIn(true);
-        this.getUserData();
+        void this.getUserData();
       }
     },
 
@@ -326,7 +326,10 @@ export const useAuthStore = defineStore("auth", {
           "CourseRoad Home",
           "./#" + useCourseDataStore().activeRoad,
         );
-        this.getAuthorizationToken(code);
+        this.getAuthorizationToken(code).catch((err: unknown) => {
+          console.error("Login failed:", err);
+          toast.danger("Couldn't log you in. Try again.");
+        });
       } else if (
         readValue<string>(STORAGE_KEYS.hasLoggedIn) === "true" &&
         !this.loggedIn
@@ -604,7 +607,13 @@ export const useAuthStore = defineStore("auth", {
       }
       if (this.loggedIn) {
         if (roadID.indexOf("$") < 0) {
-          fireroad.deleteRoad(roadID);
+          // The road is already gone locally (optimistic delete, with an
+          // undo affordance upstream); a failed server delete just means
+          // it could reappear on the next sync, which isn't worth
+          // blocking or alarming the user over.
+          fireroad.deleteRoad(roadID).catch((err: unknown) => {
+            console.warn(`Server delete failed for road ${roadID}:`, err);
+          });
         }
       } else {
         // The server delete above is the logged-in path's persistence.

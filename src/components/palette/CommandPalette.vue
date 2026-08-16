@@ -590,7 +590,7 @@ onBeforeUnmount(() =>
 );
 
 function scrollSelectedIntoView() {
-  nextTick(() => {
+  void nextTick(() => {
     listEl.value
       ?.querySelector(".palette-row.selected")
       ?.scrollIntoView({ block: "nearest" });
@@ -654,7 +654,7 @@ watch(
       query.value = "";
       activeTokenKeys.value = [];
       selectedIndex.value = 0;
-      nextTick(() => inputEl.value?.focus());
+      void nextTick(() => inputEl.value?.focus());
     }
   },
 );
@@ -662,14 +662,14 @@ watch(
 defineExpose({
   openWithTokens: (tokens: string[]) => {
     emit("update:modelValue", true);
-    nextTick(() => {
+    void nextTick(() => {
       activeTokenKeys.value = [...tokens];
       inputEl.value?.focus();
     });
   },
   openWithQuery: (text: string) => {
     emit("update:modelValue", true);
-    nextTick(() => {
+    void nextTick(() => {
       query.value = text;
       inputEl.value?.focus();
       inputEl.value?.select();

@@ -186,7 +186,7 @@ function addProgram(key: string) {
 }
 
 function previewProgram(key: string) {
-  auditStore.startPreview(key);
+  void auditStore.startPreview(key);
   pickerOpen.value = false;
 }
 

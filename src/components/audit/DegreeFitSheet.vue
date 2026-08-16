@@ -262,7 +262,7 @@ function onTablistKeydown(event: KeyboardEvent) {
   event.preventDefault();
   tab.value = TABS[next];
   // Roving tabindex: focus follows selection so the arrows keep working.
-  nextTick(() => {
+  void nextTick(() => {
     tablistEl.value
       ?.querySelector<HTMLElement>(`#fit-tab-${TABS[next]}`)
       ?.focus();
@@ -284,7 +284,7 @@ watch(
 );
 
 function preview(key: string) {
-  auditStore.startPreview(key);
+  void auditStore.startPreview(key);
   close();
 }
 

@@ -1040,7 +1040,11 @@ export const useCourseDataStore = defineStore("courseData", {
         this.migrateOldSubjects(roadID);
       } else {
         this.queueRoadMigration(roadID);
-        this.waitLoadSubjects();
+        // Just here to kick off loading if nothing else has yet; the
+        // queued migration is drained by applyCatalog once subjects
+        // arrive. A load failure leaves it queued with nothing to
+        // migrate against, which is fine — nothing else to do here.
+        this.waitLoadSubjects().catch(() => {});
       }
     },
 

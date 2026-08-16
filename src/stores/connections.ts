@@ -1082,7 +1082,14 @@ export const useConnectionsStore = defineStore("connections", () => {
   }
 
   function retry(): void {
-    courseData.retryCatalog().then(() => open());
+    // retryCatalog can reject (it rethrows a network failure so the
+    // caller can react), but it also sets catalogError first, and the
+    // template already renders off that reactive flag — nothing else to
+    // do here on failure.
+    courseData
+      .retryCatalog()
+      .then(() => open())
+      .catch(() => {});
   }
 
   return {
