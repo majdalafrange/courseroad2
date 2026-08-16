@@ -38,3 +38,26 @@ test("click selects a node; double-click expands it", async ({ page }) => {
   // the double-clicked node stays selected
   await expect(cy(page, "connectionSelectedId")).toHaveText("18.01");
 });
+
+test("the Explore panel sits on the side the plan panel does", async ({
+  page,
+}) => {
+  // Seed a class so selecting a node gives the panel something to show.
+  await page.locator("#searchInputTF").click();
+  await page.locator(".palette-input").fill("18.01");
+  await page.getByText("Calculus", { exact: true }).first().click();
+  await page.locator('[data-cy$="__semester_1"]').click();
+
+  await page.getByRole("button", { name: "More", exact: true }).click();
+  await cy(page, "movePanelButton").click();
+
+  await cy(page, "exploreButton").click();
+  await cy(page, "connectionNode_18_01").click();
+  const panel = page.locator(".node-panel");
+  await expect(panel).toBeVisible();
+
+  const box = await panel.boundingBox();
+  const body = await page.locator(".connections-body").boundingBox();
+  // Leading edge of the row, not the trailing one.
+  expect(box!.x).toBeLessThan(body!.x + body!.width / 2);
+});

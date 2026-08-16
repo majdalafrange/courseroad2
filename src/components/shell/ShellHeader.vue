@@ -148,6 +148,17 @@
           <button class="more-item" @click="closeAnd('open-about')">
             <g-icon name="info" :size="14" /> About CourseRoad
           </button>
+          <!-- Desktop only: below 860px the panel is its own tab in the
+               bottom nav, so it has no edge to sit on. -->
+          <button
+            v-if="!isMobile"
+            class="more-item"
+            data-cy="movePanelButton"
+            @click="movePanel"
+          >
+            <g-icon name="map" :size="14" />
+            Move progress panel {{ panelSide === "left" ? "right" : "left" }}
+          </button>
           <a
             v-if="auth.loggedIn"
             class="more-item mobile-only"
@@ -196,6 +207,7 @@ import GTooltip from "../../design/components/GTooltip.vue";
 import GWordmark from "../../design/components/GWordmark.vue";
 import RoadSwitcher from "./RoadSwitcher.vue";
 import ThemeToggle from "./ThemeToggle.vue";
+import { useIsMobile } from "../../composables/useIsMobile";
 import { semesterInformation } from "../../lib/hours";
 import { shortcutKeys } from "../../lib/platform";
 import { history } from "../../stores/history";
@@ -226,6 +238,13 @@ const isExplore = computed(() => route.path === "/explore");
 const isDark = computed(() => Boolean(store.isDarkMode));
 const shortcut = shortcutKeys("K");
 const moreOpen = ref(false);
+const isMobile = useIsMobile();
+const panelSide = computed(() => store.panelSide);
+
+function movePanel() {
+  moreOpen.value = false;
+  store.setPanelSide(store.panelSide === "left" ? "right" : "left");
+}
 
 /* Feedback and issue-report form. */
 const feedbackFormUrl = "https://forms.gle/VAY3E7RbjmUrw3ww5";

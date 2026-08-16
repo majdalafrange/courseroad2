@@ -2,7 +2,10 @@
   <div class="connections">
     <connections-toolbar v-if="store.status === 'ready'" />
 
-    <div class="connections-body">
+    <div
+      class="connections-body"
+      :class="{ 'panel-left': courseData.panelSide === 'left' }"
+    >
       <!-- loading -->
       <div v-if="store.status === 'loading'" class="state-fill">
         <div class="skeleton-graph" aria-hidden="true">
@@ -246,6 +249,17 @@ function onAdd(id: string) {
   display: flex;
   min-height: 0;
   overflow: hidden;
+}
+
+/* Explore reads the same preference as the plan, so the two modes never
+   disagree about which edge a panel sits on. Below 860px the panel rides
+   over the canvas as a sheet and the side stops applying. */
+@media (min-width: 860px) {
+  .connections-body.panel-left :deep(.node-panel) {
+    order: -1;
+    border-left: none;
+    border-right: 1px solid var(--g-line);
+  }
 }
 
 .state-fill {

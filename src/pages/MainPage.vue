@@ -24,62 +24,10 @@
       @navigate-mode="navigateMode"
     />
 
-    <div class="shell-body">
-      <aside v-if="!isExplore" class="progress-panel">
-        <audit-panel
-          v-if="activeRoad !== '' && activeRoad in roads"
-          :ledger="detailOpen && !isMobile"
-          data-cy="audit"
-        />
-        <!-- One mount at a time (aside or sheet) so ClassDetail's window
-             keydown listener never registers twice. Crossing 860px remounts
-             the detail and loses its scroll position. -->
-        <class-detail v-if="detailOpen && !isMobile" class="panel-detail" />
-        <div class="progress-foot" data-cy="unofficialWarning">
-          <span class="foot-line">
-            Unofficial tool. Confirm with the
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://student.mit.edu/cgi-bin/shrwsdau.sh"
-              >official audit</a
-            >
-          </span>
-          <g-popover v-model="footLinksOpen" align="end" placement="top">
-            <template #anchor>
-              <button
-                class="foot-more"
-                :aria-expanded="footLinksOpen"
-                @click="footLinksOpen = !footLinksOpen"
-              >
-                more
-              </button>
-            </template>
-            <div class="foot-links" @click.stop>
-              <a
-                target="_blank"
-                rel="noopener noreferrer"
-                href="https://student.mit.edu/catalog/index.cgi"
-                >Subject listing ↗</a
-              >
-              <a
-                target="_blank"
-                rel="noopener noreferrer"
-                href="https://catalog.mit.edu/degree-charts/"
-                >Degree charts ↗</a
-              >
-              <a
-                target="_blank"
-                rel="noopener noreferrer"
-                href="https://fireroad.mit.edu/requirements/"
-                >Requirement wrong? Request an edit ↗</a
-              >
-              <a href="mailto:courseroad@mit.edu">courseroad@mit.edu</a>
-            </div>
-          </g-popover>
-        </div>
-      </aside>
-
+    <div
+      class="shell-body"
+      :class="{ 'panel-left': store.panelSide === 'left' }"
+    >
       <div class="shell-main">
         <!-- Never mounted on mobile: the graph can grow heavy enough to
              slow down or crash a phone's browser. -->
@@ -141,6 +89,61 @@
           </div>
         </main>
       </div>
+
+      <aside v-if="!isExplore" class="progress-panel">
+        <audit-panel
+          v-if="activeRoad !== '' && activeRoad in roads"
+          :ledger="detailOpen && !isMobile"
+          data-cy="audit"
+        />
+        <!-- One mount at a time (aside or sheet) so ClassDetail's window
+             keydown listener never registers twice. Crossing 860px remounts
+             the detail and loses its scroll position. -->
+        <class-detail v-if="detailOpen && !isMobile" class="panel-detail" />
+        <div class="progress-foot" data-cy="unofficialWarning">
+          <span class="foot-line">
+            Unofficial tool. Confirm with the
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://student.mit.edu/cgi-bin/shrwsdau.sh"
+              >official audit</a
+            >
+          </span>
+          <g-popover v-model="footLinksOpen" align="end" placement="top">
+            <template #anchor>
+              <button
+                class="foot-more"
+                :aria-expanded="footLinksOpen"
+                @click="footLinksOpen = !footLinksOpen"
+              >
+                more
+              </button>
+            </template>
+            <div class="foot-links" @click.stop>
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://student.mit.edu/catalog/index.cgi"
+                >Subject listing ↗</a
+              >
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://catalog.mit.edu/degree-charts/"
+                >Degree charts ↗</a
+              >
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://fireroad.mit.edu/requirements/"
+                >Requirement wrong? Request an edit ↗</a
+              >
+              <a href="mailto:courseroad@mit.edu">courseroad@mit.edu</a>
+            </div>
+          </g-popover>
+        </div>
+      </aside>
     </div>
 
     <detail-sheet
@@ -729,6 +732,16 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+/* The panel follows the plan by default, which is the order the markup is
+   written in. A student who prefers the older arrangement moves it to the
+   leading edge, and the divider moves with it so it always faces the
+   canvas rather than the window. */
+.shell-body.panel-left .progress-panel {
+  order: -1;
+  border-left: none;
+  border-right: 1px solid var(--g-line);
 }
 
 /* With a detail open the audit above it compresses to a ledger, and the

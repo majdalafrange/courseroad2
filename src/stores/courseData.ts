@@ -20,7 +20,9 @@ import {
   APP_VERSION,
   STORAGE_KEYS,
   readRawFlag,
+  readValue,
   writeRawFlag,
+  writeValue,
 } from "../lib/appStorage";
 import { formatFireroadDate } from "../lib/dates";
 import { buildIndex, parseGenericCourses } from "../lib/genericCourses";
@@ -50,6 +52,20 @@ export interface RoadChangeEvent {
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
+}
+
+/** Which edge the progress panel sits on. */
+export type PanelSide = "left" | "right";
+
+/**
+ * The side a returning student last chose. Anything else in storage (an
+ * older value, a hand edit) reads as absent and takes the default, so a
+ * malformed entry can never leave the panel unplaced.
+ */
+function readPanelSide(): PanelSide {
+  return readValue<string>(STORAGE_KEYS.panelSide) === "left"
+    ? "left"
+    : "right";
 }
 
 type RoadChangeSubscriber = (event: RoadChangeEvent) => void;
@@ -106,6 +122,7 @@ const getDefaultState = () => {
     // localStorage read here crashed the whole boot where storage throws
     // (Safari private mode).
     hideIAP: readRawFlag(STORAGE_KEYS.hideIAP),
+    panelSide: readPanelSide(),
     roads: {
       [DEFAULT_ROAD_ID]: {
         downloaded: formatFireroadDate(),
@@ -793,6 +810,12 @@ export const useCourseDataStore = defineStore("courseData", {
     setHideIAP(value: boolean) {
       this.hideIAP = value;
       writeRawFlag(STORAGE_KEYS.hideIAP, value);
+    },
+
+    /** Move the progress panel to the other edge and remember the choice. */
+    setPanelSide(side: PanelSide) {
+      this.panelSide = side;
+      writeValue(STORAGE_KEYS.panelSide, side);
     },
 
     setRoadProp<K extends keyof Road>({
