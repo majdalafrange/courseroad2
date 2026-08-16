@@ -810,7 +810,6 @@ export const useCourseDataStore = defineStore("courseData", {
       writeRawFlag(STORAGE_KEYS.hideIAP, value);
     },
 
-
     setRoadProp<K extends keyof Road>({
       id,
       prop,
