@@ -37,9 +37,16 @@
       </div>
 
       <div class="settings-section">
-        <span id="panelSideLabel" class="settings-label"
-          >Audit &amp; connections panel</span
+        <span id="panelSideLabel" class="settings-label">
+          Audit &amp; connections panel
+        </span>
+        <span
+          v-if="isMobile"
+          class="settings-label"
+          style="font-weight: 400; color: var(--g-ink-3)"
         >
+          Panels are not not available on mobile!
+        </span>
         <div
           class="option-list"
           role="radiogroup"
@@ -48,6 +55,7 @@
           <button
             v-for="option in PANEL_SIDE_OPTIONS"
             :key="option.side"
+            :disabled="isMobile"
             class="option-row"
             :class="{ selected: store.panelSide === option.side }"
             role="radio"
@@ -77,6 +85,7 @@
 import GIcon from "../../design/components/GIcon.vue";
 import GSheet from "../../design/components/GSheet.vue";
 import { useTheme } from "../../composables/useTheme";
+import { useIsMobile } from "../../composables/useIsMobile";
 import {
   persistPanelSide,
   type PanelSide,
@@ -94,6 +103,7 @@ const emit = defineEmits<{
 
 const store = useCourseDataStore();
 const { setThemeMode } = useTheme();
+const isMobile = useIsMobile();
 
 function setPanelSide(side: PanelSide): void {
   store.setPanelSide(side);
@@ -197,6 +207,10 @@ const PANEL_SIDE_OPTIONS: {
   border-color: var(--g-accent);
   color: var(--g-ink);
   background: var(--g-accent-tint);
+}
+.option-row:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 .option-text {
   flex: 1;
