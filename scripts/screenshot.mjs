@@ -3,9 +3,12 @@
  * seed). Usage: node scripts/screenshot.mjs [url] [outfile] [width] [height] [theme]
  */
 
-import puppeteer from "puppeteer-core";
+import { launch } from "puppeteer-core";
 import { parseArgs } from "node:util";
 
+/**
+ * @type {import("node:util").ParseArgsConfig} Options for command-line arguments
+ */
 const OPTIONS = {
   url: {
     type: "string",
@@ -35,13 +38,14 @@ const OPTIONS = {
 };
 
 const { values } = parseArgs({ options: OPTIONS });
-const url = values.url;
-const outfile = values.outfile;
+
+const url = String(values.url);
+const outfile = String(values.outfile);
 const width = Number(values.width);
 const height = Number(values.height);
-const theme = values.theme; // optional "dark"
+const theme = String(values.theme);
 
-const browser = await puppeteer.launch({
+const browser = await launch({
   channel: "chrome",
   headless: true,
 });

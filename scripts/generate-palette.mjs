@@ -16,7 +16,13 @@
 
 import { writeFileSync } from "fs";
 
-/* ---- OKLCH → sRGB ---- */
+/**
+ * Converts OKLCH color to sRGB.
+ * @param {number} L
+ * @param {number} C
+ * @param {number} hDeg
+ * @returns {[number, number, number]} Array representing [r, g, b] in sRGB space, each in [0, 1]
+ */
 function oklchToRgb(L, C, hDeg) {
   const h = (hDeg * Math.PI) / 180;
   const a = C * Math.cos(h);
@@ -38,6 +44,11 @@ function oklchToRgb(L, C, hDeg) {
   });
 }
 
+/**
+ * Converts an sRGB color to a hex string.
+ * @param {[number, number, number]} param0 Array representing [r, g, b] in sRGB space, each in [0, 1]
+ * @returns {string} Hex string representing the color
+ */
 function hex([r, g, b]) {
   const to = (v) =>
     Math.round(v * 255)
@@ -46,6 +57,11 @@ function hex([r, g, b]) {
   return `#${to(r)}${to(g)}${to(b)}`;
 }
 
+/**
+ * Calculates the relative luminance of an sRGB color.
+ * @param {[number, number, number]} param0 Array representing [r, g, b] in sRGB space, each in [0, 1]
+ * @returns {number} The relative luminance of the color
+ */
 function relLuminance([r, g, b]) {
   const lin = [r, g, b].map((v) =>
     v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4,
@@ -53,6 +69,12 @@ function relLuminance([r, g, b]) {
   return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2];
 }
 
+/**
+ * Calculates the contrast ratio between two sRGB colors.
+ * @param {[number, number, number]} rgb1 Array representing [r, g, b] in sRGB space, each in [0, 1]
+ * @param {[number, number, number]} rgb2 Array representing [r, g, b] in sRGB space, each in [0, 1]
+ * @returns {number} The contrast ratio between the two colors
+ */
 function contrast(rgb1, rgb2) {
   const l1 = relLuminance(rgb1);
   const l2 = relLuminance(rgb2);
@@ -66,6 +88,7 @@ const LIGHT_DEEP = { L: 0.45, C: 0.105 };
 const DARK = { L: 0.76, C: 0.095 };
 const DARK_DEEP = { L: 0.69, C: 0.1 };
 
+/** @type {[number, number, number]} */
 const WHITE = [1, 1, 1];
 const INK = oklchToRgb(0.22, 0.012, 250); // --g-ink dark text
 
@@ -75,6 +98,7 @@ const INK = oklchToRgb(0.22, 0.012, 250); // --g-ink dark text
  * saturation half of that palette, tier 0 = the ~70% saturated half).
  * A few hues that would otherwise collide get a 1° nudge to keep every
  * department's final hex distinct (enforced by assertDistinct below).
+ * @type {Record<string, [number, number]>
  */
 const assignments = {
   // Engineering
@@ -126,7 +150,9 @@ const assignments = {
   SWE: [13, 1], // Engineering School-Wide
 };
 
-/* Generic categories: same legacy-hue-match rule as departments above. */
+/** Generic categories: same legacy-hue-match rule as departments above.
+ * @type {Record<string, [number, number]>}
+ */
 const genericAssignments = {
   "generic-GIR": [18, 0],
   "generic-HASS-A": [198, 0],
@@ -144,14 +170,25 @@ const NEUTRAL = {
   light: "#8a8f98",
   dark: "#9aa0a8",
 };
-/* ROTC (AS/MS/NS): legacy app painted all three the same grey. Each gets
-   a faint chroma at its own hue instead, so they stay distinct too. */
+
+/** ROTC (AS/MS/NS): legacy app painted all three the same grey. Each gets
+ * a faint chroma at its own hue instead, so they stay distinct too.
+ * @type {Record<string, [number, number]>}
+ */
 const ROTC = {
   AS: [250, 0.02], // Air Force: faint cool/blue-grey
   MS: [40, 0.02], // Army: faint warm/olive-grey
   NS: [150, 0.02], // Navy: faint green-grey
 };
 
+/**
+ * Tones a hue within a theme band.
+ * @param {Object} band Theme band (LIGHT, LIGHT_DEEP, DARK, DARK_DEEP)
+ * @param {number} band.L Luminance
+ * @param {number} band.C Chroma
+ * @param {number} hue Hue in degrees
+ * @returns {string} The resulting hex color
+ */
 function tone(band, hue) {
   return hex(oklchToRgb(band.L, band.C, hue));
 }
@@ -161,7 +198,11 @@ function tone(band, hue) {
 const NEUTRAL_LIGHT_L = 0.655;
 const NEUTRAL_DARK_L = 0.708;
 
+/**
+ * @type {Record<string, {light: string, dark: string}>}
+ */
 const entries = {};
+
 let minLight = Infinity;
 let minDark = Infinity;
 for (const [dept, [hue, tier]] of Object.entries(assignments)) {
@@ -201,7 +242,11 @@ console.log(
   `min contrast: light(white text) ${minLight.toFixed(2)}, dark(ink text) ${minDark.toFixed(2)}`,
 );
 
-/** Fails loudly on any two departments sharing a final hex per theme. */
+/**
+ * Fails loudly on any two departments sharing a final hex per theme.
+ * @param {"light" | "dark"} themeKey "light" or "dark"
+ * @throws {Error} If any two departments share a final hex for the given theme
+ */
 function assertDistinct(themeKey) {
   const seen = new Map();
   for (const [dept, value] of Object.entries(entries)) {
