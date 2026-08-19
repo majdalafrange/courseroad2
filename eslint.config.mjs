@@ -23,8 +23,9 @@ export default tseslint.config(
   },
   {
     languageOptions: {
-      globals: { ...globals.browser, ...globals.node },
+      globals: { ...globals.browser, ...globals.node, definePage: "readonly" },
     },
+    settings: { "import/core-modules": ["vue-router/auto-routes"] },
     rules: {
       // TypeScript handles undefined analysis (vue-tsc); the TS-aware
       // unused-vars rule below replaces the base one.
