@@ -7,3 +7,4 @@ package-lock.json
 
 # Generated: the palette generator is the only writer.
 src/design/departmentColors.css
+typed-router.d.ts

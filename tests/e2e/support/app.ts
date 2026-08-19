@@ -97,4 +97,8 @@ export async function openApp(
   await seedReturningVisitor(context);
   await page.goto("/");
   await cy(page, "roadSwitcher").waitFor();
+  // The shell (header, switcher) and the road canvas are now separate
+  // components either side of a router-view boundary, so the switcher
+  // appearing no longer implies the canvas has too.
+  await page.locator("#canvasScroll").waitFor();
 }

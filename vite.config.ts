@@ -1,6 +1,7 @@
 /// <reference types="vitest/config" />
 import { defineConfig, loadEnv, type PluginOption } from "vite";
 import vue from "@vitejs/plugin-vue";
+import VueRouter from "vue-router/vite";
 
 /**
  * Build-only CSP meta tag. The authoritative policy is the
@@ -42,7 +43,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
   },
   base: mode === "staging" ? "/dev/" : "/",
-  plugins: [vue(), cspMeta(mode)],
+  plugins: [VueRouter(), vue(), cspMeta(mode)],
   test: {
     // Lib tests are pure TS and run in node; jsdom is opt-in, for the
     // store specs here and via a file pragma where a lib spec touches

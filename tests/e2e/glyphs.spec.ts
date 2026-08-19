@@ -69,6 +69,7 @@ test("the field covers a long road's full scroll extent", async ({
   await seedLocalRoads(context, longRoad());
   await page.goto("/");
   await cy(page, "roadSwitcher").waitFor();
+  await page.locator("#canvasScroll").waitFor();
   const metrics = await fieldMetrics(page);
   expect(metrics.scrollHeight).toBeGreaterThan(1500);
   await expectFullCoverage(page);
@@ -86,6 +87,7 @@ test.describe("narrow viewport", () => {
     await seedLocalRoads(context, longRoad());
     await page.goto("/");
     await cy(page, "roadSwitcher").waitFor();
+    await page.locator("#canvasScroll").waitFor();
     await expectFullCoverage(page);
   });
 });

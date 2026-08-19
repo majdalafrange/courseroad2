@@ -104,16 +104,16 @@ import {
   watch,
 } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import ConnectionsToolbar from "../components/connections/ConnectionsToolbar.vue";
-import ConnectionsCanvas from "../components/connections/ConnectionsCanvas.vue";
-import NodePanel from "../components/connections/NodePanel.vue";
-import GButton from "../design/components/GButton.vue";
-import GInput from "../design/components/GInput.vue";
-import { courseColor } from "../lib/colors";
-import { SearchIndex } from "../lib/search";
-import { flatten, type Subject } from "../lib/types";
-import { useCourseDataStore } from "../stores/courseData";
-import { useConnectionsStore } from "../stores/connections";
+import ConnectionsToolbar from "../../components/connections/ConnectionsToolbar.vue";
+import ConnectionsCanvas from "../../components/connections/ConnectionsCanvas.vue";
+import NodePanel from "../../components/connections/NodePanel.vue";
+import GButton from "../../design/components/GButton.vue";
+import GInput from "../../design/components/GInput.vue";
+import { courseColor } from "../../lib/colors";
+import { SearchIndex } from "../../lib/search";
+import { flatten, type Subject } from "../../lib/types";
+import { useCourseDataStore } from "../../stores/courseData";
+import { useConnectionsStore } from "../../stores/connections";
 
 const route = useRoute();
 const router = useRouter();

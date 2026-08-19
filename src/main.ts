@@ -1,9 +1,8 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
-import { createRouter, createWebHistory } from "vue-router";
 
+import { router } from "./router.ts";
 import App from "./App.vue";
-import MainPage from "./pages/MainPage.vue";
 
 // Fonts and design tokens.
 import "@fontsource/ibm-plex-sans/400.css";
@@ -30,27 +29,6 @@ migrateLegacyCookies();
 // Apply the persisted theme before first paint to avoid a flash.
 applyThemeAttribute(resolveTheme(persistedThemeMode(), systemPrefersDark()));
 
-const routes = [
-  { path: "/", redirect: "/road" },
-  { path: "/road/:road?", component: MainPage },
-  // Connections takes over the canvas area within the same shell, so it is
-  // the same page component, seedable via ?from=<id> and deep-linkable.
-  { path: "/explore/:road?", component: MainPage },
-  {
-    path: "/styleguide",
-    component: () => import("./pages/StyleguidePage.vue"),
-  },
-  { path: "/:pathMatch(.*)*", redirect: "/road" },
-];
-
-const router = createRouter({
-  // BASE_URL comes from vite's --base flag (build-dev passes /dev), so
-  // the router base and the served path are one fact instead of a
-  // string-sniff of VITE_URL.
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes,
-});
-
 const pinia = createPinia();
 const app = createApp(App);
 app.use(pinia);
@@ -65,4 +43,11 @@ app.config.errorHandler = (err, _instance, info) => {
   fatalError.value = true;
 };
 
-app.mount("#app");
+// App.vue (not a page) now owns the boot sequence, and reads the initial
+// route's params as part of it (which road to show). It used to run
+// inside a page component, mounted only once the router had already
+// resolved that page; now that it's the tree's root, it needs this wait
+// itself or it can boot against a still-empty route.
+void router.isReady().then(() => {
+  app.mount("#app");
+});

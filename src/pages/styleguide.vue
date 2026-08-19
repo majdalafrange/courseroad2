@@ -390,9 +390,9 @@ import GToastHost from "../design/components/GToastHost.vue";
 import GTooltip from "../design/components/GTooltip.vue";
 import GWordmark from "../design/components/GWordmark.vue";
 import ThemeToggle from "../components/shell/ThemeToggle.vue";
-import { toast } from "../design/toast";
-import { useTheme } from "../composables/useTheme";
-import { useCourseDataStore } from "../stores/courseData";
+import { toast } from "../design/toast.ts";
+import { useTheme } from "../composables/useTheme.ts";
+import { useCourseDataStore } from "../stores/courseData.ts";
 
 const store = useCourseDataStore();
 
