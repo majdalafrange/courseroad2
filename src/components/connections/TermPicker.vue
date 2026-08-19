@@ -33,7 +33,7 @@
         @click="store.confirmPlacement(term.index)"
       >
         {{ term.label }}
-        <span v-if="term.early" class="early-dot" aria-hidden="true">•</span>
+        <span v-if="term.early" class="early-dot" aria-hidden="true" />
       </button>
     </div>
 
@@ -135,7 +135,7 @@ const note = computed(() => {
   if (r.kind === "ready-after") {
     return r.term >= NUM_SEMESTERS
       ? "Prereqs finish after your current plan."
-      : `Prereqs complete from ${store.termName(r.term)} (•).`;
+      : `Prereqs complete from ${store.termName(r.term)}, marked below.`;
   }
   if (r.kind === "missing") {
     const listed = r.missing.slice(0, 4).join(", ");
@@ -200,12 +200,12 @@ onMounted(() => {
 .picker-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
+  gap: var(--space-1);
 }
 .term-chip {
   position: relative;
   font: var(--text-micro);
-  padding: 4px 2px;
+  padding: var(--space-1) var(--space-05);
   border: 1px solid var(--g-line);
   border-radius: var(--radius-sm);
   background: transparent;
@@ -238,8 +238,13 @@ onMounted(() => {
   text-decoration: line-through;
 }
 .early-dot {
-  color: var(--g-info);
-  margin-left: 1px;
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin-left: var(--space-05);
+  border-radius: var(--radius-full);
+  background: var(--g-info);
+  vertical-align: middle;
 }
 
 .picker-note {

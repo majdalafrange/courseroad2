@@ -19,20 +19,21 @@
       </span>
     </div>
 
-    <div
+    <g-progress
       class="row-gauge"
-      role="img"
-      :aria-label="`${fit.percent}% of ${fit.title} satisfied`"
-    >
-      <span class="gauge-fill" :style="{ width: (fit.percent ?? 0) + '%' }" />
-    </div>
+      fill-class="gauge-fill"
+      :value="fit.percent ?? 0"
+      :get-value-label="
+        (v: number | null | undefined) => `${v}% of ${fit.title} satisfied`
+      "
+    />
 
     <div class="row-actions">
       <g-button size="sm" variant="ghost" @click="emit('preview')">
         What if?
       </g-button>
       <g-button
-        v-if="!fit.onRoad"
+        :disabled="fit.onRoad"
         size="sm"
         variant="primary"
         @click="emit('add')"
@@ -45,6 +46,7 @@
 
 <script setup lang="ts">
 import GButton from "../../design/components/GButton.vue";
+import GProgress from "../../design/components/GProgress.vue";
 import type { ProgramFit } from "../../lib/degreeFit";
 
 defineProps<{
@@ -104,7 +106,8 @@ const emit = defineEmits<{
   background: var(--g-surface-sunken);
   overflow: hidden;
 }
-.gauge-fill {
+/* :deep(): GProgress's own indicator, a grandchild from here. */
+:deep(.gauge-fill) {
   display: block;
   height: 100%;
   background: var(--g-ok);

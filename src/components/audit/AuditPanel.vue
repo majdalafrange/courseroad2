@@ -102,15 +102,15 @@
         target="_blank"
         rel="noopener"
         class="audit-link"
-        >{{ courseLink.text }} ↗</a
-      >
+        >{{ courseLink.text }} <g-icon name="external" :size="11"
+      /></a>
       <a
         href="https://mit.turbovote.org/"
         target="_blank"
         rel="noopener"
         class="audit-link"
-        >Register to vote ↗</a
-      >
+        >Register to vote <g-icon name="external" :size="11"
+      /></a>
     </div>
   </div>
 </template>
@@ -322,6 +322,9 @@ const previewTreeWithIds = computed(() => {
   border-top: 1px solid var(--g-line);
 }
 .audit-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   font: var(--text-small);
   color: var(--g-ink-3);
   text-decoration: none;

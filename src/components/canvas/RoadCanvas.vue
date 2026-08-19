@@ -39,23 +39,13 @@
           </button>
         </template>
         <div class="settings-pop" @click.stop>
-          <label class="settings-label" for="year-choices">I am a...</label>
-          <span class="settings-select-wrap">
-            <select
-              id="year-choices"
-              class="settings-select"
-              data-cy="selectClassYear"
-              :value="store.userYear"
-              @change="changeYear"
-            >
-              <option :value="0">First year / Freshman</option>
-              <option :value="1">Sophomore</option>
-              <option :value="2">Junior</option>
-              <option :value="3">Senior</option>
-              <option :value="4">Super senior</option>
-            </select>
-            <g-icon name="chevronDown" :size="13" class="select-chevron" />
-          </span>
+          <g-select
+            label="I am a..."
+            data-cy="selectClassYear"
+            :model-value="store.userYear"
+            :options="yearOptions"
+            @update:model-value="changeYear"
+          />
           <label class="settings-check">
             <input
               type="checkbox"
@@ -135,6 +125,7 @@ import TermCell from "./TermCell.vue";
 import GButton from "../../design/components/GButton.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GPopover from "../../design/components/GPopover.vue";
+import GSelect from "../../design/components/GSelect.vue";
 import { announce } from "../../design/announce";
 import {
   NUM_SEMESTERS,
@@ -168,6 +159,13 @@ const emit = defineEmits<{
 const store = useCourseDataStore();
 
 const yearNames = ["Freshman", "Sophomore", "Junior", "Senior", "Fifth year"];
+const yearOptions = [
+  { value: 0, label: "First year / Freshman" },
+  { value: 1, label: "Sophomore" },
+  { value: 2, label: "Junior" },
+  { value: 3, label: "Senior" },
+  { value: 4, label: "Super senior" },
+];
 const settingsOpen = ref(false);
 
 const baseYearValue = computed(() => baseYear(store.userYear));
@@ -209,8 +207,7 @@ function yearSpan(year: number): string {
   return `${fallYear}–’${springYear}`;
 }
 
-function changeYear(event: Event) {
-  const year = Number((event.target as HTMLSelectElement).value);
+function changeYear(year: number) {
   emit("change-year", year);
   settingsOpen.value = false;
 }
@@ -494,47 +491,6 @@ void dragState;
   gap: var(--space-3);
   min-width: 220px;
 }
-.settings-label {
-  font: var(--text-small);
-  color: var(--g-ink-3);
-}
-/* Native select, themed closed control: input shell + drawn chevron.
-   The open option list stays native. */
-.settings-select-wrap {
-  position: relative;
-  display: flex;
-}
-.settings-select {
-  appearance: none;
-  flex: 1;
-  font: var(--text-body);
-  color: var(--g-ink);
-  background: var(--g-surface);
-  border: none;
-  border-radius: var(--radius-sm);
-  box-shadow: inset 0 0 0 1px var(--g-line-strong);
-  height: 34px;
-  padding: 0 var(--space-6) 0 var(--space-3);
-  cursor: pointer;
-  transition: box-shadow var(--motion-quick) var(--ease-out);
-}
-.settings-select:hover {
-  box-shadow: inset 0 0 0 1px var(--g-ink-3);
-}
-.settings-select:focus-visible {
-  outline: none;
-  box-shadow:
-    inset 0 0 0 1.5px var(--g-accent),
-    0 0 0 3px var(--g-accent-tint);
-}
-.select-chevron {
-  position: absolute;
-  right: var(--space-2);
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--g-ink-3);
-  pointer-events: none;
-}
 .settings-check {
   display: flex;
   align-items: center;
@@ -609,7 +565,7 @@ void dragState;
 .year-label {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-05);
   padding-top: var(--space-2);
 }
 .year-name {

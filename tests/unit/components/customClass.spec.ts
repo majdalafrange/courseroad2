@@ -29,16 +29,18 @@ describe("CustomClass defaults", () => {
     (wrapper.vm as unknown as { openNewClass: () => void }).openNewClass();
     await wrapper.vm.$nextTick();
 
+    // GNumberField's input carries role="spinbutton" (Reka's NumberField),
+    // not type="number": the value is real, no string<->number parsing.
     const numbers = [
-      ...document.querySelectorAll<HTMLInputElement>('input[type="number"]'),
+      ...document.querySelectorAll<HTMLInputElement>(
+        '.g-number-field-input[role="spinbutton"]',
+      ),
     ];
     expect(numbers.map((input) => input.value)).toEqual(["12", "0", "10"]);
 
     // Fill the required text fields and submit without touching a number.
     const texts = [
-      ...document.querySelectorAll<HTMLInputElement>(
-        'input:not([type="number"])',
-      ),
+      ...document.querySelectorAll<HTMLInputElement>(".g-input-field"),
     ];
     texts[0].value = "UROP";
     texts[0].dispatchEvent(new Event("input", { bubbles: true }));

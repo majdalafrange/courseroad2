@@ -51,7 +51,11 @@
       role="tooltip"
     >
       <div class="edge-card-head">
-        <span class="edge-card-ids">{{ edgeCardTitle }}</span>
+        <span class="edge-card-ids"
+          >{{ edgeCardIds[0] }}
+          <g-icon name="swap" :size="12" />
+          {{ edgeCardIds[1] }}</span
+        >
         <span v-if="edgeCard.edge.crossing" class="edge-card-crossing"
           >crossing</span
         >
@@ -178,13 +182,13 @@ function toggle(node: NodeView) {
 
 const edgeCard = ref<{ edge: EdgeView; x: number; y: number } | undefined>();
 
-const edgeCardTitle = computed(() => {
+const edgeCardIds = computed((): [string, string] => {
   const edge = edgeCard.value?.edge;
   if (edge === undefined) {
-    return "";
+    return ["", ""];
   }
   const [a, b] = edge.id.split("|");
-  return `${a} ↔ ${b}`;
+  return [a, b];
 });
 
 function cardPosition(event: PointerEvent): { x: number; y: number } {
@@ -732,6 +736,9 @@ onBeforeUnmount(() => {
   margin-bottom: var(--space-1);
 }
 .edge-card-ids {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
   font: var(--text-id-small);
   font-family: var(--font-mono);
   font-weight: 600;
@@ -752,7 +759,7 @@ onBeforeUnmount(() => {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-05);
 }
 .edge-card-reasons li {
   display: flex;

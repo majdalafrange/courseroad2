@@ -1,14 +1,18 @@
 /* eslint-disable vue/one-component-per-file */
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from "vitest";
-import { mount, type VueWrapper } from "@vue/test-utils";
+import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { defineComponent, h, nextTick, ref } from "vue";
 import GSheet from "../../../src/design/components/GSheet.vue";
 
 /**
  * The modal keyboard contract: Escape closes one layer, Tab stays
  * inside, focus returns to the opener. These are the behaviors the
- * eight scrim dialogs lost when each hand-rolled its own shell.
+ * eight scrim dialogs lost when each hand-rolled its own shell; Reka
+ * UI's Dialog owns the mechanics now, so these tests drive it the way
+ * it actually listens (window for Escape, document for a scrim
+ * pointerdown, bubbling from the focused element for Tab) rather than
+ * the old single document-level keydown listener.
  */
 
 let wrapper: VueWrapper | undefined;
@@ -54,69 +58,113 @@ function panel(): HTMLElement {
   return el as HTMLElement;
 }
 
-function pressOnDocument(init: KeyboardEventInit): KeyboardEvent {
-  const event = new KeyboardEvent("keydown", { ...init, cancelable: true });
-  document.dispatchEvent(event);
+/** Reka's DismissableLayer listens for Escape on window (VueUse's
+ *  onKeyStroke default target), not document. */
+function pressEscape(): KeyboardEvent {
+  const event = new KeyboardEvent("keydown", {
+    key: "Escape",
+    cancelable: true,
+    bubbles: true,
+  });
+  window.dispatchEvent(event);
   return event;
 }
 
+/** FocusScope's Tab trap is a plain @keydown on the panel itself, so it
+ *  only fires for a keydown that bubbles up from something inside it. */
+function pressTabFromFocused(shiftKey = false): KeyboardEvent {
+  const event = new KeyboardEvent("keydown", {
+    key: "Tab",
+    shiftKey,
+    cancelable: true,
+    bubbles: true,
+  });
+  (document.activeElement ?? document.body).dispatchEvent(event);
+  return event;
+}
+
+/** Outside-pointerdown detection listens on document, registered after a
+ *  setTimeout(0) (so the very click that opened a dialog isn't itself
+ *  read as "outside"); a real macrotask wait is needed, not just a
+ *  microtask flush. */
+async function clickScrim(): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  document
+    .querySelector<HTMLElement>(".g-sheet-scrim")
+    ?.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+}
+
 describe("GSheet", () => {
-  it("renders role=dialog with aria-modal and the given name", () => {
+  it("renders role=dialog naming the sheet via aria-labelledby", async () => {
     mountHost();
+    // Reka's Teleport defers to a mounted ref (an SSR-safety guard), so
+    // the content doesn't land in the DOM until a tick after mount.
+    await flushPromises();
     expect(panel().getAttribute("role")).toBe("dialog");
-    expect(panel().getAttribute("aria-modal")).toBe("true");
-    expect(panel().getAttribute("aria-label")).toBe("Test sheet");
+    const labelledBy = panel().getAttribute("aria-labelledby");
+    expect(labelledBy).toBeTruthy();
+    expect(document.getElementById(labelledBy!)?.textContent).toBe(
+      "Test sheet",
+    );
   });
 
   it("closes on Escape and marks the event consumed", async () => {
     const { openRef } = mountHost();
-    const event = pressOnDocument({ key: "Escape" });
-    await nextTick();
+    await flushPromises();
+    const event = pressEscape();
+    await flushPromises();
     expect(openRef.value).toBe(false);
     expect(event.defaultPrevented).toBe(true);
   });
 
   it("leaves an already-consumed Escape alone (one Escape, one layer)", async () => {
     const { openRef } = mountHost();
+    await flushPromises();
     const event = new KeyboardEvent("keydown", {
       key: "Escape",
       cancelable: true,
+      bubbles: true,
     });
     event.preventDefault(); // an inner layer (popover) already took it
-    document.dispatchEvent(event);
+    window.dispatchEvent(event);
     await nextTick();
     expect(openRef.value).toBe(true);
   });
 
   it("closes on a scrim click but not on a panel click", async () => {
     const { openRef } = mountHost();
-    panel().click();
-    await nextTick();
+    await flushPromises();
+    panel().dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+    await flushPromises();
     expect(openRef.value).toBe(true);
-    document
-      .querySelector<HTMLElement>(".g-sheet-scrim")
-      ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    await nextTick();
+    await clickScrim();
+    await flushPromises();
     expect(openRef.value).toBe(false);
   });
 
-  it("moves initial focus into the panel", async () => {
+  it("moves initial focus onto the panel's first focusable", async () => {
     mountHost();
-    await nextTick();
-    expect(document.activeElement).toBe(panel());
+    await flushPromises();
+    // The built-in close button is the panel's first focusable, Reka's
+    // FocusScope default (the old shell focused the panel container
+    // itself instead; either way, focus starts inside the trap).
+    expect(document.activeElement).toBe(
+      document.querySelector(".g-sheet-close"),
+    );
+    expect(panel().contains(document.activeElement)).toBe(true);
   });
 
-  it("wraps Tab at the last focusable and Shift+Tab at the first", () => {
+  it("wraps Tab at the last focusable and Shift+Tab at the first", async () => {
     mountHost();
-    // The built-in close button is the panel's first focusable.
+    await flushPromises();
     const close = document.querySelector<HTMLElement>(".g-sheet-close");
     const last = document.querySelector<HTMLElement>("#last");
     last?.focus();
-    const tab = pressOnDocument({ key: "Tab" });
+    const tab = pressTabFromFocused();
     expect(tab.defaultPrevented).toBe(true);
     expect(document.activeElement).toBe(close);
     close?.focus();
-    const shiftTab = pressOnDocument({ key: "Tab", shiftKey: true });
+    const shiftTab = pressTabFromFocused(true);
     expect(shiftTab.defaultPrevented).toBe(true);
     expect(document.activeElement).toBe(last);
   });
@@ -126,11 +174,10 @@ describe("GSheet", () => {
     const opener = document.querySelector<HTMLElement>("#opener");
     opener?.focus();
     openRef.value = true;
-    await nextTick();
-    await nextTick();
-    expect(document.activeElement).toBe(panel());
+    await flushPromises();
+    expect(panel().contains(document.activeElement)).toBe(true);
     openRef.value = false;
-    await nextTick();
+    await flushPromises();
     expect(document.activeElement).toBe(opener);
   });
 
@@ -154,24 +201,24 @@ describe("GSheet", () => {
       }),
       { attachTo: document.body },
     );
-    const event = pressOnDocument({ key: "Escape" });
-    await nextTick();
+    await flushPromises();
+    const event = pressEscape();
+    await flushPromises();
     expect(openRef.value).toBe(true);
-    expect(event.defaultPrevented).toBe(false);
-    document
-      .querySelector<HTMLElement>(".g-sheet-scrim")
-      ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    await nextTick();
+    expect(event.defaultPrevented).toBe(true);
+    await clickScrim();
+    await flushPromises();
     expect(openRef.value).toBe(true);
     expect(document.querySelector(".g-sheet-close")).toBeNull();
   });
 
   it("stops listening after close (no ghost Escape handling)", async () => {
     const { openRef } = mountHost();
-    pressOnDocument({ key: "Escape" });
-    await nextTick();
+    await flushPromises();
+    pressEscape();
+    await flushPromises();
     expect(openRef.value).toBe(false);
-    const second = pressOnDocument({ key: "Escape" });
+    const second = pressEscape();
     expect(second.defaultPrevented).toBe(false);
   });
 });

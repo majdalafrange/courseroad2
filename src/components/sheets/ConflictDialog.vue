@@ -191,7 +191,7 @@ function isChanged(subjectIndex: number, side: string): boolean {
 .col-facts {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 2px var(--space-3);
+  gap: var(--space-05) var(--space-3);
   margin: 0;
 }
 .col-facts dt {

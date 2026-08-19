@@ -38,6 +38,7 @@
         tabindex="0"
         @click="pick(roadId)"
         @keydown.enter.prevent="pick(roadId)"
+        @keydown.space.prevent="pick(roadId)"
       >
         <span class="road-active-bar" aria-hidden="true" />
         <template v-if="renamingId === roadId">
@@ -48,6 +49,7 @@
             data-cy="renameRoadField"
             @keydown.enter.prevent.stop="commitRename"
             @keydown.esc.prevent.stop="cancelRename"
+            @keydown.space.stop
             @blur="commitRename"
             @click.stop
           />
@@ -58,7 +60,7 @@
           </span>
           <span class="road-right">
             <span class="road-count">{{ classCount(roadId) || "" }}</span>
-            <span class="road-actions" @click.stop>
+            <span class="road-actions" @click.stop @keydown.stop>
               <g-tooltip text="Rename">
                 <button
                   class="switch-icon-btn road-action-btn"
@@ -251,7 +253,7 @@ function cancelRename() {
   background: transparent;
   border: none;
   border-radius: var(--radius-sm);
-  padding: 4px var(--space-2);
+  padding: var(--space-1) var(--space-2);
   margin-left: calc(var(--space-2) * -1);
   cursor: pointer;
   transition: background-color var(--motion-quick) var(--ease-out);
@@ -384,7 +386,7 @@ function cancelRename() {
   right: 0;
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--space-05);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--motion-quick) var(--ease-out);
@@ -420,7 +422,7 @@ function cancelRename() {
   background: var(--g-surface);
   border: none;
   border-radius: var(--radius-xs);
-  padding: 2px var(--space-1);
+  padding: var(--space-05) var(--space-1);
   box-shadow:
     inset 0 0 0 1.5px var(--g-accent),
     0 0 0 3px var(--g-accent-tint);

@@ -21,18 +21,23 @@
           quick questions and we'll get you started (you can change anything
           after that).
         </p>
-        <span class="onboard-label">Where year are you?</span>
-        <div class="year-grid">
-          <button
+        <span id="onboardYearLabel" class="onboard-label"
+          >Where year are you?</span
+        >
+        <g-radio-group
+          v-model="selectedYear"
+          class="year-grid"
+          aria-labelledby="onboardYearLabel"
+        >
+          <g-radio-group-item
             v-for="year in years"
             :key="year.value"
             class="year-option"
-            :class="{ selected: selectedYear === year.value }"
-            @click="selectedYear = year.value"
+            :value="year.value"
           >
             {{ year.label }}
-          </button>
-        </div>
+          </g-radio-group-item>
+        </g-radio-group>
         <div class="onboard-actions">
           <g-button variant="primary" @click="step = 1"> Next </g-button>
         </div>
@@ -95,6 +100,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from "vue";
 import GButton from "../../design/components/GButton.vue";
+import { GRadioGroup, GRadioGroupItem } from "../../design/components/GRadio";
 import GSheet from "../../design/components/GSheet.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GWordmark from "../../design/components/GWordmark.vue";
@@ -230,7 +236,9 @@ function close() {
   gap: var(--space-2);
   flex-wrap: wrap;
 }
-.year-option {
+/* :deep(): GRadioGroupItem forwards this class to Reka's own RadioGroupItem
+   internals, a grandchild scoped CSS can't otherwise reach. */
+:deep(.year-option) {
   flex: 1;
   min-width: 84px;
   font: var(--text-body);
@@ -244,10 +252,14 @@ function close() {
     border-color var(--motion-quick) var(--ease-out),
     color var(--motion-quick) var(--ease-out);
 }
-.year-option:hover {
+:deep(.year-option:hover) {
   border-color: var(--g-line-strong);
 }
-.year-option.selected {
+:deep(.year-option:focus-visible) {
+  outline: none;
+  box-shadow: var(--g-focus-ring);
+}
+:deep(.year-option[data-state="checked"]) {
   border-color: var(--g-accent);
   color: var(--g-ink);
   background: var(--g-accent-tint);
@@ -287,7 +299,7 @@ function close() {
   background: var(--g-accent);
   border: none;
   border-radius: var(--radius-full);
-  padding: 2px var(--space-2);
+  padding: var(--space-05) var(--space-2);
   cursor: pointer;
 }
 .program-results {

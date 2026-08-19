@@ -469,10 +469,10 @@ const saveState = computed<SaveState>(() => {
 .mode-switch {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--space-05);
   background: var(--g-surface-sunken);
   border-radius: var(--radius-sm);
-  padding: 2px;
+  padding: var(--space-05);
 }
 .mode-btn {
   font: var(--text-small);
@@ -528,7 +528,7 @@ const saveState = computed<SaveState>(() => {
 .more-menu {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-05);
   min-width: 190px;
 }
 .more-item {
@@ -610,13 +610,17 @@ const saveState = computed<SaveState>(() => {
   .mode-switch {
     display: none;
   }
-  .header-right .header-feedback {
+  /* :global: these classes land on GTooltip's trigger span, which Vue's
+     scoped CSS can't tag with this component's data-v attribute (Reka's
+     TooltipProvider/Root are context-only, with no DOM node of their own
+     to inherit it onto). */
+  .header-right :global(.header-feedback) {
     display: none;
   }
   .header-login {
     display: none;
   }
-  .header-settings {
+  :global(.header-settings) {
     display: none;
   }
   .more-item.mobile-only {

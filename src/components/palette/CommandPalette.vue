@@ -106,17 +106,22 @@
                       termBadges(subject)
                     }}</span>
                     <template v-if="subject.rating"
-                      >· ★{{ subject.rating.toFixed(1) }}</template
+                      >· <g-icon name="star" :size="10" class="rating-icon" />{{
+                        subject.rating.toFixed(1)
+                      }}</template
                     >
                     <template v-if="subjectHoursLabel(subject)"
                       >· {{ subjectHoursLabel(subject) }}h/wk</template
                     >
                   </span>
                 </span>
-                <span class="row-place" aria-hidden="true">
-                  {{
-                    selectedIndex === i + classOffset ? "⏎ open · ⇥ place" : ""
-                  }}
+                <span
+                  v-if="selectedIndex === i + classOffset"
+                  class="row-place"
+                  aria-hidden="true"
+                >
+                  <g-kbd :keys="['Enter']" /> open · <g-kbd :keys="['Tab']" />
+                  place
                 </span>
               </div>
             </template>
@@ -727,7 +732,7 @@ defineExpose({
   background: var(--g-accent-fill);
   border: none;
   border-radius: var(--radius-full);
-  padding: 2px var(--space-2);
+  padding: var(--space-05) var(--space-2);
   cursor: pointer;
 }
 .palette-input {
@@ -762,7 +767,7 @@ defineExpose({
   background: var(--g-surface-sunken);
   border: none;
   border-radius: var(--radius-full);
-  padding: 2px var(--space-2);
+  padding: var(--space-05) var(--space-2);
   cursor: pointer;
 }
 .token-suggest:hover {
@@ -867,10 +872,17 @@ defineExpose({
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.row-sub .rating-icon {
+  display: inline-block;
+  vertical-align: -1px;
+}
 .row-terms {
   font-family: var(--font-mono);
 }
 .row-place {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   font: var(--text-small);
   color: var(--g-ink-3);
   white-space: nowrap;

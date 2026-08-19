@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { mount, type VueWrapper } from "@vue/test-utils";
-import { nextTick } from "vue";
+import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import SuggestionStrip from "../../../src/components/audit/SuggestionStrip.vue";
 import { useAuditStore } from "../../../src/stores/audit";
@@ -69,10 +68,20 @@ describe("SuggestionStrip explanation control", () => {
     expect(popover?.textContent).toContain("FireRoad");
     expect(control.attributes("aria-expanded")).toBe("true");
 
-    document.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "Escape", cancelable: true }),
+    // Reka UI's dismissable layer listens on window (a real keypress
+    // bubbles there through the DOM naturally); dispatching there directly
+    // is the precise way to simulate it without a bubble-chain from focus.
+    // The close itself runs through Presence's own exit-animation check,
+    // an extra async hop beyond the model update, hence flushPromises
+    // over a fixed number of nextTicks.
+    window.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Escape",
+        cancelable: true,
+        bubbles: true,
+      }),
     );
-    await nextTick();
+    await flushPromises();
     expect(document.querySelector(".g-popover")).toBeNull();
   });
 });

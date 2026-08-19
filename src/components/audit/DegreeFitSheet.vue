@@ -24,16 +24,12 @@
       <!-- scan state -->
       <div class="fit-bar">
         <template v-if="fit.scanning">
-          <div
+          <g-progress
             class="scan-track"
-            role="progressbar"
-            :aria-valuenow="fit.percentDone"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            :aria-label="`Checking majors and minors, ${fit.percentDone}% done`"
-          >
-            <span class="scan-fill" :style="{ width: fit.percentDone + '%' }" />
-          </div>
+            fill-class="scan-fill"
+            :value="fit.percentDone"
+            :get-value-label="(v) => `Checking majors and minors, ${v}% done`"
+          />
           <span class="scan-note">
             Checking {{ fit.completed }} of {{ fit.total }}
           </span>
@@ -77,65 +73,54 @@
 
         <template v-else>
           <!-- Majors and minors are separate rankings, so they are
-                   separate tabs rather than one scroll. -->
-          <div
+                   separate tabs rather than one scroll. Reka's Tabs owns
+                   the roving tabindex, arrow/Home/End keys, and all the
+                   id/aria-controls/aria-labelledby wiring. -->
+          <g-tabs-root
             v-if="anyRanked"
-            ref="tablistEl"
-            class="fit-tabs"
-            role="tablist"
-            aria-label="Majors or minors"
-            @keydown="onTablistKeydown"
+            v-model="tab"
+            class="fit-tabs-wrap"
+            :unmount-on-hide="false"
           >
-            <button
-              v-for="option in TABS"
-              :id="`fit-tab-${option}`"
-              :key="option"
-              class="fit-tab"
-              :class="{ active: tab === option }"
-              role="tab"
-              :aria-selected="tab === option"
-              :aria-controls="`fit-panel-${option}`"
-              :tabindex="tab === option ? 0 : -1"
-              :data-cy="`degreeFitTab-${option}`"
-              @click="tab = option"
-            >
-              {{ option === "majors" ? "Majors" : "Minors" }}
-              <span class="tab-count">{{ groups[option].length }}</span>
-            </button>
-          </div>
+            <g-tabs-list class="fit-tabs" aria-label="Majors or minors">
+              <g-tabs-trigger
+                v-for="option in TABS"
+                :key="option"
+                class="fit-tab"
+                :value="option"
+                :data-cy="`degreeFitTab-${option}`"
+              >
+                {{ option === "majors" ? "Majors" : "Minors" }}
+                <span class="tab-count">{{ groups[option].length }}</span>
+              </g-tabs-trigger>
+            </g-tabs-list>
 
-          <!-- Both panels stay mounted so each tab's aria-controls
-                   resolves; v-show keeps the inactive one out of the
-                   accessibility tree. -->
-          <section
-            v-for="option in anyRanked ? TABS : []"
-            v-show="tab === option"
-            :id="`fit-panel-${option}`"
-            :key="option"
-            class="fit-section"
-            role="tabpanel"
-            :aria-labelledby="`fit-tab-${option}`"
-            tabindex="0"
-          >
-            <fit-row
-              v-for="(row, i) in visible(groups[option], option)"
-              :key="row.key"
-              :fit="row"
-              :rank="i + 1"
-              @preview="preview(row.key)"
-              @add="add(row.key)"
-            />
-            <p v-if="!groups[option].length" class="fit-section-note">
-              No {{ option }} were ranked.
-            </p>
-            <button
-              v-if="groups[option].length > shown[option]"
-              class="fit-more"
-              @click="shown[option] += PAGE"
+            <g-tabs-content
+              v-for="option in TABS"
+              :key="option"
+              class="fit-section"
+              :value="option"
             >
-              Show {{ remainingCount(groups[option], option) }} more
-            </button>
-          </section>
+              <fit-row
+                v-for="(row, i) in visible(groups[option], option)"
+                :key="row.key"
+                :fit="row"
+                :rank="i + 1"
+                @preview="preview(row.key)"
+                @add="add(row.key)"
+              />
+              <p v-if="!groups[option].length" class="fit-section-note">
+                No {{ option }} were ranked.
+              </p>
+              <button
+                v-if="groups[option].length > shown[option]"
+                class="fit-more"
+                @click="shown[option] += PAGE"
+              >
+                Show {{ remainingCount(groups[option], option) }} more
+              </button>
+            </g-tabs-content>
+          </g-tabs-root>
 
           <!-- Below the tabs, not inside one: these span both types, and
                    a program the scan could not measure is an unanswered
@@ -176,8 +161,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, reactive, ref, watch } from "vue";
+import { computed, reactive, ref, watch } from "vue";
+import {
+  GTabsContent,
+  GTabsList,
+  GTabsRoot,
+  GTabsTrigger,
+} from "../../design/components/GTabs";
 import GButton from "../../design/components/GButton.vue";
+import GProgress from "../../design/components/GProgress.vue";
 import GSheet from "../../design/components/GSheet.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import FitRow from "./FitRow.vue";
@@ -206,7 +198,6 @@ type Tab = (typeof TABS)[number];
 
 const shown = reactive({ majors: PAGE, minors: PAGE });
 const tab = ref<Tab>("majors");
-const tablistEl = ref<HTMLElement>();
 
 const groups = computed(() => fit.groups);
 const anyRanked = computed(
@@ -242,31 +233,6 @@ function visible(rows: ProgramFit[], group: Tab): ProgramFit[] {
 
 function remainingCount(rows: ProgramFit[], group: Tab): number {
   return rows.length - shown[group];
-}
-
-/** Arrow, Home and End move between tabs, per the ARIA tabs pattern. */
-function onTablistKeydown(event: KeyboardEvent) {
-  const index = TABS.indexOf(tab.value);
-  let next = index;
-  if (event.key === "ArrowRight" || event.key === "ArrowDown") {
-    next = (index + 1) % TABS.length;
-  } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
-    next = (index - 1 + TABS.length) % TABS.length;
-  } else if (event.key === "Home") {
-    next = 0;
-  } else if (event.key === "End") {
-    next = TABS.length - 1;
-  } else {
-    return;
-  }
-  event.preventDefault();
-  tab.value = TABS[next];
-  // Roving tabindex: focus follows selection so the arrows keep working.
-  void nextTick(() => {
-    tablistEl.value
-      ?.querySelector<HTMLElement>(`#fit-tab-${TABS[next]}`)
-      ?.focus();
-  });
 }
 
 watch(
@@ -358,7 +324,8 @@ function close() {
   background: var(--g-surface-sunken);
   overflow: hidden;
 }
-.scan-fill {
+/* :deep(): GProgress's own indicator, a grandchild from here. */
+:deep(.scan-fill) {
   display: block;
   height: 100%;
   background: var(--g-accent);
@@ -395,10 +362,10 @@ function close() {
 .fit-tabs {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--space-05);
   background: var(--g-surface-sunken);
   border-radius: var(--radius-sm);
-  padding: 2px;
+  padding: var(--space-05);
   margin-bottom: var(--space-3);
 }
 .fit-tab {
@@ -422,7 +389,7 @@ function close() {
 .fit-tab:hover {
   color: var(--g-ink);
 }
-.fit-tab.active {
+.fit-tab[data-state="active"] {
   background: var(--g-surface);
   color: var(--g-ink);
   font-weight: 600;
@@ -432,7 +399,7 @@ function close() {
   font: var(--text-micro);
   color: var(--g-ink-3);
 }
-.fit-tab.active .tab-count {
+.fit-tab[data-state="active"] .tab-count {
   color: var(--g-ink-2);
 }
 /* The panel is focusable for the tabs pattern; it should not draw a ring
@@ -450,9 +417,6 @@ function close() {
   box-shadow: var(--g-focus-ring);
 }
 
-.fit-section + .fit-section {
-  margin-top: var(--space-5);
-}
 .fit-section-head {
   font: var(--text-small);
   color: var(--g-ink-3);

@@ -57,8 +57,10 @@ test("renaming a road to a name another road holds is explained", async ({
   // the same explanation the import dialog gives.
   await rename.fill("My First Road");
   await rename.press("Enter");
+  // Reka's Toast also announces this via its own hidden live region, so
+  // scope to the visible toast text rather than a page-wide text match.
   await expect(
-    page.getByText("already a road named", { exact: false }),
+    page.locator(".g-toast-message", { hasText: "already a road named" }),
   ).toBeVisible();
   await expect(cy(page, "roadSwitcher")).toContainText("Untitled road");
 });

@@ -10,16 +10,19 @@
 
       <div class="settings-section">
         <span id="themeLabel" class="settings-label">Theme</span>
-        <div class="option-list" role="radiogroup" aria-labelledby="themeLabel">
-          <button
+        <g-radio-group
+          class="option-list"
+          :model-value="store.themeMode"
+          aria-labelledby="themeLabel"
+          @update:model-value="(v: string) => setThemeMode(v as ThemeMode)"
+        >
+          <g-radio-group-item
             v-for="option in THEME_OPTIONS"
             :key="option.mode"
+            v-slot="{ checked }"
             class="option-row"
-            :class="{ selected: store.themeMode === option.mode }"
-            role="radio"
-            :aria-checked="store.themeMode === option.mode"
+            :value="option.mode"
             :data-cy="`themeOption-${option.mode}`"
-            @click="setThemeMode(option.mode)"
           >
             <g-icon :name="option.icon" :size="18" />
             <span class="option-text">
@@ -27,13 +30,13 @@
               <span class="option-detail">{{ option.detail }}</span>
             </span>
             <g-icon
-              v-if="store.themeMode === option.mode"
+              v-if="checked"
               name="check"
               :size="14"
               class="option-check"
             />
-          </button>
-        </div>
+          </g-radio-group-item>
+        </g-radio-group>
       </div>
 
       <div class="settings-section">
@@ -43,21 +46,20 @@
         <span v-if="isMobile" class="settings-hint">
           Not available on mobile: one pane shows at a time either way.
         </span>
-        <div
+        <g-radio-group
           class="option-list"
-          role="radiogroup"
+          :model-value="store.panelSide"
+          :disabled="isMobile"
           aria-labelledby="panelSideLabel"
+          @update:model-value="(v: string) => setPanelSide(v as PanelSide)"
         >
-          <button
+          <g-radio-group-item
             v-for="option in PANEL_SIDE_OPTIONS"
             :key="option.side"
-            :disabled="isMobile"
+            v-slot="{ checked }"
             class="option-row"
-            :class="{ selected: store.panelSide === option.side }"
-            role="radio"
-            :aria-checked="store.panelSide === option.side"
+            :value="option.side"
             :data-cy="`panelSideOption-${option.side}`"
-            @click="setPanelSide(option.side)"
           >
             <g-icon :name="option.icon" :size="18" />
             <span class="option-text">
@@ -65,13 +67,13 @@
               <span class="option-detail">{{ option.detail }}</span>
             </span>
             <g-icon
-              v-if="store.panelSide === option.side"
+              v-if="checked"
               name="check"
               :size="14"
               class="option-check"
             />
-          </button>
-        </div>
+          </g-radio-group-item>
+        </g-radio-group>
       </div>
     </div>
   </g-sheet>
@@ -79,6 +81,7 @@
 
 <script setup lang="ts">
 import GIcon from "../../design/components/GIcon.vue";
+import { GRadioGroup, GRadioGroupItem } from "../../design/components/GRadio";
 import GSheet from "../../design/components/GSheet.vue";
 import { useTheme } from "../../composables/useTheme";
 import { useIsMobile } from "../../composables/useIsMobile";
@@ -180,7 +183,9 @@ const PANEL_SIDE_OPTIONS: {
   flex-direction: column;
   gap: var(--space-2);
 }
-.option-row {
+/* :deep(): GRadioGroupItem forwards this class to Reka's own RadioGroupItem
+   internals, a grandchild scoped CSS can't otherwise reach. */
+:deep(.option-row) {
   display: flex;
   align-items: center;
   gap: var(--space-3);
@@ -197,19 +202,19 @@ const PANEL_SIDE_OPTIONS: {
     border-color var(--motion-quick) var(--ease-out),
     color var(--motion-quick) var(--ease-out);
 }
-.option-row:hover {
+:deep(.option-row:hover) {
   border-color: var(--g-line-strong);
 }
-.option-row:focus-visible {
+:deep(.option-row:focus-visible) {
   outline: none;
   box-shadow: var(--g-focus-ring);
 }
-.option-row.selected {
+:deep(.option-row[data-state="checked"]) {
   border-color: var(--g-accent);
   color: var(--g-ink);
   background: var(--g-accent-tint);
 }
-.option-row:disabled {
+:deep(.option-row:disabled) {
   opacity: 0.4;
   cursor: not-allowed;
 }

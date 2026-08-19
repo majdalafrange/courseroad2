@@ -52,7 +52,9 @@
         >
           <span class="sc-id">{{ candidate.subject.subject_id }}</span>
           <span v-if="candidate.rating" class="sc-rating"
-            >★{{ candidate.rating.toFixed(1) }}</span
+            ><g-icon name="star" :size="10" />{{
+              candidate.rating.toFixed(1)
+            }}</span
           >
         </button>
         <button
@@ -227,6 +229,9 @@ function dismiss() {
   border-left-color: var(--dept-color);
 }
 .sc-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-05);
   font: var(--text-micro);
   color: var(--g-ink-3);
 }
@@ -236,7 +241,7 @@ function dismiss() {
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 2px var(--space-2);
+  padding: var(--space-05) var(--space-2);
 }
 .suggestion-more:hover {
   text-decoration: underline;

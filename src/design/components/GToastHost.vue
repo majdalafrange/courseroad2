@@ -1,101 +1,67 @@
 <template>
-  <div class="g-toast-host" aria-live="polite">
-    <transition-group name="g-toast">
-      <div
-        v-for="t in toast.state.toasts"
-        :key="t.id"
-        class="g-toast"
-        :class="t.variant"
-        @mouseenter="pause(t.id)"
-        @mouseleave="resume(t)"
-      >
-        <span class="g-toast-rail" aria-hidden="true" />
-        <div class="g-toast-body">
-          <span class="g-toast-message">{{ t.message }}</span>
-          <span v-if="t.detail" class="g-toast-detail">{{ t.detail }}</span>
-        </div>
-        <button
-          v-if="t.action"
-          class="g-toast-action"
-          @click="t.action.handler()"
-        >
-          {{ t.action.label }}
-        </button>
-        <button
-          class="g-toast-dismiss"
-          aria-label="Dismiss"
-          @click="toast.dismiss(t.id)"
-        >
-          <svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true">
-            <path
-              d="M2.5 2.5 L9.5 9.5 M9.5 2.5 L2.5 9.5"
-              stroke="currentColor"
-              stroke-width="1.6"
-              stroke-linecap="round"
-            />
-          </svg>
-        </button>
+  <ToastProvider swipe-direction="right">
+    <ToastRoot
+      v-for="t in toast.state.toasts"
+      :key="t.id"
+      class="g-toast"
+      :class="t.variant"
+      :duration="t.duration"
+      @update:open="(open) => !open && toast.dismiss(t.id)"
+    >
+      <span class="g-toast-rail" aria-hidden="true" />
+      <div class="g-toast-body">
+        <ToastTitle as="span" class="g-toast-message">{{
+          t.message
+        }}</ToastTitle>
+        <ToastDescription v-if="t.detail" as="span" class="g-toast-detail">
+          {{ t.detail }}
+        </ToastDescription>
       </div>
-    </transition-group>
-  </div>
+      <ToastAction
+        v-if="t.action"
+        class="g-toast-action"
+        :alt-text="t.action.label"
+        @click="t.action.handler()"
+      >
+        {{ t.action.label }}
+      </ToastAction>
+      <ToastClose class="g-toast-dismiss" aria-label="Dismiss">
+        <g-icon name="close" :size="10" />
+      </ToastClose>
+    </ToastRoot>
+    <ToastPortal>
+      <ToastViewport class="g-toast-host" />
+    </ToastPortal>
+  </ToastProvider>
 </template>
 
 <script setup lang="ts">
-import { watch } from "vue";
-import { toast, type Toast } from "../toast";
-
-const timers = new Map<number, ReturnType<typeof setTimeout>>();
-
-function schedule(t: Toast | { id: number; duration: number }) {
-  clear(t.id);
-  timers.set(
-    t.id,
-    setTimeout(() => {
-      toast.dismiss(t.id);
-      timers.delete(t.id);
-    }, t.duration),
-  );
-}
-
-function clear(id: number) {
-  const timer = timers.get(id);
-  if (timer !== undefined) {
-    clearTimeout(timer);
-    timers.delete(id);
-  }
-}
-
-function pause(id: number) {
-  clear(id);
-}
-
-function resume(t: { id: number; duration: number }) {
-  schedule(t);
-}
-
-watch(
-  () => toast.state.toasts.map((t) => t.id),
-  (ids, oldIds) => {
-    for (const id of ids) {
-      if (!oldIds || !oldIds.includes(id)) {
-        const t = toast.state.toasts.find((x) => x.id === id);
-        if (t) {
-          schedule(t);
-        }
-      }
-    }
-    if (oldIds) {
-      for (const id of oldIds) {
-        if (!ids.includes(id)) {
-          clear(id);
-        }
-      }
-    }
-  },
-);
+/*
+ * Auto-dismiss timing, pause-on-hover/focus/window-blur, and swipe-to-
+ * dismiss are all Reka UI's Toast; this file is the visual skin plus the
+ * one bit of glue Reka can't own: toast.state.toasts is the source of
+ * truth (see ../toast.ts), so a toast closing (by timeout, swipe, or the
+ * close button) just removes it from that array instead of tracking its
+ * own open state.
+ */
+import {
+  ToastAction,
+  ToastClose,
+  ToastDescription,
+  ToastPortal,
+  ToastProvider,
+  ToastRoot,
+  ToastTitle,
+  ToastViewport,
+} from "reka-ui";
+import GIcon from "./GIcon.vue";
+import { toast } from "../toast";
 </script>
 
-<style scoped>
+<style>
+/* Not scoped: see GPopover.vue's note. ToastRoot teleports into the
+   viewport element, which itself teleports through ToastPortal, so
+   scoped CSS has two teleport hops to survive rather than one. */
 .g-toast-host {
   position: fixed;
   bottom: var(--space-5);
@@ -106,7 +72,10 @@ watch(
   flex-direction: column;
   align-items: center;
   gap: var(--space-2);
-  pointer-events: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  outline: none;
 }
 .g-toast {
   pointer-events: auto;
@@ -195,23 +164,47 @@ watch(
   }
 }
 
-/* Toasts rise into place and settle; leaving slides down and fades. */
-.g-toast-enter-active {
-  transition:
-    opacity var(--motion-standard) var(--ease-out),
-    transform var(--motion-standard) var(--ease-settle);
+/* Toasts rise into place and settle; timing out or the close button fades
+   and slides down. A swipe dismiss (data-swipe="end") gets its own exit
+   so it flies out the direction it was dragged instead of fighting the
+   timeout animation; data-state still flips to "closed" at the same
+   moment, so the two are scoped to not both apply. */
+.g-toast[data-state="open"] {
+  animation: g-toast-in var(--motion-standard) var(--ease-settle);
 }
-.g-toast-leave-active {
-  transition:
-    opacity var(--motion-quick) var(--ease-in),
-    transform var(--motion-quick) var(--ease-in);
+.g-toast[data-state="closed"]:not([data-swipe="end"]) {
+  animation: g-toast-out var(--motion-quick) var(--ease-in);
 }
-.g-toast-enter-from {
-  opacity: 0;
-  transform: translateY(12px) scale(0.98);
+@keyframes g-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
 }
-.g-toast-leave-to {
-  opacity: 0;
-  transform: translateY(8px);
+@keyframes g-toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.g-toast[data-swipe="move"] {
+  transform: translateX(var(--reka-toast-swipe-move-x));
+}
+.g-toast[data-swipe="cancel"] {
+  transform: translateX(0);
+  transition: transform var(--motion-quick) var(--ease-out);
+}
+.g-toast[data-swipe="end"] {
+  animation: g-toast-swipe-out var(--motion-quick) var(--ease-in) forwards;
+}
+@keyframes g-toast-swipe-out {
+  from {
+    transform: translateX(var(--reka-toast-swipe-end-x));
+  }
+  to {
+    opacity: 0;
+    transform: translateX(calc(100% + var(--space-3)));
+  }
 }
 </style>

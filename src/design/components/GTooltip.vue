@@ -1,29 +1,45 @@
 <template>
-  <span
-    class="g-tooltip-anchor"
-    @mouseenter="show"
-    @mouseleave="hide"
-    @focusin="show"
-    @focusout="hide"
-  >
-    <slot />
-    <transition name="g-tip">
-      <span
-        v-if="visible"
-        class="g-tooltip"
-        :class="[placement, { wide }]"
-        role="tooltip"
-      >
-        <slot name="content">{{ text }}</slot>
-      </span>
-    </transition>
-  </span>
+  <TooltipProvider :delay-duration="delay">
+    <TooltipRoot>
+      <TooltipTrigger as="span" class="g-tooltip-anchor" v-bind="$attrs">
+        <slot />
+      </TooltipTrigger>
+      <TooltipPortal>
+        <TooltipContent
+          class="g-tooltip"
+          :class="{ wide }"
+          :side="placement"
+          :side-offset="6"
+        >
+          <slot name="content">{{ text }}</slot>
+        </TooltipContent>
+      </TooltipPortal>
+    </TooltipRoot>
+  </TooltipProvider>
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, ref } from "vue";
+/**
+ * Hover/focus delay, show/hide timing, and dismiss-on-scroll are all Reka
+ * UI's TooltipRoot; this file is just the visual skin (positioning comes
+ * from TooltipContent's Popper, escaping overflow:hidden ancestors the old
+ * absolute-positioned version could get clipped by).
+ */
+import {
+  TooltipContent,
+  TooltipPortal,
+  TooltipProvider,
+  TooltipRoot,
+  TooltipTrigger,
+} from "reka-ui";
 
-const props = withDefaults(
+// TooltipProvider/TooltipRoot are context-only (no DOM node of their
+// own), so a class or attrs passed to <g-tooltip> can't fall through to
+// them automatically; forward $attrs to the trigger by hand instead,
+// the element that actually sits in the caller's layout.
+defineOptions({ inheritAttrs: false });
+
+withDefaults(
   defineProps<{
     text?: string;
     placement?: "top" | "bottom";
@@ -34,47 +50,18 @@ const props = withDefaults(
   }>(),
   { text: "", placement: "bottom", delay: 350, wide: false },
 );
-
-const visible = ref(false);
-let timer: ReturnType<typeof setTimeout> | undefined;
-
-function show() {
-  // Focus and hover each call this independently; without clearing the
-  // old timer first, a stale one can outlive a later hide() and pop the
-  // tooltip open with nothing left to anchor it to.
-  if (timer !== undefined) {
-    clearTimeout(timer);
-  }
-  timer = setTimeout(() => {
-    visible.value = true;
-  }, props.delay);
-}
-
-function hide() {
-  if (timer !== undefined) {
-    clearTimeout(timer);
-  }
-  visible.value = false;
-}
-
-onBeforeUnmount(() => {
-  if (timer !== undefined) {
-    clearTimeout(timer);
-  }
-});
 </script>
 
-<style scoped>
+<style>
+/* Not scoped: see GPopover.vue's note. TooltipContent is teleported
+   through several layers of Reka's own components, and Vue's scoped-CSS
+   attribute doesn't reliably survive that chain. */
 .g-tooltip-anchor {
-  position: relative;
   display: inline-flex;
 }
 .g-tooltip {
   font: var(--text-small);
-  position: absolute;
-  left: 50%;
   z-index: 60;
-  transform: translateX(-50%);
   background: var(--g-ink);
   color: var(--g-bg);
   padding: var(--space-1) var(--space-2);
@@ -83,6 +70,13 @@ onBeforeUnmount(() => {
   pointer-events: none;
   box-shadow: var(--shadow-2);
 }
+/* Scoped to the open states (not unconditional): Presence reads computed
+   animation-name to decide whether to wait for an exit animation before
+   unmounting, so an always-on rule would read as "still animating" and
+   delay the close by a tick for no visual gain. */
+.g-tooltip:not([data-state="closed"]) {
+  animation: g-tip-in var(--motion-quick) var(--ease-out);
+}
 .g-tooltip.wide {
   width: 264px;
   white-space: normal;
@@ -90,25 +84,10 @@ onBeforeUnmount(() => {
   padding: var(--space-2);
   line-height: 1.45;
 }
-.g-tooltip.bottom {
-  top: calc(100% + 6px);
-}
-.g-tooltip.top {
-  bottom: calc(100% + 6px);
-}
-.g-tip-enter-active {
-  transition:
-    opacity var(--motion-quick) var(--ease-out),
-    transform var(--motion-quick) var(--ease-out);
-}
-.g-tip-leave-active {
-  transition: opacity var(--motion-instant) var(--ease-in);
-}
-.g-tip-enter-from {
-  opacity: 0;
-  transform: translateX(-50%) translateY(-2px);
-}
-.g-tip-leave-to {
-  opacity: 0;
+@keyframes g-tip-in {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
 }
 </style>

@@ -15,17 +15,9 @@
       </header>
 
       <div class="compare-pickers">
-        <select v-model="roadA" class="road-select">
-          <option v-for="id in roadIds" :key="id" :value="id">
-            {{ roads[id].name }}
-          </option>
-        </select>
+        <g-select v-model="roadA" class="road-select" :options="roadOptions" />
         <span class="vs">vs</span>
-        <select v-model="roadB" class="road-select">
-          <option v-for="id in roadIds" :key="id" :value="id">
-            {{ roads[id].name }}
-          </option>
-        </select>
+        <g-select v-model="roadB" class="road-select" :options="roadOptions" />
       </div>
 
       <div v-if="roadA !== roadB" class="compare-options">
@@ -152,6 +144,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import GIcon from "../../design/components/GIcon.vue";
+import GSelect from "../../design/components/GSelect.vue";
 import GSheet from "../../design/components/GSheet.vue";
 import { courseColor } from "../../lib/colors";
 import {
@@ -178,6 +171,9 @@ const auditStore = useAuditStore();
 
 const roads = computed(() => store.roads);
 const roadIds = computed(() => Object.keys(store.roads));
+const roadOptions = computed(() =>
+  roadIds.value.map((id) => ({ value: id, label: roads.value[id].name })),
+);
 
 const roadA = ref(store.activeRoad);
 const roadB = ref("");
@@ -303,13 +299,6 @@ function close() {
 .road-select {
   flex: 1;
   min-width: 0;
-  font: var(--text-body-strong);
-  color: var(--g-ink);
-  background: var(--g-surface-2);
-  border: none;
-  border-radius: var(--radius-sm);
-  box-shadow: inset 0 0 0 1px var(--g-line-strong);
-  padding: var(--space-2) var(--space-3);
 }
 .vs {
   font: var(--text-small);
@@ -390,7 +379,7 @@ function close() {
 .diff-chip {
   font: var(--text-id-small);
   border-radius: var(--radius-xs);
-  padding: 2px var(--space-2);
+  padding: var(--space-05) var(--space-2);
   border-left: 4px solid
     color-mix(
       in srgb,
@@ -431,7 +420,7 @@ function close() {
 .load-bars {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-05);
 }
 .load-bar {
   font: var(--text-micro);

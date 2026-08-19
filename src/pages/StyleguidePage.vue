@@ -11,7 +11,9 @@
           {{ isDark ? "Switch to light" : "Switch to dark" }}
         </g-button>
         <theme-toggle :dark="isDark" @toggle="toggleTheme" />
-        <router-link to="/road" class="sg-back">← back to the app</router-link>
+        <router-link to="/road" class="sg-back"
+          ><g-icon name="back" :size="12" /> back to the app</router-link
+        >
       </div>
     </header>
 
@@ -250,6 +252,35 @@
       </g-card>
 
       <g-card class="sg-component-block">
+        <h3 class="sg-h3">Number field &amp; select</h3>
+        <div class="sg-row-wrap" style="align-items: flex-start">
+          <g-number-field
+            v-model="demoNumber"
+            label="Units"
+            :min="0"
+            style="width: 140px"
+          />
+          <g-select
+            v-model="demoSelect"
+            label="Term"
+            :options="demoSelectOptions"
+            style="width: 200px"
+          />
+        </div>
+      </g-card>
+
+      <g-card class="sg-component-block">
+        <h3 class="sg-h3">Progress</h3>
+        <div class="sg-row-wrap" style="align-items: flex-start">
+          <g-progress
+            class="sg-progress-demo"
+            fill-class="sg-progress-demo-fill"
+            :value="68"
+          />
+        </div>
+      </g-card>
+
+      <g-card class="sg-component-block">
         <h3 class="sg-h3">Chips</h3>
         <div class="sg-row-wrap">
           <g-chip>Fall</g-chip>
@@ -263,13 +294,34 @@
       </g-card>
 
       <g-card class="sg-component-block">
+        <h3 class="sg-h3">Drawer</h3>
+        <div class="sg-row-wrap">
+          <g-button variant="subtle" @click="demoDrawer = true">
+            Open drawer
+          </g-button>
+          <g-drawer v-model="demoDrawer" label="Demo drawer">
+            <div class="sg-drawer-demo">
+              <strong style="font: var(--text-body-strong)"
+                >A bottom sheet</strong
+              >
+              <span style="font: var(--text-small); color: var(--g-ink-2)">
+                Swipe down, tap outside, or press Escape to close.
+              </span>
+            </div>
+          </g-drawer>
+        </div>
+      </g-card>
+
+      <g-card class="sg-component-block">
         <h3 class="sg-h3">Popover &amp; tooltip</h3>
         <div class="sg-row-wrap">
           <g-popover v-model="demoPopover">
             <template #anchor="{ toggle }">
               <g-button variant="subtle" @click="toggle">Open popover</g-button>
             </template>
-            <div style="display: flex; flex-direction: column; gap: 8px">
+            <div
+              style="display: flex; flex-direction: column; gap: var(--space-2)"
+            >
               <strong style="font: var(--text-body-strong)"
                 >Move 6.006 here?</strong
               >
@@ -327,8 +379,13 @@ import { computed, ref } from "vue";
 import GButton from "../design/components/GButton.vue";
 import GCard from "../design/components/GCard.vue";
 import GChip from "../design/components/GChip.vue";
+import GDrawer from "../design/components/GDrawer.vue";
+import GIcon from "../design/components/GIcon.vue";
 import GInput from "../design/components/GInput.vue";
+import GNumberField from "../design/components/GNumberField.vue";
 import GPopover from "../design/components/GPopover.vue";
+import GProgress from "../design/components/GProgress.vue";
+import GSelect from "../design/components/GSelect.vue";
 import GToastHost from "../design/components/GToastHost.vue";
 import GTooltip from "../design/components/GTooltip.vue";
 import GWordmark from "../design/components/GWordmark.vue";
@@ -345,7 +402,15 @@ const { toggleTheme } = useTheme();
 
 const demoInput = ref("");
 const demoInputInvalid = ref("Junior year");
+const demoNumber = ref(12);
+const demoSelect = ref("fall");
+const demoSelectOptions = [
+  { value: "fall", label: "Fall" },
+  { value: "iap", label: "IAP" },
+  { value: "spring", label: "Spring" },
+];
 const demoPopover = ref(false);
+const demoDrawer = ref(false);
 const motionPlaying = ref(false);
 
 function runMotionDemo() {
@@ -471,6 +536,9 @@ const deptSwatches = [
   gap: var(--space-4);
 }
 .sg-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   font: var(--text-small);
   color: var(--g-ink-3);
   text-decoration: none;
@@ -687,6 +755,25 @@ const deptSwatches = [
 .sg-component-block {
   padding: var(--space-5);
   margin-bottom: var(--space-4);
+}
+.sg-drawer-demo {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.sg-progress-demo {
+  width: 240px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--g-surface-sunken);
+  overflow: hidden;
+}
+/* :deep(): GProgress's own indicator, a grandchild from here. */
+:deep(.sg-progress-demo-fill) {
+  display: block;
+  height: 100%;
+  background: var(--g-progress);
 }
 .sg-row-wrap {
   display: flex;

@@ -90,7 +90,7 @@ const seedLabel = computed(() => {
      control on hover reads as a caption until someone clicks it */
   border: 1px solid var(--g-line-strong);
   border-radius: var(--radius-full);
-  padding: 2px var(--space-2);
+  padding: var(--space-05) var(--space-2);
   cursor: pointer;
   transition:
     background-color var(--motion-quick) var(--ease-out),

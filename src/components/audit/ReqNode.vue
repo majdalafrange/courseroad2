@@ -10,6 +10,7 @@
       :aria-expanded="open"
       @click="open = !open"
       @keydown.enter.prevent="open = !open"
+      @keydown.space.prevent="open = !open"
     >
       <g-icon
         name="chevronRight"
@@ -35,6 +36,8 @@
             :data-cy="'auditInfoButton' + (node['list-id'] ?? '')"
             aria-label="Requirement details"
             @click.stop="infoOpen = !infoOpen"
+            @keydown.enter.stop
+            @keydown.space.stop
           >
             <g-icon name="info" :size="12" />
           </button>
@@ -42,15 +45,15 @@
         <div class="info-pop" @click.stop>
           <strong class="info-title">{{ branchTitle }}</strong>
           <p v-if="node.desc" class="info-desc">{{ node.desc }}</p>
-          <div v-if="showPercent" class="info-bar">
-            <span
-              class="info-bar-fill"
-              :class="percentTone"
-              :style="{
-                width: Math.min(100, Number(node.percent_fulfilled)) + '%',
-              }"
-            />
-          </div>
+          <g-progress
+            v-if="showPercent"
+            class="info-bar"
+            :fill-class="['info-bar-fill', percentTone]"
+            :value="Number(node.percent_fulfilled)"
+            :get-value-label="
+              () => `${branchTitle}: ${node.percent_fulfilled}% fulfilled`
+            "
+          />
           <div v-if="node.sat_courses?.length" class="info-sat">
             <span class="info-label">Satisfied by</span>
             <span class="info-courses">{{ node.sat_courses.join(", ") }}</span>
@@ -61,8 +64,8 @@
             :href="safeHref(node.url)"
             target="_blank"
             rel="noopener"
-            >Official requirements ↗</a
-          >
+            >Official requirements <g-icon name="external" :size="11"
+          /></a>
         </div>
       </g-popover>
       <span v-if="showPercent" class="branch-bar" aria-hidden="true">
@@ -100,6 +103,7 @@
       tabindex="0"
       @click="onLeafClick"
       @keydown.enter.prevent="onLeafClick"
+      @keydown.space.prevent="onLeafClick"
       @pointerdown="onLeafPointerDown"
       @mouseenter="onLeafHover"
       @mouseleave="clearAuditHighlight()"
@@ -131,7 +135,7 @@
         >
       </span>
 
-      <span class="leaf-actions">
+      <span class="leaf-actions" @keydown.stop>
         <button
           v-if="!leafSatisfied && !node['plain-string']"
           class="row-action"
@@ -161,11 +165,10 @@
                 have completed.
               </p>
               <div class="manual-row">
-                <input
-                  v-model.number="manualDraft"
-                  class="manual-input"
-                  type="number"
-                  min="0"
+                <g-number-field
+                  v-model="manualDraft"
+                  compact
+                  :min="0"
                   :max="manualCutoff"
                 />
                 <span class="manual-of">of {{ manualCutoff }}</span>
@@ -235,6 +238,8 @@
 import { computed, ref, watch } from "vue";
 import GButton from "../../design/components/GButton.vue";
 import GIcon from "../../design/components/GIcon.vue";
+import GNumberField from "../../design/components/GNumberField.vue";
+import GProgress from "../../design/components/GProgress.vue";
 import GPopover from "../../design/components/GPopover.vue";
 import { isIgnored, isPetitioned } from "../../lib/audit";
 import { safeHref } from "../../lib/courseLinks";
@@ -655,7 +660,7 @@ export default { name: "ReqNode" };
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 2px;
+  gap: var(--space-05);
   flex-shrink: 0;
   min-width: 46px;
   opacity: 0;
@@ -721,17 +726,18 @@ export default { name: "ReqNode" };
   background: var(--g-line);
   overflow: hidden;
 }
-.info-bar-fill {
+/* :deep(): GProgress's own indicator, a grandchild from here. */
+:deep(.info-bar-fill) {
   display: block;
   height: 100%;
 }
-.info-bar-fill.tone-ok {
+:deep(.info-bar-fill.tone-ok) {
   background: var(--g-progress);
 }
-.info-bar-fill.tone-mid {
+:deep(.info-bar-fill.tone-mid) {
   background: var(--g-progress);
 }
-.info-bar-fill.tone-low {
+:deep(.info-bar-fill.tone-low) {
   background: var(--g-ink-3);
 }
 .info-label {
@@ -745,9 +751,12 @@ export default { name: "ReqNode" };
 .info-sat {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-05);
 }
 .info-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   font: var(--text-small);
   color: var(--g-accent);
   text-decoration: none;
@@ -758,26 +767,8 @@ export default { name: "ReqNode" };
   align-items: center;
   gap: var(--space-2);
 }
-/* the GInput shell recipe, at field-in-popover size */
-.manual-input {
-  font: var(--text-id);
-  color: var(--g-ink);
+.manual-row .g-number-field {
   width: 64px;
-  background: var(--g-surface);
-  border: none;
-  border-radius: var(--radius-xs);
-  box-shadow: inset 0 0 0 1px var(--g-line-strong);
-  padding: var(--space-1) var(--space-2);
-  outline: none;
-  transition: box-shadow var(--motion-quick) var(--ease-out);
-}
-.manual-input:hover {
-  box-shadow: inset 0 0 0 1px var(--g-ink-3);
-}
-.manual-input:focus {
-  box-shadow:
-    inset 0 0 0 1.5px var(--g-accent),
-    0 0 0 3px var(--g-accent-tint);
 }
 .manual-of {
   font: var(--text-small);
@@ -788,7 +779,7 @@ export default { name: "ReqNode" };
 .petition-courses {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-05);
   max-height: 180px;
   overflow-y: auto;
 }
@@ -798,7 +789,7 @@ export default { name: "ReqNode" };
   gap: var(--space-2);
   font: var(--text-small);
   cursor: pointer;
-  padding: 2px var(--space-1);
+  padding: var(--space-05) var(--space-1);
   border-radius: var(--radius-xs);
 }
 .petition-course:hover {

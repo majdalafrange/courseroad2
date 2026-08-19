@@ -1,46 +1,57 @@
 <template>
-  <teleport to="body">
-    <transition name="g-sheet">
-      <div
-        v-if="modelValue"
+  <DialogRoot :open="modelValue" modal @update:open="onUpdateOpen">
+    <DialogPortal>
+      <DialogOverlay
         class="g-sheet-scrim"
         :class="{ opaque: scrim === 'opaque' }"
-        @click.self="close"
+      />
+      <DialogContent
+        class="g-sheet-panel"
+        :style="{ width }"
+        :aria-describedby="undefined"
+        v-bind="$attrs"
+        @escape-key-down="onEscapeKeyDown"
+        @interact-outside="onInteractOutside"
       >
-        <div
-          ref="sheetEl"
-          class="g-sheet-panel"
-          role="dialog"
-          aria-modal="true"
-          :aria-label="label"
-          tabindex="-1"
-          :style="{ width }"
-          v-bind="$attrs"
+        <VisuallyHidden as-child>
+          <DialogTitle>{{ label }}</DialogTitle>
+        </VisuallyHidden>
+        <button
+          v-if="closeButton && dismissible"
+          class="g-sheet-close"
+          aria-label="Close"
+          @click="close"
         >
-          <button
-            v-if="closeButton && dismissible"
-            class="g-sheet-close"
-            aria-label="Close"
-            @click="close"
-          >
-            <g-icon name="close" :size="16" />
-          </button>
-          <slot />
-        </div>
-      </div>
-    </transition>
-  </teleport>
+          <g-icon name="close" :size="16" />
+        </button>
+        <slot />
+      </DialogContent>
+    </DialogPortal>
+  </DialogRoot>
 </template>
 
 <script setup lang="ts">
 /*
- * The modal sheet primitive: scrim, panel, and the keyboard contract
- * every modal owes. Escape closes one layer (marked consumed via
- * preventDefault, the same convention as GPopover), Tab stays inside,
- * and focus returns to the opener on close. Dialogs that need their own
- * chrome pass :close-button="false" and keep the rest.
+ * The modal sheet primitive: scrim, panel, and the keyboard contract every
+ * modal owes. Focus trapping, body-scroll locking, and returning focus to
+ * whatever had it before opening are all Reka UI's Dialog (it captures
+ * `document.activeElement` itself when content mounts, since there's no
+ * `DialogTrigger` here: every caller opens this from its own separate
+ * button, not a slot inside this component). This file adds only the one
+ * behavior that's specific to how this app's layers cooperate: Escape
+ * closes one layer, so it's marked consumed for window-level listeners
+ * (canvas, class detail) instead of also bubbling to them.
  */
-import { nextTick, onBeforeUnmount, ref, watch } from "vue";
+import {
+  DialogContent,
+  DialogOverlay,
+  DialogPortal,
+  DialogRoot,
+  DialogTitle,
+  VisuallyHidden,
+  type FocusOutsideEvent,
+  type PointerDownOutsideEvent,
+} from "reka-ui";
 import GIcon from "./GIcon.vue";
 
 defineOptions({ inheritAttrs: false });
@@ -48,7 +59,7 @@ defineOptions({ inheritAttrs: false });
 const props = withDefaults(
   defineProps<{
     modelValue: boolean;
-    /** Accessible dialog name (aria-label). */
+    /** Accessible dialog name. */
     label: string;
     /** Panel width; the panel never exceeds the viewport. */
     width?: string;
@@ -69,98 +80,73 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: boolean): void;
 }>();
 
-const sheetEl = ref<HTMLElement | null>(null);
-let opener: HTMLElement | null = null;
-
 function close() {
   if (props.dismissible) {
     emit("update:modelValue", false);
   }
 }
 
-function onKeydown(event: KeyboardEvent) {
-  if (!props.modelValue) {
-    return;
-  }
-  if (event.key === "Escape" && !event.defaultPrevented && props.dismissible) {
-    // One Escape closes one layer: mark it consumed so window-level
-    // listeners (canvas, class detail) skip this keypress.
-    event.preventDefault();
-    close();
-    return;
-  }
-  if (event.key === "Tab") {
-    trapTab(event);
-  }
+// Reka's own dismiss (Escape, outside click) always calls this; forward
+// it as-is (blocked below for a non-dismissible sheet before it fires).
+function onUpdateOpen(open: boolean) {
+  emit("update:modelValue", open);
 }
 
-const FOCUSABLE =
-  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
-function trapTab(event: KeyboardEvent) {
-  const panel = sheetEl.value;
-  if (panel === null) {
+function onEscapeKeyDown(event: KeyboardEvent) {
+  if (event.defaultPrevented) {
+    // Already consumed by an inner layer (a popover open on top of this
+    // sheet); one Escape closes one layer, so this one sits still.
     return;
   }
-  const focusables = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE));
-  if (focusables.length === 0) {
+  if (!props.dismissible) {
+    // Block Reka's own auto-dismiss; a forced-choice sheet ignores Escape.
     event.preventDefault();
     return;
   }
-  const first = focusables[0];
-  const last = focusables[focusables.length - 1];
-  const active = document.activeElement;
-  const inside = panel.contains(active);
-  if (event.shiftKey && (!inside || active === first || active === panel)) {
-    event.preventDefault();
-    last.focus();
-  } else if (!event.shiftKey && (!inside || active === last)) {
-    event.preventDefault();
-    first.focus();
-  }
+  // Mark it consumed so window-level listeners (canvas, class detail)
+  // skip this keypress too.
+  event.preventDefault();
+  close();
 }
 
-watch(
-  () => props.modelValue,
-  async (open) => {
-    if (open) {
-      opener =
-        document.activeElement instanceof HTMLElement
-          ? document.activeElement
-          : null;
-      document.addEventListener("keydown", onKeydown);
-      await nextTick();
-      sheetEl.value?.focus();
-    } else {
-      document.removeEventListener("keydown", onKeydown);
-      opener?.focus();
-      opener = null;
-    }
-  },
-  // immediate: a sheet can be mounted already open (e.g. v-if hosts).
-  { immediate: true },
-);
-
-onBeforeUnmount(() => {
-  document.removeEventListener("keydown", onKeydown);
-});
+function onInteractOutside(event: PointerDownOutsideEvent | FocusOutsideEvent) {
+  if (!props.dismissible) {
+    event.preventDefault();
+  }
+}
 </script>
 
-<style scoped>
+<style>
+/* Not scoped: see GPopover.vue's note. DialogContent/DialogOverlay are
+   teleported through several layers of Reka's own components, and Vue's
+   scoped-CSS attribute doesn't reliably survive that chain. */
 .g-sheet-scrim {
   position: fixed;
   inset: 0;
   background: var(--g-scrim);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 100;
 }
 .g-sheet-scrim.opaque {
   background: var(--g-bg);
 }
+.g-sheet-scrim[data-state="open"] {
+  animation: g-sheet-fade-in var(--motion-standard) var(--ease-out);
+}
+/* An opaque scrim is a full takeover (first-run onboarding): whatever it
+   covers must never be visible through it, not even for a fade-in's
+   first frame, so it skips the animation and appears instantly. */
+.g-sheet-scrim.opaque[data-state="open"] {
+  animation: none;
+}
+.g-sheet-scrim[data-state="closed"] {
+  animation: g-sheet-fade-out var(--motion-quick) var(--ease-in);
+}
+
 .g-sheet-panel {
-  position: relative;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   max-width: calc(100vw - 32px);
   max-height: calc(100vh - 64px);
   background: var(--g-surface);
@@ -170,7 +156,25 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   outline: none;
+  z-index: 100;
 }
+.g-sheet-panel[data-state="open"] {
+  animation: g-sheet-fade-in var(--motion-standard) var(--ease-out);
+}
+.g-sheet-panel[data-state="closed"] {
+  animation: g-sheet-fade-out var(--motion-quick) var(--ease-in);
+}
+@keyframes g-sheet-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes g-sheet-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
 .g-sheet-close {
   position: absolute;
   top: var(--space-3);
@@ -190,20 +194,5 @@ onBeforeUnmount(() => {
 }
 .g-sheet-close:hover {
   color: var(--g-ink);
-}
-
-.g-sheet-enter-active {
-  transition: opacity var(--motion-standard) var(--ease-out);
-}
-.g-sheet-leave-active {
-  transition: opacity var(--motion-quick) var(--ease-in);
-}
-.g-sheet-enter-from,
-.g-sheet-leave-to {
-  opacity: 0;
-}
-/* Full takeover for onboarding screen. */
-.g-sheet-scrim.opaque.g-sheet-enter-from {
-  opacity: 1;
 }
 </style>

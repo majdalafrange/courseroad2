@@ -46,7 +46,17 @@
       <p v-if="subject.description" class="head-desc">
         {{ subject.description }}
       </p>
-      <p v-if="headMeta" class="head-meta">{{ headMeta }}</p>
+      <p v-if="headMetaParts.length" class="head-meta">
+        <template v-for="(part, i) in headMetaParts" :key="i"
+          ><span v-if="i > 0"> · </span
+          ><g-icon
+            v-if="part.icon"
+            :name="part.icon"
+            :size="10"
+            class="rating-icon"
+          />{{ part.icon ? " " : "" }}{{ part.text }}</template
+        >
+      </p>
       <div class="head-actions">
         <g-button
           v-if="isOnRoad"
@@ -180,14 +190,14 @@
                       v-if="n.onCanvas"
                       class="oncanvas-flag"
                       title="On the graph"
-                      >●</span
-                    >
+                    />
                   </span>
                   <span class="neighbor-title">{{ n.subject.title }}</span>
                   <span class="neighbor-reason">{{ n.reason }}</span>
                   <span class="neighbor-meta">
                     <template v-if="n.rating"
-                      >★ {{ n.rating.toFixed(1) }}</template
+                      ><g-icon name="star" :size="10" class="rating-icon" />
+                      {{ n.rating.toFixed(1) }}</template
                     >
                     <template v-if="n.hours">
                       · {{ Math.round(n.hours) }}h/wk</template
@@ -340,22 +350,23 @@ const headMissingApproximate = computed(() => {
   );
 });
 
-/** "12 units · ★ 6.3 · ~15h/wk · Fall, Spring" for the selected subject. */
-const headMeta = computed(() => {
+/** "12 units", a star rating, "~15h/wk", "Fall, Spring" for the selected
+ *  subject, dot-joined by the template. */
+const headMetaParts = computed(() => {
   const s = subject.value;
   if (s === undefined) {
-    return "";
+    return [];
   }
-  const parts: string[] = [];
+  const parts: { icon?: "star"; text: string }[] = [];
   if (s.total_units) {
-    parts.push(`${s.total_units} units`);
+    parts.push({ text: `${s.total_units} units` });
   }
   if (s.rating) {
-    parts.push(`★ ${s.rating.toFixed(1)}`);
+    parts.push({ icon: "star", text: s.rating.toFixed(1) });
   }
   const hours = (s.in_class_hours ?? 0) + (s.out_of_class_hours ?? 0);
   if (hours > 0) {
-    parts.push(`~${Math.round(hours)}h/wk`);
+    parts.push({ text: `~${Math.round(hours)}h/wk` });
   }
   const terms = [
     s.offered_fall ? "Fall" : undefined,
@@ -363,9 +374,9 @@ const headMeta = computed(() => {
     s.offered_spring ? "Spring" : undefined,
   ].filter((t) => t !== undefined);
   if (terms.length > 0) {
-    parts.push(terms.join(", "));
+    parts.push({ text: terms.join(", ") });
   }
-  return parts.join(" · ");
+  return parts;
 });
 
 /** Meta-line copy for a row's readiness (missing gets its own chips row). */
@@ -469,7 +480,7 @@ function toggleExpand() {
 .head-title {
   font: var(--text-body);
   color: var(--g-ink-2);
-  margin: 2px 0 0;
+  margin: var(--space-05) 0 0;
 }
 .head-facts {
   font: var(--text-small);
@@ -483,7 +494,7 @@ function toggleExpand() {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   margin-top: var(--space-2);
 }
 .head-desc {
@@ -540,7 +551,7 @@ function toggleExpand() {
   background: transparent;
   border: 1px solid var(--g-line-strong);
   border-radius: var(--radius-sm);
-  padding: 4px var(--space-2);
+  padding: var(--space-1) var(--space-2);
   cursor: pointer;
 }
 .icon-action:hover {
@@ -689,9 +700,11 @@ function toggleExpand() {
   color: var(--g-info);
 }
 .oncanvas-flag {
-  /* 7px was below any legible size; micro is the type scale's floor. */
-  font: var(--text-micro);
-  color: var(--g-accent);
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--g-accent);
+  flex-shrink: 0;
 }
 .neighbor-title {
   font: var(--text-small);
@@ -709,11 +722,15 @@ function toggleExpand() {
   font: var(--text-micro);
   color: var(--g-ink-3);
 }
+.rating-icon {
+  display: inline-block;
+  vertical-align: -1px;
+}
 .neighbor-missing {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   padding: 0 var(--space-2) var(--space-2)
     calc(var(--space-2) + 4px + var(--space-2));
 }
@@ -721,7 +738,7 @@ function toggleExpand() {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 2px;
+  gap: var(--space-05);
   padding-right: var(--space-1);
 }
 .mini {

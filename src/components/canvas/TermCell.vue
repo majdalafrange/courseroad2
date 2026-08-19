@@ -100,15 +100,16 @@
           </template>
         </g-tooltip>
       </div>
-      <div
+      <g-progress
         v-if="index !== 0 && subjects.length"
         class="load-gauge"
         :class="loadTone"
-        role="img"
-        :aria-label="`${info.totalExpectedHours.toFixed(0)} expected hours per week`"
-      >
-        <span class="load-fill" :style="{ width: loadPercent + '%' }" />
-      </div>
+        fill-class="load-fill"
+        :value="loadPercent"
+        :get-value-label="
+          () => `${info.totalExpectedHours.toFixed(0)} expected hours per week`
+        "
+      />
     </header>
 
     <div v-if="!collapsedPrior" class="term-classes">
@@ -163,6 +164,7 @@
 import { computed, onBeforeUnmount } from "vue";
 import ClassCard from "./ClassCard.vue";
 import GIcon from "../../design/components/GIcon.vue";
+import GProgress from "../../design/components/GProgress.vue";
 import GTooltip from "../../design/components/GTooltip.vue";
 import { semesterInformation } from "../../lib/hours";
 import { hydrantURL } from "../../lib/hydrant";
@@ -533,17 +535,18 @@ const placementAriaLabel = computed(() => {
 .load-gauge::after {
   left: 91.7%;
 }
-.load-fill {
+/* :deep(): GProgress's own indicator, a grandchild from here. */
+:deep(.load-fill) {
   display: block;
   height: 100%;
   border-radius: var(--radius-full);
   background: var(--g-ink-3);
   transition: width var(--motion-standard) var(--ease-out);
 }
-.load-warn .load-fill {
+.load-warn :deep(.load-fill) {
   background: var(--g-warn);
 }
-.load-danger .load-fill {
+.load-danger :deep(.load-fill) {
   background: var(--g-danger);
 }
 
@@ -688,14 +691,14 @@ const placementAriaLabel = computed(() => {
   background: var(--g-surface);
   color: var(--g-ink);
   border-radius: var(--radius-full);
-  padding: 2px var(--space-3);
+  padding: var(--space-05) var(--space-3);
   box-shadow: var(--shadow-2);
 }
 
 .hours-detail {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-05);
   font: var(--text-small);
 }
 .hours-detail em {
@@ -707,6 +710,6 @@ const placementAriaLabel = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 1px;
-  padding: 2px 0;
+  padding: var(--space-05) 0;
 }
 </style>

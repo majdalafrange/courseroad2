@@ -34,7 +34,7 @@
       <div class="node-body">
         <div class="node-headline">
           <span class="node-id">{{ node.id }}</span>
-          <span v-if="node.pinned" class="node-flag" title="Pinned">●</span>
+          <span v-if="node.pinned" class="node-flag" title="Pinned" />
         </div>
         <div v-if="!compact" class="node-title" :title="node.subject.title">
           {{ node.subject.title }}
@@ -269,7 +269,7 @@ function onKeydown(event: KeyboardEvent) {
   padding: 6px 4px 6px 18px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-05);
 }
 .compact .node-body {
   justify-content: center;
@@ -287,9 +287,11 @@ function onKeydown(event: KeyboardEvent) {
   font-weight: 600;
 }
 .node-flag {
-  /* 8px was below any legible size; micro is the type scale's floor. */
-  font: var(--text-micro);
-  color: var(--g-accent);
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--g-accent);
+  flex-shrink: 0;
 }
 .node-title {
   font: var(--text-small);

@@ -1,23 +1,60 @@
 <template>
-  <div ref="anchorEl" class="g-popover-anchor">
-    <slot name="anchor" :toggle="toggle" :open="openPopover" :close="close" />
-    <teleport to="body">
-      <div
-        v-if="modelValue"
-        ref="popoverEl"
+  <PopoverRoot
+    :open="modelValue"
+    @update:open="emit('update:modelValue', $event)"
+  >
+    <PopoverAnchor
+      ref="anchorEl"
+      as="div"
+      class="g-popover-anchor"
+      v-bind="$attrs"
+    >
+      <slot name="anchor" :toggle="toggle" :open="openPopover" :close="close" />
+    </PopoverAnchor>
+    <PopoverPortal>
+      <PopoverContent
         class="g-popover"
         :class="[placement, align, { menu }]"
-        :style="popStyle"
+        :side="placement"
+        :align="align"
+        :side-offset="6"
+        :collision-padding="8"
         role="dialog"
+        @escape-key-down="onEscapeKeyDown"
+        @interact-outside="onInteractOutside"
       >
         <slot :close="close" />
-      </div>
-    </teleport>
-  </div>
+      </PopoverContent>
+    </PopoverPortal>
+  </PopoverRoot>
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+/**
+ * Teleporting, viewport-collision positioning, and outside-click detection
+ * are all Reka UI's Popper/DismissableLayer; this file adds the two bits
+ * that are specific to how this app's layers cooperate:
+ *  - a re-click on the anchor toggles through the caller's own handler
+ *    (every #anchor slot already manages that), so it must not also count
+ *    as an outside interaction and re-close what the click just opened.
+ *  - Escape closes one layer, so it's marked consumed for window-level
+ *    listeners (canvas, class detail) instead of also bubbling to them.
+ */
+import { ref } from "vue";
+import {
+  PopoverAnchor,
+  PopoverContent,
+  PopoverPortal,
+  PopoverRoot,
+  type FocusOutsideEvent,
+  type PointerDownOutsideEvent,
+} from "reka-ui";
+
+// PopoverRoot is context-only (no DOM node of its own), so a class or
+// attrs passed to <g-popover> can't fall through to it automatically;
+// forward $attrs to the anchor by hand instead, the element that
+// actually sits in the caller's layout.
+defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(
   defineProps<{
@@ -34,10 +71,7 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: boolean): void;
 }>();
 
-const anchorEl = ref<HTMLElement>();
-const popoverEl = ref<HTMLElement>();
-/** Hidden until measured, so the first frame never flashes at (0,0). */
-const popStyle = ref<Record<string, string>>({ visibility: "hidden" });
+const anchorEl = ref<InstanceType<typeof PopoverAnchor>>();
 
 function toggle() {
   emit("update:modelValue", !props.modelValue);
@@ -49,106 +83,34 @@ function close() {
   emit("update:modelValue", false);
 }
 
-/**
- * The popover is teleported to <body> and positioned in fixed coordinates
- * next to its anchor. This escapes the scrolling canvas (overflow: auto) and
- * the shell's overflow: hidden, which would otherwise clip it. We flip the
- * placement when there isn't room and clamp to the viewport so the content is
- * always fully visible.
- */
-function position() {
-  const anchor = anchorEl.value?.getBoundingClientRect();
-  if (anchor === undefined) {
+function onEscapeKeyDown(event: KeyboardEvent) {
+  if (event.defaultPrevented) {
+    // Already consumed by an inner layer; one Escape closes one layer.
     return;
   }
-  const pop = popoverEl.value?.getBoundingClientRect();
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const margin = 8;
-  const gap = 6;
-  const popW = pop?.width ?? 220;
-  const popH = pop?.height ?? 0;
-
-  const below = anchor.bottom + gap;
-  const above = anchor.top - gap - popH;
-  let top: number;
-  if (props.placement === "top") {
-    top = above >= margin ? above : below;
-  } else {
-    top = below + popH <= vh - margin || above < margin ? below : above;
-  }
-
-  let left = props.align === "end" ? anchor.right - popW : anchor.left;
-
-  left = Math.min(Math.max(left, margin), Math.max(margin, vw - margin - popW));
-  top = Math.min(Math.max(top, margin), Math.max(margin, vh - margin - popH));
-
-  popStyle.value = {
-    position: "fixed",
-    top: `${Math.round(top)}px`,
-    left: `${Math.round(left)}px`,
-  };
+  event.preventDefault();
+  close();
 }
 
-function onDocumentClick(event: MouseEvent) {
-  const target = event.target as Node;
-  if (
-    props.modelValue &&
-    !(anchorEl.value?.contains(target) ?? false) &&
-    !(popoverEl.value?.contains(target) ?? false)
-  ) {
-    close();
-  }
-}
-
-function onKeydown(event: KeyboardEvent) {
-  if (props.modelValue && event.key === "Escape" && !event.defaultPrevented) {
-    // Mark the Escape consumed so window-level listeners (canvas, class
-    // detail) skip it, and so a second open popover doesn't also close
-    // on the same keypress; one keypress closes one layer.
+function onInteractOutside(event: PointerDownOutsideEvent | FocusOutsideEvent) {
+  const anchor = anchorEl.value?.$el as HTMLElement | undefined;
+  if (anchor?.contains(event.target as Node | null)) {
     event.preventDefault();
-    close();
   }
 }
-
-watch(
-  () => props.modelValue,
-  async (open) => {
-    if (open) {
-      popStyle.value = { visibility: "hidden" };
-      await nextTick();
-      position();
-      // Reposition while open so the popover stays glued to its anchor as the
-      // canvas (or any ancestor) scrolls. Capture catches non-bubbling scroll.
-      window.addEventListener("scroll", position, true);
-      window.addEventListener("resize", position);
-    } else {
-      window.removeEventListener("scroll", position, true);
-      window.removeEventListener("resize", position);
-    }
-  },
-);
-
-onMounted(() => {
-  document.addEventListener("click", onDocumentClick, true);
-  document.addEventListener("keydown", onKeydown);
-});
-onBeforeUnmount(() => {
-  document.removeEventListener("click", onDocumentClick, true);
-  document.removeEventListener("keydown", onKeydown);
-  window.removeEventListener("scroll", position, true);
-  window.removeEventListener("resize", position);
-});
 </script>
 
-<style scoped>
+<style>
+/* Not scoped: PopoverContent is teleported out through several layers of
+   Reka's own internal components before reaching a real DOM node, and
+   Vue's scoped-CSS attribute doesn't reliably survive that chain (Reka's
+   own styling guide calls this out for any teleported content). The g-*
+   classes here are unique enough app-wide that a global rule is safe. */
 .g-popover-anchor {
-  position: relative;
   display: inline-flex;
   min-width: 0;
 }
 .g-popover {
-  position: fixed;
   z-index: 50;
   min-width: 220px;
   background: var(--g-surface);
@@ -156,20 +118,17 @@ onBeforeUnmount(() => {
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-3);
   padding: var(--space-3);
-  transform-origin: top left;
-}
-.g-popover.top {
-  transform-origin: bottom left;
-}
-.g-popover.end {
-  transform-origin: top right;
+  transform-origin: var(--reka-popover-content-transform-origin);
 }
 .g-popover.menu {
   padding: var(--space-1);
 }
-/* Self-contained entry animation (no Vue <transition>, so open/close never
-   depend on a transition completing). Closing is an instant unmount. */
-.g-popover {
+/* Entry animation only, scoped to data-state (Reka's Presence reads
+   computed animation-name to decide whether to wait for an exit
+   animation before unmounting; an unconditional rule here would read as
+   "still animating" on close and delay it a tick for no visual gain).
+   Closing stays an instant unmount. */
+.g-popover[data-state="open"] {
   animation: g-pop-in var(--motion-quick) var(--ease-out);
 }
 @keyframes g-pop-in {

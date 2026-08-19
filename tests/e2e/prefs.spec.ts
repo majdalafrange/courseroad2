@@ -32,7 +32,8 @@ test("theme follows the OS by default, and an explicit choice survives a reload"
 test("the year choice survives a reload", async ({ page }) => {
   await expect(cy(page, "semester_title")).toContainText("Freshman");
   await cy(page, "semester_title").click();
-  await cy(page, "selectClassYear").selectOption("2");
+  await cy(page, "selectClassYear").click();
+  await page.getByRole("option", { name: "Junior" }).click();
   await expect(cy(page, "semester_title")).toContainText("Junior");
 
   await page.reload();

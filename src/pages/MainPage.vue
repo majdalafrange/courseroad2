@@ -63,20 +63,21 @@
                 target="_blank"
                 rel="noopener noreferrer"
                 href="https://student.mit.edu/catalog/index.cgi"
-                >Subject listing ↗</a
-              >
+                >Subject listing <g-icon name="external" :size="11"
+              /></a>
               <a
                 target="_blank"
                 rel="noopener noreferrer"
                 href="https://catalog.mit.edu/degree-charts/"
-                >Degree charts ↗</a
-              >
+                >Degree charts <g-icon name="external" :size="11"
+              /></a>
               <a
                 target="_blank"
                 rel="noopener noreferrer"
                 href="https://fireroad.mit.edu/requirements/"
-                >Requirement wrong? Request an edit ↗</a
-              >
+                >Requirement wrong? Request an edit
+                <g-icon name="external" :size="11"
+              /></a>
               <a href="mailto:courseroad@mit.edu">courseroad@mit.edu</a>
             </div>
           </g-popover>
@@ -816,6 +817,9 @@ onBeforeUnmount(() => {
   font: var(--text-small);
 }
 .foot-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   color: var(--g-ink-2);
   text-decoration: none;
 }

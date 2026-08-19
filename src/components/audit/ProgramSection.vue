@@ -14,6 +14,7 @@
       :aria-expanded="collapsed ? undefined : open"
       @click="toggleOpen"
       @keydown.enter.prevent="toggleOpen"
+      @keydown.space.prevent="toggleOpen"
     >
       <svg
         class="program-ring"
@@ -47,6 +48,7 @@
               :aria-label="`Retry computing ${title}`"
               @click.stop="retry"
               @keydown.enter.stop
+              @keydown.space.stop
             >
               Retry
             </button>
@@ -60,10 +62,16 @@
         :aria-label="`${anyCollapsed ? 'Expand' : 'Collapse'} all of ${title}`"
         @click.stop="toggleAll"
         @keydown.enter.stop
+        @keydown.space.stop
       >
         {{ anyCollapsed ? "Expand all" : "Collapse all" }}
       </button>
-      <span v-if="preview" class="preview-actions">
+      <span
+        v-if="preview"
+        class="preview-actions"
+        @keydown.enter.stop
+        @keydown.space.stop
+      >
         <g-button
           size="sm"
           variant="primary"
@@ -85,6 +93,8 @@
         :aria-label="`Remove ${title}`"
         data-cy="removeProgramButton"
         @click.stop="emit('remove')"
+        @keydown.enter.stop
+        @keydown.space.stop
       >
         <g-icon name="close" :size="12" />
       </button>
@@ -104,8 +114,8 @@
         :href="safeHref(tree.url)"
         target="_blank"
         rel="noopener"
-        >Official {{ title }} requirements ↗</a
-      >
+        >Official {{ title }} requirements <g-icon name="external" :size="11"
+      /></a>
     </div>
   </section>
 </template>
@@ -415,7 +425,7 @@ watch(
   background: transparent;
   border: none;
   border-radius: var(--radius-xs);
-  padding: 2px var(--space-2);
+  padding: var(--space-05) var(--space-2);
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
@@ -471,7 +481,9 @@ watch(
   padding: 0 var(--space-2) var(--space-3);
 }
 .program-link {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   font: var(--text-small);
   color: var(--g-ink-3);
   text-decoration: none;

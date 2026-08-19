@@ -81,7 +81,8 @@
           data-cy="cardRating"
         >
           <a :href="evaluationsUrl" target="_blank" rel="noopener"
-            >★ {{ subject.rating.toFixed(1) }}</a
+            ><g-icon name="star" :size="11" />
+            {{ subject.rating.toFixed(1) }}</a
           ><span class="stat-label">/7</span>
         </span>
         <span v-if="totalHours !== null" class="stat" data-cy="cardHours">
@@ -226,22 +227,22 @@
             :href="safeHref(subject.url)"
             target="_blank"
             rel="noopener"
-            >Catalog ↗</a
-          >
+            >Catalog <g-icon name="external" :size="11"
+          /></a>
           <a
             v-if="inCatalog"
             :href="evaluationsUrl"
             target="_blank"
             rel="noopener"
-            >Evaluations ↗</a
-          >
+            >Evaluations <g-icon name="external" :size="11"
+          /></a>
           <a
             v-if="inCatalog"
             :href="openGradesUrl"
             target="_blank"
             rel="noopener"
-            >OpenGrades ↗</a
-          >
+            >OpenGrades <g-icon name="external" :size="11"
+          /></a>
         </div>
       </section>
 
@@ -737,7 +738,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
   color: var(--g-ink-3);
   background: transparent;
   border: none;
-  padding: 2px var(--space-1);
+  padding: var(--space-05) var(--space-1);
   border-radius: var(--radius-xs);
   cursor: pointer;
   white-space: nowrap;
@@ -840,7 +841,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 2px var(--space-1);
+  padding: var(--space-05) var(--space-1);
   border-radius: var(--radius-xs);
 }
 .onroad-action:hover {
@@ -866,6 +867,9 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
   gap: 3px;
 }
 .stat a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-05);
   color: inherit;
   text-decoration: none;
 }
@@ -1099,6 +1103,9 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
   flex-wrap: wrap;
 }
 .external-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   font: var(--text-small);
   color: var(--g-accent);
   text-decoration: none;
