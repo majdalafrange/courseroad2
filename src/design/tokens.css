@@ -3,8 +3,8 @@
  * families, a deep MIT garnet accent, motion that explains where things
  * come from.
  *
- * TYPE, two voices, self-hosted: IBM Plex Sans (display/headings/wordmark
- * AND UI/body, matching Hydrant, MIT's other SIPB
+ * TYPE, two voices, self-hosted: IBM Plex Sans Variable (display/headings
+ & /wordmark AND UI/body, matching Hydrant, MIT's other SIPB
  * planning tool) and IBM Plex Mono (subject ids/numbers, tabular so
  * "6.006" scans like a coordinate; also shared with Hydrant).
  *
@@ -77,8 +77,8 @@
   /* ---------- type ---------- */
   /* --font-display and --font-text are the same stack on purpose (see the
      TYPE note above): one voice for headings and body, matching Hydrant. */
-  --font-display: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
-  --font-text: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-display: "IBM Plex Sans Variable", "Helvetica Neue", Arial, sans-serif;
+  --font-text: "IBM Plex Sans Variable", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "IBM Plex Mono", "SF Mono", "Cascadia Mono", monospace;
 
   /* type scale: 1.25 ratio anchored at 14px body */

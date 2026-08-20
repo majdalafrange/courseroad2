@@ -14,8 +14,7 @@ import {
   semesterCalendarYearShort,
   semesterType,
 } from "./offering";
-import ibmPlexSansRegularUrl from "@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-400-normal.woff2?url";
-import ibmPlexSansBoldUrl from "@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-600-normal.woff2?url";
+import ibmPlexSansUrl from "@fontsource-variable/ibm-plex-sans/files/ibm-plex-sans-latin-wdth-normal.woff2?url";
 import ibmPlexMonoMediumUrl from "@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-500-normal.woff2?url";
 
 let fontFaceCss = "";
@@ -34,15 +33,13 @@ async function toBase64(url: string): Promise<string> {
 export function preparePosterFonts(): Promise<void> {
   fontFacesPromise ??= (async () => {
     try {
-      const [sansRegular, sansBold, monoMedium] = await Promise.all([
-        toBase64(ibmPlexSansRegularUrl),
-        toBase64(ibmPlexSansBoldUrl),
+      const [sans, monoMedium] = await Promise.all([
+        toBase64(ibmPlexSansUrl),
         toBase64(ibmPlexMonoMediumUrl),
       ]);
       fontFaceCss =
         `<style>` +
-        `@font-face{font-family:'IBM Plex Sans';font-weight:400;src:url(data:font/woff2;base64,${sansRegular}) format('woff2');}` +
-        `@font-face{font-family:'IBM Plex Sans';font-weight:600;src:url(data:font/woff2;base64,${sansBold}) format('woff2');}` +
+        `@font-face{font-family:'IBM Plex Sans Variable';font-weight: 100 700;src:url(data:font/woff2;base64,${sans}) format('woff2');}` +
         `@font-face{font-family:'IBM Plex Mono';font-weight:500;src:url(data:font/woff2;base64,${monoMedium}) format('woff2');}` +
         `</style>`;
     } catch {
@@ -202,7 +199,7 @@ export function buildRoadPoster(
     const rowH = termHeaderH + maxCardsByYear[y] * (cardH + cardGap) + 16;
     // year label
     parts.push(
-      `<text x="${padding}" y="${cursorY - 8}" font-family="'IBM Plex Sans',sans-serif" font-size="16" font-weight="600" fill="${theme.ink}">${esc(yearNames[y])}</text>`,
+      `<text x="${padding}" y="${cursorY - 8}" font-family="'IBM Plex Sans Variable',sans-serif" font-size="16" font-weight="600" fill="${theme.ink}">${esc(yearNames[y])}</text>`,
     );
     for (let c = 0; c < 3; c++) {
       const index = 1 + y * 3 + c;
@@ -237,8 +234,8 @@ export function buildRoadPoster(
     <path d="M${padding + 4.5} ${padding + 12.5} L${padding + 9.3} ${padding - 2} L${padding + 14.7} ${padding - 2} L${padding + 19.5} ${padding + 12.5} Z" fill="#ffffff"/>
     <line x1="${padding + 12}" y1="${padding + 10}" x2="${padding + 12}" y2="${padding + 6.3}" stroke="${MARK_TILE}" stroke-width="2.1" stroke-linecap="round"/>
     <line x1="${padding + 12}" y1="${padding + 3.3}" x2="${padding + 12}" y2="${padding + 0.8}" stroke="${MARK_TILE}" stroke-width="1.7" stroke-linecap="round"/>
-    <text x="${padding + 34}" y="${padding + 10}" font-family="'IBM Plex Sans',sans-serif" font-size="22" font-weight="600" fill="${theme.ink}">${esc(truncateTitle(road.name))}</text>
-    <text x="${padding + 34}" y="${padding + 32}" font-family="'IBM Plex Sans',sans-serif" font-size="13" fill="${theme.ink3}">${totalUnits} units · planned in CourseRoad</text>
+    <text x="${padding + 34}" y="${padding + 10}" font-family="'IBM Plex Sans Variable',sans-serif" font-size="22" font-weight="600" fill="${theme.ink}">${esc(truncateTitle(road.name))}</text>
+    <text x="${padding + 34}" y="${padding + 32}" font-family="'IBM Plex Sans Variable',sans-serif" font-size="13" fill="${theme.ink3}">${totalUnits} units · planned in CourseRoad</text>
   `;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
@@ -251,9 +248,9 @@ ${parts.join("\n")}
 /**
  * Cap the header title the way subject titles are capped below: SVG text
  * does not wrap or clip, so an unbounded road name ran past the poster's
- * right edge. 48 characters of 22px IBM Plex Sans fit the 812px sheet.
- * Sliced by code point, not code unit, so the cut can never split an
- * astral character and emit invalid XML.
+ * right edge. 48 characters of 22px IBM Plex Sans Variable fit the 812px
+ * sheet. Sliced by code point, not code unit, so the cut can never split
+ * an astral character and emit invalid XML.
  */
 function truncateTitle(name: string): string {
   const chars = Array.from(name);
@@ -278,7 +275,7 @@ function termBlock(
     `<rect x="${x}" y="${y}" width="${w}" height="${blockH}" rx="10" fill="${theme.surface}" stroke="${theme.line}"/>`,
   );
   parts.push(
-    `<text x="${x + 14}" y="${y + 24}" font-family="'IBM Plex Sans',sans-serif" font-size="11" font-weight="600" letter-spacing="0.6" fill="${theme.ink3}">${esc(season.toUpperCase())} ${esc(yearLabel)}</text>`,
+    `<text x="${x + 14}" y="${y + 24}" font-family="'IBM Plex Sans Variable',sans-serif" font-size="11" font-weight="600" letter-spacing="0.6" fill="${theme.ink3}">${esc(season.toUpperCase())} ${esc(yearLabel)}</text>`,
   );
   let cy = y + headerH;
   for (const subj of subjects) {
@@ -298,9 +295,9 @@ function termBlock(
     );
     const rawTitle = subj.title ?? "";
     const title =
-      rawTitle.length > 28 ? rawTitle.slice(0, 25) + "..." : rawTitle;
+      rawTitle.length > 38 ? rawTitle.slice(0, 35) + "..." : rawTitle;
     parts.push(
-      `<text x="${x + 22}" y="${cy + 24}" font-family="'IBM Plex Sans',sans-serif" font-size="10" fill="${theme.ink2}">${esc(title)}</text>`,
+      `<text x="${x + 22}" y="${cy + 24}" font-family="'IBM Plex Sans Variable',sans-serif" font-size="10" fill="${theme.ink2}">${esc(title)}</text>`,
     );
     cy += cardH + cardGap;
   }
