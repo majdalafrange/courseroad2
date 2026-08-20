@@ -8,6 +8,7 @@
       </p>
       <g-button variant="primary" @click="reload">Reload CourseRoad</g-button>
     </div>
+    <router-view v-else-if="isStyleguide" />
     <template v-else>
       <div
         class="shell"
@@ -191,6 +192,9 @@ watch(
 
 const detailOpen = computed(() => store.classInfoStack.length > 0);
 const isExplore = computed(() => route.name === "/explore/[[road]]");
+// The styleguide is a self-contained reference page (its own header, its
+// own GToastHost) rather than part of the app.
+const isStyleguide = computed(() => route.name === "/styleguide");
 
 /* ---- theme: keep the applied attribute in sync with "system" ---- */
 useSystemThemeSync();
