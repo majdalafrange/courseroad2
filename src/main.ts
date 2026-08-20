@@ -72,6 +72,6 @@ app.config.errorHandler = (err, _instance, info) => {
 // visitor's catalog doesn't pop in late. Not waiting on router.isReady()
 // too: the route-dependent boot work now lives in a data loader attached
 // to the road/explore pages (loaders/appBoot.ts), not in App.vue.
-void isCacheReady().then(() => {
+void Promise.all([isCacheReady(), router.isReady()]).then(() => {
   app.mount("#app");
 });
