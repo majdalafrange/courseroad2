@@ -110,15 +110,22 @@ import NodePanel from "../../components/connections/NodePanel.vue";
 import GButton from "../../design/components/GButton.vue";
 import GInput from "../../design/components/GInput.vue";
 import { courseColor } from "../../lib/colors";
+import { useAppBootLoader } from "../../loaders/appBoot";
 import { SearchIndex } from "../../lib/search";
 import { flatten, type Subject } from "../../lib/types";
 import { useCourseDataStore } from "../../stores/courseData";
 import { useConnectionsStore } from "../../stores/connections";
+import { useIsMobile } from "../../composables/useIsMobile";
 
+// Attaches useAppBootLoader to this route (see loaders/appBoot.ts); the
+// catalog is already covered by App.vue's own useSubjectsLoader() call,
+// which every route shares regardless of which page happens to mount.
+useAppBootLoader();
 const route = useRoute();
 const router = useRouter();
 const courseData = useCourseDataStore();
 const store = useConnectionsStore();
+const isMobile = useIsMobile();
 
 const fromId = computed(() => {
   const q = route.query.from;
@@ -129,6 +136,20 @@ watch(
   fromId,
   (id) => {
     void store.open(id);
+  },
+  { immediate: true },
+);
+
+// explore page is not mobile-friendly, so redirect to the plan page on small screens
+watch(
+  isMobile,
+  (mobile) => {
+    if (mobile) {
+      router.replace({
+        name: "/road/[[road]]",
+        params: { road: courseData.activeRoad },
+      });
+    }
   },
   { immediate: true },
 );

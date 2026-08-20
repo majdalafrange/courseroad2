@@ -35,7 +35,7 @@ import {
   readValue,
   writeValue,
 } from "../../lib/appStorage";
-import { clearCachedCatalog } from "../../lib/catalogCache";
+import { clearPersistedQueryCache } from "../../loaders/courseData";
 import { clearExplorationSnapshot } from "../../lib/connections/persist";
 import { cookies } from "../../lib/cookies";
 import { useAuthStore } from "../../stores/auth";
@@ -77,7 +77,7 @@ function optOut() {
   dismissed.value = true;
   clearAppStorage();
   clearExplorationSnapshot();
-  void clearCachedCatalog();
+  void clearPersistedQueryCache();
   // The app no longer stores state in cookies, but a browser carrying
   // some from an older version should not keep them.
   for (const key of cookies.keys()) {

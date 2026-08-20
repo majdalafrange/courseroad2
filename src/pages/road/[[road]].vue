@@ -64,14 +64,14 @@
            scrolls with the cards instead of sitting still behind them. -->
       <div class="canvas-sheet">
         <canvas-glyphs />
-        <div v-if="store.catalogError" class="catalog-error" role="alert">
+        <div v-if="subjectsError" class="catalog-error" role="alert">
           <div>
             <strong>We couldn't load the subject catalog.</strong>
             <span>
               Check your connection. Your plan is safe in the meantime.
             </span>
           </div>
-          <g-button variant="primary" size="sm" @click="store.retryCatalog()">
+          <g-button variant="primary" size="sm" @click="refetchSubjects()">
             Try again
           </g-button>
         </div>
@@ -85,7 +85,7 @@
           Loading this road...
         </div>
 
-        <div v-if="showEmptyState && !store.catalogError" class="empty-state">
+        <div v-if="showEmptyState && !subjectsError" class="empty-state">
           <h2 class="empty-title">Search for a class</h2>
           <p class="empty-copy">
             Place it in a term, or add a major or minor on the
@@ -121,14 +121,18 @@ import GButton from "../../design/components/GButton.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GPopover from "../../design/components/GPopover.vue";
 import { useIsMobile } from "../../composables/useIsMobile";
+import { useAppBootLoader } from "../../loaders/appBoot";
+import { useSubjectsLoader } from "../../loaders/courseData";
 import { flatten } from "../../lib/types";
 import { requestPalette } from "../../stores/palette";
 import { useAuthStore } from "../../stores/auth";
 import { useCourseDataStore } from "../../stores/courseData";
 
+useAppBootLoader();
 const store = useCourseDataStore();
 const auth = useAuthStore();
 const isMobile = useIsMobile();
+const { error: subjectsError, refetch: refetchSubjects } = useSubjectsLoader();
 
 const footLinksOpen = ref(false);
 

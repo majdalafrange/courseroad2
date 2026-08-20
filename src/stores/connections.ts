@@ -66,6 +66,7 @@ import {
 } from "../lib/offering";
 import { announce } from "../design/announce";
 import { toast } from "../design/toast";
+import { useSubjectsLoader } from "../loaders/courseData";
 import { history } from "./history";
 import { useCourseDataStore } from "./courseData";
 import { useAuditStore } from "./audit";
@@ -744,13 +745,11 @@ export const useConnectionsStore = defineStore("connections", () => {
    */
   async function open(fromId?: string): Promise<void> {
     status.value = "loading";
-    try {
-      await courseData.waitLoadSubjects();
-    } catch {
-      status.value = "error";
-      return;
-    }
-    if (courseData.catalogError) {
+    // Called fresh rather than held from setup: this store is constructed
+    // in unit tests that never open an exploration and don't install the
+    // PiniaColada plugin, so this stays out of their way until needed.
+    const state = await useSubjectsLoader().refresh();
+    if (state.status === "error") {
       status.value = "error";
       return;
     }
@@ -1087,11 +1086,10 @@ export const useConnectionsStore = defineStore("connections", () => {
   }
 
   function retry(): void {
-    // retryCatalog can reject (it rethrows a network failure so the
-    // caller can react), but it also sets catalogError first, and the
-    // template already renders off that reactive flag.
-    courseData
-      .retryCatalog()
+    // refetch(true) rejects on a failed fetch, in which case open() is
+    // skipped and the error state from that failure just stands.
+    useSubjectsLoader()
+      .refetch(true)
       .then(() => open())
       .catch(() => {});
   }

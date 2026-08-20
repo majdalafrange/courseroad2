@@ -19,6 +19,7 @@ import {
   type ProgramFit,
   type ProgramProbe,
 } from "../lib/degreeFit";
+import { useReqListLoader } from "../loaders/courseData";
 import { formatRoadContents } from "../lib/roads";
 import { fireroad } from "./fireroadClient";
 import { useAuditStore } from "./audit";
@@ -169,9 +170,11 @@ export const useDegreeFitStore = defineStore("degreeFit", () => {
     total.value = 0;
 
     if (audit.reqList.length === 0) {
-      try {
-        await audit.loadReqList();
-      } catch {
+      // Called fresh rather than held from setup: this store is
+      // constructed in unit tests that never scan and don't install the
+      // PiniaColada plugin, so this stays out of their way until needed.
+      const state = await useReqListLoader().refresh();
+      if (state.status === "error") {
         if (token !== scanToken) {
           return;
         }

@@ -38,9 +38,7 @@ import {
   type ThemeMode,
 } from "../lib/persistedStore";
 import { systemPrefersDark } from "../design/tokens";
-import { loadCachedCatalog, saveCachedCatalog } from "../lib/catalogCache";
 import { bucketName, userYearFromSemester } from "../lib/offering";
-import { fireroad } from "./fireroadClient";
 import { history, setHistoryRoadFocus } from "./history";
 
 export interface RoadChangeEvent {
@@ -101,7 +99,6 @@ const getDefaultState = () => {
     activeClassIndex: 0,
     cookiesAllowed: undefined as boolean | undefined,
     customClassEditing: undefined as SelectedSubject | undefined,
-    fullSubjectsInfoLoaded: false,
     genericCourses: [] as Subject[],
     genericIndex: {} as Record<string, number>,
     itemAdding: undefined as Subject | undefined,
@@ -135,10 +132,7 @@ const getDefaultState = () => {
     fulfillmentNeeded: "all",
     // road IDs that have not been retrieved from the server yet
     unretrieved: [] as string[],
-    loadSubjectsPromise: undefined as Promise<void> | undefined,
     subjectsLoaded: false,
-    /** Set when the catalog can't load and nothing is cached. */
-    catalogError: false,
     roadsToMigrate: [] as string[],
     themeMode: persistedThemeMode() as ThemeMode,
     // The live OS/browser preference for light/dark mode, used to resolve themeMode === "system".
@@ -797,10 +791,6 @@ export const useCourseDataStore = defineStore("courseData", {
       this.activeRoad = activeRoad;
     },
 
-    setFullSubjectsInfoLoaded(isFull: boolean) {
-      this.fullSubjectsInfoLoaded = isFull;
-    },
-
     setLoggedIn(newLoggedIn: boolean) {
       this.loggedIn = newLoggedIn;
     },
@@ -966,12 +956,15 @@ export const useCourseDataStore = defineStore("courseData", {
       this.panelSide = side;
     },
 
-    /* ---- catalog loading (IndexedDB cache + background refresh) ---- */
+    /* ---- catalog loading ----
+       The fetch itself (cache, retry, cross-reload persistence) is
+       loaders/courseData.ts's useSubjectsLoader, a Pinia Colada query.
+       This is left with just applying a fetched catalog to the rest of
+       the store's state. */
 
     applyCatalog(subjects: Subject[]) {
       this.subjectsLoaded = true;
       this.setSubjectsInfo(subjects);
-      this.setFullSubjectsInfoLoaded(true);
       this.parseGenericCourses();
       this.parseGenericIndex();
       this.parseSubjectsIndex();
@@ -981,66 +974,15 @@ export const useCourseDataStore = defineStore("courseData", {
       this.clearMigrationQueue();
     },
 
-    async loadAllSubjects() {
-      const promise = (async () => {
-        // 1. Serve the cached catalog immediately if present.
-        const cached = await loadCachedCatalog();
-        if (cached !== undefined && cached.subjects.length > 0) {
-          this.applyCatalog(cached.subjects);
-        }
-        // 2. Refresh from the network (in the background when cached).
-        const refresh = async () => {
-          const response = await fireroad.getFullCatalog();
-          this.applyCatalog(response.data);
-          this.catalogError = false;
-          await saveCachedCatalog(
-            response.data,
-            import.meta.env.VITE_FIREROAD_URL,
-          );
-        };
-        if (cached === undefined || cached.subjects.length === 0) {
-          // Nothing to fall back on; a failure here is user-visible.
-          try {
-            await refresh();
-          } catch (e) {
-            this.catalogError = true;
-            throw e;
-          }
-        } else {
-          // We can keep working from cache; a stale catalog is fine.
-          refresh().catch((e) => {
-            console.warn("Background catalog refresh failed:", e);
-          });
-        }
-      })();
-      this.loadSubjectsPromise = promise;
-      await promise;
-    },
-
-    /** Retry catalog load after a failure (clears the loadSubjects memo). */
-    async retryCatalog() {
-      this.catalogError = false;
-      this.loadSubjectsPromise = undefined;
-      await this.loadAllSubjects();
-    },
-
-    async waitLoadSubjects(): Promise<void> {
-      if (this.loadSubjectsPromise !== undefined) {
-        return this.loadSubjectsPromise;
-      }
-      return this.loadAllSubjects();
-    },
-
     waitAndMigrateOldSubjects(roadID: string) {
       if (this.subjectsLoaded) {
         this.migrateOldSubjects(roadID);
       } else {
+        // App.vue's useSubjectsLoader() call already has the catalog in
+        // flight by the time any road is retrieved; this just queues
+        // the migration to drain in applyCatalog once it lands. Nothing
+        // to migrate against if that load ends up failing, which is fine.
         this.queueRoadMigration(roadID);
-        // Just here to kick off loading if nothing else has yet; the
-        // queued migration is drained by applyCatalog once subjects
-        // arrive. A load failure leaves it queued with nothing to
-        // migrate against, which is fine.
-        this.waitLoadSubjects().catch(() => {});
       }
     },
 

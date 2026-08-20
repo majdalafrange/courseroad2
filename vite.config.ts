@@ -43,7 +43,16 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
   },
   base: mode === "staging" ? "/dev/" : "/",
-  plugins: [VueRouter(), vue(), cspMeta(mode)],
+  plugins: [
+    VueRouter({
+      // Loaders in src/loaders/ are re-exported into any page that
+      // imports them, so vue-router's route scanner picks them up as
+      // that route's data loader without a page hand-writing the export.
+      experimental: { autoExportsDataLoaders: "src/loaders/**/*" },
+    }),
+    vue(),
+    cspMeta(mode),
+  ],
   test: {
     // Lib tests are pure TS and run in node; jsdom is opt-in, for the
     // store specs here and via a file pragma where a lib spec touches

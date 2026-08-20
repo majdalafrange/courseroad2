@@ -111,10 +111,11 @@ export const useAuditStore = defineStore("audit", {
       }
     },
 
-    async loadReqList() {
-      const response = await fireroad.getRequirementsList();
-      this.reqList = Object.keys(response.data)
-        .map((m) => Object.assign(response.data[m], { key: m }))
+    /** Applies a fetched requirements list; the fetch itself is
+     * loaders/courseData.ts's useReqListLoader, a Pinia Colada query. */
+    applyReqList(data: Record<string, Omit<ReqListEntry, "key">>) {
+      this.reqList = Object.keys(data)
+        .map((m) => Object.assign(data[m], { key: m }))
         .sort() as ReqListEntry[];
     },
 

@@ -1,8 +1,17 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
+import { PiniaColada } from "@pinia/colada";
+import {
+  PiniaColadaCachePersister,
+  isCacheReady,
+} from "@pinia/colada-plugin-cache-persister";
+import { PiniaColadaRetry } from "@pinia/colada-plugin-retry";
+import { get, set } from "idb-keyval";
+import { DataLoaderPlugin } from "vue-router/experimental";
 
 import { router } from "./router.ts";
 import App from "./App.vue";
+import { QUERY_CACHE_KEY } from "./loaders/courseData";
 
 // Fonts and design tokens.
 import "@fontsource-variable/ibm-plex-sans/index.css";
@@ -30,6 +39,24 @@ applyThemeAttribute(resolveTheme(persistedThemeMode(), systemPrefersDark()));
 const pinia = createPinia();
 const app = createApp(App);
 app.use(pinia);
+app.use(PiniaColada, {
+  plugins: [
+    // IndexedDB (idb-keyval), not localStorage: the catalog alone runs
+    // several MB, more than localStorage should carry.
+    PiniaColadaCachePersister({
+      key: QUERY_CACHE_KEY,
+      storage: {
+        getItem: async (key) => (await get<string>(key)) ?? null,
+        setItem: set,
+      },
+    }),
+    // Plain GETs against FireRoad; worth a few retries with backoff
+    // before surfacing an error.
+    PiniaColadaRetry(),
+  ],
+});
+// Before the router: adds the navigation guards useAppBootLoader runs in.
+app.use(DataLoaderPlugin, { router });
 app.use(router);
 
 // Last resort: an uncaught error in render, a watcher, or a lifecycle
@@ -41,4 +68,10 @@ app.config.errorHandler = (err, _instance, info) => {
   fatalError.value = true;
 };
 
-app.mount("#app");
+// Restores the persisted query cache before first render, so a returning
+// visitor's catalog doesn't pop in late. Not waiting on router.isReady()
+// too: the route-dependent boot work now lives in a data loader attached
+// to the road/explore pages (loaders/appBoot.ts), not in App.vue.
+void isCacheReady().then(() => {
+  app.mount("#app");
+});

@@ -125,31 +125,17 @@ const ShareSheet = defineAsyncComponent(
 
 import { fatalError } from "./lib/errorBoundary";
 import { toast } from "./design/toast";
-import {
-  STORAGE_KEYS,
-  clearAppStorage,
-  hasValue,
-  readValue,
-  writeValue,
-} from "./lib/appStorage";
+import { STORAGE_KEYS, writeValue } from "./lib/appStorage";
 import { DEMO_ROAD, DEMO_ROAD_NAME } from "./lib/demoRoad";
-import { defaultCurrentSemester } from "./lib/offering";
 import { shortcutLabel } from "./lib/platform";
-import {
-  loadPersistedStore,
-  persistedCurrentSemester,
-  savePersistedStore,
-} from "./lib/persistedStore";
+import { savePersistedStore } from "./lib/persistedStore";
 import { useGlobalShortcuts } from "./composables/useGlobalShortcuts";
 import { useIsMobile } from "./composables/useIsMobile";
 import { useSystemThemeSync } from "./composables/useTheme";
-import {
-  DEFAULT_ROAD_ID,
-  DEFAULT_ROAD_NAME,
-  newRoad,
-  parseRoadFile,
-} from "./lib/roads";
-import { flatten, type SelectedSubject } from "./lib/types";
+import { shouldOpenOnboarding } from "./loaders/appBoot";
+import { useReqListLoader, useSubjectsLoader } from "./loaders/courseData";
+import { DEFAULT_ROAD_NAME, newRoad, parseRoadFile } from "./lib/roads";
+import type { SelectedSubject } from "./lib/types";
 import { useAuditStore } from "./stores/audit";
 import { useAuthStore } from "./stores/auth";
 import { onRoadChange, useCourseDataStore } from "./stores/courseData";
@@ -209,6 +195,26 @@ const isExplore = computed(() => route.name === "/explore/[[road]]");
 /* ---- theme: keep the applied attribute in sync with "system" ---- */
 useSystemThemeSync();
 
+/* ---- catalog + requirements list: shared across every route, so the
+   shell (not a page) is where they're kicked off; both are Pinia Colada
+   queries (see loaders/courseData.ts), fetched once and shared with
+   whichever other code also calls the same loader. ---- */
+useSubjectsLoader();
+const { error: reqListError } = useReqListLoader();
+watch(reqListError, (e) => {
+  if (e !== null) {
+    console.warn("Failed to load the program list:", e);
+  }
+});
+
+// The boot loader itself is attached to the road/explore pages (see
+// loaders/appBoot.ts); this just reacts to what it decided.
+watch(shouldOpenOnboarding, (open) => {
+  if (open) {
+    onboardingOpen.value = true;
+  }
+});
+
 /* ---- Plan ⁄ Explore mode ---- */
 function navigateMode(mode: "plan" | "explore") {
   // Every entry point already hides itself on mobile; this is the backstop.
@@ -225,18 +231,6 @@ function navigateMode(mode: "plan" | "explore") {
 function onMobileNavigate(view: "plan" | "progress") {
   mobileView.value = view;
 }
-
-// Explore's URL is still reachable directly on mobile (a bookmark, a
-// resize while it's open); bounce back to the plan instead.
-watch(
-  [isMobile, isExplore],
-  ([mobile, explore]) => {
-    if (mobile && explore) {
-      navigateMode("plan");
-    }
-  },
-  { immediate: true },
-);
 
 /* ---- road-change orchestration (replaces the legacy deep watcher) ---- */
 onRoadChange((event) => {
@@ -429,103 +423,32 @@ function seedDemoRoad() {
   }
 }
 
-/* ---- routing helpers ---- */
-// route.params is a union across every page (only /road and /explore carry
-// a road segment), so "road" narrows it rather than reading it directly.
-function routeRoad(): string | undefined {
-  return "road" in route.params ? route.params.road : undefined;
-}
-
-function setActiveRoadFromRoute(): boolean {
-  const roadRequested = routeRoad();
-  if (roadRequested !== undefined && roadRequested in store.roads) {
-    store.setActiveRoad(roadRequested);
-    return true;
-  } else if (!hasValue(STORAGE_KEYS.accessInfo) && !isExplore.value) {
-    // Missing or unknown id on /road rewrites to the road actually shown;
-    // the roads are hydrated before this runs, so store.activeRoad is
-    // already that road. /explore skips this: a stale id there just means
-    // the URL and the active road disagree until the next road switch
-    // corrects it, rather than bouncing the student out of exploring.
-    const shownRoadId = store.activeRoad;
-    void router.replace({ path: `/road/${shownRoadId}` });
-  }
-  return false;
-}
-
-/* ---- boot ---- */
+/* ---- boot ----
+   Everything that needs the route resolved (which road, plan or
+   explore) lives in useAppBootLoader instead, attached to the road and
+   explore pages so vue-router runs it only once that's settled. This is
+   left with what doesn't: the unload listener, and the demo seed. */
 onMounted(() => {
-  // A stored version that differs resets local state. An absent one is
-  // stamped without a reset: the stamp is written only on consented
-  // boots, so the first boot after consent always saw it absent, treated
-  // that as a version change, and wiped the flags written before consent
-  // (hasOnboarded among them, which reopened the first-run wizard).
-  const storedVersion = readValue<string>(STORAGE_KEYS.versionNumber);
-  if (store.cookiesAllowed && storedVersion !== store.versionNumber) {
-    if (storedVersion !== undefined) {
-      console.warn("Warning: the version number has changed.");
-      clearAppStorage();
-    }
-    writeValue(STORAGE_KEYS.versionNumber, store.versionNumber);
-  }
-
-  // The stored choice wins over the clock-derived default; logged in, a
-  // later verify() replaces it with the server's value.
-  store.setCurrentSemester(
-    persistedCurrentSemester() ?? defaultCurrentSemester(),
-  );
-
-  const persisted = loadPersistedStore();
-  if (persisted !== undefined && store.cookiesAllowed && store.loggedIn) {
-    store.setFromLocalStorage(persisted);
-  }
-
-  // Hydrate the logged-out roads (and start the logged-in sync) BEFORE
-  // anything reads store.roads. Running this last meant the route
-  // resolution, the first audit recompute, and the onboarding gate all
-  // saw only the empty default road.
-  auth.restoreFromStorage(routeRoad());
-
-  setActiveRoadFromRoute();
-
-  auditStore
-    .loadReqList()
-    .catch((e: unknown) => console.warn("Failed to load the program list:", e));
-  auditStore.updateFulfillment("all");
-
-  // First-run onboarding: a fresh, logged-out visitor with the untouched
-  // default road who hasn't seen it before.
-  if (
-    !hasValue(STORAGE_KEYS.accessInfo) &&
-    !isExplore.value &&
-    readValue<string>(STORAGE_KEYS.hasOnboarded) !== "true" &&
-    readValue<string>(STORAGE_KEYS.hasLoggedIn) !== "true" &&
-    store.activeRoad === DEFAULT_ROAD_ID &&
-    flatten(store.roads[DEFAULT_ROAD_ID]?.contents.selectedSubjects ?? [])
-      .length === 0 &&
-    !(import.meta.env.DEV && window.location.search.includes("demo"))
-  ) {
-    onboardingOpen.value = true;
-  }
-
   window.addEventListener("beforeunload", onBeforeUnload);
 
-  auth.attemptLogin();
-
-  // Dev-only demo seed for screenshots/design review: /road?demo=1
-  // (read before routing normalizes the URL and drops the query)
-  const demoRequested =
+  // Dev-only demo seed for screenshots/design review: /road?demo=1 (read
+  // before routing drops the query). Waits for useSubjectsLoader (called
+  // above) to land: subjectsLoaded flips once applyCatalog runs.
+  if (
     import.meta.env.DEV &&
-    new URLSearchParams(window.location.search).has("demo");
-
-  store
-    .loadAllSubjects()
-    .then(() => {
-      if (demoRequested) {
-        seedDemoRoad();
-      }
-    })
-    .catch((e) => console.error("There was an error loading subjects:", e));
+    new URLSearchParams(window.location.search).has("demo")
+  ) {
+    const stopWatchingSubjects = watch(
+      () => store.subjectsLoaded,
+      (loaded) => {
+        if (loaded) {
+          seedDemoRoad();
+          stopWatchingSubjects();
+        }
+      },
+      { immediate: true },
+    );
+  }
 });
 
 function onBeforeUnload() {
