@@ -228,7 +228,10 @@ const showPanel = computed(() => {
     this push created. Explore itself keeps NodePanel. */
 function onOpen(id: string) {
   courseData.pushClassStack(id);
-  void router.push({ path: `/road/${courseData.activeRoad}` });
+  void router.push({
+    name: "/road/[[road]]",
+    params: { road: courseData.activeRoad },
+  });
 }
 
 /** Adding never leaves the exploration: the panel's term picker takes over. */

@@ -204,7 +204,7 @@ watch(
 );
 
 const detailOpen = computed(() => store.classInfoStack.length > 0);
-const isExplore = computed(() => route.path.startsWith("/explore"));
+const isExplore = computed(() => route.name === "/explore/[[road]]");
 
 /* ---- theme: keep the applied attribute in sync with "system" ---- */
 useSystemThemeSync();
@@ -212,10 +212,13 @@ useSystemThemeSync();
 /* ---- Plan ⁄ Explore mode ---- */
 function navigateMode(mode: "plan" | "explore") {
   // Every entry point already hides itself on mobile; this is the backstop.
-  const prefix = mode === "explore" && !isMobile.value ? "/explore" : "/road";
-  void router.push(
-    store.activeRoad !== "" ? `${prefix}/${store.activeRoad}` : prefix,
-  );
+  void router.push({
+    name:
+      mode === "explore" && !isMobile.value
+        ? "/explore/[[road]]"
+        : "/road/[[road]]",
+    params: { road: store.activeRoad == "" ? undefined : store.activeRoad },
+  });
 }
 
 /** Bottom-nav taps. Progress lives in plan mode, so it navigates there too. */
@@ -267,8 +270,10 @@ watch(
     // whichever mode prefix is already active, so switching roads while
     // exploring stays on /explore instead of bouncing back to the plan.
     if (newRoad !== "" && !auth.justLoaded) {
-      const prefix = isExplore.value ? "/explore" : "/road";
-      void router.push({ path: `${prefix}/${newRoad}` });
+      const name = route.name;
+      if (name === "/road/[[road]]" || name === "/explore/[[road]]") {
+        void router.push({ name, params: { road: newRoad } });
+      }
     }
     auth.justLoaded = false;
   },

@@ -41,11 +41,4 @@ app.config.errorHandler = (err, _instance, info) => {
   fatalError.value = true;
 };
 
-// App.vue (not a page) now owns the boot sequence, and reads the initial
-// route's params as part of it (which road to show). It used to run
-// inside a page component, mounted only once the router had already
-// resolved that page; now that it's the tree's root, it needs this wait
-// itself or it can boot against a still-empty route.
-void router.isReady().then(() => {
-  app.mount("#app");
-});
+app.mount("#app");

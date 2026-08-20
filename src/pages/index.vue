@@ -3,6 +3,6 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 if (window.location.pathname === "/") {
-  router.push("/road");
+  router.replace("/road");
 }
 </script>
