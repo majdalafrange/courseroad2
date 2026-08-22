@@ -32,9 +32,9 @@
     <section class="sg-section">
       <h2 class="sg-h2">Color</h2>
       <p class="sg-body sg-note">
-        Cool institute neutrals, MIT cardinal as the one accent, and quiet
-        semantic tints. Dark is basalt: MIT silver leads, and cardinal is kept
-        for identity. Dark values are designed, not inverted.
+        Cool drafting-paper neutrals, MIT cardinal as the one accent, and quiet
+        semantic tints. Dark is blueprint: MIT silver leads, and cardinal is
+        kept for identity. Dark values are designed, not inverted.
       </p>
       <div class="sg-swatch-grid">
         <div

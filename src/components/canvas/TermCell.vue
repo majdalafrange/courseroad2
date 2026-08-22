@@ -16,6 +16,15 @@
     :data-cy="'road_' + roadID + '__semester_' + index"
     :aria-label="termLabel"
   >
+    <!-- Pinned flag, cardinal's only other job besides the wordmark and the
+         primary action: mark the one term that's happening right now, the
+         way you'd clip a tab onto the current page of a lab notebook. -->
+    <span
+      v-if="isCurrentTerm && !collapsedPrior"
+      class="now-flag"
+      aria-hidden="true"
+      >Now</span
+    >
     <!-- Empty prior credit stays out of the way: one slim line that opens
          search, and grows back into a real cell whenever it can receive. -->
     <button
@@ -375,8 +384,28 @@ const placementAriaLabel = computed(() => {
     box-shadow var(--motion-quick) var(--ease-out);
 }
 .term-cell.is-current {
-  border-color: var(--g-accent);
-  box-shadow: 0 0 0 1px var(--g-accent);
+  border-color: var(--g-brand);
+}
+/* Pinned to the corner like a tab clipped over the edge of the sheet;
+   the slight rotation and clipped corner read as physically attached
+   rather than a floating badge. Cardinal, the one place outside the
+   wordmark and the primary action that gets to use it undiluted. */
+.now-flag {
+  position: absolute;
+  top: -1px;
+  right: var(--space-10);
+  transform: rotate(-2deg);
+  transform-origin: top center;
+  background: var(--g-brand-flag);
+  color: #ffffff;
+  font: var(--text-micro);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  padding: 2px var(--space-2) 3px;
+  border-radius: 0 0 var(--radius-xs) var(--radius-xs);
+  box-shadow: var(--shadow-1);
+  pointer-events: none;
+  z-index: 1;
 }
 .term-cell.is-empty {
   background: transparent;

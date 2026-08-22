@@ -65,12 +65,12 @@ export interface PosterTheme {
    --g-ink-3 per theme. poster.spec.ts pins these against the parsed
    tokens.css, so a retuned token fails a test instead of drifting. */
 const LIGHT_THEME: PosterTheme = {
-  bg: "#f4f4f5",
+  bg: "#eef1f3",
   surface: "#ffffff",
-  line: "#e4e4e7",
-  ink: "#1a1c1f",
-  ink2: "#494d52",
-  ink3: "#6b6e75",
+  line: "#dde2e5",
+  ink: "#191c20",
+  ink2: "#484d54",
+  ink3: "#676c74",
 };
 
 /* --g-mark: the wordmark tile is cardinal in both themes, so it is not part
@@ -78,9 +78,9 @@ const LIGHT_THEME: PosterTheme = {
 export const MARK_TILE = "#a31f34";
 
 const DARK_THEME: PosterTheme = {
-  bg: "#151619",
-  surface: "#1d1e22",
-  line: "#2c2d33",
+  bg: "#10141b",
+  surface: "#171b23",
+  line: "#262b35",
   ink: "#ececee",
   ink2: "#b6b7bc",
   ink3: "#8f9197",

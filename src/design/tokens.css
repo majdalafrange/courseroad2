@@ -1,19 +1,23 @@
 /**
- * CourseRoad design tokens: cool MIT-institute neutrals, contour-like hue
- * families, a deep MIT garnet accent, motion that explains where things
- * come from.
+ * CourseRoad design tokens. The reference point is a drafting table, not
+ * a dashboard: MIT students plan in coordinates (subject ids, term
+ * columns, the requirement tree), so the surface is cool drafting paper
+ * rather than warm institute off-white, and cardinal is used the way a
+ * grader's pen is, sparingly, for the one mark that matters (the current
+ * term's flag, the primary action) rather than as brand wallpaper.
  *
  * TYPE, two voices, self-hosted: IBM Plex Sans Variable (display/headings
- & /wordmark AND UI/body, matching Hydrant, MIT's other SIPB
- * planning tool) and IBM Plex Mono (subject ids/numbers, tabular so
- * "6.006" scans like a coordinate; also shared with Hydrant).
+ * /wordmark AND UI/body, matching Hydrant, MIT's other SIPB planning
+ * tool) and IBM Plex Mono (subject ids/numbers, tabular so "6.006" scans
+ * like a coordinate; also shared with Hydrant).
  *
- * Light/dark are siblings, not inversions: light is garnet-led on cool
- * paper; dark is basalt where MIT silver carries every interactive state
- * and cardinal red (--g-brand) is reserved for identity (wordmark, MIT
- * login), so red never reads as an alert on black. Department colors
- * live in departmentColors.css (generated; fixed OKLCH bands guarantee
- * contrast).
+ * Light/dark are the same drafting table under two lights, not one
+ * inverted into the other: light is paper, garnet-led; dark is blueprint,
+ * blue-black rather than neutral charcoal, where MIT silver carries every
+ * interactive state and cardinal red (--g-brand) is reserved for identity
+ * (wordmark, MIT login), so red never reads as an alert on the page.
+ * Department colors live in departmentColors.css (generated; fixed OKLCH
+ * bands guarantee contrast).
  *
  * INTERACTION-STATE STANDARD (every component complies; transitions always
  * list explicit properties, never `transition: all`):
@@ -145,28 +149,30 @@
   --ease-settle: cubic-bezier(0.34, 1.36, 0.44, 1);
 }
 
-/* ---------- light: institute paper ---------- */
+/* ---------- light: drafting paper ---------- */
 :root,
 [data-theme="light"] {
   color-scheme: light;
 
-  --g-bg: #f4f4f5; /* cool institute off-white */
+  /* drafting paper, not institute off-white: a hairline of blue keeps the
+     neutrals from reading as generic warm-grey SaaS chrome. */
+  --g-bg: #eef1f3;
   --g-surface: #ffffff;
-  --g-surface-2: #f8f8f9; /* nested panels on white */
-  --g-surface-sunken: #eaeaec; /* wells, empty slots */
+  --g-surface-2: #f4f6f7; /* nested panels on white */
+  --g-surface-sunken: #e5e9ec; /* wells, empty slots */
   /* the term-cell working surface: white objects on the drafting paper in
      light; the lifted level in dark */
   --g-cell: #ffffff;
 
-  --g-ink: #1a1c1f;
-  --g-ink-2: #494d52;
+  --g-ink: #191c20;
+  --g-ink-2: #484d54;
   /* hints, captions; toward MIT silver. Dark enough to clear 4.5:1 at
-     12.5px on every light surface (5.11 on white, 4.65 on --g-bg). */
-  --g-ink-3: #6b6e75;
-  --g-ink-disabled: #b0b2b8;
+     12.5px on every light surface (5.02 on white, 4.6 on --g-bg). */
+  --g-ink-3: #676c74;
+  --g-ink-disabled: #adb2b8;
 
-  --g-line: #e4e4e7; /* hairlines */
-  --g-line-strong: #cbcbcf;
+  --g-line: #dde2e5; /* hairlines */
+  --g-line-strong: #c3c9ce;
 
   /* Plan canvas material: numerals/operators as a substance (after the
      Alchemist character-lattice on the Stratton lawn). Drawn by
@@ -205,6 +211,10 @@
 
   /* brand punctuation (wordmark, MIT login); in light it is the accent */
   --g-brand: #a31f34;
+  /* the current-term flag: white-on-cardinal, so it needs its own AA-safe
+     value per theme rather than reusing --g-brand (dark's is tuned to sit
+     on --g-bg, not to hold white text at 11px). Same hue family in light. */
+  --g-brand-flag: #a31f34;
 
   /* the wordmark tile. Cardinal in both themes, deliberately not overridden
      below: the mark is one fixed lockup, and the .ico beside it cannot
@@ -249,27 +259,32 @@
   --g-scrim: rgba(26, 28, 31, 0.4);
 }
 
-/* ---------- dark: basalt, silver-led ---------- */
+/* ---------- dark: blueprint ---------- */
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --g-bg: #151619;
-  --g-surface: #1d1e22;
-  --g-surface-2: #25262b;
-  --g-surface-sunken: #101113;
-  --g-cell: #25262b;
+  /* Paper by day, blueprint by night: the same drafting table, lit
+     differently. Blue-black rather than neutral charcoal, so dark mode
+     reads as the instrument's own negative image, not a generic "invert
+     the greys" theme swap. */
+  --g-bg: #10141b;
+  --g-surface: #171b23;
+  --g-surface-2: #1e232c;
+  --g-surface-sunken: #0b0e13;
+  --g-cell: #1e232c;
 
   --g-ink: #ececee;
   --g-ink-2: #b6b7bc;
-  --g-ink-3: #8f9197; /* 5.29:1 on --g-surface; clears AA at caption sizes */
+  --g-ink-3: #8f9197; /* 5.4:1 on --g-surface; clears AA at caption sizes */
   --g-ink-disabled: #565a61;
 
-  --g-line: #2c2d33;
-  --g-line-strong: #42434b;
+  --g-line: #262b35;
+  --g-line-strong: #383f4c;
 
-  /* Glyph field on basalt: lifted just off the background, never up to the
-     hairline, so the field stays behind the cards rather than beside them. */
-  --canvas-glyph: #26272d;
+  /* Glyph field on blueprint: lifted just off the background, never up to
+     the hairline, so the field stays behind the cards rather than beside
+     them. */
+  --canvas-glyph: #1f2530;
 
   /* silver workhorse: MIT gray carries every interactive state in dark,
      so the brand red is never mistaken for an alert */
@@ -289,8 +304,12 @@
 
   /* cardinal stays for identity only (wordmark, MIT login); 4.66:1 on bg */
   --g-brand: #d4586c;
+  /* darker/more saturated than --g-brand: holds white text at 5.1:1 for
+     the current-term flag, where --g-brand's lighter dark-mode value
+     (tuned against --g-bg, not against white-on-top) would fall short. */
+  --g-brand-flag: #c04057;
 
-  /* degree-progress fill, softened so the tonal green reads on basalt */
+  /* degree-progress fill, softened so the tonal green reads on blueprint */
   --g-progress: #74c096;
   --g-progress-tint: rgba(116, 192, 150, 0.16);
 
@@ -315,9 +334,9 @@
     0 12px 36px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06);
   --shadow-well: inset 0 1px 3px rgba(0, 0, 0, 0.5);
 
-  /* dark leans on hairlines: shadows alone can't separate #1d1e22 from
-     #1d1e22, so floating surfaces get a real edge here */
-  --g-overlay-line: #42434b;
+  /* dark leans on hairlines: shadows alone can't separate one surface
+     from another, so floating surfaces get a real edge here */
+  --g-overlay-line: #383f4c;
 
   --g-scrim: rgba(0, 0, 0, 0.55);
 }
