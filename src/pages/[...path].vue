@@ -2,5 +2,5 @@
 import { useRouter } from "vue-router";
 const router = useRouter();
 
-router.replace("/road");
+router.replace({ name: "/road/[[road]]" });
 </script>

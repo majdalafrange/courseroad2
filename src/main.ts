@@ -71,7 +71,9 @@ app.config.errorHandler = (err, _instance, info) => {
 // router.isReady() rejects if the initial navigation fails. catch the rejection
 // so the app still mounts instead of leaving the page blank.
 void Promise.all([isCacheReady(), router.isReady()])
-  .catch(() => {})
+  .catch(() => {
+    throw Error("Failed to load app state. Please reload the page.");
+  })
   .then(() => {
     app.mount("#app");
   });

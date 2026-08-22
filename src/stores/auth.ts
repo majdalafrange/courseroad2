@@ -8,6 +8,7 @@
  */
 
 import { defineStore } from "pinia";
+import { useRouter } from "vue-router";
 import type { AccessInfo, ConflictInfo, Road, SaveWarning } from "../lib/types";
 import { toast } from "../design/toast";
 import { formatFireroadDate } from "../lib/dates";
@@ -321,11 +322,12 @@ export const useAuthStore = defineStore("auth", {
       const queryObject = new URLSearchParams(window.location.search);
       const code = queryObject.get("code");
       if (code !== null) {
-        window.history.pushState(
-          "CourseRoad Home",
-          "CourseRoad Home",
-          "./#" + useCourseDataStore().activeRoad,
-        );
+        queryObject.delete("code");
+        void useRouter().replace({
+          name: "/road/[[road]]",
+          params: { road: useCourseDataStore().activeRoad },
+          query: Object.fromEntries(queryObject),
+        });
         this.getAuthorizationToken(code).catch((err: unknown) => {
           console.error("Login failed:", err);
           toast.danger("Couldn't log you in. Try again.");
