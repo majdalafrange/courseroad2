@@ -20,7 +20,7 @@
         <span v-if="totalUnits > 0" class="meta-dot" aria-hidden="true">·</span>
         <g-tooltip :text="saveState.detail" placement="bottom" :delay="200">
           <span class="save-state" :class="saveState.tone">
-            <span class="save-dot" />
+            <g-icon class="save-icon" :name="saveState.icon" :size="12" />
             <span class="save-label">{{ saveState.label }}</span>
           </span>
         </g-tooltip>
@@ -232,7 +232,7 @@ const store = useCourseDataStore();
 const auth = useAuthStore();
 const route = useRoute();
 
-const isExplore = computed(() => route.path.startsWith("/explore"));
+const isExplore = computed(() => route.name === "/explore/[[road]]");
 const shortcut = shortcutKeys("K");
 const moreOpen = ref(false);
 
@@ -265,6 +265,7 @@ const totalUnits = computed(() => {
 /* ---- save-state whisper: one quiet line + dot; detail in the tooltip ---- */
 interface SaveState {
   label: string;
+  icon: string;
   detail: string;
   tone: "ok" | "busy" | "warn" | "muted";
 }
@@ -273,6 +274,7 @@ const saveState = computed<SaveState>(() => {
   if (auth.gettingUserData) {
     return {
       label: "Loading...",
+      icon: "cloudDownload",
       detail: "Grabbing your roads from FireRoad.",
       tone: "busy",
     };
@@ -280,6 +282,7 @@ const saveState = computed<SaveState>(() => {
   if (auth.currentlySaving) {
     return {
       label: "Saving...",
+      icon: auth.loggedIn ? "cloudSync" : "loader",
       detail: auth.loggedIn
         ? "Syncing your changes to FireRoad."
         : "Saving your changes in this browser.",
@@ -289,6 +292,7 @@ const saveState = computed<SaveState>(() => {
   if (auth.saveWarnings.length > 0) {
     return {
       label: `${auth.saveWarnings.length} save issue${auth.saveWarnings.length > 1 ? "s" : ""}`,
+      icon: "cloudAlert",
       detail: auth.saveWarnings.map((w) => `${w.name}: ${w.error}`).join(" · "),
       tone: "warn",
     };
@@ -297,19 +301,22 @@ const saveState = computed<SaveState>(() => {
     if (store.cookiesAllowed === false) {
       return {
         label: "Not saved",
+        icon: "saveOff",
         detail: "Cookies are off, so we can only keep changes in this tab.",
         tone: "warn",
       };
     }
     return {
       label: "Saved in this browser",
-      detail: "Log in with MIT and we'll sync it across your devices.",
+      icon: "save",
+      detail: "Log in and we'll sync your roads across your devices.",
       tone: "muted",
     };
   }
   return {
     label: "Saved",
-    detail: "You're all synced up with FireRoad.",
+    icon: "cloudCheck",
+    detail: "All changes saved to FireRoad!",
     tone: "ok",
   };
 });
@@ -372,24 +379,15 @@ const saveState = computed<SaveState>(() => {
   gap: 6px;
   cursor: default;
 }
-.save-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: var(--radius-full);
-  background: var(--g-ink-3);
-  flex-shrink: 0;
+.save-state.ok .save-icon {
+  color: var(--g-ok);
 }
-.save-state.ok .save-dot {
-  background: var(--g-ok);
-}
-.save-state.warn .save-dot {
-  background: var(--g-warn);
-}
+.save-state.warn .save-icon,
 .save-state.warn .save-label {
   color: var(--g-warn);
 }
-.save-state.busy .save-dot {
-  background: var(--g-info);
+.save-state.busy .save-icon {
+  color: var(--g-info);
   animation: pulse 1.2s var(--ease-in-out) infinite;
 }
 @keyframes pulse {

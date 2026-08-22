@@ -49,6 +49,13 @@ const names = [
   "star",
   "arrow-left",
   "arrow-left-right",
+  "cloud-download",
+  "cloud-sync",
+  "loader",
+  "cloud-alert",
+  "save-off",
+  "save",
+  "cloud-check",
 ];
 
 function resolve(name) {

@@ -53,6 +53,13 @@ const NAME_TO_LUCIDE: Record<string, string> = {
   star: "star",
   back: "arrow-left",
   swap: "arrow-left-right",
+  cloudDownload: "cloud-download",
+  cloudSync: "cloud-sync",
+  loader: "loader",
+  cloudAlert: "cloud-alert",
+  saveOff: "save-off",
+  save: "save",
+  cloudCheck: "cloud-check",
 };
 
 const props = withDefaults(
