@@ -29,13 +29,13 @@ function isEditableTarget(event: KeyboardEvent): boolean {
 
 export function useGlobalShortcuts(handlers: GlobalShortcutHandlers): void {
   function onKeydown(event: KeyboardEvent) {
-    const mod = event.metaKey || event.ctrlKey;
-    if (!mod) {
-      return;
-    }
-    if (event.key.toLowerCase() === "k" && !isEditableTarget(event)) {
+    if (event.key.toLowerCase() === "/" && !isEditableTarget(event)) {
       event.preventDefault();
       handlers.togglePalette();
+      return;
+    }
+    const mod = event.metaKey || event.ctrlKey;
+    if (!mod) {
       return;
     }
     if (event.key.toLowerCase() === "z" && !isEditableTarget(event)) {
@@ -45,6 +45,10 @@ export function useGlobalShortcuts(handlers: GlobalShortcutHandlers): void {
       } else {
         handlers.undo();
       }
+    }
+    if (event.key.toLowerCase() === "y" && !isEditableTarget(event)) {
+      event.preventDefault();
+      handlers.redo();
     }
   }
 

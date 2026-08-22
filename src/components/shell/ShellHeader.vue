@@ -66,11 +66,7 @@
       >
         <g-icon name="search" :size="14" />
         <span class="search-trigger-text">Add classes</span>
-        <g-kbd
-          class="search-trigger-kbd"
-          :keys="shortcut.keys"
-          :joiner="shortcut.joiner"
-        />
+        <g-kbd class="search-trigger-kbd" :keys="['/']" />
       </button>
 
       <nav class="mode-switch" aria-label="Mode">
@@ -207,7 +203,6 @@ import GTooltip from "../../design/components/GTooltip.vue";
 import GWordmark from "../../design/components/GWordmark.vue";
 import RoadSwitcher from "./RoadSwitcher.vue";
 import { semesterInformation } from "../../lib/hours";
-import { shortcutKeys } from "../../lib/platform";
 import { history } from "../../stores/history";
 import { useAuthStore } from "../../stores/auth";
 import { useCourseDataStore } from "../../stores/courseData";
@@ -233,7 +228,6 @@ const auth = useAuthStore();
 const route = useRoute();
 
 const isExplore = computed(() => route.name === "/explore/[[road]]");
-const shortcut = shortcutKeys("K");
 const moreOpen = ref(false);
 
 /* Feedback and issue-report form. */
