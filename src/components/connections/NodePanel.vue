@@ -8,20 +8,22 @@
     <term-picker v-if="store.placementRequest" />
 
     <!-- selected node header -->
-    <div v-if="subject" class="panel-head" :style="{ '--dept': color }">
-      <div class="head-id-row">
-        <h2 class="head-id" data-cy="connectionSelectedId">
-          {{ subject.subject_id }}
-        </h2>
-        <button
-          class="head-close"
-          aria-label="Clear selection"
-          @click="store.select(undefined)"
-        >
-          <g-icon name="close" :size="13" />
-        </button>
+    <div v-if="subject" class="panel-head">
+      <div class="panel-ident" :style="{ '--dept-color': color }">
+        <div class="head-id-row">
+          <h2 class="head-id" data-cy="connectionSelectedId">
+            {{ subject.subject_id }}
+          </h2>
+          <button
+            class="head-close"
+            aria-label="Clear selection"
+            @click="store.select(undefined)"
+          >
+            <g-icon name="close" :size="13" />
+          </button>
+        </div>
+        <p class="head-title">{{ subject.title }}</p>
       </div>
-      <p class="head-title">{{ subject.title }}</p>
       <p v-if="headFacts.length" class="head-facts">
         <template v-for="(fact, i) in headFacts" :key="fact.text"
           ><span v-if="i > 0"> · </span
@@ -446,9 +448,18 @@ function toggleExpand() {
 
 /* ---------- header ---------- */
 .panel-head {
-  padding: var(--space-4) var(--space-4) var(--space-3);
+  padding: 0 var(--space-4) var(--space-3);
   border-bottom: 1px solid var(--g-line);
-  border-top: 4px solid var(--dept);
+}
+/* Solid department color, the way legacy CourseRoad's own class-info
+   card led with a colored header bar: identity is a color, not a
+   hairline beside it. Only the id and title live in here; facts,
+   actions, and the rest of the header stay neutral below it. */
+.panel-ident {
+  background: var(--dept-color);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  margin: var(--space-4) 0 var(--space-3);
 }
 .head-id-row {
   display: flex;
@@ -459,7 +470,7 @@ function toggleExpand() {
   font: var(--text-title);
   font-family: var(--font-mono);
   margin: 0;
-  color: var(--g-ink);
+  color: var(--dept-on);
 }
 .head-close {
   display: inline-flex;
@@ -470,16 +481,16 @@ function toggleExpand() {
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--g-ink-3);
+  color: var(--dept-on-2);
   cursor: pointer;
 }
 .head-close:hover {
-  background: var(--g-surface-sunken);
-  color: var(--g-ink);
+  background: color-mix(in srgb, var(--dept-on) 16%, transparent);
+  color: var(--dept-on);
 }
 .head-title {
   font: var(--text-body);
-  color: var(--g-ink-2);
+  color: var(--dept-on-2);
   margin: var(--space-05) 0 0;
 }
 .head-facts {

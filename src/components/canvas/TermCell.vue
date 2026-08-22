@@ -385,16 +385,15 @@ const placementAriaLabel = computed(() => {
 }
 .term-cell.is-current {
   border-color: var(--g-brand);
+  box-shadow: 0 0 0 1px var(--g-brand);
 }
-/* Pinned to the corner like a tab clipped over the edge of the sheet;
-   the slight rotation and clipped corner read as physically attached
-   rather than a floating badge. Cardinal, the one place outside the
-   wordmark and the primary action that gets to use it undiluted. */
+/* The rotation and clipped bottom corners read as physically attached,
+   not a floating badge. */
 .now-flag {
   position: absolute;
   top: -1px;
   right: var(--space-10);
-  transform: rotate(-2deg);
+  transform: rotate(-1.5deg);
   transform-origin: top center;
   background: var(--g-brand-flag);
   color: #ffffff;

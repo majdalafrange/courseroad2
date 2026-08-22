@@ -46,8 +46,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1px;
-  background: var(--g-surface);
-  border-left: 6px solid var(--ghost-color, var(--g-ink-3));
+  /* Matches the card it was picked up from. */
+  background: var(--ghost-color, var(--g-ink-3));
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-3);
   padding: 6px 10px;
@@ -56,11 +56,11 @@ body {
 }
 .drag-ghost-id {
   font: var(--text-id-small);
-  color: var(--g-ink);
+  color: var(--dept-on);
 }
 .drag-ghost-title {
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--dept-on-2);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

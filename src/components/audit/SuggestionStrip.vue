@@ -200,40 +200,31 @@ function dismiss() {
   flex-wrap: wrap;
   gap: var(--space-1);
 }
-/* the shared course-chip anatomy (see tokens.css); chips don't float */
+/* the shared course-chip anatomy (see tokens.css): solid department
+   color, not a rail beside it. A preview of the card it would become. */
 .suggestion-class {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
   font: var(--text-id-small);
-  color: var(--g-ink);
+  color: var(--dept-on);
   height: 22px;
-  background: var(--g-surface);
+  background: var(--dept-color, var(--g-line-strong));
   border: none;
-  border-left: 3px solid
-    color-mix(
-      in srgb,
-      var(--dept-color, var(--g-line-strong)) var(--dept-rest-mix),
-      var(--g-line-strong)
-    );
   border-radius: var(--radius-sm);
-  box-shadow: inset 0 0 0 1px var(--g-line);
   padding: 0 var(--space-2);
   cursor: pointer;
-  transition:
-    background-color var(--motion-quick) var(--ease-out),
-    border-color var(--motion-quick) var(--ease-out);
+  transition: box-shadow var(--motion-quick) var(--ease-out);
 }
 .suggestion-class:hover {
-  background: var(--g-accent-tint);
-  border-left-color: var(--dept-color);
+  box-shadow: 0 0 0 1.5px var(--g-accent);
 }
 .sc-rating {
   display: inline-flex;
   align-items: center;
   gap: var(--space-05);
   font: var(--text-micro);
-  color: var(--g-ink-3);
+  color: var(--dept-on-2);
 }
 .suggestion-more {
   font: var(--text-id-small);

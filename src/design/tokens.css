@@ -52,13 +52,20 @@
  *     opacity 0 + pointer-events none → opacity 1 over var(--motion-quick),
  *     with the box reserved so rows never reflow. Never display: none.
  *
- *   Course chips (reference chips): rest = hairline inset ring, no shadow;
- *     hover (interactive only) = --g-accent-tint bg; no lift.
- *     One anatomy, implemented locally where used:
+ *   Course chips and cards (a subject's own color, not a rail beside it —
+ *     legacy CourseRoad's own convention): background = var(--dept-color);
+ *     text = var(--dept-on), or --dept-on-2/-on-3 for lower emphasis (a
+ *     title under an id). Those are fixed opaque greys, not --dept-on
+ *     faded toward transparent, which fades toward the fill's own hue and
+ *     can lose contrast (generate-palette.mjs verifies both against every
+ *     department). Hover adds a hairline ring, not a bg swap. One anatomy:
  *       font: var(--text-id-small); height: 22px; padding: 0 var(--space-2);
- *       border-radius: var(--radius-sm); background: var(--g-surface);
- *       box-shadow: inset 0 0 0 1px var(--g-line);
- *       border-left: 3px solid var(--dept-rest);
+ *       border-radius: var(--radius-sm); background: var(--dept-color);
+ *       color: var(--dept-on);
+ *     A larger identity block (ClassCard, a detail panel's header) is the
+ *     same fill at card scale. --dept-rest-mix (below) is for the
+ *     standalone rail/dot indicators beside a row's text, not chip fills;
+ *     those still rest muted and take full chroma on hover/selection.
  *
  *   Caps labels (--text-micro + --tracking-caps + uppercase) are reserved
  *     for command-palette section heads and term-cell season labels. Every
@@ -211,9 +218,8 @@
 
   /* brand punctuation (wordmark, MIT login); in light it is the accent */
   --g-brand: #a31f34;
-  /* the current-term flag: white-on-cardinal, so it needs its own AA-safe
-     value per theme rather than reusing --g-brand (dark's is tuned to sit
-     on --g-bg, not to hold white text at 11px). Same hue family in light. */
+  /* the current-term flag: white-on-cardinal. Same value as --g-brand
+     here; dark needs its own (see below), so this stays a separate token. */
   --g-brand-flag: #a31f34;
 
   /* the wordmark tile. Cardinal in both themes, deliberately not overridden
@@ -224,18 +230,20 @@
   /* degree-progress fill: one calm tonal green; progress is not a warning,
      so it never borrows the amber. Distinct from --g-ok (functional success
      like valid drop targets) so that signal stays distinct. */
-  --g-progress: #2f6a4a;
-  --g-progress-tint: rgba(47, 106, 74, 0.12);
+  --g-progress: #2e6849;
+  --g-progress-tint: rgba(46, 104, 73, 0.12);
 
-  /* semantics */
-  --g-ok: #20762f;
-  --g-ok-tint: rgba(32, 118, 47, 0.12);
-  --g-warn: #92610a;
-  --g-warn-tint: rgba(146, 97, 10, 0.14);
+  /* semantics: each clears 4.5:1 as text both on any --g-surface* and on
+     its own -tint. generate-palette.mjs checks department colors the same 
+     way. */
+  --g-ok: #1d6a2a;
+  --g-ok-tint: rgba(29, 106, 42, 0.12);
+  --g-warn: #7d5309;
+  --g-warn-tint: rgba(125, 83, 9, 0.14);
   --g-danger: #b3261e;
   --g-danger-tint: rgba(179, 38, 30, 0.1);
-  --g-info: #1c6e8c;
-  --g-info-tint: rgba(28, 110, 140, 0.12);
+  --g-info: #19647f;
+  --g-info-tint: rgba(25, 100, 127, 0.12);
 
   --g-focus-ring: 0 0 0 2px var(--g-bg), 0 0 0 4px var(--g-accent);
 
@@ -304,9 +312,8 @@
 
   /* cardinal stays for identity only (wordmark, MIT login); 4.66:1 on bg */
   --g-brand: #d4586c;
-  /* darker/more saturated than --g-brand: holds white text at 5.1:1 for
-     the current-term flag, where --g-brand's lighter dark-mode value
-     (tuned against --g-bg, not against white-on-top) would fall short. */
+  /* darker than --g-brand: holds white text at 5.1:1, where --g-brand's
+     lighter value (tuned against --g-bg, not white-on-top) would fall short. */
   --g-brand-flag: #c04057;
 
   /* degree-progress fill, softened so the tonal green reads on blueprint */
@@ -317,8 +324,11 @@
   --g-ok-tint: rgba(105, 201, 124, 0.16);
   --g-warn: #d9a13f;
   --g-warn-tint: rgba(217, 161, 63, 0.16);
-  --g-danger: #e57373;
-  --g-danger-tint: rgba(229, 115, 115, 0.14);
+  /* a touch lighter than the light-theme pairing needs, since --danger-tint
+     on --g-surface-2 was the one dark case that didn't clear 4.5:1 with the
+     old value */
+  --g-danger: #ee7878;
+  --g-danger-tint: rgba(238, 120, 120, 0.14);
   --g-info: #5db3d4;
   --g-info-tint: rgba(93, 179, 212, 0.14);
 

@@ -28,7 +28,6 @@
     @mouseenter="onHoverStart"
     @mouseleave="onHoverEnd"
   >
-    <span class="card-color-rail" aria-hidden="true" />
     <div class="card-body">
       <span class="card-id">
         {{ subject.subject_id
@@ -241,7 +240,9 @@ function onHoverEnd() {
   position: relative;
   display: flex;
   align-items: stretch;
-  background: var(--g-surface);
+  /* Solid department color, not a rail beside it (see tokens.css →
+     course chips). */
+  background: var(--dept-color, var(--g-line-strong));
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-1);
   cursor: grab;
@@ -305,28 +306,6 @@ function onHoverEnd() {
     0 0 0 5px var(--g-ok-tint);
 }
 
-/* Rest is muted; hover, drag, move-selection, and audit cross-highlight
-   bring the department to full chroma. See tokens.css → department color. */
-.card-color-rail {
-  width: 6px;
-  flex-shrink: 0;
-  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
-  background: color-mix(
-    in srgb,
-    var(--dept-color, var(--g-line-strong)) var(--dept-rest-mix),
-    var(--g-line-strong)
-  );
-  transition: background-color var(--motion-quick) var(--ease-out);
-}
-.class-card:hover .card-color-rail,
-.class-card.is-dragging .card-color-rail,
-.class-card.is-ancestor .card-color-rail,
-.class-card.is-dependent .card-color-rail,
-.class-card.is-move-selected .card-color-rail,
-.class-card.is-audit-lit .card-color-rail {
-  background: var(--dept-color);
-}
-
 .card-body {
   flex: 1;
   min-width: 0;
@@ -334,24 +313,24 @@ function onHoverEnd() {
   flex-direction: column;
   justify-content: center;
   gap: 1px;
-  padding: var(--space-1) var(--space-2);
+  padding: var(--space-1) var(--space-4);
 }
 .card-id {
   font: var(--text-id-small);
   font-weight: 600; /* the id is the atomic unit; it leads by weight */
-  color: var(--g-ink);
+  color: var(--dept-on);
   white-space: nowrap;
   text-overflow: clip;
   overflow: hidden;
 }
 .card-old-id {
   font: var(--text-micro);
-  color: var(--g-ink-3);
+  color: var(--dept-on-3);
   margin-left: var(--space-1);
 }
 .card-title {
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--dept-on-2);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -419,35 +398,6 @@ function onHoverEnd() {
 .card-warning.is-quiet {
   opacity: 0;
   pointer-events: none;
-}
-.has-warnings .card-color-rail {
-  background: repeating-linear-gradient(
-    -45deg,
-    color-mix(
-      in srgb,
-      var(--dept-color, var(--g-line-strong)) var(--dept-rest-mix),
-      var(--g-line-strong)
-    ),
-    color-mix(
-        in srgb,
-        var(--dept-color, var(--g-line-strong)) var(--dept-rest-mix),
-        var(--g-line-strong)
-      )
-      6px,
-    var(--g-warn) 6px,
-    var(--g-warn) 9px
-  );
-}
-.class-card:hover.has-warnings .card-color-rail,
-.class-card.is-move-selected.has-warnings .card-color-rail,
-.class-card.is-audit-lit.has-warnings .card-color-rail {
-  background: repeating-linear-gradient(
-    -45deg,
-    var(--dept-color),
-    var(--dept-color) 6px,
-    var(--g-warn) 6px,
-    var(--g-warn) 9px
-  );
 }
 
 .warning-pop {

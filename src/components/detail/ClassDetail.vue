@@ -789,25 +789,28 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
   min-height: 0;
 }
 
+/* Solid department color, the way legacy CourseRoad's own class-info
+   card led with a colored header bar: identity is a color, not a
+   hairline beside it. */
 .detail-ident {
-  border-top: 4px solid var(--dept-color);
-  border-radius: var(--radius-xs);
-  padding-top: var(--space-3);
-  margin-top: var(--space-3);
+  background: var(--dept-color);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  margin: var(--space-3) 0;
 }
 .detail-id {
   font: var(--text-id-lg);
   margin: 0;
-  color: var(--g-ink);
+  color: var(--dept-on);
 }
 .detail-old-id {
   font-size: 0.55em;
-  color: var(--g-ink-3);
+  color: var(--dept-on-3);
   margin-left: var(--space-1);
 }
 .detail-title {
   font: var(--text-heading);
-  color: var(--g-ink-2);
+  color: var(--dept-on-2);
   margin: var(--space-1) 0 0;
 }
 
@@ -1046,33 +1049,32 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
   flex-wrap: wrap;
   gap: var(--space-1);
 }
-/* the shared course-chip anatomy (see tokens.css); chips don't float */
+/* Solid department color, not a rail beside it (see tokens.css → course
+   chips). */
 .subject-chip {
   display: inline-flex;
   align-items: center;
   font: var(--text-id-small);
-  color: var(--g-ink);
+  color: var(--dept-on);
   height: 22px;
-  background: var(--g-surface);
+  background: var(--dept-color, var(--g-line-strong));
   border: none;
-  border-left: 3px solid
-    color-mix(
-      in srgb,
-      var(--dept-color, var(--g-line-strong)) var(--dept-rest-mix),
-      var(--g-line-strong)
-    );
   border-radius: var(--radius-sm);
-  box-shadow: inset 0 0 0 1px var(--g-line);
   padding: 0 var(--space-2);
   cursor: pointer;
-  transition: background-color var(--motion-quick) var(--ease-out);
+  transition: box-shadow var(--motion-quick) var(--ease-out);
 }
 .subject-chip:hover {
-  background: var(--g-accent-tint);
+  box-shadow: 0 0 0 1.5px var(--g-accent);
 }
+/* "+N more" names no subject, so it carries no department color. */
 .subject-chip.more {
-  border-left-color: transparent;
+  background: var(--g-surface-2);
   color: var(--g-ink-3);
+}
+.subject-chip.more:hover {
+  box-shadow: none;
+  background: var(--g-surface-sunken);
 }
 
 /* ---------- facts ---------- */

@@ -58,7 +58,7 @@
               <span
                 v-for="p in programDiff.onlyInA"
                 :key="p"
-                class="diff-chip add-a"
+                class="program-chip add-a"
                 >{{ titleFor(p) }}</span
               >
             </div>
@@ -66,7 +66,7 @@
               <span
                 v-for="p in programDiff.onlyInB"
                 :key="p"
-                class="diff-chip add-b"
+                class="program-chip add-b"
                 >{{ titleFor(p) }}</span
               >
             </div>
@@ -376,23 +376,36 @@ function close() {
   color: var(--g-ink-3);
   margin-bottom: var(--space-1);
 }
+/* Solid department color, not a rail beside it (see tokens.css → course
+   chips): a class names its own department, so the add-a/add-b side is
+   carried by a ring instead of competing with that fill. */
 .diff-chip {
   font: var(--text-id-small);
   border-radius: var(--radius-xs);
   padding: var(--space-05) var(--space-2);
-  border-left: 4px solid
-    color-mix(
-      in srgb,
-      var(--dept-color, var(--g-line-strong)) var(--dept-rest-mix),
-      var(--g-line-strong)
-    );
+  background: var(--dept-color, var(--g-line-strong));
+  color: var(--dept-on);
+}
+.diff-chip.add-a {
+  box-shadow: 0 0 0 1.5px var(--g-info);
+}
+.diff-chip.add-b {
+  box-shadow: 0 0 0 1.5px var(--g-ok);
+}
+
+/* A program has no department color of its own, so the add-a/add-b side
+   is the only signal, and it's free to be a tint again. */
+.program-chip {
+  font: var(--text-id-small);
+  border-radius: var(--radius-xs);
+  padding: var(--space-05) var(--space-2);
   background: var(--g-surface-2);
   color: var(--g-ink);
 }
-.diff-chip.add-a {
+.program-chip.add-a {
   background: var(--g-info-tint);
 }
-.diff-chip.add-b {
+.program-chip.add-b {
   background: var(--g-ok-tint);
 }
 .diff-none {
