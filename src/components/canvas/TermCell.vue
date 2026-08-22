@@ -109,16 +109,23 @@
           </template>
         </g-tooltip>
       </div>
-      <g-progress
+      <g-tooltip
         v-if="index !== 0 && subjects.length"
-        class="load-gauge"
-        :class="loadTone"
-        fill-class="load-fill"
-        :value="loadPercent"
-        :get-value-label="
-          () => `${info.totalExpectedHours.toFixed(0)} expected hours per week`
-        "
-      />
+        class="load-gauge-wrap"
+        wide
+        text="48 units is the typical load per semester."
+      >
+        <g-progress
+          class="load-gauge"
+          :class="loadTone"
+          fill-class="load-fill"
+          :value="loadPercent"
+          :get-value-label="
+            () =>
+              `${info.totalExpectedHours.toFixed(0)} expected hours per week`
+          "
+        />
+      </g-tooltip>
     </header>
 
     <div v-if="!collapsedPrior" class="term-classes">
@@ -278,10 +285,10 @@ const loadPercent = computed(() =>
 
 const loadTone = computed(() => {
   const hours = info.value.totalExpectedHours;
-  if (hours >= 55) {
+  if (hours >= 60) {
     return "load-danger";
   }
-  if (hours >= 42) {
+  if (hours >= 48) {
     return "load-warn";
   }
   return "load-ok";
@@ -536,6 +543,15 @@ const placementAriaLabel = computed(() => {
   font-weight: 600;
 }
 
+/* GTooltip's trigger (the actual DOM anchor) is a grandchild through
+   TooltipProvider/TooltipRoot, which render no DOM node of their own, so
+   it never receives this component's scope attribute; :deep() reaches it
+   the same way .load-fill below reaches into GProgress. Its own
+   inline-flex default let the gauge collapse to zero width. */
+:deep(.load-gauge-wrap) {
+  display: block;
+  width: 100%;
+}
 .load-gauge {
   position: relative;
   height: 3px;
@@ -544,24 +560,19 @@ const placementAriaLabel = computed(() => {
   margin-top: var(--space-2);
   overflow: hidden;
 }
-/* Notches at the thresholds where the tone changes (42h and 55h of the
-   60h scale); the gauge shows where "too much" begins, not just how full.
-   They sit above the fill so they cut it, not just the track. */
-.load-gauge::before,
-.load-gauge::after {
+/* A notch where the tone turns amber (48h of the 60h scale the gauge is
+   capped at): "too much" starts here, not just "how full." Danger's own
+   threshold is the scale's own cap, so it needs no notch of its own. Sits
+   above the fill so it cuts it, not just the track. */
+.load-gauge::before {
   content: "";
   position: absolute;
   top: 0;
   bottom: 0;
+  left: 80%;
   width: 2px;
   background: var(--g-cell);
   z-index: 1;
-}
-.load-gauge::before {
-  left: 70%;
-}
-.load-gauge::after {
-  left: 91.7%;
 }
 /* :deep(): GProgress's own indicator, a grandchild from here. */
 :deep(.load-fill) {
