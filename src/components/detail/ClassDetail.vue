@@ -516,11 +516,15 @@ const hoursVerdict = computed(() => {
   }
   const units = subject.value.total_units;
   const diff = totalHours.value - units;
+  const singular =
+    units === 1
+      ? { unit: "unit", suggest: "suggests" }
+      : { unit: "units", suggest: "suggest" };
   if (diff >= 0.35 * units) {
-    return `Runs ${diff.toFixed(0)}h a week over its ${units} units.`;
+    return `May be heavier than its ${units} ${singular.unit} ${singular.suggest}.`;
   }
   if (diff <= -0.35 * units) {
-    return `Lighter than its ${units} units suggest.`;
+    return `May be lighter than its ${units} ${singular.unit} ${singular.suggest}.`;
   }
   return null;
 });
@@ -536,16 +540,11 @@ const hoursExplainer = computed(() => {
   if (s?.total_units === undefined || totalHours.value === null) {
     return "";
   }
-  const units = s.total_units;
   const hours = totalHours.value.toFixed(1);
   const reported = isGeneric.value
-    ? `Subject evaluations put ${s.subject_id} subjects at ${hours}h a week on average.`
-    : `Subject evaluations put this one at ${hours}h.`;
-  return (
-    `A unit is meant to be an hour of work a week, so ${units} units should ` +
-    `come to about ${units}h. ${reported} The note shows up once the gap ` +
-    `passes 35% either way.`
-  );
+    ? `Subject evaluations put ${s.subject_id} subjects at ${hours}h of work per week on average.`
+    : `Subject evaluations put this subject at ${hours}h of work per week.`;
+  return `One unit is approximately 14 hours of work over a single term, or approximately one hour of work per week. ${reported}`;
 });
 
 const unitsSplit = computed(() => {
