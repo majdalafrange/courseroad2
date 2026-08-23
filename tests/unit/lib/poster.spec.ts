@@ -160,13 +160,20 @@ describe("theme mirrors of tokens.css", () => {
     expect(match, name).not.toBeNull();
     return (match as RegExpExecArray)[1].trim();
   };
-  const FIELD_TOKENS: Record<keyof PosterTheme, string> = {
+  const FIELD_TOKENS: Record<
+    Exclude<keyof PosterTheme, "deptOn" | "deptOn2">,
+    string
+  > = {
     bg: "--g-bg",
     surface: "--g-surface",
+    cell: "--g-cell",
     line: "--g-line",
     ink: "--g-ink",
     ink2: "--g-ink-2",
     ink3: "--g-ink-3",
+    accent: "--g-accent",
+    brand: "--g-brand",
+    brandFlag: "--g-brand-flag",
   };
 
   it("light theme matches the :root tokens", () => {
@@ -187,6 +194,36 @@ describe("theme mirrors of tokens.css", () => {
 
   it("the wordmark tile is --g-mark and ignores the theme", () => {
     expect(MARK_TILE).toBe(token(lightCss, "--g-mark"));
+  });
+});
+
+describe("dept-on mirrors of departmentColors.css", () => {
+  // Card text rides the same theme-fixed on-color pair every department
+  // color uses (generate-palette.mjs's contrast guarantee), not tokens.css;
+  // a separate small sync check for a separate generated source file.
+  const css = readFileSync("src/design/departmentColors.css", "utf8");
+  const [lightCss, darkCss] = css.split('[data-theme="dark"]');
+  const token = (section: string, name: string): string => {
+    const match = new RegExp(`${name}:\\s*([^;]+);`).exec(section);
+    expect(match, name).not.toBeNull();
+    return (match as RegExpExecArray)[1].trim();
+  };
+  const FIELD_TOKENS = { deptOn: "--dept-on", deptOn2: "--dept-on-2" } as const;
+
+  it("light theme matches the :root tokens", () => {
+    for (const [field, name] of Object.entries(FIELD_TOKENS)) {
+      expect(POSTER_THEMES.light[field as keyof PosterTheme], name).toBe(
+        token(lightCss, name),
+      );
+    }
+  });
+
+  it("dark theme matches the data-theme=dark tokens", () => {
+    for (const [field, name] of Object.entries(FIELD_TOKENS)) {
+      expect(POSTER_THEMES.dark[field as keyof PosterTheme], name).toBe(
+        token(darkCss, name),
+      );
+    }
   });
 });
 

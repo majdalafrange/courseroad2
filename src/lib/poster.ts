@@ -11,6 +11,7 @@ import { semesterInformation } from "./hours";
 import {
   NUM_SEMESTERS,
   baseYear,
+  defaultCurrentSemester,
   semesterCalendarYearShort,
   semesterType,
 } from "./offering";
@@ -54,23 +55,42 @@ export function preparePosterFonts(): Promise<void> {
 export interface PosterTheme {
   bg: string;
   surface: string;
+  /* term-cell working surface */
+  cell: string;
   line: string;
   ink: string;
   ink2: string;
   ink3: string;
+  /* current-term accent */
+  accent: string;
+  /* brand color, used for now border */
+  brand: string;
+  /* color of now flag */
+  brandFlag: string;
+  /* used for text contrast */
+  deptOn: string;
+  deptOn2: string;
 }
 
-/* Mirrors of the tokens.css values (the poster renders outside the app's
-   stylesheet): --g-bg, --g-surface, --g-line, --g-ink, --g-ink-2,
-   --g-ink-3 per theme. poster.spec.ts pins these against the parsed
-   tokens.css, so a retuned token fails a test instead of drifting. */
+/* Mirrors of the tokens.css / departmentColors.css values (the poster
+   renders outside the app's stylesheet): --g-bg, --g-surface, --g-cell,
+   --g-line, --g-ink, --g-ink-2, --g-ink-3, --g-accent, --g-brand,
+   --g-brand-flag, --dept-on, --dept-on-2 per theme. poster.spec.ts pins
+   these against the parsed source files, so a retuned token fails a test
+   instead of drifting. */
 const LIGHT_THEME: PosterTheme = {
   bg: "#eef1f3",
   surface: "#ffffff",
+  cell: "#ffffff",
   line: "#dde2e5",
   ink: "#191c20",
   ink2: "#484d54",
   ink3: "#676c74",
+  accent: "#a31f34",
+  brand: "#a31f34",
+  brandFlag: "#a31f34",
+  deptOn: "#ffffff",
+  deptOn2: "#f0f0f0",
 };
 
 /* --g-mark: the wordmark tile is cardinal in both themes, so it is not part
@@ -80,10 +100,16 @@ export const MARK_TILE = "#a31f34";
 const DARK_THEME: PosterTheme = {
   bg: "#10141b",
   surface: "#171b23",
+  cell: "#1e232c",
   line: "#262b35",
   ink: "#ececee",
   ink2: "#b6b7bc",
   ink3: "#8f9197",
+  accent: "#a6b2bb",
+  brand: "#d4586c",
+  brandFlag: "#c04057",
+  deptOn: "#16191d",
+  deptOn2: "#2a2a2a",
 };
 
 /** Both theme tables, exported for the tokens.css sync test. */
@@ -133,6 +159,7 @@ function resolveColor(value: string | undefined): string {
 export interface PosterOptions {
   userYear: number;
   dark: boolean;
+  hideIAP: boolean;
 }
 
 /** Build an SVG poster string for a road. */
@@ -144,6 +171,7 @@ export function buildRoadPoster(
   const theme = options.dark ? DARK_THEME : LIGHT_THEME;
   const base = baseYear(options.userYear);
   const selected = road.contents.selectedSubjects;
+  const currentSemester = defaultCurrentSemester() + options.userYear * 3;
 
   // Which terms to draw: Prior Credit (if used) + 4 or 5 years × 3.
   const usesFifth = selected.slice(13, NUM_SEMESTERS).some((b) => b.length > 0);
@@ -153,13 +181,13 @@ export function buildRoadPoster(
   const padding = 56;
   const colGap = 20;
   const rowGap = 28;
-  const colWidth = 220;
+  const colWidth = options.hideIAP ? 330 : 220;
   const headerH = 120;
   const termHeaderH = 44;
   const cardH = 30;
   const cardGap = 6;
 
-  const cols = 3; // Fall, IAP, Spring
+  const cols = options.hideIAP ? 2 : 3; // Fall, IAP, Spring
   const width = padding * 2 + colWidth * cols + colGap * (cols - 1);
 
   // Compute per-term card counts to size rows.
@@ -167,7 +195,10 @@ export function buildRoadPoster(
   for (let y = 0; y < years; y++) {
     let maxCards = 0;
     for (let c = 0; c < 3; c++) {
-      maxCards = Math.max(maxCards, selected[1 + y * 3 + c].length);
+      if (!options.hideIAP || c !== 1) {
+        // Skip IAP if hidden
+        maxCards = Math.max(maxCards, selected[1 + y * 3 + c].length);
+      }
     }
     maxCardsByYear.push(maxCards);
   }
@@ -187,6 +218,7 @@ export function buildRoadPoster(
         cursorY,
         width - padding * 2,
         theme,
+        { isPrior: true, isCurrent: false },
       ),
     );
     cursorY += priorH + rowGap;
@@ -203,7 +235,11 @@ export function buildRoadPoster(
     );
     for (let c = 0; c < 3; c++) {
       const index = 1 + y * 3 + c;
-      const x = padding + c * (colWidth + colGap);
+      if (options.hideIAP && c === 1) continue; // Skip IAP if hidden
+      const x =
+        padding +
+        c * (colWidth + colGap) -
+        (options.hideIAP && c > 1 ? colGap + colWidth : 0);
       const season = semesterType(index);
       const yr = semesterCalendarYearShort(index, base);
       parts.push(
@@ -215,6 +251,7 @@ export function buildRoadPoster(
           cursorY,
           colWidth,
           theme,
+          { isPrior: false, isCurrent: index === currentSemester },
         ),
       );
     }
@@ -257,6 +294,13 @@ function truncateTitle(name: string): string {
   return chars.length > 48 ? chars.slice(0, 45).join("") + "..." : name;
 }
 
+interface TermBlockFlags {
+  /** Prior credit: sentence-case label, transparent dashed box, never "now". */
+  isPrior: boolean;
+  /** TermCell.is-current: brand-bordered box, accent label, a "Now" flag. */
+  isCurrent: boolean;
+}
+
 function termBlock(
   season: string,
   yearLabel: string,
@@ -265,39 +309,73 @@ function termBlock(
   y: number,
   w: number,
   theme: PosterTheme,
+  { isPrior, isCurrent }: TermBlockFlags,
 ): string {
   const cardH = 30;
   const cardGap = 6;
   const headerH = 44;
   const blockH = headerH + subjects.length * (cardH + cardGap) + 8;
   const parts: string[] = [];
+  // TermCell: --g-cell (not --g-surface), --radius-md (6px, not 10), and
+  // prior credit sits on a dashed, transparent (not filled) box.
   parts.push(
-    `<rect x="${x}" y="${y}" width="${w}" height="${blockH}" rx="10" fill="${theme.surface}" stroke="${theme.line}"/>`,
+    `<rect x="${x}" y="${y}" width="${w}" height="${blockH}" rx="6" ` +
+      `fill="${isPrior ? "none" : theme.cell}" stroke="${isCurrent ? theme.brand : theme.line}" ` +
+      `stroke-width="${isCurrent ? 1.5 : 1}"${isPrior ? ' stroke-dasharray="4 3"' : ""}/>`,
   );
-  parts.push(
-    `<text x="${x + 14}" y="${y + 24}" font-family="'IBM Plex Sans Variable',sans-serif" font-size="11" font-weight="600" letter-spacing="0.6" fill="${theme.ink3}">${esc(season.toUpperCase())} ${esc(yearLabel)}</text>`,
-  );
+  if (isPrior) {
+    // Prior credit is a row name, not a column header: sentence case, no
+    // caps treatment (TermCell's .term-name.is-prior).
+    parts.push(
+      `<text x="${x + 14}" y="${y + 24}" font-family="'IBM Plex Sans Variable',sans-serif" font-size="12.5" fill="${theme.ink3}">${esc(season)}</text>`,
+    );
+  } else {
+    // A season label is a data column header: caps, tracked, weight 500
+    // (not 600); accent-colored while it's the current term, the way
+    // TermCell's .is-current .term-name is. The year half stays legible
+    // but quieter (TermCell's .term-year, opacity 0.8).
+    parts.push(
+      `<text x="${x + 14}" y="${y + 24}" font-family="'IBM Plex Sans Variable',sans-serif" font-size="11" font-weight="500" letter-spacing="0.66" fill="${isCurrent ? theme.accent : theme.ink3}">` +
+        `<tspan>${esc(season.toUpperCase())}</tspan><tspan dx="3" fill-opacity="0.8">${esc(yearLabel)}</tspan></text>`,
+    );
+  }
+  if (isCurrent) {
+    // TermCell's "Now" flag: a pinned tab clipped onto the box, tilted,
+    // sitting right-of-center on the top edge.
+    const flagW = 40;
+    const flagH = 15;
+    const flagX = x + w - 40 - flagW;
+    const flagY = y - 1;
+    const cx = flagX + flagW / 2;
+    const cy = flagY + flagH / 2;
+    parts.push(
+      `<g transform="rotate(-1.5 ${cx} ${cy})">` +
+        `<rect x="${flagX}" y="${flagY}" width="${flagW}" height="${flagH}" rx="3" fill="${theme.brandFlag}"/>` +
+        `<text x="${cx}" y="${flagY + flagH - 4.5}" text-anchor="middle" font-family="'IBM Plex Sans Variable',sans-serif" font-size="9" font-weight="600" letter-spacing="0.6" fill="#ffffff">NOW</text>` +
+        `</g>`,
+    );
+  }
   let cy = y + headerH;
   for (const subj of subjects) {
+    // Course chips and cards: the subject's own color as the whole card's
+    // fill, not a rail beside a neutral card (tokens.css → "Course chips
+    // and cards"; legacy CourseRoad's rail convention, retired).
     const color = resolveColor(courseColor(subj));
     parts.push(
-      `<rect x="${x + 10}" y="${cy}" width="${w - 20}" height="${cardH}" rx="5" fill="${theme.surface}" stroke="${theme.line}"/>`,
-    );
-    parts.push(
-      `<rect x="${x + 10}" y="${cy}" width="5" height="${cardH}" rx="2.5" fill="${color}"/>`,
+      `<rect x="${x + 10}" y="${cy}" width="${w - 20}" height="${cardH}" rx="4" fill="${color}"/>`,
     );
     // A subject missing subject_id/title (a pre-migration save, or a
     // hand-edited/malformed .road import) would otherwise throw here and
     // take down the whole poster instead of just this one card.
     const subjectId = subj.subject_id ?? "?";
     parts.push(
-      `<text x="${x + 22}" y="${cy + 13}" font-family="'IBM Plex Mono',monospace" font-size="11" font-weight="500" fill="${theme.ink}">${esc(subjectId)}</text>`,
+      `<text x="${x + 14}" y="${cy + 13}" font-family="'IBM Plex Mono',monospace" font-size="11" font-weight="600" fill="${theme.deptOn}">${esc(subjectId)}</text>`,
     );
     const rawTitle = subj.title ?? "";
     const title =
       rawTitle.length > 38 ? rawTitle.slice(0, 35) + "..." : rawTitle;
     parts.push(
-      `<text x="${x + 22}" y="${cy + 24}" font-family="'IBM Plex Sans Variable',sans-serif" font-size="10" fill="${theme.ink2}">${esc(title)}</text>`,
+      `<text x="${x + 14}" y="${cy + 24}" font-family="'IBM Plex Sans Variable',sans-serif" font-size="10" fill="${theme.deptOn2}">${esc(title)}</text>`,
     );
     cy += cardH + cardGap;
   }

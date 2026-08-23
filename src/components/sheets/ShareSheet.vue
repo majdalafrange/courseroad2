@@ -89,6 +89,7 @@ watch(
       posterSvg.value = buildRoadPoster(road.value, store.catalog, {
         userYear: store.userYear,
         dark: Boolean(store.isDarkMode),
+        hideIAP: Boolean(store.hideIAP),
       });
       // Warm the embedded-font cache now (usually instant: same files
       // main.ts already loaded) so Save/Print don't wait on it later.
@@ -109,6 +110,7 @@ async function exportSvg(): Promise<string> {
   return buildRoadPoster(road.value, store.catalog, {
     userYear: store.userYear,
     dark: Boolean(store.isDarkMode),
+    hideIAP: Boolean(store.hideIAP),
   });
 }
 
