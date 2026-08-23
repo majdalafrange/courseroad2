@@ -158,7 +158,8 @@
               class="palette-empty"
             >
               Nothing matches.<template v-if="tokenSuggestions.length">
-                Tab applies the suggested filter.</template
+                <g-kbd :keys="['Tab']" /> applies the suggested
+                filter.</template
               >
             </div>
           </div>
@@ -173,7 +174,8 @@
             data-cy="paletteGrammarHint"
           >
             Type to search {{ catalogSize }} subjects, or compose filters:
-            <code>hass-a</code> then Tab, <code>spring</code> then Tab.
+            <code>hass-a</code> then <g-kbd :keys="['Tab']" />,
+            <code>spring</code> then <g-kbd :keys="['Tab']" />.
           </div>
         </div>
       </div>

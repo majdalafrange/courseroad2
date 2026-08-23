@@ -8,7 +8,7 @@
           >. Choose a term below
         </span>
         <g-button size="sm" variant="ghost" @click="store.cancelAddFromCard()">
-          Cancel · Esc
+          Cancel · <g-kbd class="placement-keys" :keys="['Esc']" />
         </g-button>
       </div>
     </transition>
@@ -18,7 +18,9 @@
         <span class="placement-text">
           Moving
           <strong class="placement-id">{{ moveSourceSubjectId }}</strong
-          >. Arrow keys to choose a term, Enter to place, Esc to cancel
+          >. Arrow keys to choose a term,
+          <g-kbd class="placement-keys" :keys="['Enter']" /> to place,
+          <g-kbd class="placement-keys" :keys="['Esc']" /> to cancel
         </span>
       </div>
     </transition>
@@ -126,6 +128,7 @@ import GButton from "../../design/components/GButton.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GPopover from "../../design/components/GPopover.vue";
 import GSelect from "../../design/components/GSelect.vue";
+import GKbd from "../../design/components/GKbd.vue";
 import { announce } from "../../design/announce";
 import {
   NUM_SEMESTERS,
@@ -521,6 +524,9 @@ void dragState;
 }
 .placement-text {
   font: var(--text-body);
+}
+.placement-keys {
+  color: var(--text-body) !important;
 }
 .placement-id {
   /* inherits the banner's ink-inversion color (17:1 light, 15.7:1 dark);
