@@ -462,7 +462,11 @@ interface AuditSuggestion {
 }
 
 const auditSuggestions = computed<AuditSuggestion[]>(() => {
-  if (query.value.length > 0 || hasActiveFilters.value) {
+  if (
+    query.value.length > 0 ||
+    hasActiveFilters.value ||
+    !store.hasGIRReqList
+  ) {
     return [];
   }
   const suggestions: AuditSuggestion[] = [];

@@ -1,6 +1,9 @@
 <template>
   <div class="audit-panel" :class="{ 'is-ledger': ledger }" data-cy="auditBox">
-    <suggestion-strip v-if="!ledger && hasGIRReqList" @see-all="onSeeAll" />
+    <suggestion-strip
+      v-if="!ledger && store.hasGIRReqList"
+      @see-all="onSeeAll"
+    />
 
     <!-- program picker -->
     <div v-if="!ledger" class="picker">
@@ -149,16 +152,6 @@ const pickerOpen = ref(false);
 const fitOpen = ref(false);
 const pickerQuery = ref("");
 const pickerInput = ref<InstanceType<typeof GInput>>();
-
-const hasGIRReqList = computed(() => {
-  const activeReqs =
-    store.roads[store.activeRoad]?.contents.coursesOfStudy ?? [];
-  return (
-    auditStore.reqList
-      .filter((entry) => activeReqs.includes(entry.key))
-      .find((entry) => entry.key === "girs") !== undefined
-  );
-});
 
 const selectedReqs = computed(
   () => store.roads[store.activeRoad]?.contents.coursesOfStudy ?? [],

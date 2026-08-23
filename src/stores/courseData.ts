@@ -166,6 +166,13 @@ export const useCourseDataStore = defineStore("courseData", {
         ? state.systemPrefersDark
         : state.themeMode === "dark";
     },
+    hasGIRReqList(state): boolean {
+      const activeRoad = state.roads[state.activeRoad];
+      return (
+        activeRoad !== undefined &&
+        activeRoad.contents.coursesOfStudy.includes("girs")
+      );
+    },
   },
   actions: {
     /** Notify autosave/audit subscribers of a road change. */
