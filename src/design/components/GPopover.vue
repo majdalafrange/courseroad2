@@ -108,7 +108,7 @@ function onInteractOutside(event: PointerDownOutsideEvent | FocusOutsideEvent) {
    classes here are unique enough app-wide that a global rule is safe. */
 .g-popover-anchor {
   display: inline-flex;
-  min-width: 0;
+  flex-shrink: 0;
 }
 .g-popover {
   z-index: 50;
