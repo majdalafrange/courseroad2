@@ -31,7 +31,10 @@ import {
   unpinNode,
 } from "../lib/connections/graph";
 import {
+  ROW_HEIGHT,
+  UNSCHEDULED_ROW,
   emptyLayout,
+  gridRows,
   reconcileLayout,
   setNodePosition,
   tidyLayout,
@@ -84,6 +87,25 @@ export const NODE_HEIGHT_COMPACT = 40;
 export const COMPACT_ZOOM = 0.55;
 /** Clearance between a card's border and where its edges start. */
 const EDGE_GAP = 7;
+
+/**
+ * A subject's grid row: its road bucket if it's already placed, else the
+ * bucket the current plan could first reach it by (a `ready-after`
+ * readiness), else undefined (Unscheduled), since `ready`/`missing`/
+ * `unknown` don't name an actual term. Pure, so it's unit-testable on its
+ * own.
+ */
+export function subjectTermRow(
+  id: string,
+  roadBucket: Map<string, number>,
+  readiness: Readiness | undefined,
+): number | undefined {
+  const bucket = roadBucket.get(id);
+  if (bucket !== undefined) {
+    return bucket;
+  }
+  return readiness?.kind === "ready-after" ? readiness.term : undefined;
+}
 
 /** A one-shot ask for the canvas to bring nodes into view (fit when no ids). */
 export interface FrameRequest {
@@ -176,6 +198,8 @@ export const useConnectionsStore = defineStore("connections", () => {
   const seed = ref<Seed>({ subjectIds: [], origin: "road" });
   const selectedId = ref<string | undefined>(undefined);
   const hiddenTypes = ref<Set<EdgeType>>(new Set());
+  /** A per-view preference, not persisted with the exploration. */
+  const showRowLabels = ref(true);
   const status = ref<ConnectionsStatus>("idle");
   const justAdded = ref<Set<string>>(new Set());
   const revealMeta = ref<Map<string, RevealMeta>>(new Map());
@@ -236,6 +260,25 @@ export const useConnectionsStore = defineStore("connections", () => {
     return map;
   });
 
+  /** Subjects on the active road → their earliest bucket index. The grid
+   *  layout's row for an on-road node. */
+  const roadBucket = computed(() => {
+    const map = new Map<string, number>();
+    const road = courseData.activeRoadObject;
+    if (road === undefined) {
+      return map;
+    }
+    const buckets = road.contents.selectedSubjects;
+    for (let bucket = 0; bucket < buckets.length; bucket++) {
+      for (const placed of buckets[bucket]) {
+        if (!map.has(placed.subject_id)) {
+          map.set(placed.subject_id, bucket);
+        }
+      }
+    }
+    return map;
+  });
+
   /** Open attribute requirements across every program on the active road. */
   const openRequirements = computed(() => {
     const open = new Set<string>();
@@ -275,6 +318,22 @@ export const useConnectionsStore = defineStore("connections", () => {
     return readinessEvaluator.value(subject);
   }
 
+  /** Every graph node's grid row, for the layout to place it by. */
+  const termOf = computed<Map<string, number>>(() => {
+    const map = new Map<string, number>();
+    for (const id of graph.value.nodes.keys()) {
+      const subject = getSubject(courseData.catalog, id);
+      if (subject === undefined) {
+        continue;
+      }
+      const row = subjectTermRow(id, roadBucket.value, readinessFor(subject));
+      if (row !== undefined) {
+        map.set(id, row);
+      }
+    }
+    return map;
+  });
+
   const baseYearValue = computed(() => baseYear(courseData.userYear));
 
   /** "Fall ’27"-style name for a road bucket. */
@@ -284,6 +343,33 @@ export const useConnectionsStore = defineStore("connections", () => {
     }
     return `${semesterType(index)} ’${semesterCalendarYearShort(index, baseYearValue.value)}`;
   }
+
+  /**
+   * One entry per row the grid actually uses (rows with no node don't get
+   * drawn), sorted top to bottom. "Prior credit" and "Unscheduled" are row
+   * *names*, not column headers, so `special` marks them for the canvas to
+   * render in sentence case instead of the caps term-label treatment (same
+   * distinction TermCell's `.term-name.is-prior` draws on the plan grid).
+   */
+  const rows = computed<
+    {
+      row: number;
+      y: number;
+      label: string;
+      special: boolean;
+      unscheduled: boolean;
+      current: boolean;
+    }[]
+  >(() =>
+    gridRows(graph.value, termOf.value).map(({ bucket, row }) => ({
+      row,
+      y: row * ROW_HEIGHT,
+      label: bucket === UNSCHEDULED_ROW ? "Unscheduled" : termName(bucket),
+      special: bucket === 0 || bucket === UNSCHEDULED_ROW,
+      unscheduled: bucket === UNSCHEDULED_ROW,
+      current: bucket === courseData.currentSemester,
+    })),
+  );
 
   /** Chip copy for a readiness value; undefined when we shouldn't claim one. */
   function readinessLabel(readiness: Readiness): string | undefined {
@@ -512,7 +598,7 @@ export const useConnectionsStore = defineStore("connections", () => {
   /* ---------------------------------------------------------- mutations */
 
   function relayout(): void {
-    layout.value = reconcileLayout(layout.value, graph.value);
+    layout.value = reconcileLayout(layout.value, graph.value, termOf.value);
   }
 
   function persist(): void {
@@ -719,7 +805,7 @@ export const useConnectionsStore = defineStore("connections", () => {
     } else {
       seed.value = newSeed;
       graph.value = seedGraph(e, newSeed.subjectIds);
-      layout.value = reconcileLayout(emptyLayout(), graph.value);
+      layout.value = reconcileLayout(emptyLayout(), graph.value, termOf.value);
       persist();
     }
     // the opening moment: the map assembles in a quiet wave, never a pop,
@@ -949,7 +1035,7 @@ export const useConnectionsStore = defineStore("connections", () => {
     const before = captureRestorePoint();
 
     commit(resetGraph(graph.value, e), { relayout: false });
-    layout.value = reconcileLayout(layout.value, graph.value);
+    layout.value = reconcileLayout(layout.value, graph.value, termOf.value);
     requestFrame(undefined, COMPACT_ZOOM);
     announce("Reset to your starting subjects.");
 
@@ -1034,6 +1120,9 @@ export const useConnectionsStore = defineStore("connections", () => {
     courseData.addAtPlaceholder(index);
     const topAfter = stack[stack.length - 1];
     const placementEntry = topAfter !== topBefore ? topAfter : undefined;
+    // Now on the road, so its grid row has changed.
+    relayout();
+    requestFrame([subject.subject_id]);
     const label = termName(index);
     announce(`Added ${subject.subject_id} to ${label}.`);
     toast.undoable(`Added ${subject.subject_id} to ${label}`, () => {
@@ -1085,6 +1174,10 @@ export const useConnectionsStore = defineStore("connections", () => {
     hiddenTypes.value = next;
   }
 
+  function toggleRowLabels(): void {
+    showRowLabels.value = !showRowLabels.value;
+  }
+
   function retry(): void {
     // refetch(true) rejects on a failed fetch, in which case open() is
     // skipped and the error state from that failure just stands.
@@ -1103,10 +1196,12 @@ export const useConnectionsStore = defineStore("connections", () => {
     selectedId,
     hoverId,
     hiddenTypes,
+    showRowLabels,
     status,
     placementRequest,
     // derived
     nodes,
+    rows,
     edges,
     compact,
     frameRequest,
@@ -1145,6 +1240,7 @@ export const useConnectionsStore = defineStore("connections", () => {
     tidy,
     setViewport,
     toggleType,
+    toggleRowLabels,
     retry,
   };
 });

@@ -17,6 +17,33 @@
         :class="{ 'vp-animate': vpAnimating }"
         :style="{ transform: sceneTransform }"
       >
+        <template v-if="store.showRowLabels">
+          <line
+            v-for="r in store.rows"
+            :key="'rail-' + r.row"
+            class="row-rail"
+            :class="{
+              'is-unscheduled': r.unscheduled,
+              'is-current': r.current,
+            }"
+            x1="-100"
+            :x2="RAIL_LENGTH"
+            :y1="r.y"
+            :y2="r.y"
+          />
+          <text
+            v-for="r in store.rows"
+            :key="'row-' + r.row"
+            class="row-label"
+            :class="{ 'is-special': r.special, 'is-current': r.current }"
+            :x="-LABEL_MARGIN"
+            :y="r.y"
+            text-anchor="end"
+            dominant-baseline="central"
+          >
+            {{ r.label }}
+          </text>
+        </template>
         <graph-edge
           v-for="edge in store.edges"
           :key="edge.id"
@@ -131,6 +158,15 @@ const panning = ref(false);
 
 const MIN_ZOOM = 0.3;
 const MAX_ZOOM = 2;
+
+/* Row labels sit left of column 0, further left than any node position
+   computeBounds sees. FIT_LEFT_MARGIN clears the longest label
+   ("Unscheduled") so "fit everything" doesn't clip its own labels. */
+const LABEL_MARGIN = 140;
+const FIT_LEFT_MARGIN = 240;
+/* A fixed length, like a printed rule that doesn't shrink to fit what's
+   written on it; comfortably past the typical row's card count. */
+const RAIL_LENGTH = 2600;
 
 /* CSS transform (not the SVG attribute) so programmatic camera moves can
    transition; pointer input drops the transition class first, so panning
@@ -445,6 +481,8 @@ function frameNodes(ids?: string[], floor?: number): boolean {
         size.height,
         80,
         floor ?? 0.35,
+        1,
+        store.showRowLabels ? FIT_LEFT_MARGIN : 0,
       ),
     );
     return true;
@@ -486,8 +524,13 @@ function frameNodes(ids?: string[], floor?: number): boolean {
   // keep the view center fixed across the zoom change...
   let x = size.width / 2 - ((size.width / 2 - v.x) / v.zoom) * zoom;
   let y = size.height / 2 - ((size.height / 2 - v.y) / v.zoom) * zoom;
-  // ...then pan the minimum that brings the bounds inside the padding
-  const sMinX = minX * zoom + x;
+  // ...then pan the minimum that brings the bounds inside the padding.
+  // This bounds box is built from card positions alone, so it doesn't
+  // know a row's label sits further left; reserving FIT_LEFT_MARGIN here
+  // (pan only, zoom is already fixed above) keeps a freshly-expanded
+  // row's label from landing behind the side panel.
+  const labelRoom = store.showRowLabels ? FIT_LEFT_MARGIN : 0;
+  const sMinX = (minX - labelRoom) * zoom + x;
   const sMaxX = maxX * zoom + x;
   if (sMinX < pad) {
     x += pad - sMinX;
@@ -676,6 +719,43 @@ onBeforeUnmount(() => {
 /* the camera: instant under the hand, eased when the app moves it */
 .scene.vp-animate {
   transition: transform var(--motion-deliberate) var(--ease-in-out);
+}
+
+/* A ledger line behind each row's cards: solid for a real term, dashed
+   for Unscheduled (no real term to point to), the same distinction
+   TermCell draws with a dashed border for Prior Credit. Drawn first, so
+   it sits under the edges and cards. */
+.row-rail {
+  stroke: var(--g-line);
+  stroke-width: 1.5;
+  pointer-events: none;
+}
+.row-rail.is-unscheduled {
+  stroke-dasharray: 8 6;
+}
+/* The current term: same cardinal cue TermCell's own current-term box
+   uses on the plan grid, so the two views share one "you are here". */
+.row-rail.is-current {
+  stroke: var(--g-brand);
+}
+
+/* "Prior credit" and "Unscheduled" are row names, not column headers, so
+   they drop the caps/tracking the way TermCell's .is-prior does. */
+.row-label {
+  font: var(--text-micro);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  fill: var(--g-ink-3);
+  pointer-events: none;
+  user-select: none;
+}
+.row-label.is-special {
+  font: var(--text-small);
+  letter-spacing: normal;
+  text-transform: none;
+}
+.row-label.is-current {
+  fill: var(--g-accent);
 }
 @media (prefers-reduced-motion: reduce) {
   .scene.vp-animate {

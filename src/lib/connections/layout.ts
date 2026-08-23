@@ -1,15 +1,26 @@
 /**
- * Deterministic incremental layout: no live force simulation. New
- * children are placed radially around the node that introduced them, in
- * free space; **existing nodes never move**. Collision avoidance is
- * local: only the incoming node searches outward for an open spot.
- * Fixed candidate angles, ids in sorted order, no randomness: same
- * graph and expansion order always yields the same layout.
+ * Deterministic incremental layout: no live force simulation. Every node
+ * sits in a grid cell: row = the road term it belongs to (or is projected
+ * to reach), column = its position among that row's department-sorted
+ * occupants.
+ *
+ * Rows are compacted: only buckets a *currently present* node actually
+ * uses get a row, in ascending bucket order, so an empty semester never
+ * reserves a gap. That means a node's row can shift when the set of
+ * populated buckets changes, since a semester gaining its first node, or
+ * losing its last one, slides every row after it. What's protected
+ * instead is narrower but still the thing that matters for a stable feel:
+ * a node's COLUMN within its row never changes once assigned, and a node
+ * whose row hasn't changed keeps its exact position across a pass. A
+ * newly discovered (or newly re-termed) node only ever searches for an
+ * open column within its own row.
  *
  * Pinned/dragged positions are authoritative and survive every pass,
- * including the optional one-shot "tidy."
+ * including the optional one-shot "tidy" (row re-pack); row compaction
+ * and column packing never touch them.
  */
 
+import { NUM_SEMESTERS } from "../offering";
 import type { GraphState, Viewport } from "./types";
 import { departmentOf } from "./types";
 
@@ -24,276 +35,166 @@ export interface LayoutState {
   fixed: Set<string>;
 }
 
-/** Minimum center-to-center distance before two nodes count as colliding.
- *  Sized to clear the ~200×78 node cards so revealed nodes don't overlap. */
-const MIN_DISTANCE = 224;
-/** Ring radius for a freshly revealed child around its parent. */
-const CHILD_RADIUS = 240;
-const RING_STEP = 72;
-const MAX_RINGS = 10;
-/** Candidate angles per ring, evaluated nearest-to-ideal first. */
-const ANGLE_SAMPLES = 24;
-/** Seed rings. One circle while the chord spacing allows; past that the
- *  seed fills concentric rings from the inside out, so a large road still
- *  opens as a disc rather than a sparse donut. */
-const MAX_SINGLE_RING = 18;
-const RING_GAP = MIN_DISTANCE;
+/** A subject's bucket: its road term, or absent for "no determinable
+ *  term" (not on the road and not reachable from the current plan). */
+export type TermMap = Map<string, number>;
+
+/** Horizontal grid pitch; clears the ~200-wide node cards. */
+export const COL_WIDTH = 224;
+/** Vertical grid pitch; clears a ~78-tall card plus its row label. */
+export const ROW_HEIGHT = 160;
+/** The catch-all bucket for a node with no entry in the term map: one past
+ *  the last real bucket (0..NUM_SEMESTERS-1), so it always sorts last. */
+export const UNSCHEDULED_ROW = NUM_SEMESTERS;
+/** Generous bound on an outward column search; more than enough for any
+ *  row this graph could ever produce (HARD_NODE_CEILING in graph.ts). */
+const MAX_COLUMN_SEARCH = 200;
 
 export function emptyLayout(): LayoutState {
   return { positions: new Map(), fixed: new Set() };
 }
 
-function distance(a: Point, b: Point): number {
-  return Math.hypot(a.x - b.x, a.y - b.y);
+function bucketFor(id: string, termOf: TermMap): number {
+  return termOf.get(id) ?? UNSCHEDULED_ROW;
 }
 
-function collides(p: Point, occupied: Point[]): boolean {
-  for (const o of occupied) {
-    if (distance(p, o) < MIN_DISTANCE) {
-      return true;
-    }
+/** Department first (so same-department nodes stay contiguous), then id. */
+function compareIds(a: string, b: string): number {
+  const da = departmentOf(a);
+  const db = departmentOf(b);
+  if (da !== db) {
+    return da < db ? -1 : 1;
   }
-  return false;
-}
-
-/** Centroid of the given points (origin if empty). */
-function centroidOf(points: Point[]): Point {
-  if (points.length === 0) {
-    return { x: 0, y: 0 };
-  }
-  let x = 0;
-  let y = 0;
-  for (const p of points) {
-    x += p.x;
-    y += p.y;
-  }
-  return { x: x / points.length, y: y / points.length };
-}
-
-/** Smallest ring radius that seats `count` nodes MIN_DISTANCE apart. */
-function ringRadiusFor(count: number): number {
-  return MIN_DISTANCE / 2 / Math.sin(Math.PI / count);
-}
-
-/** How many nodes a ring of `radius` seats MIN_DISTANCE apart. */
-function ringCapacity(radius: number): number {
-  return Math.floor(Math.PI / Math.asin(MIN_DISTANCE / 2 / radius));
+  return a < b ? -1 : 1;
 }
 
 /**
- * Place anchors on a circle centered at the origin, deterministically
- * sorted by (department, id) so each department is a contiguous arc; a
- * many-course seed reads as a color-grouped wheel. A seed too large for
- * one chord-safe ring fills concentric rings from the inside out, each
- * ring's occupants spread evenly so the rim never gaps.
- *
- * Concentric rings ARE the intended shape, not an unfinished disc: no
- * node sits at the centroid (placeChildren fans children outward from
- * it, so it must stay unoccupied), the innermost ring starts at
- * RING_GAP, and the outermost ring holds whatever remainder is left, so
- * it can carry fewer nodes than the ring inside it. No relaxation pass
- * runs at seed time; Auto-arrange is the one opt-in exception.
+ * The distinct buckets among `state`'s current nodes, ascending, each
+ * paired with its compacted row index (0, 1, 2, ...; no gaps for a bucket
+ * nothing currently occupies). Exported so the canvas can build row labels
+ * that agree exactly with where `reconcileLayout` actually put things.
  */
-function placeAnchors(next: LayoutState, anchorIds: string[]): void {
-  const ids = anchorIds
-    .filter((id) => !next.positions.has(id))
-    .sort((a, b) => {
-      const da = departmentOf(a);
-      const db = departmentOf(b);
-      if (da !== db) {
-        return da < db ? -1 : 1;
-      }
-      return a < b ? -1 : 1;
-    });
-  if (ids.length === 0) {
-    return;
+export function gridRows(
+  state: GraphState,
+  termOf: TermMap,
+): { bucket: number; row: number }[] {
+  const buckets = new Set<number>();
+  for (const id of state.nodes.keys()) {
+    buckets.add(bucketFor(id, termOf));
   }
-  if (ids.length === 1) {
-    next.positions.set(ids[0], { x: 0, y: 0 });
-    return;
-  }
-  if (ids.length <= MAX_SINGLE_RING) {
-    placeRing(next, ids, ringRadiusFor(ids.length), 0);
-    return;
-  }
-  let placed = 0;
-  for (let ring = 0; placed < ids.length; ring++) {
-    const radius = RING_GAP * (ring + 1);
-    const remaining = ids.length - placed;
-    const count = Math.min(remaining, ringCapacity(radius));
-    placeRing(next, ids.slice(placed, placed + count), radius, ring);
-    placed += count;
-  }
+  return [...buckets]
+    .sort((a, b) => a - b)
+    .map((bucket, row) => ({ bucket, row }));
 }
 
-/** Spread `ids` evenly around one ring. Rings start at the top, each
- *  rotated half a step from the last so no radial seam lines up. */
-function placeRing(
-  next: LayoutState,
-  ids: string[],
-  radius: number,
-  ring: number,
-): void {
-  const step = (2 * Math.PI) / ids.length;
-  const start = -Math.PI / 2 + (ring * step) / 2;
-  for (let i = 0; i < ids.length; i++) {
-    const angle = start + i * step;
-    next.positions.set(ids[i], {
-      x: radius * Math.cos(angle),
-      y: radius * Math.sin(angle),
-    });
+/** Columns occupied at row `row` among `positions`, rounding each point to
+ *  its nearest row so a dragged node (never exactly on a grid multiple)
+ *  still blocks the column it visually sits in. */
+function occupiedColumnsAt(
+  positions: Map<string, Point>,
+  row: number,
+): Set<number> {
+  const cols = new Set<number>();
+  for (const p of positions.values()) {
+    if (Math.round(p.y / ROW_HEIGHT) === row) {
+      cols.add(Math.round(p.x / COL_WIDTH));
+    }
   }
+  return cols;
 }
 
 /**
- * Find a free position for a child near its parent, fanning outward from the
- * graph's center so the graph grows outward rather than inward. Only the
- * incoming node moves; `occupied` (existing nodes) is never disturbed.
+ * Place `id` in `row`, at the column nearest to where it sorts among that
+ * row's current occupants (department, then id). If that column is taken,
+ * search outward (+1, -1, +2, -2, ...) for the nearest free one, so a
+ * single node discovered after its row is already dense can land out of
+ * strict sort order rather than displace an existing card.
  */
-function placeChild(
-  parent: Point,
-  centroid: Point,
-  slot: number,
-  slotCount: number,
-  occupied: Point[],
-): Point {
-  // ideal direction: fan outward from the graph's center. When the parent
-  // sits at the centroid (e.g. a lone seed), "outward" is undefined, so
-  // distribute children evenly around a full ring instead of one-sided.
-  const dxc = parent.x - centroid.x;
-  const dyc = parent.y - centroid.y;
-  const atCenter = Math.hypot(dxc, dyc) < 1;
-  let ideal: number;
-  if (atCenter) {
-    ideal = (slot / Math.max(1, slotCount)) * 2 * Math.PI;
-  } else {
-    const outward = Math.atan2(dyc, dxc);
-    const spread = Math.PI * 0.9;
-    const fan = slotCount > 1 ? (slot / (slotCount - 1) - 0.5) * spread : 0;
-    ideal = outward + fan;
-  }
-
-  let best: Point | undefined;
-  for (let ring = 0; ring < MAX_RINGS; ring++) {
-    const radius = CHILD_RADIUS + ring * RING_STEP;
-    // evaluate candidate angles ordered by closeness to the ideal direction
-    const candidates: number[] = [];
-    for (let k = 0; k < ANGLE_SAMPLES; k++) {
-      candidates.push(k);
+function placeInRow(next: LayoutState, id: string, row: number): void {
+  const y = row * ROW_HEIGHT;
+  const occupants = [id];
+  for (const [otherId, p] of next.positions) {
+    if (Math.round(p.y / ROW_HEIGHT) === row) {
+      occupants.push(otherId);
     }
-    candidates.sort((p, q) => {
-      const ap = Math.abs(angleDelta(ideal, (p / ANGLE_SAMPLES) * 2 * Math.PI));
-      const aq = Math.abs(angleDelta(ideal, (q / ANGLE_SAMPLES) * 2 * Math.PI));
-      return ap - aq || p - q;
-    });
-    for (const k of candidates) {
-      const angle = (k / ANGLE_SAMPLES) * 2 * Math.PI;
-      const point = {
-        x: parent.x + radius * Math.cos(angle),
-        y: parent.y + radius * Math.sin(angle),
-      };
-      if (best === undefined) {
-        best = point; // deterministic fallback if everything collides
+  }
+  occupants.sort(compareIds);
+  const ideal = occupants.indexOf(id);
+  const taken = occupiedColumnsAt(next.positions, row);
+  let col = ideal;
+  if (taken.has(col)) {
+    for (let step = 1; step <= MAX_COLUMN_SEARCH; step++) {
+      if (!taken.has(ideal + step)) {
+        col = ideal + step;
+        break;
       }
-      if (!collides(point, occupied)) {
-        return point;
+      if (!taken.has(ideal - step)) {
+        col = ideal - step;
+        break;
       }
     }
   }
-  return best as Point;
-}
-
-/** Smallest signed angular difference between two angles. */
-function angleDelta(a: number, b: number): number {
-  let d = (a - b) % (2 * Math.PI);
-  if (d > Math.PI) {
-    d -= 2 * Math.PI;
-  }
-  if (d < -Math.PI) {
-    d += 2 * Math.PI;
-  }
-  return d;
+  next.positions.set(id, { x: col * COL_WIDTH, y });
 }
 
 /**
- * Reconcile positions against the current graph: keep every existing
- * position exactly, place anchors that lack one, and place each newly
- * revealed node around the node that introduced it. Pure; returns a new
+ * Reconcile positions against the current graph and term map. Every
+ * pinned/dragged node keeps its exact position, full stop. Every other
+ * node still in the graph gets its row re-derived from the *current*
+ * compacted mapping: unchanged if that's still where it already sits
+ * (column preserved too), otherwise (a new node, or one whose term just
+ * changed: placed onto the road, a semester ahead of it emptying out,
+ * ...) it's placed fresh into its new row. Pure; returns a new
  * LayoutState; the input is untouched.
  */
 export function reconcileLayout(
   prev: LayoutState,
   state: GraphState,
+  termOf: TermMap,
 ): LayoutState {
   const next: LayoutState = {
     positions: new Map(),
     fixed: new Set(),
   };
-  // carry over positions for nodes still present (drop the rest)
-  for (const [id, point] of prev.positions) {
-    if (state.nodes.has(id)) {
-      next.positions.set(id, point);
-    }
-  }
   for (const id of prev.fixed) {
     if (state.nodes.has(id)) {
       next.fixed.add(id);
     }
   }
-
-  placeAnchors(next, [...state.anchors]);
-
-  // group not-yet-placed discovered nodes by their original introducer
-  const pending = [...state.nodes.keys()]
-    .filter((id) => !next.positions.has(id))
-    .sort();
-  const byParent = new Map<string, string[]>();
-  const orphanRoots: string[] = [];
-  for (const id of pending) {
-    const introducers = state.introducedBy.get(id);
-    let parent: string | undefined;
-    if (introducers !== undefined) {
-      for (const candidate of introducers) {
-        if (next.positions.has(candidate)) {
-          parent = candidate;
-          break;
-        }
-      }
+  for (const id of next.fixed) {
+    const point = prev.positions.get(id);
+    if (point !== undefined) {
+      next.positions.set(id, point);
     }
-    if (parent === undefined) {
-      orphanRoots.push(id);
+  }
+
+  const rowOf = new Map(gridRows(state, termOf).map((r) => [r.bucket, r.row]));
+
+  // Nodes still at the row they already occupied keep their exact spot
+  // (column included); everyone else is (re)placed. Sorted once, globally,
+  // so within any one row, ids are visited in ascending (department, id)
+  // order, so a row built fresh packs as 0, 1, 2, ... with no gaps, whether
+  // its nodes are anchors or discovered, all at once or across passes.
+  const pending: string[] = [];
+  for (const id of state.nodes.keys()) {
+    if (next.fixed.has(id)) {
+      continue;
+    }
+    const row = rowOf.get(bucketFor(id, termOf)) as number;
+    const prevPoint = prev.positions.get(id);
+    if (
+      prevPoint !== undefined &&
+      Math.round(prevPoint.y / ROW_HEIGHT) === row
+    ) {
+      next.positions.set(id, prevPoint);
     } else {
-      const list = byParent.get(parent);
-      if (list === undefined) {
-        byParent.set(parent, [id]);
-      } else {
-        list.push(id);
-      }
+      pending.push(id);
     }
   }
-
-  // a node with no positioned introducer (rare) gets placed near the centroid
-  for (const id of orphanRoots) {
-    const occupied = [...next.positions.values()];
-    const centroid = centroidOf(occupied);
-    next.positions.set(id, placeChild(centroid, centroid, 0, 1, occupied));
-  }
-
-  for (const parent of [...byParent.keys()].sort()) {
-    const children = (byParent.get(parent) as string[]).sort();
-    const parentPos = next.positions.get(parent) as Point;
-    for (let i = 0; i < children.length; i++) {
-      const occupied = [...next.positions.values()];
-      const centroid = centroidOf(occupied);
-      const point = placeChild(
-        parentPos,
-        centroid,
-        i,
-        children.length,
-        occupied,
-      );
-      next.positions.set(children[i], point);
-    }
+  pending.sort(compareIds);
+  for (const id of pending) {
+    const row = rowOf.get(bucketFor(id, termOf)) as number;
+    placeInRow(next, id, row);
   }
 
   return next;
@@ -315,87 +216,53 @@ export function setNodePosition(
 }
 
 /**
- * Optional one-shot "tidy": a few deterministic relaxation iterations
- * (edge springs + node repulsion) that even out spacing, then freeze. Fixed
- * nodes never move. Never the source of correctness; purely cosmetic.
+ * Optional one-shot "tidy": re-pack every row. Non-fixed nodes in a row
+ * re-sort by department and close up left-to-right, columns pinned/dragged
+ * (fixed) nodes hold onto skipped in place. Restores clean order after
+ * removals leave gaps; never the source of correctness, purely cosmetic.
+ * Fixed nodes never move.
  */
 export function tidyLayout(
   layout: LayoutState,
   state: GraphState,
-  iterations = 60,
 ): LayoutState {
-  const pos = new Map<string, Point>();
-  for (const [id, p] of layout.positions) {
-    pos.set(id, { x: p.x, y: p.y });
+  const positions = new Map(layout.positions);
+  const byRow = new Map<number, string[]>();
+  for (const [id, p] of positions) {
+    if (!state.nodes.has(id)) {
+      continue;
+    }
+    const row = Math.round(p.y / ROW_HEIGHT);
+    const list = byRow.get(row);
+    if (list === undefined) {
+      byRow.set(row, [id]);
+    } else {
+      list.push(id);
+    }
   }
-  const ids = [...state.nodes.keys()];
-  const edges = [...state.edges.values()];
-  const REPULSION = MIN_DISTANCE * MIN_DISTANCE * 1.1;
-  const SPRING = 0.02;
-  const REST = CHILD_RADIUS;
-  for (let iter = 0; iter < iterations; iter++) {
-    const force = new Map<string, Point>();
-    for (const id of ids) {
-      force.set(id, { x: 0, y: 0 });
-    }
-    // repulsion between every pair (bounded node counts make this fine)
-    for (let i = 0; i < ids.length; i++) {
-      for (let j = i + 1; j < ids.length; j++) {
-        const a = pos.get(ids[i]) as Point;
-        const b = pos.get(ids[j]) as Point;
-        let dx = a.x - b.x;
-        let dy = a.y - b.y;
-        let d2 = dx * dx + dy * dy;
-        if (d2 < 1) {
-          // deterministic separation for coincident points
-          dx = i - j || 1;
-          dy = 1;
-          d2 = dx * dx + dy * dy;
-        }
-        const f = REPULSION / d2;
-        const inv = 1 / Math.sqrt(d2);
-        const fx = dx * inv * f;
-        const fy = dy * inv * f;
-        const fa = force.get(ids[i]) as Point;
-        const fb = force.get(ids[j]) as Point;
-        fa.x += fx;
-        fa.y += fy;
-        fb.x -= fx;
-        fb.y -= fy;
-      }
-    }
-    // springs along edges
-    for (const edge of edges) {
-      const a = pos.get(edge.a);
-      const b = pos.get(edge.b);
-      if (a === undefined || b === undefined) {
-        continue;
-      }
-      const dx = b.x - a.x;
-      const dy = b.y - a.y;
-      const d = Math.hypot(dx, dy) || 1;
-      const f = SPRING * (d - REST);
-      const fx = (dx / d) * f;
-      const fy = (dy / d) * f;
-      const fa = force.get(edge.a) as Point;
-      const fb = force.get(edge.b) as Point;
-      fa.x += fx;
-      fa.y += fy;
-      fb.x -= fx;
-      fb.y -= fy;
-    }
+  for (const [row, ids] of byRow) {
+    const y = row * ROW_HEIGHT;
+    const fixedCols = new Set<number>();
+    const movable: string[] = [];
     for (const id of ids) {
       if (layout.fixed.has(id)) {
-        continue;
+        const p = positions.get(id) as Point;
+        fixedCols.add(Math.round(p.x / COL_WIDTH));
+      } else {
+        movable.push(id);
       }
-      const f = force.get(id) as Point;
-      const p = pos.get(id) as Point;
-      // damped step, clamped so a single iteration can't fling a node
-      p.x += Math.max(-12, Math.min(12, f.x * 0.05));
-      p.y += Math.max(-12, Math.min(12, f.y * 0.05));
+    }
+    movable.sort(compareIds);
+    let col = 0;
+    for (const id of movable) {
+      while (fixedCols.has(col)) {
+        col++;
+      }
+      positions.set(id, { x: col * COL_WIDTH, y });
+      col++;
     }
   }
-  return { positions: pos, fixed: new Set(layout.fixed) };
+  return { positions, fixed: new Set(layout.fixed) };
 }
 
 export interface Bounds {
@@ -423,9 +290,15 @@ export function computeBounds(layout: LayoutState): Bounds {
   return { minX, minY, maxX, maxY };
 }
 
-/** Viewport that fits `bounds` into a w×h canvas with padding, clamped zoom.
- *  maxZoom caps at 1 so a small graph frames at natural card size instead of
- *  blowing a lone seed up to fill the screen. */
+/**
+ * Viewport that fits `bounds` into a w×h canvas with padding, clamped
+ * zoom. maxZoom caps at 1 so a small graph frames at natural card size
+ * instead of blowing a lone seed up to fill the screen. `extraLeftMargin`
+ * reserves additional screen-independent room on the left before the
+ * symmetric `padding` applies on top of it, for content (like the
+ * canvas's row labels) that extends further left than any node's own
+ * position, and so isn't part of `bounds` at all.
+ */
 export function fitViewport(
   bounds: Bounds,
   width: number,
@@ -433,8 +306,10 @@ export function fitViewport(
   padding = 80,
   minZoom = 0.35,
   maxZoom = 1,
+  extraLeftMargin = 0,
 ): Viewport {
-  const contentW = Math.max(1, bounds.maxX - bounds.minX);
+  const effectiveMinX = bounds.minX - extraLeftMargin;
+  const contentW = Math.max(1, bounds.maxX - effectiveMinX);
   const contentH = Math.max(1, bounds.maxY - bounds.minY);
   const zoom = Math.max(
     minZoom,
@@ -446,7 +321,7 @@ export function fitViewport(
       ),
     ),
   );
-  const centerX = (bounds.minX + bounds.maxX) / 2;
+  const centerX = (effectiveMinX + bounds.maxX) / 2;
   const centerY = (bounds.minY + bounds.maxY) / 2;
   return {
     zoom,

@@ -5,7 +5,9 @@
     </div>
 
     <div class="toolbar-center" role="group" aria-label="Edge filters">
-      <button
+      <g-button
+        size="sm"
+        variant="ghost"
         class="legend-item t-prereq"
         :class="{ off: store.hiddenTypes.has('prereq') }"
         :aria-pressed="!store.hiddenTypes.has('prereq')"
@@ -14,7 +16,18 @@
       >
         <span class="swatch" aria-hidden="true" />
         Prerequisite
-      </button>
+      </g-button>
+      <g-button
+        size="sm"
+        variant="ghost"
+        class="legend-item"
+        :class="{ off: !store.showRowLabels }"
+        :aria-pressed="!store.showRowLabels"
+        :title="`${store.showRowLabels ? 'Hide' : 'Show'} row labels`"
+        @click="store.toggleRowLabels()"
+      >
+        Labels
+      </g-button>
     </div>
 
     <div class="toolbar-right">
@@ -97,7 +110,10 @@ const seedLabel = computed(() => {
     border-color var(--motion-quick) var(--ease-out),
     color var(--motion-quick) var(--ease-out);
 }
-.legend-item:hover {
+/* :not(:disabled) matches GButton's own hover selector's specificity
+   (.v-ghost:hover:not(:disabled)) so this neutral wash wins over its
+   accent-tint one, rather than losing to a plain .legend-item:hover. */
+.legend-item:hover:not(:disabled) {
   background: var(--g-surface-2);
 }
 .legend-item:focus-visible {
