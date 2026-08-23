@@ -19,8 +19,9 @@
           target="_blank"
           rel="noopener noreferrer"
           href="https://student.mit.edu/cgi-bin/shrwsdau.sh"
-          >official audit</a
         >
+          official audit <g-icon name="external" :size="11" />
+        </a>
       </span>
       <g-popover v-model="footLinksOpen" align="end" placement="top">
         <template #anchor>
@@ -37,21 +38,24 @@
             target="_blank"
             rel="noopener noreferrer"
             href="https://student.mit.edu/catalog/index.cgi"
-            >Subject listing <g-icon name="external" :size="11"
-          /></a>
+          >
+            Subject listing <g-icon name="external" :size="11" />
+          </a>
           <a
             target="_blank"
             rel="noopener noreferrer"
             href="https://catalog.mit.edu/degree-charts/"
-            >Degree charts <g-icon name="external" :size="11"
-          /></a>
+          >
+            Degree charts <g-icon name="external" :size="11" />
+          </a>
           <a
             target="_blank"
             rel="noopener noreferrer"
             href="https://fireroad.mit.edu/requirements/"
-            >Requirement wrong? Request an edit
-            <g-icon name="external" :size="11"
-          /></a>
+          >
+            Requirement wrong? Request an edit
+            <g-icon name="external" :size="11" />
+          </a>
           <a href="mailto:courseroad@mit.edu">courseroad@mit.edu</a>
         </div>
       </g-popover>
@@ -237,6 +241,11 @@ function focusSearch() {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.foot-line a {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
 }
 .foot-more {
   font: var(--text-small);
