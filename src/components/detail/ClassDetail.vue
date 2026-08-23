@@ -795,8 +795,8 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
 .detail-ident {
   background: var(--dept-color);
   border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-4);
-  margin: var(--space-3) 0;
+  padding: var(--space-2) var(--space-3);
+  margin: var(--space-2) 0;
 }
 .detail-id {
   font: var(--text-id-lg);

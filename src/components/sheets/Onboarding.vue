@@ -25,7 +25,7 @@
           after that).
         </p>
         <span id="onboardYearLabel" class="onboard-label"
-          >Where year are you?</span
+          >What year are you?</span
         >
         <g-radio-group
           v-model="selectedYear"
