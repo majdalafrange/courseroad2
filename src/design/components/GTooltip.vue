@@ -1,7 +1,13 @@
 <template>
   <TooltipProvider :delay-duration="delay">
-    <TooltipRoot>
-      <TooltipTrigger as="span" class="g-tooltip-anchor" v-bind="$attrs">
+    <TooltipRoot v-model:open="open">
+      <TooltipTrigger
+        as="span"
+        class="g-tooltip-anchor"
+        v-bind="$attrs"
+        @focusin="onFocusin"
+        @focusout="open = false"
+      >
         <slot />
       </TooltipTrigger>
       <TooltipPortal>
@@ -25,6 +31,7 @@
  * from TooltipContent's Popper, escaping overflow:hidden ancestors the old
  * absolute-positioned version could get clipped by).
  */
+import { ref } from "vue";
 import {
   TooltipContent,
   TooltipPortal,
@@ -50,6 +57,20 @@ withDefaults(
   }>(),
   { text: "", placement: "bottom", delay: 350, wide: false },
 );
+
+// Reka's trigger listens for "focus", which does not bubble up to this
+// span from the wrapped control; focusin does, so keyboard focus opens
+// the tooltip the way hover already does. Gated on :focus-visible because
+// a click fires focusin too, and a tooltip flashing open on every press
+// sits over the control's own layer and eats its next outside click.
+const open = ref(false);
+
+function onFocusin(event: FocusEvent) {
+  const target = event.target;
+  if (target instanceof HTMLElement && target.matches(":focus-visible")) {
+    open.value = true;
+  }
+}
 </script>
 
 <style>

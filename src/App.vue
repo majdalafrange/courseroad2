@@ -128,7 +128,6 @@ import { fatalError } from "./lib/errorBoundary";
 import { toast } from "./design/toast";
 import { STORAGE_KEYS, writeValue } from "./lib/appStorage";
 import { DEMO_ROAD, DEMO_ROAD_NAME } from "./lib/demoRoad";
-import { shortcutLabel } from "./lib/platform";
 import { savePersistedStore } from "./lib/persistedStore";
 import { useGlobalShortcuts } from "./composables/useGlobalShortcuts";
 import { useIsMobile } from "./composables/useIsMobile";
@@ -380,7 +379,7 @@ function seedFromOnboarding(payload: {
     payload.year === 0 ? "Your starting plan is ready!" : "You're all set up!",
     payload.year === 0
       ? "We've put GIR placeholders in freshman year. Drag in real classes anytime."
-      : `Terms start empty. Search (${shortcutLabel("K")}) whenever you're ready to add classes.`,
+      : "Terms start empty. Press / whenever you're ready to add classes.",
   );
 }
 

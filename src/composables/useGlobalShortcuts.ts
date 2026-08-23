@@ -1,8 +1,9 @@
 /**
- * The window-level keyboard chords, with their lifecycle handled:
- * listeners attach on mount and detach on unmount. Cmd/Ctrl+K toggles
- * the palette; Cmd/Ctrl+Z and Shift reverse run the history service.
- * Everything else stays element-scoped or on its own escape layering.
+ * The window-level keyboard shortcuts, with their lifecycle handled:
+ * listeners attach on mount and detach on unmount. "/" opens the palette;
+ * Cmd/Ctrl+Z and Shift reverse run the history service, with Cmd/Ctrl+Y as
+ * the Windows spelling of redo. Everything else stays element-scoped or on
+ * its own escape layering.
  */
 
 import { onBeforeUnmount, onMounted } from "vue";
@@ -27,8 +28,21 @@ function isEditableTarget(event: KeyboardEvent): boolean {
   );
 }
 
+// Focus inside a sheet, drawer or popover means the student is acting on
+// that layer, not the plan behind it: opening the palette or undoing from
+// there would change what they cannot see or reach.
+function isInsideOverlay(event: KeyboardEvent): boolean {
+  const target = event.target;
+  return (
+    target instanceof HTMLElement && target.closest('[role="dialog"]') !== null
+  );
+}
+
 export function useGlobalShortcuts(handlers: GlobalShortcutHandlers): void {
   function onKeydown(event: KeyboardEvent) {
+    if (isInsideOverlay(event)) {
+      return;
+    }
     if (event.key.toLowerCase() === "/" && !isEditableTarget(event)) {
       event.preventDefault();
       handlers.togglePalette();
