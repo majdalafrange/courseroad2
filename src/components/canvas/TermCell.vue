@@ -112,7 +112,6 @@
       <g-tooltip
         v-if="index !== 0 && subjects.length"
         class="load-gauge-wrap"
-        wide
         text="48 units is the typical load per semester."
       >
         <g-progress
