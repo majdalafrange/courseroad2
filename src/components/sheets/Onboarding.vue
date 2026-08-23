@@ -9,6 +9,9 @@
     :dismissible="false"
     scrim="opaque"
   >
+    <template #scrim>
+      <canvas-glyphs />
+    </template>
     <div class="onboard">
       <button class="onboard-skip" @click="skip">Skip</button>
 
@@ -99,6 +102,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from "vue";
+import CanvasGlyphs from "../canvas/CanvasGlyphs.vue";
 import GButton from "../../design/components/GButton.vue";
 import { GRadioGroup, GRadioGroupItem } from "../../design/components/GRadio";
 import GSheet from "../../design/components/GSheet.vue";

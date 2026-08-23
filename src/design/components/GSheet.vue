@@ -4,7 +4,9 @@
       <DialogOverlay
         class="g-sheet-scrim"
         :class="{ opaque: scrim === 'opaque' }"
-      />
+      >
+        <slot name="scrim" />
+      </DialogOverlay>
       <DialogContent
         class="g-sheet-panel"
         :style="{ width }"
