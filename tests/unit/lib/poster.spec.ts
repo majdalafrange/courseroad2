@@ -68,7 +68,7 @@ describe("buildRoadPoster escaping", () => {
         placed('EVIL"><rect>', 1),
       ]),
       makeCatalog(),
-      { userYear: 0, dark: false },
+      { userYear: 0, dark: false, hideIAP: false },
     );
     // The payloads survive only in escaped form. esc() covers &, <, >;
     // quotes stay literal because escaped values land in text nodes only,
@@ -89,6 +89,7 @@ describe("buildRoadPoster escaping", () => {
       {
         userYear: 0,
         dark: false,
+        hideIAP: false,
       },
     );
     // The title line is capped, ends in an ellipsis, and the emoji tail
@@ -107,6 +108,7 @@ describe("buildRoadPoster escaping", () => {
       {
         userYear: 0,
         dark: false,
+        hideIAP: false,
       },
     );
     expect(short).toContain(">Course 6-3<");
@@ -123,7 +125,7 @@ describe("buildRoadPoster escaping", () => {
           placed("8.01", 1, { custom_color: 5 } as never),
         ]),
         makeCatalog(),
-        { userYear: 0, dark: false },
+        { userYear: 0, dark: false, hideIAP: false },
       ),
     ).not.toThrow();
   });
@@ -137,7 +139,7 @@ describe("buildRoadPoster escaping", () => {
         placed("8.01", 1),
       ]),
       makeCatalog(),
-      { userYear: 0, dark: false },
+      { userYear: 0, dark: false, hideIAP: false },
     );
     const fills = [...svg.matchAll(/fill="([^"]*)"/g)].map((m) => m[1]);
     expect(fills.length).toBeGreaterThan(0);
@@ -244,6 +246,7 @@ describe("degenerate roads", () => {
     const svg = buildRoadPoster(empty, makeCatalog(), {
       userYear: 0,
       dark: true,
+      hideIAP: false,
     });
     expect(svg.match(/\S*NaN\S*/g) ?? []).toEqual([]);
   });
