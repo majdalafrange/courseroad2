@@ -60,6 +60,9 @@ const NAME_TO_LUCIDE: Record<string, string> = {
   saveOff: "save-off",
   save: "save",
   cloudCheck: "cloud-check",
+  shareMessage: "message-square-share",
+  imageDown: "image-down",
+  printer: "printer",
 };
 
 const props = withDefaults(

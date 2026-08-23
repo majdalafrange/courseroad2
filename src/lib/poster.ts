@@ -15,6 +15,7 @@ import {
   semesterCalendarYearShort,
   semesterType,
 } from "./offering";
+import { useTouchDevice } from "../composables/useIsMobile";
 import ibmPlexSansUrl from "@fontsource-variable/ibm-plex-sans/files/ibm-plex-sans-latin-wdth-normal.woff2?url";
 import ibmPlexMonoMediumUrl from "@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-500-normal.woff2?url";
 
@@ -423,7 +424,7 @@ export async function savePng(
   dataUrl: string,
   filename: string,
 ): Promise<SavePngOutcome> {
-  const preferShare = matchMedia("(pointer: coarse)").matches;
+  const preferShare = useTouchDevice().value;
   if (preferShare && navigator.canShare !== undefined) {
     try {
       const blob = await (await fetch(dataUrl)).blob();

@@ -23,14 +23,17 @@
 
     <div class="share-options">
       <button class="share-option" @click="savePng">
-        <g-icon name="download" :size="16" />
+        <g-icon
+          :name="isTouchDevice ? 'shareMessage' : 'imageDown'"
+          :size="16"
+        />
         <span class="option-text">
-          <strong>Save as image</strong>
+          <strong>{{ isTouchDevice ? "Share" : "Save" }} as image</strong>
           <small>PNG image of the full road</small>
         </span>
       </button>
       <button class="share-option" @click="printPoster">
-        <g-icon name="info" :size="16" />
+        <g-icon name="printer" :size="16" />
         <span class="option-text">
           <strong>Print / Save as PDF</strong>
           <small>Opens your browser's print dialog</small>
@@ -41,7 +44,7 @@
         data-cy="exportRoadFileButton"
         @click="saveRoadFile"
       >
-        <g-icon name="upload" :size="16" />
+        <g-icon name="download" :size="16" />
         <span class="option-text">
           <strong>Export .road file</strong>
           <small
@@ -65,6 +68,7 @@ import {
   rasterizeToPng,
   savePng as savePngFile,
 } from "../../lib/poster";
+import { useTouchDevice } from "../../composables/useIsMobile";
 import { useCourseDataStore } from "../../stores/courseData";
 
 const props = defineProps<{
@@ -76,6 +80,8 @@ const emit = defineEmits<{
 }>();
 
 const store = useCourseDataStore();
+
+const isTouchDevice = useTouchDevice();
 
 const road = computed(() => store.roads[store.activeRoad]);
 const roadName = computed(() => road.value?.name ?? "");

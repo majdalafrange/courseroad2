@@ -56,6 +56,9 @@ const names = [
   "save-off",
   "save",
   "cloud-check",
+  "message-square-share",
+  "image-down",
+  "printer",
 ];
 
 function resolve(name) {

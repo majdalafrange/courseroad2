@@ -1,6 +1,7 @@
 import { onBeforeUnmount, onMounted, ref } from "vue";
 
-const QUERY = "(max-width: 859px)";
+const QUERY_WIDTH = "(max-width: 859px)";
+const QUERY_TOUCH = "(pointer: coarse)";
 
 /**
  * Reactive mobile/desktop split, matching the 860px breakpoint the shell
@@ -14,7 +15,7 @@ export function useIsMobile() {
   if (typeof window.matchMedia !== "function") {
     return ref(window.innerWidth < 860);
   }
-  const query = window.matchMedia(QUERY);
+  const query = window.matchMedia(QUERY_WIDTH);
   const isMobile = ref(query.matches);
 
   function onChange(event: MediaQueryListEvent) {
@@ -29,4 +30,26 @@ export function useIsMobile() {
   });
 
   return isMobile;
+}
+
+export function useTouchDevice() {
+  // same as above, but for touvh-pointer media query
+  if (typeof window.matchMedia !== "function") {
+    return ref(false);
+  }
+  const query = window.matchMedia(QUERY_TOUCH);
+  const isTouchDevice = ref(query.matches);
+
+  function onChange(event: MediaQueryListEvent) {
+    isTouchDevice.value = event.matches;
+  }
+
+  onMounted(() => {
+    query.addEventListener("change", onChange);
+  });
+  onBeforeUnmount(() => {
+    query.removeEventListener("change", onChange);
+  });
+
+  return isTouchDevice;
 }
