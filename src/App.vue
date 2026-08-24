@@ -434,6 +434,7 @@ function seedDemoRoad() {
    left with what doesn't: the unload listener, and the demo seed. */
 onMounted(() => {
   window.addEventListener("beforeunload", onBeforeUnload);
+  window.addEventListener("pagehide", onPageHide);
 
   // Dev-only demo seed for screenshots/design review: /road?demo=1 (read
   // before routing drops the query). Waits for useSubjectsLoader (called
@@ -466,13 +467,22 @@ function onBeforeUnload(event: BeforeUnloadEvent) {
     event.preventDefault();
     event.returnValue = "";
   }
-  releaseTabID();
+}
+
+function onPageHide(event: PageTransitionEvent) {
+  // beforeunload also fires when the student then chooses to stay, which
+  // released this live tab's id for the next tab to claim. pagehide with
+  // persisted false only fires when the page is genuinely going away.
+  if (!event.persisted) {
+    releaseTabID();
+  }
 }
 
 onBeforeUnmount(() => {
   // Named so it can come off again: the anonymous version accumulated
   // one listener per remount.
   window.removeEventListener("beforeunload", onBeforeUnload);
+  window.removeEventListener("pagehide", onPageHide);
 });
 </script>
 
