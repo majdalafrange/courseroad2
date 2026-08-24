@@ -404,8 +404,7 @@ const placementAriaLabel = computed(() => {
   background: var(--g-brand-flag);
   color: #ffffff;
   font: var(--text-micro);
-  letter-spacing: var(--tracking-caps);
-  text-transform: uppercase;
+  font-weight: 600;
   padding: 2px var(--space-2) 3px;
   border-radius: 0 0 var(--radius-xs) var(--radius-xs);
   box-shadow: var(--shadow-1);
@@ -479,20 +478,17 @@ const placementAriaLabel = computed(() => {
   justify-content: space-between;
   gap: var(--space-2);
 }
-/* A season label is a data column header, so it keeps the caps treatment.
-   The prior-credit row is a row name, not a column, so it does not. */
+/* A season label reads as a coordinate, the same register subject ids and
+   the Hydrant mark beside it already use, so it's mono rather than caps.
+   Prior credit is a row name, not a column, so it stays sans. */
 .term-name {
-  font: var(--text-micro);
-  letter-spacing: var(--tracking-caps);
-  text-transform: uppercase;
+  font: var(--text-id-small);
   color: var(--g-ink-3);
   margin: 0;
   white-space: nowrap;
 }
 .term-name.is-prior {
   font: var(--text-small);
-  letter-spacing: normal;
-  text-transform: none;
 }
 .is-current .term-name {
   color: var(--g-accent);

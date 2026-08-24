@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
   <rect x="0" y="0" width="24" height="24" rx="3" fill="#a31f34"/>
-  <!-- a road narrowing into the distance, two lane-marking dashes; see
-       GWordmark, which copies this, and poster.ts's parameterized copy -->
-  <path d="M4.5 20.5 L9.3 6 L14.7 6 L19.5 20.5 Z" fill="#ffffff"/>
-  <line x1="12" y1="18" x2="12" y2="14.3" stroke="#a31f34" stroke-width="2.1" stroke-linecap="round"/>
-  <line x1="12" y1="11.3" x2="12" y2="8.8" stroke="#a31f34" stroke-width="1.7" stroke-linecap="round"/>
+  <!-- Lucide's "road" icon with styling changes -->
+  <path d="M2.077 18.449A2 2 0 0 0 4 21h16a2 2 0 0 0 1.924-2.55l-4-14A2 2 0 0 0 16 3H8a2 2 0 0 0-1.924 1.45z" fill="#ffffff" stroke="#a31f34" stroke-width="2.5"/>
+  <line x1="12" y1="21" x2="12" y2="17" stroke="#a31f34" stroke-width="2.1" stroke-linecap="round"/>
+  <line x1="12" y1="12" x2="12" y2="9" stroke="#a31f34" stroke-width="1.9" stroke-linecap="round"/>
+  <line x1="12" y1="5" x2="12" y2="3" stroke="#a31f34" stroke-width="1.7" stroke-linecap="round"/>
 </svg>

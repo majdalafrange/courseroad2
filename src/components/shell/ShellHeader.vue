@@ -112,7 +112,7 @@
         data-cy="loginButton"
         @click="auth.loginUser()"
       >
-        Log in with MIT
+        Log in
       </button>
 
       <g-tooltip class="header-settings" text="Settings">
@@ -185,7 +185,7 @@
               auth.loginUser();
             "
           >
-            <g-icon name="login" :size="14" /> Log in with MIT
+            <g-icon name="login" :size="14" /> Log in
           </button>
         </div>
       </g-popover>

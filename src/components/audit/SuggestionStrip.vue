@@ -1,5 +1,8 @@
 <template>
-  <div v-if="suggestions.length && !dismissed" class="suggestion-strip">
+  <div
+    v-if="suggestions.length && !dismissed && store.hasGIRReqList"
+    class="suggestion-strip"
+  >
     <div class="strip-head">
       <div class="strip-title">
         <span class="strip-label">Suggestions</span>
@@ -16,10 +19,7 @@
             </button>
           </template>
           <p class="strip-explain">
-            Not a recommendation service: fixed rules read your open
-            requirements, the classes already on your road, and each candidate's
-            terms, rating, and hours. Nothing extra is sent (the audit already
-            came from FireRoad) and dismissing a suggestion isn't recorded.
+            Generated using your progress towards the GIRs.
           </p>
         </g-popover>
       </div>

@@ -8,12 +8,15 @@
       aria-hidden="true"
     >
       <rect x="0" y="0" width="24" height="24" rx="3" class="mark-tile" />
-      <!-- a road narrowing into the distance, two lane-marking dashes;
-           copied in public/favicon.svg, public/favicon.ico, and the poster
-           header in src/lib/poster.ts -->
-      <path d="M4.5 20.5 L9.3 6 L14.7 6 L19.5 20.5 Z" class="mark-road" />
-      <line x1="12" y1="18" x2="12" y2="14.3" class="mark-dash" />
-      <line x1="12" y1="11.3" x2="12" y2="8.8" class="mark-dash mark-dash-sm" />
+      <!-- Lucide's "road" icon, literally. Copied in public/favicon.svg, 
+           public/favicon.ico, and the poster header in src/lib/poster.ts -->
+      <path
+        d="M2.077 18.449A2 2 0 0 0 4 21h16a2 2 0 0 0 1.924-2.55l-4-14A2 2 0 0 0 16 3H8a2 2 0 0 0-1.924 1.45z"
+        class="mark-road"
+      />
+      <line x1="12" y1="21" x2="12" y2="17" class="mark-dash" />
+      <line x1="12" y1="12" x2="12" y2="9" class="mark-dash mark-dash-mid" />
+      <line x1="12" y1="5" x2="12" y2="3" class="mark-dash mark-dash-sm" />
     </svg>
     <span class="g-name">Course<span class="name-road">Road</span></span>
   </span>
@@ -46,11 +49,16 @@ const markSize = computed(() => ({ sm: 18, md: 22, lg: 30 })[props.size]);
   /* paper, not --g-surface: the tile never inverts, so the mark reads the
      same way on either theme's brand tile */
   fill: #fff;
+  stroke: var(--g-mark);
+  stroke-width: 2.5;
 }
 .mark-dash {
   stroke: var(--g-mark);
   stroke-width: 2.1;
   stroke-linecap: round;
+}
+.mark-dash-mid {
+  stroke-width: 1.9;
 }
 .mark-dash-sm {
   stroke-width: 1.7;

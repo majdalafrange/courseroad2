@@ -268,10 +268,13 @@ export function buildRoadPoster(
   );
   const header = `
     <rect x="0" y="0" width="${width}" height="${height}" fill="${theme.bg}"/>
-    <rect x="${padding}" y="${padding - 8}" width="24" height="24" rx="3" fill="${MARK_TILE}"/>
-    <path d="M${padding + 4.5} ${padding + 12.5} L${padding + 9.3} ${padding - 2} L${padding + 14.7} ${padding - 2} L${padding + 19.5} ${padding + 12.5} Z" fill="#ffffff"/>
-    <line x1="${padding + 12}" y1="${padding + 10}" x2="${padding + 12}" y2="${padding + 6.3}" stroke="${MARK_TILE}" stroke-width="2.1" stroke-linecap="round"/>
-    <line x1="${padding + 12}" y1="${padding + 3.3}" x2="${padding + 12}" y2="${padding + 0.8}" stroke="${MARK_TILE}" stroke-width="1.7" stroke-linecap="round"/>
+    <g transform="translate(${padding} ${padding - 8})">
+      <rect x="0" y="0" width="24" height="24" rx="3" fill="${MARK_TILE}"/>
+      <path d="M2.077 18.449A2 2 0 0 0 4 21h16a2 2 0 0 0 1.924-2.55l-4-14A2 2 0 0 0 16 3H8a2 2 0 0 0-1.924 1.45z" fill="#ffffff" stroke="${MARK_TILE}" stroke-width="2.5"/>
+      <line x1="12" y1="21" x2="12" y2="17" stroke="${MARK_TILE}" stroke-width="2.1" stroke-linecap="round"/>
+      <line x1="12" y1="12" x2="12" y2="9" stroke="${MARK_TILE}" stroke-width="1.9" stroke-linecap="round"/>
+      <line x1="12" y1="5" x2="12" y2="3" stroke="${MARK_TILE}" stroke-width="1.7" stroke-linecap="round"/>
+    </g>
     <text x="${padding + 34}" y="${padding + 10}" font-family="'IBM Plex Sans Variable',sans-serif" font-size="22" font-weight="600" fill="${theme.ink}">${esc(truncateTitle(road.name))}</text>
     <text x="${padding + 34}" y="${padding + 32}" font-family="'IBM Plex Sans Variable',sans-serif" font-size="13" fill="${theme.ink3}">${totalUnits} units · planned in CourseRoad</text>
   `;
@@ -331,13 +334,14 @@ function termBlock(
       `<text x="${x + 14}" y="${y + 24}" font-family="'IBM Plex Sans Variable',sans-serif" font-size="12.5" fill="${theme.ink3}">${esc(season)}</text>`,
     );
   } else {
-    // A season label is a data column header: caps, tracked, weight 500
-    // (not 600); accent-colored while it's the current term, the way
+    // A season label reads as a coordinate (mono, sentence case, weight
+    // 500, not 600), the same register TermCell's own .term-name now
+    // uses; accent-colored while it's the current term, the way
     // TermCell's .is-current .term-name is. The year half stays legible
     // but quieter (TermCell's .term-year, opacity 0.8).
     parts.push(
-      `<text x="${x + 14}" y="${y + 24}" font-family="'IBM Plex Sans Variable',sans-serif" font-size="11" font-weight="500" letter-spacing="0.66" fill="${isCurrent ? theme.accent : theme.ink3}">` +
-        `<tspan>${esc(season.toUpperCase())}</tspan><tspan dx="3" fill-opacity="0.8">${esc(yearLabel)}</tspan></text>`,
+      `<text x="${x + 14}" y="${y + 24}" font-family="'IBM Plex Mono',monospace" font-size="11" font-weight="500" fill="${isCurrent ? theme.accent : theme.ink3}">` +
+        `<tspan>${esc(season)}</tspan><tspan dx="3" fill-opacity="0.8">${esc(yearLabel)}</tspan></text>`,
     );
   }
   if (isCurrent) {
@@ -352,7 +356,7 @@ function termBlock(
     parts.push(
       `<g transform="rotate(-1.5 ${cx} ${cy})">` +
         `<rect x="${flagX}" y="${flagY}" width="${flagW}" height="${flagH}" rx="3" fill="${theme.brandFlag}"/>` +
-        `<text x="${cx}" y="${flagY + flagH - 4.5}" text-anchor="middle" font-family="'IBM Plex Sans Variable',sans-serif" font-size="9" font-weight="600" letter-spacing="0.6" fill="#ffffff">NOW</text>` +
+        `<text x="${cx}" y="${flagY + flagH - 4.5}" text-anchor="middle" font-family="'IBM Plex Sans Variable',sans-serif" font-size="9" font-weight="600" fill="#ffffff">Now</text>` +
         `</g>`,
     );
   }

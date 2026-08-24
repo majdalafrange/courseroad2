@@ -111,9 +111,11 @@ import { toast } from "../toast";
 }
 .g-toast-body {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
   gap: var(--space-05);
   padding: var(--space-1) 0;
+  min-width: 0;
 }
 .g-toast-message {
   font: var(--text-body-strong);

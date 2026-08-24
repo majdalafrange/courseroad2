@@ -114,19 +114,19 @@
         </div>
         <div class="sg-type-row">
           <code class="sg-type-token">--text-micro</code>
-          <span
-            style="
-              font: var(--text-micro);
-              letter-spacing: var(--tracking-caps);
-              text-transform: uppercase;
-              color: var(--g-ink-3);
-            "
+          <span style="font: var(--text-micro); color: var(--g-ink-3)"
             >Classes</span
           >
         </div>
         <div class="sg-type-row">
           <code class="sg-type-token">--text-id</code>
           <span style="font: var(--text-id)">6.006 · 18.01 · 21M.301</span>
+        </div>
+        <div class="sg-type-row">
+          <code class="sg-type-token">--text-id-small</code>
+          <span style="font: var(--text-id-small); color: var(--g-ink-3)"
+            >Fall '26</span
+          >
         </div>
       </g-card>
     </section>

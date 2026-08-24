@@ -788,14 +788,13 @@ defineExpose({
 }
 .palette-section {
   font: var(--text-micro);
-  letter-spacing: var(--tracking-caps);
-  text-transform: uppercase;
   color: var(--g-ink-3);
   padding: var(--space-2) var(--space-3) var(--space-1);
 }
+/* The count aside needs to read as secondary now that caps isn't doing
+   that job; italic is the plain-typography way to mark an aside. */
 .section-note {
-  text-transform: none;
-  letter-spacing: 0;
+  font-style: italic;
 }
 
 .palette-row {

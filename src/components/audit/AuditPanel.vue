@@ -1,9 +1,6 @@
 <template>
   <div class="audit-panel" :class="{ 'is-ledger': ledger }" data-cy="auditBox">
-    <suggestion-strip
-      v-if="!ledger && store.hasGIRReqList"
-      @see-all="onSeeAll"
-    />
+    <suggestion-strip v-if="!ledger" @see-all="onSeeAll" />
 
     <!-- program picker -->
     <div v-if="!ledger" class="picker">

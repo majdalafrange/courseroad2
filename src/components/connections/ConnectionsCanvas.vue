@@ -734,25 +734,26 @@ onBeforeUnmount(() => {
   stroke-dasharray: 8 6;
 }
 /* The current term: same cardinal cue TermCell's own current-term box
-   uses on the plan grid, so the two views share one "you are here". */
+   uses on the plan grid, so the two views share one "you are here".
+   Mixed toward the line color, not full-strength --g-brand, since that
+   equals the active-prereq-edge color in light mode and would read as
+   just another edge. */
 .row-rail.is-current {
-  stroke: var(--g-brand);
+  stroke: color-mix(in srgb, var(--g-brand) 55%, var(--g-line-strong));
+  stroke-width: 2;
 }
 
-/* "Prior credit" and "Unscheduled" are row names, not column headers, so
-   they drop the caps/tracking the way TermCell's .is-prior does. */
+/* A term label reads as a coordinate, the same register TermCell's own
+   season labels use, so it's mono rather than caps. "Prior credit" and
+   "Unscheduled" are row names, not column headers, so they stay sans. */
 .row-label {
-  font: var(--text-micro);
-  letter-spacing: var(--tracking-caps);
-  text-transform: uppercase;
+  font: var(--text-id-small);
   fill: var(--g-ink-3);
   pointer-events: none;
   user-select: none;
 }
 .row-label.is-special {
   font: var(--text-small);
-  letter-spacing: normal;
-  text-transform: none;
 }
 .row-label.is-current {
   fill: var(--g-accent);
