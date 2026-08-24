@@ -291,7 +291,8 @@ const eligibleMoveTargets = computed<number[]>(() => {
 
 function beginKeyboardMove(semester: number, index: number) {
   moveSource.value = { semester, index };
-  moveSourceSubjectId.value = props.selectedSubjects[semester][index]?.subject_id;
+  moveSourceSubjectId.value =
+    props.selectedSubjects[semester][index]?.subject_id;
   const targets = eligibleMoveTargets.value;
   moveTarget.value = targets.find((t) => t > semester) ?? targets[0] ?? null;
 }
