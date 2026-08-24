@@ -152,10 +152,15 @@ const auditStore = useAuditStore();
 
 /* Expansion lives in the audit store so it survives the panel swapping
    between audit and class detail. The store key for a program header is
-   the program key itself. */
+   the program key itself, suffixed for a what-if preview so a preview
+   and an already-committed section for the same program don't clobber
+   the same expansion entry. */
+const storeKey = computed(
+  () => props.programKey + (props.preview === true ? "/preview" : ""),
+);
 const open = computed({
-  get: () => auditStore.expanded[props.programKey] ?? props.startOpen ?? true,
-  set: (value) => auditStore.setNode(props.programKey, value),
+  get: () => auditStore.expanded[storeKey.value] ?? props.startOpen ?? true,
+  set: (value) => auditStore.setNode(storeKey.value, value),
 });
 
 /* In ledger mode the header is a passive summary row; a click must not

@@ -252,26 +252,23 @@ function placeHere(index: number) {
 /* ---- keyboard move mode ---- */
 const moveSource = ref<{ semester: number; index: number } | null>(null);
 const moveTarget = ref<number | null>(null);
-
-const moveSourceSubjectId = computed(() => {
-  if (moveSource.value === null) {
-    return "";
-  }
-  return props.selectedSubjects[moveSource.value.semester][
-    moveSource.value.index
-  ]?.subject_id;
-});
+// Captured once at move-start, not recomputed from the live index, so a
+// later index shift can't silently swap in a different subject.
+const moveSourceSubjectId = ref<string | undefined>(undefined);
 
 const eligibleMoveTargets = computed<number[]>(() => {
   if (moveSource.value === null) {
     return [];
   }
-  // The source card can vanish out from under an in-progress keyboard
-  // move (e.g. deleting an earlier card in the same term shifts this
-  // index): bail rather than crash on the next arrow-key/Enter press.
+  // The source card can vanish or change identity out from under an
+  // in-progress move (e.g. deleting an earlier card in the same term):
+  // bail rather than crash or move the wrong subject.
   const placedSubject =
     props.selectedSubjects[moveSource.value.semester][moveSource.value.index];
-  if (placedSubject === undefined) {
+  if (
+    placedSubject === undefined ||
+    placedSubject.subject_id !== moveSourceSubjectId.value
+  ) {
     return [];
   }
   const subject =
@@ -294,6 +291,7 @@ const eligibleMoveTargets = computed<number[]>(() => {
 
 function beginKeyboardMove(semester: number, index: number) {
   moveSource.value = { semester, index };
+  moveSourceSubjectId.value = props.selectedSubjects[semester][index]?.subject_id;
   const targets = eligibleMoveTargets.value;
   moveTarget.value = targets.find((t) => t > semester) ?? targets[0] ?? null;
 }
@@ -312,6 +310,7 @@ function onCanvasKeydown(event: KeyboardEvent) {
     if (moveSource.value !== null) {
       moveSource.value = null;
       moveTarget.value = null;
+      moveSourceSubjectId.value = undefined;
       return;
     }
   }
@@ -339,7 +338,14 @@ function onCanvasKeydown(event: KeyboardEvent) {
       source !== null
         ? props.selectedSubjects[source.semester][source.index]
         : undefined;
-    if (source !== null && target !== null && currentClass !== undefined) {
+    // Re-verify identity, not just presence: a card removed earlier in
+    // the same term shifts a different subject into this index.
+    if (
+      source !== null &&
+      target !== null &&
+      currentClass !== undefined &&
+      currentClass.subject_id === moveSourceSubjectId.value
+    ) {
       store.moveClass({
         currentClass,
         classIndex: source.index,
@@ -349,6 +355,7 @@ function onCanvasKeydown(event: KeyboardEvent) {
     }
     moveSource.value = null;
     moveTarget.value = null;
+    moveSourceSubjectId.value = undefined;
   }
 }
 

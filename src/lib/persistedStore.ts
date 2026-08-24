@@ -299,7 +299,20 @@ export function sanitizePersistedStore(
         break;
       case "roads": {
         const roads = sanitizeRoadMap(value);
-        if (roads !== undefined && Object.keys(roads).length > 0) {
+        // undefined means no roads-shaped value to restore; {} means a
+        // roads field was present but every entry failed validation.
+        // Setting clean.roads whenever it's defined keeps those apart
+        // instead of conflating them into the same silent no-op.
+        if (roads !== undefined) {
+          if (
+            Object.keys(roads).length === 0 &&
+            isPlainObject(value) &&
+            Object.keys(value).length > 0
+          ) {
+            console.warn(
+              "Persisted roads all failed validation and were dropped.",
+            );
+          }
           clean.roads = roads;
         }
         break;

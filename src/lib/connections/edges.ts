@@ -207,6 +207,12 @@ export class EdgeEngine {
     return this.resolve(token);
   }
 
+  /**
+   * Corequisites are deliberately excluded: takeable concurrently (see
+   * readiness.ts), not "must complete before". Folding them in here
+   * would render one as a strict "Prerequisite for X" arrow, the same
+   * distinction readiness.ts and warnings.ts both preserve.
+   */
   private prereqLeaves(id: string, subject: Subject): string[] {
     const cached = this.prereqLeafCache.get(id);
     if (cached !== undefined) {
@@ -214,12 +220,14 @@ export class EdgeEngine {
     }
     const leaves: string[] = [];
     const seen = new Set<string>();
-    for (const source of [subject.prerequisites, subject.corequisites]) {
-      for (const leaf of prereqLeafIds(source, this.catalog, this.oldIdIndex)) {
-        if (leaf !== id && !seen.has(leaf)) {
-          seen.add(leaf);
-          leaves.push(leaf);
-        }
+    for (const leaf of prereqLeafIds(
+      subject.prerequisites,
+      this.catalog,
+      this.oldIdIndex,
+    )) {
+      if (leaf !== id && !seen.has(leaf)) {
+        seen.add(leaf);
+        leaves.push(leaf);
       }
     }
     this.prereqLeafCache.set(id, leaves);

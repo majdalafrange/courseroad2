@@ -596,12 +596,14 @@ watch(
 /* ------------------------------------------------------- node drag/select */
 
 function onNodePointerDown(event: PointerEvent, node: NodeView) {
+  const pointerId = event.pointerId;
   store.select(node.id);
   stopViewportAnimation();
   const start = clientToGraph(event.clientX, event.clientY);
   const offset = { x: start.x - node.x, y: start.y - node.y };
   let moved = false;
   const move = (e: PointerEvent) => {
+    if (e.pointerId !== pointerId) return;
     const g = clientToGraph(e.clientX, e.clientY);
     if (
       Math.abs(g.x - start.x) + Math.abs(g.y - start.y) >
@@ -613,7 +615,8 @@ function onNodePointerDown(event: PointerEvent, node: NodeView) {
       store.dragNode(node.id, { x: g.x - offset.x, y: g.y - offset.y });
     }
   };
-  const up = () => {
+  const up = (e: PointerEvent) => {
+    if (e.pointerId !== pointerId) return;
     window.removeEventListener("pointermove", move);
     window.removeEventListener("pointerup", up);
   };

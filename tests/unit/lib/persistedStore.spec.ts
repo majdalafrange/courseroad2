@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   DEFAULT_PANEL_SIDE,
   DEFAULT_THEME_MODE,
@@ -202,7 +202,30 @@ describe("sanitizePersistedStore", () => {
 
     const noRoads = sanitizePersistedStore({ activeRoad: "r", roads: {} });
     expect(noRoads.activeRoad).toBeUndefined();
-    expect(noRoads.roads).toBeUndefined();
+    // A genuinely empty roads object still comes back as {}, not omitted.
+    expect(noRoads.roads).toEqual({});
+  });
+
+  it("surfaces (rather than silently drops) a roads field that had entries but none survived validation", () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    // roads is present and non-empty, but its only entry is invalid
+    // (contents isn't a plain object), so cleanStoredRoad drops it.
+    const clean = sanitizePersistedStore({
+      roads: { r: { contents: "not-an-object" } },
+    });
+    expect(clean.roads).toEqual({});
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining("failed validation"),
+    );
+
+    vi.mocked(console.warn).mockClear();
+
+    // A field that was never there in the first place must not warn.
+    expect(sanitizePersistedStore({}).roads).toBeUndefined();
+    expect(console.warn).not.toHaveBeenCalled();
+
+    vi.restoreAllMocks();
   });
 
   it("sanitizes the catalog snapshot fields", () => {

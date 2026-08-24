@@ -75,7 +75,9 @@ function accept() {
 function optOut() {
   store.disallowCookies();
   dismissed.value = true;
-  clearAppStorage();
+  // Opting out means everything gone, including unsynced logged-out
+  // roads that a mere logout or version reset would preserve.
+  clearAppStorage({ alsoWipeUnsyncedRoads: true });
   clearExplorationSnapshot();
   void clearPersistedQueryCache();
   // The app no longer stores state in cookies, but a browser carrying

@@ -52,6 +52,35 @@ describe("claimTabID", () => {
     expect(readValue(STORAGE_KEYS.tabs)).toEqual({ ids: [7] });
   });
 
+  it("retries when a concurrently-opening tab claims the same number first", () => {
+    // Simulate a second tab stealing the claim for tab number 1 right
+    // after our write, before we read it back.
+    let claimWrites = 0;
+    const originalSetItem = Storage.prototype.setItem;
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(function (
+      this: Storage,
+      key: string,
+      value: string,
+    ) {
+      originalSetItem.call(this, key, value);
+      if (this === localStorage && key === STORAGE_KEYS.tabClaim) {
+        claimWrites++;
+        if (claimWrites === 1) {
+          originalSetItem.call(
+            this,
+            STORAGE_KEYS.tabClaim,
+            JSON.stringify({ v: { n: 1, token: "other-tab" }, e: 0 }),
+          );
+        }
+      }
+    });
+
+    expect(claimTabID()).toBe("2");
+    expect(readValue(STORAGE_KEYS.tabs)).toEqual({ ids: [1, 2] });
+
+    vi.restoreAllMocks();
+  });
+
   it("still returns an id where sessionStorage access throws (F9)", () => {
     // Safari's block-all setting makes the sessionStorage global itself
     // throw on access. The claim must degrade to an unpersisted id, the

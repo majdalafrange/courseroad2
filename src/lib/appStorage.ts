@@ -27,6 +27,11 @@ export const STORAGE_KEYS = {
   consent: "dismissedCookies",
   /** Per-tab agent ids for FireRoad conflict detection. */
   tabs: "tabs",
+  /**
+   * Scratch key for claimTabID's (agent.ts) retry-on-collision check:
+   * which tab most recently claimed a given number.
+   */
+  tabClaim: "tabClaimToken",
   /** Schema version; a mismatch resets local state. */
   versionNumber: "versionNumber",
   hasOnboarded: "hasOnboarded",
@@ -161,23 +166,38 @@ export function hasRawValue(key: StorageKey): boolean {
 }
 
 /**
- * Keys that survive a clear. The migration marker must never be cleared:
- * re-running the legacy import would re-read cookies, and a domain-scoped
- * cookie this origin cannot delete would be pulled back in. Consent is the
- * user's standing answer, not session data, so a logout keeps it rather
- * than re-asking.
+ * Keys that survive every clear, including an explicit opt-out. The
+ * migration marker must never be cleared: re-running the legacy import
+ * would re-read cookies, and a domain-scoped cookie this origin cannot
+ * delete would be pulled back in. Consent is the user's standing answer,
+ * not session data, so a logout keeps it rather than re-asking.
  */
 const DURABLE_KEYS: readonly StorageKey[] = [
   STORAGE_KEYS.migrated,
   STORAGE_KEYS.consent,
 ];
 
-/** Drop the app's user data (opt-out, logout, version reset). */
-export function clearAppStorage(): void {
+/**
+ * Drop the app's user data (opt-out, logout, version reset). Unsynced
+ * `newRoads` created while logged out are the student's own work, so a
+ * mere logout or version reset must not destroy them (see
+ * legacyStorage.ts). Only an explicit opt-out does, via
+ * `alsoWipeUnsyncedRoads`.
+ */
+export function clearAppStorage(options?: {
+  alsoWipeUnsyncedRoads?: boolean;
+}): void {
   for (const key of Object.values(STORAGE_KEYS)) {
-    if (!DURABLE_KEYS.includes(key)) {
-      removeValue(key);
+    if (DURABLE_KEYS.includes(key)) {
+      continue;
     }
+    if (
+      key === STORAGE_KEYS.newRoads &&
+      options?.alsoWipeUnsyncedRoads !== true
+    ) {
+      continue;
+    }
+    removeValue(key);
   }
 }
 

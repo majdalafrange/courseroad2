@@ -515,6 +515,11 @@ const hoursVerdict = computed(() => {
     return null;
   }
   const units = subject.value.total_units;
+
+  if (units === 0) {
+    return null;
+  }
+
   const diff = totalHours.value - units;
   const singular =
     units === 1

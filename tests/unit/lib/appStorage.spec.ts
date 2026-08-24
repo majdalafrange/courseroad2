@@ -75,7 +75,7 @@ describe("appStorage expiry", () => {
 });
 
 describe("clearAppStorage", () => {
-  it("clears app data but keeps consent and the migration marker", () => {
+  it("clears app data but keeps consent, the migration marker, and unsynced roads", () => {
     writeValue(STORAGE_KEYS.accessInfo, { access_token: "t" });
     writeValue(STORAGE_KEYS.newRoads, { r: {} });
     writeValue(STORAGE_KEYS.consent, "true");
@@ -84,11 +84,21 @@ describe("clearAppStorage", () => {
     clearAppStorage();
 
     expect(readValue(STORAGE_KEYS.accessInfo)).toBeUndefined();
-    expect(readValue(STORAGE_KEYS.newRoads)).toBeUndefined();
+    // A logout or version reset must not destroy roads a logged-out user
+    // hasn't synced yet, since they're the student's own work.
+    expect(readValue(STORAGE_KEYS.newRoads)).toEqual({ r: {} });
     // Clearing the marker would let the legacy cookie import run again,
     // re-reading a cookie this origin cannot delete.
     expect(readValue(STORAGE_KEYS.migrated)).toBe(true);
     expect(readValue(STORAGE_KEYS.consent)).toBe("true");
+  });
+
+  it("also wipes unsynced roads when alsoWipeUnsyncedRoads is set (opt-out)", () => {
+    writeValue(STORAGE_KEYS.newRoads, { r: {} });
+
+    clearAppStorage({ alsoWipeUnsyncedRoads: true });
+
+    expect(readValue(STORAGE_KEYS.newRoads)).toBeUndefined();
   });
 
   it("leaves keys owned by other code on the origin alone", () => {

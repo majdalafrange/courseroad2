@@ -281,6 +281,12 @@ export const useCourseDataStore = defineStore("courseData", {
 
     addReq(event: string) {
       const roadID = this.activeRoad;
+      if (!(roadID in this.roads)) {
+        // No active road (e.g. every road was just deleted and the palette
+        // or audit panel is still reachable): drop the add instead of
+        // dereferencing this.roads[""] and throwing.
+        return;
+      }
       if (this.roads[roadID].contents.coursesOfStudy.includes(event)) {
         // Already on the road: a stale "undo" toast for this same program
         // (clicked after the program was independently re-added through
@@ -758,6 +764,11 @@ export const useCourseDataStore = defineStore("courseData", {
 
     removeReq(event: string) {
       const roadID = this.activeRoad;
+      if (!(roadID in this.roads)) {
+        // No active road: drop the remove instead of dereferencing
+        // this.roads[""] and throwing.
+        return;
+      }
       const reqIndex =
         this.roads[roadID].contents.coursesOfStudy.indexOf(event);
       if (reqIndex === -1) {

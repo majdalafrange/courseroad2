@@ -113,4 +113,40 @@ describe("audit fulfillment", () => {
       expect(audit.reqTrees["major18"]).toBeDefined();
     });
   });
+
+  it("does not let a stale out-of-order response overwrite a fresher one", async () => {
+    const store = useCourseDataStore();
+    const audit = useAuditStore();
+    store.roads = { $0$: newRoad("Mine", ["girs"]) };
+    store.activeRoad = "$0$";
+
+    let resolveFirst: (value: { data: unknown }) => void = () => {};
+    let resolveSecond: (value: { data: unknown }) => void = () => {};
+    const first = new Promise<{ data: unknown }>((resolve) => {
+      resolveFirst = resolve;
+    });
+    const second = new Promise<{ data: unknown }>((resolve) => {
+      resolveSecond = resolve;
+    });
+    mocks.getProgress
+      .mockImplementationOnce(() => first)
+      .mockImplementationOnce(() => second);
+
+    // Two rapid edits, each its own recompute batch (updatingFulfillment
+    // only blocks re-entrancy within the same microtask).
+    audit.updateFulfillment("all");
+    await Promise.resolve();
+    audit.updateFulfillment("all");
+
+    // The network reorders: the fresher, second request resolves first...
+    resolveSecond({ data: { fulfilled: true, tag: "fresh" } });
+    await vi.waitFor(() => {
+      expect(audit.reqTrees["girs"]).toEqual({ fulfilled: true, tag: "fresh" });
+    });
+
+    // ...then the stale first response arrives late and must not clobber it.
+    resolveFirst({ data: { fulfilled: false, tag: "stale" } });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(audit.reqTrees["girs"]).toEqual({ fulfilled: true, tag: "fresh" });
+  });
 });

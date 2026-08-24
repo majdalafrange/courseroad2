@@ -93,7 +93,7 @@ export function isPetitioned(
   listID: string | undefined,
 ): boolean {
   if (listID !== undefined && listID in progressAssertions) {
-    return !("ignore" in progressAssertions[listID]);
+    return progressAssertions[listID].ignore !== true;
   }
   return false;
 }
@@ -104,7 +104,7 @@ export function isIgnored(
   listID: string | undefined,
 ): boolean {
   if (listID !== undefined && listID in progressAssertions) {
-    return "ignore" in progressAssertions[listID];
+    return progressAssertions[listID].ignore === true;
   }
   return false;
 }

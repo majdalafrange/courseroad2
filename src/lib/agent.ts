@@ -50,9 +50,39 @@ function writeSessionTabID(id: string): void {
   }
 }
 
+interface TabClaim {
+  n: number;
+  token: string;
+}
+
 /**
- * Claim this tab's id: reuse sessionStorage's, else allocate
- * max(existing)+1 in the shared list. Returns the tab id.
+ * Allocate max(existing)+1, retrying if a concurrently-opening tab reads
+ * the same base list and claims the same number first. The claim-token
+ * write-then-read-back emulates compare-and-swap: whoever's token is
+ * still on file after both writes won the number.
+ */
+function allocateTabID(): string {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const tabs = readTabs();
+    const newTab =
+      tabs !== undefined && tabs.ids.length ? Math.max(...tabs.ids) + 1 : 1;
+    const nextIds = tabs !== undefined ? [...tabs.ids, newTab] : [newTab];
+    writeValue(STORAGE_KEYS.tabs, { ids: nextIds });
+    const token = Math.random().toString(36).slice(2);
+    writeValue(STORAGE_KEYS.tabClaim, { n: newTab, token });
+    const claim = readValue<TabClaim>(STORAGE_KEYS.tabClaim);
+    if (claim?.n === newTab && claim.token === token) {
+      return newTab.toString();
+    }
+    // Lost the race for newTab; retry against the winner's list.
+  }
+  // Retries exhausted; fall back rather than risk a silent duplicate.
+  return randomTabID();
+}
+
+/**
+ * Claim this tab's id: reuse sessionStorage's, else allocate a fresh one.
+ * Returns the tab id.
  */
 export function claimTabID(): string {
   const existing = readSessionTabID();
@@ -69,18 +99,9 @@ export function claimTabID(): string {
     }
     return existing;
   }
-  const tabs = readTabs();
-  if (tabs !== undefined && tabs.ids.length) {
-    const maxTab = Math.max(...tabs.ids);
-    const newTab = (maxTab + 1).toString();
-    writeSessionTabID(newTab);
-    tabs.ids.push(maxTab + 1);
-    writeValue(STORAGE_KEYS.tabs, { ids: tabs.ids });
-    return newTab;
-  }
-  writeSessionTabID("1");
-  writeValue(STORAGE_KEYS.tabs, { ids: [1] });
-  return "1";
+  const newTab = allocateTabID();
+  writeSessionTabID(newTab);
+  return newTab;
 }
 
 /** Release this tab's id from the shared list on unload. */

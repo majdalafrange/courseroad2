@@ -38,6 +38,13 @@ export const useAuditStore = defineStore("audit", {
      * as a terminal state with a retry instead of "computing..." forever.
      */
     failedPrograms: {} as Record<string, boolean>,
+    /**
+     * Per-program request generation, bumped on each (re-)request. A
+     * response is applied only if it's still the latest for that program,
+     * so an out-of-order reply can't clobber fresher data (mirrors
+     * startPreview's own guard, below).
+     */
+    fulfillmentGeneration: {} as Record<string, number>,
     /** What-if preview: a program tried against the road, uncommitted. */
     previewProgram: null as string | null,
     previewTree: null as RequirementNode | null,
@@ -150,13 +157,23 @@ export const useAuditStore = defineStore("audit", {
       for (const req of fulfillments) {
         const alteredRoadContents = formatRoadContents(activeRoad.contents);
         delete this.failedPrograms[req];
+        const generation = (this.fulfillmentGeneration[req] ?? 0) + 1;
+        this.fulfillmentGeneration[req] = generation;
         fireroad
           .getProgress(req, alteredRoadContents)
           .then((response) => {
+            // A later edit already re-requested this program; that
+            // request's own response will land and this one is stale.
+            if (this.fulfillmentGeneration[req] !== generation) {
+              return;
+            }
             this.reqTrees[req] = response.data;
             delete this.failedPrograms[req];
           })
           .catch((e) => {
+            if (this.fulfillmentGeneration[req] !== generation) {
+              return;
+            }
             console.warn(`Progress fetch failed for ${req}:`, e);
             this.failedPrograms[req] = true;
           });
