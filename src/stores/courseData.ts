@@ -943,8 +943,19 @@ export const useCourseDataStore = defineStore("courseData", {
       // cast is the runtime-validated boundary: the sanitizer rebuilds the
       // allowlisted fields onto fresh objects, which the static deep-partial
       // type of $patch cannot express.
+      const clean = sanitizePersistedStore(localStore);
+      // The live catalog can already be applied (Colada's persisted cache
+      // lands before this restore). $patch replaces the arrays but merges
+      // the index maps, so a shorter snapshot catalog leaves index entries
+      // pointing past the end of the array; keep the live catalog instead.
+      if (this.subjectsLoaded) {
+        delete clean.subjectsInfo;
+        delete clean.subjectsIndex;
+        delete clean.genericCourses;
+        delete clean.genericIndex;
+      }
       // eslint-disable-next-line no-restricted-syntax
-      this.$patch(sanitizePersistedStore(localStore) as never);
+      this.$patch(clean as never);
     },
 
     queueRoadMigration(roadID: string) {
