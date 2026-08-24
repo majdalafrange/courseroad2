@@ -285,6 +285,12 @@ export const useAuthStore = defineStore("auth", {
       const cloudRoads = Object.keys(cloudFiles).map((id) => cloudFiles[id]);
       const cloudNames = cloudRoads.map((cr) => cr?.name);
       for (const roadID in store.roads) {
+        if (roadID in cloudFiles) {
+          // A road stored under a cloud id IS that cloud road; matching it
+          // against its own server name would renumber every restored road
+          // on boot and queue a save for each.
+          continue;
+        }
         const localName = store.roads[roadID].name;
         if (cloudNames.indexOf(localName) >= 0) {
           const renumberedName = renumberName(
