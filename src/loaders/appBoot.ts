@@ -73,8 +73,15 @@ export const useAppBootLoader = defineBasicLoader(async (to) => {
     persistedCurrentSemester() ?? defaultCurrentSemester(),
   );
 
+  // store.loggedIn isn't set until auth.restoreFromStorage() runs below,
+  // so accessInfo stands in as the synchronous "is this a returning
+  // logged-in session" check.
   const persisted = loadPersistedStore();
-  if (persisted !== undefined && store.cookiesAllowed && store.loggedIn) {
+  if (
+    persisted !== undefined &&
+    store.cookiesAllowed &&
+    hasValue(STORAGE_KEYS.accessInfo)
+  ) {
     store.setFromLocalStorage(persisted);
   }
 

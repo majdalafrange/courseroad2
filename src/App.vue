@@ -129,6 +129,7 @@ import { toast } from "./design/toast";
 import { STORAGE_KEYS, writeValue } from "./lib/appStorage";
 import { DEMO_ROAD, DEMO_ROAD_NAME } from "./lib/demoRoad";
 import { savePersistedStore } from "./lib/persistedStore";
+import { releaseTabID } from "./lib/agent";
 import { useGlobalShortcuts } from "./composables/useGlobalShortcuts";
 import { useIsMobile } from "./composables/useIsMobile";
 import { useSystemThemeSync } from "./composables/useTheme";
@@ -454,12 +455,18 @@ onMounted(() => {
   }
 });
 
-function onBeforeUnload() {
+function onBeforeUnload(event: BeforeUnloadEvent) {
   if (store.cookiesAllowed && store.loggedIn) {
     savePersistedStore(store);
   }
   // A logged-out edit inside the save debounce would die with the tab.
   auth.flushPendingSaves();
+  // Remote saves can't be flushed synchronously, so warn instead.
+  if (auth.currentlySaving) {
+    event.preventDefault();
+    event.returnValue = "";
+  }
+  releaseTabID();
 }
 
 onBeforeUnmount(() => {

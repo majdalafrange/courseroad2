@@ -6,7 +6,7 @@
  */
 
 import { UAParser } from "ua-parser-js";
-import { STORAGE_KEYS, readValue, writeValue } from "./appStorage";
+import { STORAGE_KEYS, readValue, removeValue, writeValue } from "./appStorage";
 
 interface TabIds {
   ids: number[];
@@ -81,4 +81,26 @@ export function claimTabID(): string {
   writeSessionTabID("1");
   writeValue(STORAGE_KEYS.tabs, { ids: [1] });
   return "1";
+}
+
+/** Release this tab's id from the shared list on unload. */
+export function releaseTabID(): void {
+  const existing = readSessionTabID();
+  if (existing === undefined) {
+    return;
+  }
+  const tabs = readTabs();
+  if (tabs === undefined) {
+    return;
+  }
+  const tabIndex = tabs.ids.indexOf(parseInt(existing));
+  if (tabIndex === -1) {
+    return;
+  }
+  tabs.ids.splice(tabIndex, 1);
+  if (tabs.ids.length) {
+    writeValue(STORAGE_KEYS.tabs, { ids: tabs.ids });
+  } else {
+    removeValue(STORAGE_KEYS.tabs);
+  }
 }

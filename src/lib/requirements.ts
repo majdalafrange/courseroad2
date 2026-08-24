@@ -1,9 +1,10 @@
 /**
- * Prerequisite/corequisite fulfillment engine. Ported verbatim from the
- * legacy `reqFulfillment` mixin. Years of bug-report fixes are baked
- * into these edge cases (CMS/History "one subject in" strings, the
- * Brain-and-Cognitive-Sciences comma quirk, film matching by title). Do
- * not "clean up" behavior here without pinned tests.
+ * Prerequisite/corequisite fulfillment engine, ported (with some
+ * modifications) from the legacy `reqFulfillment` mixin. Years of
+ * bug-report fixes are baked into these edge cases (CMS/History "one
+ * subject in" strings, the Brain-and-Cognitive-Sciences comma quirk,
+ * film matching by title). Do not "clean up" behavior here without
+ * pinned tests.
  *
  * Two intentional changes from legacy: the final boolean expression uses
  * a tiny recursive-descent parser instead of `eval()` (equivalence
