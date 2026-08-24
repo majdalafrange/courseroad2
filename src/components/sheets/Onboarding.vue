@@ -20,13 +20,12 @@
         <g-wordmark size="lg" />
         <h1 class="onboard-title">Welcome! Let's set up your road.</h1>
         <p class="onboard-copy">
-          CourseRoad lays out every term from here to your degree. Answer two
-          quick questions and we'll get you started (you can change anything
-          after that).
+          Tell us your year and what course you're in, and we'll get you
+          started. You can always change these later.
         </p>
-        <span id="onboardYearLabel" class="onboard-label"
-          >What year are you?</span
-        >
+        <span id="onboardYearLabel" class="onboard-label">
+          What year are you?
+        </span>
         <g-radio-group
           v-model="selectedYear"
           class="year-grid"
@@ -48,10 +47,11 @@
 
       <!-- step 2: programs -->
       <div v-else class="onboard-step">
-        <h1 class="onboard-title">What are you thinking of majoring in?</h1>
+        <h1 class="onboard-title">
+          What course are you {{ selectedYear === 0 ? "considering" : "in" }}?
+        </h1>
         <p class="onboard-copy">
-          Add a major, a minor, or both. You can also skip this for now or
-          change it later.
+          Add a major, a minor, or both. Skip it for now if you're not sure.
         </p>
         <div class="program-search">
           <g-icon name="search" :size="15" style="color: var(--g-ink-3)" />
