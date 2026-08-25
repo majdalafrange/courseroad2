@@ -677,6 +677,11 @@ const relatedGroups = computed(() => {
       subjects: resolve(s.equivalent_subjects),
     },
     {
+      label: "Meets with",
+      dataCy: "cardMeetsWithSubjects",
+      subjects: resolve(s.meets_with_subjects),
+    },
+    {
       label: "Related",
       dataCy: "cardRelatedSubjects",
       subjects: resolve(s.related_subjects),
