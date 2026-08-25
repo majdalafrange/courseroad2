@@ -40,6 +40,7 @@ export interface Subject {
   related_subjects?: string[];
   joint_subjects?: string[];
   equivalent_subjects?: string[];
+  meets_with_subjects?: string[];
   /** "<quarter>,<date>" where quarter 0/1 = first/second half-term. */
   quarter_information?: string;
   rating?: number;
