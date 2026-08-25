@@ -213,6 +213,10 @@
             <dt>Format</dt>
             <dd data-cy="cardVirtual">{{ virtualLabel }}</dd>
           </template>
+          <template v-if="levelSummary">
+            <dt>Level</dt>
+            <dd>{{ levelSummary }}</dd>
+          </template>
           <template v-if="offeredSummary">
             <dt>Offered</dt>
             <dd>{{ offeredSummary }}</dd>
@@ -572,6 +576,21 @@ const virtualLabel = computed(() => {
       return "In person";
     case "Virtual/In-Person":
       return "Partly virtual";
+    default:
+      return "";
+  }
+});
+
+const levelSummary = computed(() => {
+  const s = subject.value;
+  if (s === undefined || s.level === undefined) {
+    return "";
+  }
+  switch (s.level) {
+    case "U":
+      return "Undergraduate";
+    case "G":
+      return "Graduate";
     default:
       return "";
   }
