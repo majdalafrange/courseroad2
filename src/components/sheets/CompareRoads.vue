@@ -3,15 +3,11 @@
     :model-value="modelValue"
     label="Compare roads"
     width="760px"
-    :close-button="false"
     @update:model-value="emit('update:modelValue', $event)"
   >
     <div class="compare">
       <header class="compare-head">
         <h2 class="compare-title">Compare roads</h2>
-        <button class="compare-close" aria-label="Close" @click="close">
-          <g-icon name="close" :size="16" />
-        </button>
       </header>
 
       <div class="compare-pickers">
@@ -143,7 +139,6 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import GIcon from "../../design/components/GIcon.vue";
 import GSelect from "../../design/components/GSelect.vue";
 import GSheet from "../../design/components/GSheet.vue";
 import { courseColor } from "../../lib/colors";
@@ -250,10 +245,6 @@ function barWidth(hours: number): string {
 function titleFor(key: string): string {
   return programTitle(auditStore.reqList, key);
 }
-
-function close() {
-  emit("update:modelValue", false);
-}
 </script>
 
 <style scoped>
@@ -272,22 +263,6 @@ function close() {
 .compare-title {
   font: var(--text-title);
   margin: 0;
-}
-.compare-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--g-ink-3);
-  cursor: pointer;
-}
-.compare-close:hover {
-  background: var(--g-surface-sunken);
-  color: var(--g-ink);
 }
 
 .compare-pickers {

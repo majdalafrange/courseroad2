@@ -3,15 +3,11 @@
     :model-value="modelValue"
     label="Import road"
     width="480px"
-    :close-button="false"
     @update:model-value="emit('update:modelValue', $event)"
   >
     <div class="import-sheet">
       <div class="import-head">
         <h2 class="import-title">Import a road</h2>
-        <button class="import-close" aria-label="Close" @click="close">
-          <g-icon name="close" :size="14" />
-        </button>
       </div>
 
       <g-input
@@ -232,22 +228,6 @@ function flagBadInput() {
 .import-title {
   font: var(--text-title);
   margin: 0;
-}
-.import-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--g-ink-3);
-  cursor: pointer;
-}
-.import-close:hover {
-  background: var(--g-surface-sunken);
-  color: var(--g-ink);
 }
 
 .import-file input[type="file"] {

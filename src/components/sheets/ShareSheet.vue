@@ -3,14 +3,10 @@
     :model-value="modelValue"
     label="Share road"
     width="640px"
-    :close-button="false"
     @update:model-value="emit('update:modelValue', $event)"
   >
     <header class="share-head">
       <h2 class="share-title">Share “{{ roadName }}”</h2>
-      <button class="share-close" aria-label="Close" @click="close">
-        <g-icon name="close" :size="16" />
-      </button>
     </header>
 
     <div class="share-preview">
@@ -183,10 +179,6 @@ async function saveRoadFile() {
     }
   }
 }
-
-function close() {
-  emit("update:modelValue", false);
-}
 </script>
 
 <style scoped>
@@ -200,22 +192,6 @@ function close() {
 .share-title {
   font: var(--text-title);
   margin: 0;
-}
-.share-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--g-ink-3);
-  cursor: pointer;
-}
-.share-close:hover {
-  background: var(--g-surface-sunken);
-  color: var(--g-ink);
 }
 
 .share-preview {

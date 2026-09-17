@@ -328,9 +328,7 @@ function onKeydown(event: KeyboardEvent) {
   border-radius: var(--radius-full);
   background: transparent;
   color: var(--g-ink-3);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 1;
+  font: var(--text-id-small);
   cursor: pointer;
   transition: background-color var(--motion-quick) var(--ease-out);
 }

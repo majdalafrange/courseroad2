@@ -3,7 +3,6 @@
     :model-value="modelValue"
     label="Closest majors and minors"
     width="620px"
-    :close-button="false"
     @update:model-value="emit('update:modelValue', $event)"
   >
     <div class="fit" data-cy="degreeFit">
@@ -16,9 +15,6 @@
             requirement counts are not the same scale.
           </p>
         </div>
-        <button class="fit-close" aria-label="Close" @click="close">
-          <g-icon name="close" :size="16" />
-        </button>
       </header>
 
       <!-- scan state -->
@@ -171,7 +167,6 @@ import {
 import GButton from "../../design/components/GButton.vue";
 import GProgress from "../../design/components/GProgress.vue";
 import GSheet from "../../design/components/GSheet.vue";
-import GIcon from "../../design/components/GIcon.vue";
 import FitRow from "./FitRow.vue";
 import type { ProgramFit } from "../../lib/degreeFit";
 import { scannablePrograms } from "../../lib/degreeFit";
@@ -287,23 +282,6 @@ function close() {
   color: var(--g-ink-3);
   margin: var(--space-1) 0 0;
   max-width: 46ch;
-}
-.fit-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  flex: none;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--g-ink-3);
-  cursor: pointer;
-}
-.fit-close:hover {
-  background: var(--g-surface-sunken);
-  color: var(--g-ink);
 }
 
 .fit-bar {

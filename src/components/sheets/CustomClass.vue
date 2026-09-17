@@ -3,16 +3,12 @@
     v-model="dialog"
     label="Custom activity"
     width="480px"
-    :close-button="false"
   >
     <div class="cc-sheet">
       <header class="cc-head">
         <h2 class="cc-title">
           {{ editing !== undefined ? "Edit" : "New" }} custom activity
         </h2>
-        <button class="cc-close" aria-label="Close" @click="dialog = false">
-          <g-icon name="close" :size="14" />
-        </button>
       </header>
 
       <div class="cc-body">
@@ -239,22 +235,6 @@ defineExpose({ openNewClass });
 .cc-title {
   font: var(--text-title);
   margin: 0;
-}
-.cc-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--g-ink-3);
-  cursor: pointer;
-}
-.cc-close:hover {
-  background: var(--g-surface-sunken);
-  color: var(--g-ink);
 }
 .cc-body {
   overflow-y: auto;

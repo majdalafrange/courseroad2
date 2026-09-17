@@ -71,6 +71,21 @@
  *     labels) are sentence case, never caps: a coordinate-like label
  *     (a season, a subject id) reads as --text-id-small mono, everything
  *     else as --text-small/--text-micro sans.
+ *
+ * STACKING SCALE (not CSS vars — z-index doesn't inherit, so each site
+ * still writes its own literal; new overlays should slot into this order
+ * and say so in a comment, the way GSelect.vue does):
+ *   50  GPopover, MobileNav (the nav bar is fine sharing this level: any
+ *       popover it triggers teleports to the end of <body>, so it still
+ *       paints on top by document order)
+ *   60  GTooltip, DetailSheet
+ *   90  CookieConsent (below every sheet; a modal always wins)
+ *  100  GSheet, GDrawer
+ *  105  GSelect content (must clear a GSheet it can be nested inside)
+ *  120  CommandPalette (a global overlay, above sheets/selects)
+ *  150  the drag ghost (must clear everything it can be dragged over,
+ *       short of a toast reporting a drag failure)
+ *  200  GToastHost (always on top, including over an active drag)
  */
 
 :root {
