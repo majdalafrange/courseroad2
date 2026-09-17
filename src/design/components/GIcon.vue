@@ -4,7 +4,7 @@
     :icon="data"
     :width="size"
     :height="size"
-    aria-hidden="true"
+    :aria-hidden="true"
   />
 </template>
 

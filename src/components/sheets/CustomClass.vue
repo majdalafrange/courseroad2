@@ -1,9 +1,5 @@
 <template>
-  <g-sheet
-    v-model="dialog"
-    label="Custom activity"
-    width="480px"
-  >
+  <g-sheet v-model="dialog" label="Custom activity" width="480px">
     <div class="cc-sheet">
       <header class="cc-head">
         <h2 class="cc-title">
