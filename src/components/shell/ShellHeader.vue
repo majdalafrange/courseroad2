@@ -196,7 +196,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
-import GIcon from "../../design/components/GIcon.vue";
+import GIcon, { type IconName } from "../../design/components/GIcon.vue";
 import GKbd from "../../design/components/GKbd.vue";
 import GPopover from "../../design/components/GPopover.vue";
 import GTooltip from "../../design/components/GTooltip.vue";
@@ -259,7 +259,7 @@ const totalUnits = computed(() => {
 /* ---- save-state whisper: one quiet line + dot; detail in the tooltip ---- */
 interface SaveState {
   label: string;
-  icon: string;
+  icon: IconName;
   detail: string;
   tone: "ok" | "busy" | "warn" | "muted";
 }

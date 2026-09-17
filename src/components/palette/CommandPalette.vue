@@ -192,7 +192,7 @@ import {
   ref,
   watch,
 } from "vue";
-import GIcon from "../../design/components/GIcon.vue";
+import GIcon, { type IconName } from "../../design/components/GIcon.vue";
 import GKbd from "../../design/components/GKbd.vue";
 import { useIsMobile } from "../../composables/useIsMobile";
 import { courseColor } from "../../lib/colors";
@@ -319,7 +319,7 @@ function termBadges(subject: Subject): string {
 interface PaletteAction {
   label: string;
   detail?: string;
-  icon: string;
+  icon: IconName;
   keywords: string;
   run: () => void;
 }
