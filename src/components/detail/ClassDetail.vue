@@ -151,12 +151,17 @@
             onRoadBucket < store.currentSemester ? "taken" : "planned"
           }}). This adds a repeat.
         </p>
-        <div class="term-fit-grid" data-cy="cardOffered">
+        <div
+          class="term-fit-grid"
+          :class="{ 'no-iap': store.hideIAP }"
+          data-cy="cardOffered"
+        >
           <button
             v-for="fit in termFits"
             :key="fit.index"
             class="term-fit"
             :class="fit.kind"
+            :style="{ gridColumn: fit.column }"
             :disabled="fit.kind === 'unavailable'"
             :title="fit.hint"
             @click="placeInTerm(fit.index)"
@@ -169,7 +174,7 @@
           data-cy="addClassFromCardButton"
           @click="store.addFromCard(subject)"
         >
-          or place it on the canvas
+          Or place it on the canvas
         </button>
       </section>
       <section v-else class="detail-section">
@@ -420,6 +425,8 @@ interface TermFit {
   label: string;
   kind: string;
   hint: string;
+  /** Grid column by semester, so a column always means the same term. */
+  column: number;
 }
 
 const termFits = computed<TermFit[]>(() => {
@@ -439,10 +446,13 @@ const termFits = computed<TermFit[]>(() => {
       base,
     ).kind;
     const season = semesterType(i);
+    const column =
+      season === "Fall" ? 1 : season === "IAP" ? 2 : store.hideIAP ? 2 : 3;
     fits.push({
       index: i,
-      label: `${season === "Fall" ? "F" : season === "IAP" ? "I" : "S"}’${semesterCalendarYearShort(i, base)}`,
+      label: `${season} ’${semesterCalendarYearShort(i, base)}`,
       kind,
+      column,
       hint:
         kind === "ok"
           ? `Offered. Add to ${bucketName(i)}`
@@ -1024,13 +1034,18 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
 }
 
 .term-fit-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-1);
+}
+.term-fit-grid.no-iap {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .term-fit {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  white-space: nowrap;
   font: var(--text-id-small);
   border: 1px solid var(--g-line-strong);
   border-radius: var(--radius-sm);

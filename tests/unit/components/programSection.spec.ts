@@ -43,8 +43,8 @@ describe("ProgramSection failure state", () => {
     wrapper = mount(ProgramSection, {
       props: { programKey: "major18", tree: null, title: "18 Major" },
     });
-    expect(wrapper.text()).toContain("progress didn't load");
-    expect(wrapper.text()).not.toContain("computing...");
+    expect(wrapper.text()).toContain("Progress didn't load");
+    expect(wrapper.text()).not.toContain("Computing...");
 
     await wrapper.find('[data-cy="programRetryButton"]').trigger("click");
     // The retry recomputes exactly this program (the default road exists,
@@ -57,7 +57,7 @@ describe("ProgramSection failure state", () => {
     wrapper = mount(ProgramSection, {
       props: { programKey: "major6-3", tree: null, title: "6-3 Major" },
     });
-    expect(wrapper.text()).toContain("computing...");
-    expect(wrapper.text()).not.toContain("progress didn't load");
+    expect(wrapper.text()).toContain("Computing...");
+    expect(wrapper.text()).not.toContain("Progress didn't load");
   });
 });

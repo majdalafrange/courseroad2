@@ -499,7 +499,7 @@ const saveState = computed<SaveState>(() => {
 .header-login {
   font: var(--text-small);
   font-weight: 600;
-  color: var(--g-brand);
+  color: var(--g-ink-2);
   background: transparent;
   border: none;
   border-radius: var(--radius-sm);
@@ -510,6 +510,7 @@ const saveState = computed<SaveState>(() => {
   transition: background-color var(--motion-quick) var(--ease-out);
 }
 .header-login:hover {
+  color: var(--g-ink);
   background: var(--g-accent-tint);
 }
 .header-login:focus-visible {

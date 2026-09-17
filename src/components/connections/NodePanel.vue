@@ -184,7 +184,7 @@
                       v-if="n.crossing"
                       class="cross-flag"
                       title="Connects a different department"
-                      >crossing</span
+                      >Crossing</span
                     >
                     <span
                       v-if="n.onCanvas"
@@ -202,7 +202,9 @@
                     <template v-if="n.hours">
                       · {{ Math.round(n.hours) }}h/wk</template
                     >
-                    <template v-if="n.status"> · {{ n.status }}</template>
+                    <template v-if="n.status">
+                      · {{ n.status === "taken" ? "Taken" : "Planned" }}
+                    </template>
                     <span v-if="readyText(n)"> · {{ readyText(n) }}</span>
                     <span v-if="n.requirementBadge">
                       · {{ n.requirementBadge }}</span

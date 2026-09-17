@@ -30,7 +30,7 @@
             :aria-expanded="footLinksOpen"
             @click="footLinksOpen = !footLinksOpen"
           >
-            more
+            More links
           </button>
         </template>
         <div class="foot-links" @click.stop>

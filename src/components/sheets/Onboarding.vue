@@ -7,14 +7,13 @@
     label="Set up your road"
     width="540px"
     :dismissible="false"
+    :auto-focus="false"
     scrim="opaque"
   >
     <template #scrim>
       <canvas-glyphs />
     </template>
     <div class="onboard">
-      <button class="onboard-skip" @click="skip">Skip</button>
-
       <!-- step 1: welcome + year -->
       <div v-if="step === 0" class="onboard-step">
         <g-wordmark size="lg" />
@@ -96,6 +95,10 @@
           </g-button>
         </div>
       </div>
+
+      <!-- Last in DOM order (absolutely positioned top-right), so Tab
+           reaches the step's own controls before the way out. -->
+      <button class="onboard-skip" @click="skip">Skip</button>
     </div>
   </g-sheet>
 </template>

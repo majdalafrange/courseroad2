@@ -62,7 +62,7 @@
           class="suggestion-more"
           @click="emit('see-all', suggestion.tokens)"
         >
-          see all
+          See all
         </button>
       </div>
     </div>

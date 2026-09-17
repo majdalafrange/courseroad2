@@ -15,7 +15,7 @@
  * inverted into the other: light is paper, garnet-led; dark is blueprint,
  * blue-black rather than neutral charcoal, where MIT silver carries every
  * interactive state and cardinal red (--g-brand) is reserved for identity
- * (wordmark, MIT login), so red never reads as an alert on the page.
+ * (the wordmark), so red never reads as an alert on the page.
  * Department colors live in departmentColors.css (generated; fixed OKLCH
  * bands guarantee contrast).
  *
@@ -231,7 +231,7 @@
   --g-accent-fill-hover: var(--g-accent-hover);
   --g-accent-fill-active: var(--g-accent-active);
 
-  /* brand punctuation (wordmark, MIT login); in light it is the accent */
+  /* brand punctuation (the wordmark); in light it is the accent */
   --g-brand: #a31f34;
   /* the current-term flag: white-on-cardinal. Same value as --g-brand
      here; dark needs its own (see below), so this stays a separate token. */
@@ -325,7 +325,7 @@
   --g-accent-fill-hover: #dde3e8;
   --g-accent-fill-active: #bfc9d0;
 
-  /* cardinal stays for identity only (wordmark, MIT login); 4.66:1 on bg */
+  /* cardinal stays for identity only (the wordmark); 4.66:1 on bg */
   --g-brand: #d4586c;
   /* darker than --g-brand: holds white text at 5.1:1, where --g-brand's
      lighter value (tuned against --g-bg, not white-on-top) would fall short. */

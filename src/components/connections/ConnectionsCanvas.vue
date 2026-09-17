@@ -84,7 +84,7 @@
           {{ edgeCardIds[1] }}</span
         >
         <span v-if="edgeCard.edge.crossing" class="edge-card-crossing"
-          >crossing</span
+          >Crossing</span
         >
       </div>
       <ul class="edge-card-reasons">

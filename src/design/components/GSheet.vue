@@ -12,8 +12,10 @@
         :style="{ width }"
         :aria-describedby="undefined"
         v-bind="$attrs"
+        tabindex="-1"
         @escape-key-down="onEscapeKeyDown"
         @interact-outside="onInteractOutside"
+        @open-auto-focus="onOpenAutoFocus"
       >
         <VisuallyHidden as-child>
           <DialogTitle>{{ label }}</DialogTitle>
@@ -74,8 +76,21 @@ const props = withDefaults(
     dismissible?: boolean;
     /** "opaque" for full takeovers (first-run onboarding). */
     scrim?: "default" | "opaque";
+    /**
+     * false keeps the focus trap but lands initial focus on the panel
+     * itself rather than its first control, so opening a sheet on a cold
+     * page load doesn't draw a focus ring around whichever control
+     * happens to come first (the onboarding wizard's Skip, say).
+     */
+    autoFocus?: boolean;
   }>(),
-  { width: "560px", closeButton: true, dismissible: true, scrim: "default" },
+  {
+    width: "560px",
+    closeButton: true,
+    dismissible: true,
+    scrim: "default",
+    autoFocus: true,
+  },
 );
 
 const emit = defineEmits<{
@@ -114,6 +129,16 @@ function onEscapeKeyDown(event: KeyboardEvent) {
 function onInteractOutside(event: PointerDownOutsideEvent | FocusOutsideEvent) {
   if (!props.dismissible) {
     event.preventDefault();
+  }
+}
+
+// Reka's FocusScope focuses the first tabbable unless this is prevented,
+// and then focuses nothing at all; the panel takes focus itself so the
+// trap still has an anchor and Tab moves on to the first control.
+function onOpenAutoFocus(event: Event) {
+  if (!props.autoFocus) {
+    event.preventDefault();
+    (event.target as HTMLElement | null)?.focus();
   }
 }
 </script>

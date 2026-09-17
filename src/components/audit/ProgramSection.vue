@@ -35,13 +35,13 @@
       <div class="program-title-block">
         <span class="program-title">{{ title }}</span>
         <span class="program-sub">
-          <template v-if="preview">what if? (not saved)</template>
-          <template v-else-if="tree?.fulfilled">complete</template>
+          <template v-if="preview">What if? (not saved)</template>
+          <template v-else-if="tree?.fulfilled">Complete</template>
           <template v-else-if="percent !== null"
             >{{ percent }}% complete</template
           >
           <template v-else-if="failed">
-            progress didn't load
+            Progress didn't load
             <button
               class="program-retry"
               data-cy="programRetryButton"
@@ -53,7 +53,7 @@
               Retry
             </button>
           </template>
-          <template v-else>computing...</template>
+          <template v-else>Computing...</template>
         </span>
       </div>
       <button

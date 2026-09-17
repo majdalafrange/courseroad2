@@ -35,7 +35,7 @@
           </div>
 
           <div v-if="tokenSuggestions.length" class="token-suggest-row">
-            <span class="token-suggest-label">filters:</span>
+            <span class="token-suggest-label">Filters:</span>
             <button
               v-for="suggestion in tokenSuggestions"
               :key="suggestion.key"

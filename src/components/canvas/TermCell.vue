@@ -56,7 +56,8 @@
           @click.stop
         >
           <g-tooltip text="Build this term's schedule in Hydrant">
-            <span class="hydrant-mark">H</span>
+            <!-- if lucide ever adds a fire hydrant icon, replace this -->
+            <span class="hydrant-mark">Hydrant</span>
           </g-tooltip>
         </a>
       </div>
@@ -163,7 +164,7 @@
         @click.stop="openPaletteForTerm"
       >
         <g-icon name="plus" :size="13" class="term-empty-glyph" />
-        <span class="term-empty-label">add</span>
+        <span class="term-empty-label">Add</span>
       </button>
     </div>
 
@@ -398,7 +399,7 @@ const placementAriaLabel = computed(() => {
 .now-flag {
   position: absolute;
   top: -1px;
-  right: var(--space-10);
+  right: 72px;
   transform: rotate(-1.5deg);
   transform-origin: top center;
   background: var(--g-brand-flag);
@@ -412,10 +413,10 @@ const placementAriaLabel = computed(() => {
   z-index: 1;
 }
 .term-cell.is-empty {
-  background: transparent;
+  background: var(--g-bg);
 }
 .term-cell.is-prior-credit {
-  background: transparent;
+  background: var(--g-bg);
   border-style: dashed;
   min-height: 64px;
 }
@@ -478,7 +479,7 @@ const placementAriaLabel = computed(() => {
   justify-content: space-between;
   gap: var(--space-2);
 }
-/* A season label reads as a coordinate, the same register subject ids and
+/* A semester label reads as a coordinate, the same register subject ids and
    the Hydrant mark beside it already use, so it's mono rather than caps.
    Prior credit is a row name, not a column, so it stays sans. */
 .term-name {
@@ -503,7 +504,7 @@ const placementAriaLabel = computed(() => {
   line-height: 1;
 }
 .hydrant-mark {
-  font: var(--text-id-small);
+  font: var(--text-micro);
   font-weight: 600;
   color: var(--g-ink-3);
   border: 1px solid var(--g-line-strong);

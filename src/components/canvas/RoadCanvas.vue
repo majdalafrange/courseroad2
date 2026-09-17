@@ -35,8 +35,9 @@
           >
             <g-icon name="map" :size="14" class="year-pill-icon" />
             <span class="year-pill-text">
-              {{ yearNames[store.userYear] }} · {{ termLabelNow }}
+              {{ termLabelNow }} · {{ yearNames[store.userYear] }}
             </span>
+            <span class="year-pill-tag">Now</span>
             <g-icon name="chevronDown" :size="12" class="year-pill-icon" />
           </button>
         </template>
@@ -173,9 +174,8 @@ const settingsOpen = ref(false);
 
 const baseYearValue = computed(() => baseYear(store.userYear));
 
-const termLabelNow = computed(
-  () =>
-    `${termYearLabel(store.currentSemester, baseYearValue.value)} is current`,
+const termLabelNow = computed(() =>
+  termYearLabel(store.currentSemester, baseYearValue.value),
 );
 
 /* ---- fifth year visibility ---- */
@@ -471,6 +471,24 @@ void dragState;
 }
 .year-pill-icon {
   flex-shrink: 0;
+}
+.year-pill-tag {
+  flex-shrink: 0;
+  font: var(--text-micro);
+  font-weight: 600;
+  color: var(--g-ink-2);
+  background: var(--g-accent-tint);
+  border-radius: var(--radius-full);
+  padding: 1px var(--space-2);
+}
+.year-pill-tag {
+  flex-shrink: 0;
+  font: var(--text-micro);
+  font-weight: 600;
+  color: var(--g-ink-2);
+  background: var(--g-accent-tint);
+  border-radius: var(--radius-full);
+  padding: 1px var(--space-2);
 }
 .iap-toggle {
   display: inline-flex;

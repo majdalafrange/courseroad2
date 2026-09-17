@@ -17,8 +17,8 @@
       <span>Progress</span>
     </button>
     <button class="mobile-tab search-tab" @click="emit('search')">
-      <g-icon name="search" :size="18" />
-      <span>Find</span>
+      <g-icon name="plus" :size="18" />
+      <span>Add</span>
     </button>
   </nav>
 </template>

@@ -5,10 +5,10 @@
     <div class="row-main">
       <span class="row-title">
         {{ fit.title }}
-        <span v-if="fit.onRoad" class="row-tag">on your road</span>
+        <span v-if="fit.onRoad" class="row-tag">On your road</span>
       </span>
       <span class="row-meta">
-        <template v-if="fit.complete">complete</template>
+        <template v-if="fit.complete">Complete</template>
         <template v-else>
           {{ fit.percent }}% complete<template
             v-if="fit.remaining !== undefined"
