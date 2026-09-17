@@ -71,9 +71,7 @@
         <div v-if="subjectsError" class="catalog-error" role="alert">
           <div>
             <strong>We couldn't load the subject catalog.</strong>
-            <span>
-              Check your connection. Your plan is safe in the meantime.
-            </span>
+            <span>Check your connection and try again.</span>
           </div>
           <g-button variant="primary" size="sm" @click="refetchSubjects()">
             Try again
@@ -81,8 +79,8 @@
         </div>
         <div v-else-if="offline" class="offline-note" role="status">
           <g-icon name="cloud" :size="14" />
-          You're offline, but you can keep planning. We'll sync your changes
-          when you're back.
+          You're offline. Changes are kept locally and sync once you're back
+          online.
         </div>
         <div v-else-if="roadLoading" class="road-loading" role="status">
           <span class="road-loading-spinner" aria-hidden="true" />
@@ -93,7 +91,7 @@
           <h2 class="empty-title">Search for a class</h2>
           <p class="empty-copy">
             Place it in a term, or add a major or minor on the
-            {{ store.panelSide }} and we'll show you what's left.
+            {{ store.panelSide }} to see what's left.
           </p>
           <div class="empty-actions">
             <g-button variant="primary" @click.stop="focusSearch">

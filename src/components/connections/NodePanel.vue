@@ -113,7 +113,7 @@
     <div v-else class="panel-empty-head">
       <h2 class="panel-empty-title">Connections</h2>
       <p class="panel-empty-copy">
-        Select a subject on the graph. Its connections list here, ranked, with
+        Select a subject on the graph to list its connections here, ranked, with
         the reason for each.
       </p>
     </div>
@@ -150,9 +150,7 @@
         }}</span>
       </div>
 
-      <p v-if="!neighbors.length" class="panel-note">
-        Nothing connected we can show yet.
-      </p>
+      <p v-if="!neighbors.length" class="panel-note">No connections to show.</p>
 
       <ul v-else class="neighbor-list">
         <li v-for="n in neighbors" :key="n.id">

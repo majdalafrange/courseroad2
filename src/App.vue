@@ -1,10 +1,10 @@
 <template>
   <div id="app-wrapper">
     <div v-if="fatalError" class="fatal-error" role="alert">
-      <h1 class="fatal-title">Something went wrong</h1>
+      <h1 class="fatal-title">CourseRoad hit an error</h1>
       <p class="fatal-copy">
-        Sorry about that. Your roads are saved as you edit them, so nothing is
-        lost, and reloading should get you back to normal.
+        Your roads were saved as you edited them. Reload to pick up where you
+        left off.
       </p>
       <g-button variant="primary" @click="reload">Reload CourseRoad</g-button>
     </div>
@@ -377,10 +377,10 @@ function seedFromOnboarding(payload: {
   store.fulfillmentNeeded = "all";
   history.clear();
   toast.ok(
-    payload.year === 0 ? "Your starting plan is ready!" : "You're all set up!",
+    payload.year === 0 ? "Starting plan added" : "Road set up",
     payload.year === 0
-      ? "We've put GIR placeholders in freshman year. Drag in real classes anytime."
-      : "Terms start empty. Press / whenever you're ready to add classes.",
+      ? "First-year GIRs are in place. Move or swap them as you like."
+      : "Terms start empty. Press / to add classes.",
   );
 }
 

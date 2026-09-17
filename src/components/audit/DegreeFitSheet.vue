@@ -10,9 +10,8 @@
         <div class="fit-title-block">
           <h2 class="fit-title">Closest majors and minors</h2>
           <p class="fit-sub">
-            Every major and minor measured against this road, by FireRoad's own
-            audit. Majors and minors are ranked separately because their
-            requirement counts are not the same scale.
+            Every major and minor, ranked by how much of it this road already
+            satisfies. Majors and minors are ranked separately.
           </p>
         </div>
       </header>
@@ -55,12 +54,12 @@
       <div class="fit-body">
         <div v-if="fit.status === 'idle' && !fit.scanning" class="fit-idle">
           <p>
-            This runs the road against
+            This checks the road against
             <template v-if="programCount">
-              all {{ programCount }} majors and minors
+              all {{ programCount }} majors and minors.
             </template>
-            <template v-else>every major and minor</template>
-            FireRoad publishes, one request each. It takes a few seconds.
+            <template v-else>every major and minor.</template>
+            It takes a few seconds.
           </p>
           <g-button variant="primary" @click="fit.scan()">
             Check this road
@@ -124,8 +123,7 @@
           <section v-if="groups.unranked.length" class="fit-section">
             <h3 class="fit-section-head">No progress reported</h3>
             <p class="fit-section-note">
-              FireRoad answered for these but gave no percentage, so they hold
-              no place in the ranking.
+              FireRoad returned no percentage for these, so they aren't ranked.
             </p>
             <div
               v-for="row in groups.unranked"
@@ -148,7 +146,7 @@
           </section>
 
           <p v-if="fit.status === 'ready' && !anyResults" class="fit-empty">
-            No majors or minors came back.
+            FireRoad returned no results.
           </p>
         </template>
       </div>

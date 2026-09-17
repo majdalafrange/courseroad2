@@ -53,12 +53,12 @@
       <!-- alerts -->
       <p v-if="subject.is_historical" class="detail-alert">
         <g-icon name="warn" :size="13" />
-        No longer offered. Last ran
+        No longer offered. Last offered
         {{ (subject.source_semester ?? "").split("-").join(" ") }}.
       </p>
       <p v-else-if="subject.not_offered_year" class="detail-alert">
         <g-icon name="warn" :size="13" />
-        Sitting out the {{ subject.not_offered_year }} school year.
+        Not offered in the {{ subject.not_offered_year }} school year.
       </p>
 
       <!-- on the road? -->

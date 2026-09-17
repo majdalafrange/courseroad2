@@ -338,7 +338,7 @@ const dropHint = computed(() => {
     return "No longer offered";
   }
   if (kind === "not-this-year") {
-    return "Skipping this year";
+    return "Not offered this year";
   }
   return "May not be offered";
 });

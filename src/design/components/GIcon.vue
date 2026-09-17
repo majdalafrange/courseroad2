@@ -14,6 +14,7 @@ import { Icon } from "@iconify/vue/offline";
 import type { IconifyIcon } from "@iconify/vue/offline";
 
 import plus from "@iconify-icons/lucide/plus";
+import minus from "@iconify-icons/lucide/minus";
 import x from "@iconify-icons/lucide/x";
 import moreVertical from "@iconify-icons/lucide/more-vertical";
 import pencil from "@iconify-icons/lucide/pencil";
@@ -66,6 +67,7 @@ import printer from "@iconify-icons/lucide/printer";
  */
 const NAME_TO_LUCIDE = {
   plus,
+  minus,
   close: x,
   dots: moreVertical,
   pencil,

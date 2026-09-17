@@ -121,7 +121,7 @@ const THEME_OPTIONS: {
 }[] = [
   {
     mode: "system",
-    label: "System Default",
+    label: "System",
     detail: "Matches your device",
     icon: "monitor",
   },

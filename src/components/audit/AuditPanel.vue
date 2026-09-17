@@ -91,7 +91,7 @@
     />
 
     <div v-if="!selectedReqs.length" class="audit-empty">
-      Pick a program to see your distance to the degree.
+      Add a major or minor to see what's left.
     </div>
 
     <div v-if="!ledger" class="audit-links">

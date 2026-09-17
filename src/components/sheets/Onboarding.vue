@@ -18,10 +18,10 @@
       <!-- step 1: welcome + year -->
       <div v-if="step === 0" class="onboard-step">
         <g-wordmark size="lg" />
-        <h1 class="onboard-title">Welcome! Let's set up your road.</h1>
+        <h1 class="onboard-title">Set up your road</h1>
         <p class="onboard-copy">
-          Tell us your year and what course you're in, and we'll get you
-          started. You can always change these later.
+          Pick your class year and program. Both can be changed later from the
+          plan.
         </p>
         <span id="onboardYearLabel" class="onboard-label">
           What year are you?

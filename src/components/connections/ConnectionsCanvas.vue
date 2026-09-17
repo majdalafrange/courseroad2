@@ -112,7 +112,7 @@
         <g-icon name="plus" :size="15" />
       </button>
       <button aria-label="Zoom out" @click="zoomBy(1 / 1.2)">
-        <span class="minus" aria-hidden="true">–</span>
+        <g-icon name="minus" :size="15" />
       </button>
       <button aria-label="Fit graph to view" @click="fit">
         <g-icon name="map" :size="15" />
@@ -797,11 +797,6 @@ onBeforeUnmount(() => {
 .zoom-controls button + button {
   border-top: 1px solid var(--g-line);
 }
-.minus {
-  font-size: 18px;
-  line-height: 1;
-}
-
 .edge-card {
   position: absolute;
   z-index: 5;

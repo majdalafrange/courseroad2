@@ -40,7 +40,7 @@
         data-cy="connectionsReseed"
         @click="store.reseedFromRoad()"
       >
-        Re-seed from road
+        Restart from road
       </g-button>
       <g-button size="sm" @click="store.reset()">Reset</g-button>
     </div>

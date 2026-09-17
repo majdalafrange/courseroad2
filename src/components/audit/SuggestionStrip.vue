@@ -19,7 +19,8 @@
             </button>
           </template>
           <p class="strip-explain">
-            Generated using your progress towards the GIRs.
+            Based on your progress towards the GIRs: the highest-rated subjects
+            that fill an open requirement and run next term.
           </p>
         </g-popover>
       </div>

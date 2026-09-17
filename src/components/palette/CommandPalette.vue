@@ -328,7 +328,7 @@ const baseActions = computed<PaletteAction[]>(() => {
   const actions: PaletteAction[] = [
     {
       label: "Settings",
-      detail: "Open the settings dialog",
+      detail: "Theme and panel side",
       icon: "settings",
       keywords: "theme dark light mode switch settings preferences system",
       run: () => emit("action", "open-settings"),
@@ -386,7 +386,7 @@ const baseActions = computed<PaletteAction[]>(() => {
   if (!isMobile.value) {
     actions.push({
       label: "Explore connections",
-      detail: "Open Connections to discover subjects related to yours",
+      detail: "See which subjects connect to the ones on your road",
       icon: "graph",
       keywords: "explore connections graph discover related crossings",
       run: () => emit("action", "open-explore"),

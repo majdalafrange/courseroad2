@@ -26,12 +26,12 @@
 
       <!-- cold start / empty -->
       <div v-else-if="store.status === 'empty'" class="state-fill">
-        <h2 class="state-title">Start exploring</h2>
+        <h2 class="state-title">Pick a starting class</h2>
         <p class="state-text">
           {{
             roadEmpty
               ? "Your road is empty. Pick a class to start from."
-              : "Pick a class to start from, or seed from your road."
+              : "Pick a class to start from, or start from the classes on your road."
           }}
         </p>
         <div class="seed-search">
@@ -79,7 +79,7 @@
           variant="ghost"
           @click="store.reseedFromRoad()"
         >
-          Seed from road
+          Start from my road
         </g-button>
       </div>
 

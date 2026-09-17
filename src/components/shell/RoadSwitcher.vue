@@ -228,8 +228,8 @@ function commitRename() {
   }
   if (otherRoadHasName(store.roads, roadId, newName)) {
     toast.warn(
-      `Looks like there's already a road named “${newName}”`,
-      "We left the name unchanged.",
+      `A road named “${newName}” already exists`,
+      "The name was left unchanged.",
     );
     return;
   }

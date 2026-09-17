@@ -712,8 +712,8 @@ export const useAuthStore = defineStore("auth", {
               ? "A saved road couldn't be read"
               : `We couldn't read ${dropped} saved roads`,
             restoredCount > 0
-              ? "The rest came back fine."
-              : "Your plan starts fresh from here.",
+              ? "The others loaded."
+              : "Starting with an empty road.",
           );
         }
         // Restores the in-memory flag: this entry can only exist because
@@ -725,7 +725,7 @@ export const useAuthStore = defineStore("auth", {
         // silence is not.
         toast.warn(
           "Saved roads couldn't be read",
-          "The stored copy was unreadable, so we're starting your plan fresh.",
+          "The stored copy was unreadable. Starting with an empty road.",
         );
       }
 

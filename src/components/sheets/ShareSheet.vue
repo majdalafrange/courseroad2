@@ -121,21 +121,20 @@ async function savePng() {
     const png = await rasterizeToPng(await exportSvg(), 2);
     const outcome = await savePngFile(png, `${roadName.value}.png`);
     if (outcome !== "cancelled") {
-      toast.ok(
-        outcome === "shared"
-          ? "Your image is ready to save."
-          : "Your image is saved!",
-      );
+      toast.ok(outcome === "shared" ? "Image ready to share" : "Image saved");
     }
   } catch {
-    toast.danger("We couldn't render the image", "Try the PDF option instead.");
+    toast.danger("The image didn't render", "Try Print / Save as PDF instead.");
   }
 }
 
 async function printPoster() {
   const win = window.open("", "_blank");
   if (win === null) {
-    toast.warn("Pop-up blocked", "Allow pop-ups and we'll get this printing.");
+    toast.warn(
+      "Pop-up blocked",
+      "Allow pop-ups for this site, then try again.",
+    );
     return;
   }
   try {
@@ -160,7 +159,7 @@ async function printPoster() {
     // this, the already-opened blank tab was left dangling with no
     // explanation.
     win.close();
-    toast.danger("We couldn't render the poster", "Try again in a moment.");
+    toast.danger("The poster didn't render", "Try again in a moment.");
   }
 }
 
@@ -173,8 +172,8 @@ async function saveRoadFile() {
     if (outcome !== "cancelled") {
       toast.ok(
         outcome === "shared"
-          ? "Your road is ready to save."
-          : `Your road is exported as “${roadName.value}.road”`,
+          ? "Road file ready to share"
+          : `Exported “${roadName.value}.road”`,
       );
     }
   }

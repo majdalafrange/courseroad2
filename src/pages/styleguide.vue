@@ -32,9 +32,9 @@
     <section class="sg-section">
       <h2 class="sg-h2">Color</h2>
       <p class="sg-body sg-note">
-        Cool drafting-paper neutrals, MIT cardinal as the one accent, and quiet
-        semantic tints. Dark is blueprint: MIT silver leads, and cardinal is
-        kept for identity. Dark values are designed, not inverted.
+        Cool gray neutrals, MIT cardinal as the single accent, and muted
+        semantic tints. Dark mode leads with MIT silver and keeps cardinal for
+        the brand mark. Dark values are set by hand, not inverted.
       </p>
       <div class="sg-swatch-grid">
         <div
@@ -57,8 +57,8 @@
       <p class="sg-body sg-note">
         Every department sits in a fixed OKLCH lightness/chroma band, so chips
         are equally vivid and on-color text passes contrast by construction.
-        Hues are carried over from the legacy CourseRoad, providing familiarity
-        to users.
+        Hues are carried over from the previous CourseRoad so returning students
+        recognize them.
       </p>
       <div class="sg-dept-grid">
         <div
@@ -81,13 +81,13 @@
       <h2 class="sg-h2">Type</h2>
       <p class="sg-body sg-note">
         IBM Plex Sans Variable for both display and interface and IBM Plex Mono
-        for subject ids and numeric data. Ids are always mono, because they are
-        the atomic unit of the product.
+        for subject ids and numeric data. Subject ids are always mono so they
+        stand out from surrounding text.
       </p>
       <g-card class="sg-type-ramp">
         <div class="sg-type-row">
           <code class="sg-type-token">--text-display</code>
-          <span style="font: var(--text-display)">Plan the whole climb</span>
+          <span style="font: var(--text-display)">Plan all four years</span>
         </div>
         <div class="sg-type-row">
           <code class="sg-type-token">--text-title</code>
@@ -181,15 +181,13 @@
     <section class="sg-section">
       <h2 class="sg-h2">Motion</h2>
       <p class="sg-body sg-note">
-        Things come from where they were and go where they're going. Enter
-        decelerates, exit accelerates, settling may overshoot slightly. Distance
-        buys duration, and reduced motion collapses all of it.
+        Elements enter with an ease-out curve and leave with an ease-in. Longer
+        distances get longer durations. With reduced motion enabled, transitions
+        are skipped.
       </p>
       <g-card>
         <div class="sg-motion-row">
-          <g-button variant="subtle" @click="runMotionDemo">
-            Play choreography
-          </g-button>
+          <g-button variant="subtle" @click="runMotionDemo"> Play </g-button>
           <div class="sg-motion-track">
             <div
               class="sg-motion-dot quick"
@@ -237,7 +235,7 @@
           <g-input
             v-model="demoInput"
             label="Road name"
-            placeholder="Junior year, but ambitious"
+            placeholder="Junior spring draft"
             hint="Visible on the tab"
             style="width: 260px"
           />
@@ -423,37 +421,35 @@ function runMotionDemo() {
 }
 
 function demoUndoToast() {
-  toast.undoable("“Sophomore spring” deleted", () =>
-    toast.ok("Road restored", "Everything is back where it was."),
-  );
+  toast.undoable("“Sophomore spring” deleted", () => toast.ok("Road restored"));
 }
 
 function noop() {}
 
 const principles = [
   {
-    title: "The plan is the hero",
-    body: "One canvas, the whole journey visible. Search, detail, and the audit orbit the plan. Nothing buries it.",
+    title: "The plan comes first",
+    body: "The road canvas is the main view. Search, class detail, and the audit sit beside it and never cover it.",
   },
   {
-    title: "Show consequences, live",
-    body: "Selecting a class updates, in the same frame, what it unlocks, what it needs, what it satisfies, and what it breaks.",
+    title: "Show consequences immediately",
+    body: "Selecting a class shows, without delay, what it unlocks, what it requires, and which requirements it satisfies.",
   },
   {
-    title: "Direct manipulation",
-    body: "Rename in place. Confirm destruction with undo, never a confirmation prompt. Every modal must justify its existence.",
+    title: "Edit in place",
+    body: "Rename inline. Destructive actions run right away and offer Undo instead of a confirmation prompt. Dialogs are used only when there is no in-place alternative.",
   },
   {
-    title: "Motion explains",
-    body: "Things come from where they were and go where they're going. Enter decelerates, exit accelerates, settling may overshoot slightly. Distance buys duration.",
+    title: "Motion shows where things went",
+    body: "Elements move from where they were to where they end up. Enter uses ease-out, exit uses ease-in, and longer distances get longer durations.",
   },
   {
-    title: "Decoration encodes",
-    body: "Color means department. Weight means load. Green means progress. No color without a meaning, and each fact encoded once.",
+    title: "Color carries meaning",
+    body: "Color means department. Green means progress. Nothing is colored for decoration alone.",
   },
   {
-    title: "Fast feels inevitable",
-    body: "Optimistic updates. No layout shift when data arrives. Search results update per keystroke.",
+    title: "Fast by default",
+    body: "Updates apply optimistically. Layout does not shift when data arrives. Search results update on every keystroke.",
   },
 ];
 

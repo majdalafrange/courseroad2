@@ -269,7 +269,7 @@ const saveState = computed<SaveState>(() => {
     return {
       label: "Loading...",
       icon: "cloudDownload",
-      detail: "Grabbing your roads from FireRoad.",
+      detail: "Loading your roads from FireRoad.",
       tone: "busy",
     };
   }
@@ -296,21 +296,21 @@ const saveState = computed<SaveState>(() => {
       return {
         label: "Not saved",
         icon: "saveOff",
-        detail: "Cookies are off, so we can only keep changes in this tab.",
+        detail: "Cookies are off. Changes last only as long as this tab.",
         tone: "warn",
       };
     }
     return {
       label: "Saved in this browser",
       icon: "save",
-      detail: "Log in and we'll sync your roads across your devices.",
+      detail: "Log in to sync roads across devices.",
       tone: "muted",
     };
   }
   return {
     label: "Saved",
     icon: "cloudCheck",
-    detail: "All changes saved to FireRoad!",
+    detail: "All changes saved to FireRoad.",
     tone: "ok",
   };
 });

@@ -58,7 +58,10 @@
         @dblclick.stop
         @click.stop="emit('toggle')"
       >
-        {{ node.expanded && !node.hasMore ? "–" : "+" }}
+        <g-icon
+          :name="node.expanded && !node.hasMore ? 'minus' : 'plus'"
+          :size="12"
+        />
       </button>
     </div>
   </foreignObject>
@@ -66,6 +69,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import GIcon from "../../design/components/GIcon.vue";
 import {
   NODE_HEIGHT,
   NODE_HEIGHT_COMPACT,

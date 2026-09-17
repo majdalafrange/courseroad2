@@ -7,13 +7,10 @@
   >
     <div v-if="conflictInfo !== undefined" class="conflict">
       <header class="conflict-head">
-        <h2 class="conflict-title">
-          Looks like this road changed in two places
-        </h2>
+        <h2 class="conflict-title">This road was changed in two places</h2>
         <p class="conflict-sub">
           “{{ roads[conflictInfo.id]?.name }}” was edited here and in another
-          tab or device. Pick the one you want to keep, and we'll discard the
-          other.
+          tab or device. Keep one version. The other is discarded.
         </p>
       </header>
 

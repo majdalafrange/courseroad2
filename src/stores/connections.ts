@@ -888,9 +888,9 @@ export const useConnectionsStore = defineStore("connections", () => {
     if (before.graph.nodes.size === 0 || !tookSomethingAway(before)) {
       return;
     }
-    toast.undoable("Re-seeded from your road", () => {
+    toast.undoable("Restarted from your road", () => {
       restore(before);
-      announce("Re-seed undone.");
+      announce("Restart undone.");
     });
   }
 

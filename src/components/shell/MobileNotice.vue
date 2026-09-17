@@ -2,8 +2,8 @@
   <div v-if="!dismissed" class="mobile-notice" role="status">
     <g-icon name="info" :size="14" class="notice-icon" />
     <span class="notice-text">
-      CourseRoad is built for a bigger screen. For a better experience, please
-      browse from a desktop computer.
+      CourseRoad works best on a laptop or desktop. Some features are hidden on
+      small screens.
     </span>
     <button class="notice-dismiss" aria-label="Dismiss" @click="dismiss">
       <g-icon name="close" :size="12" />

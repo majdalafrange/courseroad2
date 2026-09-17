@@ -182,8 +182,8 @@ export async function exportActiveRoad(): Promise<void> {
     if (outcome !== "cancelled") {
       toast.ok(
         outcome === "shared"
-          ? "Your road is ready to save."
-          : `Your road is exported as “${road.name}.road”`,
+          ? "Road file ready to share"
+          : `Exported “${road.name}.road”`,
       );
     }
   } catch (e) {
