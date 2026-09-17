@@ -774,7 +774,7 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   background: var(--g-surface);
-  border: 1px solid var(--g-line);
+  border: 1px solid var(--g-overlay-line);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-2);
   overflow: hidden;
@@ -807,7 +807,7 @@ onBeforeUnmount(() => {
   z-index: 5;
   max-width: 280px;
   background: var(--g-surface);
-  border: 1px solid var(--g-line);
+  border: 1px solid var(--g-overlay-line);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-3);
   padding: var(--space-2) var(--space-3);

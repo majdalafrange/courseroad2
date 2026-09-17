@@ -345,7 +345,7 @@ function onAdd(id: string) {
   list-style: none;
   margin: var(--space-2) 0 0;
   padding: var(--space-1);
-  border: 1px solid var(--g-line);
+  border: 1px solid var(--g-overlay-line);
   border-radius: var(--radius-md);
   background: var(--g-surface);
   box-shadow: var(--shadow-2);

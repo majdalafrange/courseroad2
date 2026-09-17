@@ -412,7 +412,7 @@ function close() {
   font: var(--text-small);
   color: var(--g-ink-2);
   background: transparent;
-  border: 1px solid var(--g-line);
+  box-shadow: inset 0 0 0 1px var(--g-line-strong);
   border-radius: var(--radius-sm);
   cursor: pointer;
 }

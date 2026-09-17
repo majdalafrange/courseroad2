@@ -859,7 +859,6 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
   font: var(--text-small);
   color: var(--g-ink-2);
   background: var(--g-surface-2);
-  border: 1px solid var(--g-line);
   border-radius: var(--radius-sm);
   padding: var(--space-2) var(--space-3);
   margin-top: var(--space-3);

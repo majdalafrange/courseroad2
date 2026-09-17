@@ -180,7 +180,6 @@ function isChanged(subjectIndex: number, side: string): boolean {
   flex-direction: column;
   gap: var(--space-2);
   background: var(--g-surface-2);
-  border: 1px solid var(--g-line);
   border-radius: var(--radius-md);
   padding: var(--space-4);
 }
