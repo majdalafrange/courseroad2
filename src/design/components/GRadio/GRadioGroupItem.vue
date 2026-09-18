@@ -5,6 +5,9 @@
     :disabled="disabled"
   >
     <template #default="{ checked }">
+      <RadioGroupIndicator as-child>
+        <slot name="indicator" />
+      </RadioGroupIndicator>
       <slot :checked="checked" />
     </template>
   </RadioGroupItem>
@@ -18,7 +21,7 @@
  * own RadioGroupItem/Radio internals sit in between), so a caller's own
  * class on it needs :deep() to be reachable from scoped CSS.
  */
-import { RadioGroupItem } from "reka-ui";
+import { RadioGroupItem, RadioGroupIndicator } from "reka-ui";
 
 withDefaults(
   defineProps<{
