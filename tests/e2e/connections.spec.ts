@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { cy, openApp } from "./support/app";
+import { cy, openApp, openSettings } from "./support/app";
 
 test.beforeEach(async ({ context, page }) => {
   await openApp(context, page);
@@ -50,7 +50,7 @@ test("the Explore panel sits on the side the plan panel does", async ({
   await page.getByText("Calculus", { exact: true }).first().click();
   await page.locator('[data-cy$="__semester_1"]').click();
 
-  await cy(page, "settingsButton").click();
+  await openSettings(page);
   await cy(page, "panelSideOption-right").click();
   await page.keyboard.press("Escape");
 

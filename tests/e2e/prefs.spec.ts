@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { cy, openApp } from "./support/app";
+import { cy, openApp, openSettings } from "./support/app";
 
 test.beforeEach(async ({ context, page }) => {
   // Deterministic system default: "System Default" needs a known OS
@@ -15,7 +15,7 @@ test("theme follows the OS by default, and an explicit choice survives a reload"
   // System Default is the starting preference; the OS says dark.
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
 
-  await cy(page, "settingsButton").click();
+  await openSettings(page);
   await cy(page, "themeOption-light").click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await page.keyboard.press("Escape");
@@ -66,7 +66,7 @@ test("the progress panel side is a choice that survives a reload", async ({
   expect(await panelIsLeftOfCanvas(page)).toBe(true);
   expect(await dividerEdge(page)).toBe("right");
 
-  await cy(page, "settingsButton").click();
+  await openSettings(page);
   await cy(page, "panelSideOption-right").click();
   await expect.poll(() => panelIsLeftOfCanvas(page)).toBe(false);
   await page.keyboard.press("Escape");
@@ -80,7 +80,7 @@ test("the progress panel side is a choice that survives a reload", async ({
   expect(await dividerEdge(page)).toBe("left");
 
   // The control now offers the way back, and takes it.
-  await cy(page, "settingsButton").click();
+  await openSettings(page);
   await cy(page, "panelSideOption-left").click();
   await expect.poll(() => panelIsLeftOfCanvas(page)).toBe(true);
   await page.keyboard.press("Escape");

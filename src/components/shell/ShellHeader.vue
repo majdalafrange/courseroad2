@@ -115,17 +115,6 @@
         Log in
       </button>
 
-      <g-tooltip class="header-settings" text="Settings">
-        <button
-          class="header-icon-btn"
-          data-cy="settingsButton"
-          aria-label="Settings"
-          @click="emit('open-settings')"
-        >
-          <g-icon name="settings" :size="16" />
-        </button>
-      </g-tooltip>
-
       <g-popover v-model="moreOpen" align="end" menu>
         <template #anchor>
           <button
@@ -150,7 +139,8 @@
             <g-icon name="info" :size="14" /> About CourseRoad
           </button>
           <button
-            class="more-item mobile-only"
+            class="more-item"
+            data-cy="settingsButton"
             @click="closeAnd('open-settings')"
           >
             <g-icon name="settings" :size="14" /> Settings
@@ -610,9 +600,6 @@ const saveState = computed<SaveState>(() => {
     display: none;
   }
   .header-login {
-    display: none;
-  }
-  :global(.header-settings) {
     display: none;
   }
   .more-item.mobile-only {
