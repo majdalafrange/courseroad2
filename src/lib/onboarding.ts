@@ -2,11 +2,8 @@
  * First-run seeding: a newcomer picks a class year and program(s), lands
  * on a road with the obvious starting structure: canonical first-year
  * science/math GIRs as real MIT subjects, programs already in the audit.
- *
- * Seeds *real* subjects (8.01, 18.01, ...), not generic placeholders: a
- * freshman year's GIRs have well-known defaults, and one real card reads
- * more clearly than an invented "Generic Physics 1". HASS/CI have no
- * single default, so those are left for the student to choose.
+ * Seeds real subjects (8.01, 18.01, ...), not generic placeholders;
+ * HASS/CI have no single default and are left to the student.
  */
 
 import type { CatalogView, SelectedSubject } from "./types";
@@ -47,12 +44,9 @@ function realSubject(
 }
 
 /**
- * Build the seeded selected-subjects grid for a newcomer.
- *
- * Only first-years get the GIR scaffold dropped in; later years start
- * clean (a wrong guess is more annoying than an empty grid). `userYear`
- * is 0-based. Any seed subject missing from the catalog is skipped, so a
- * partial catalog can never produce a broken card.
+ * Build the seeded selected-subjects grid for a newcomer. Only first-years
+ * get the GIR scaffold; later years start clean. `userYear` is 0-based.
+ * Seed subjects missing from the catalog are skipped.
  */
 export function seedSelectedSubjects(
   userYear: number,

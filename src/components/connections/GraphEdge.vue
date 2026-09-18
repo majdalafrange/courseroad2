@@ -79,9 +79,8 @@ const arrowPoints = computed(() => {
 </script>
 
 <style scoped>
-/* Full chroma is an interaction state, not a resting state (the
-   department-rail recipe): at rest an edge leans toward the hairline color,
-   and emphasis restores the legend hue. */
+/* Full chroma is an interaction state: at rest an edge leans toward the
+   hairline color, and emphasis restores the legend hue. */
 .edge {
   --edge-rest: color-mix(
     in srgb,
@@ -163,7 +162,7 @@ const arrowPoints = computed(() => {
   --edge-color: var(--g-accent);
 }
 
-/* interdisciplinary crossings are the point: heavier line, warmer rest mix */
+/* interdisciplinary crossings: heavier line, warmer rest mix */
 .edge.crossing {
   --edge-rest: color-mix(
     in srgb,

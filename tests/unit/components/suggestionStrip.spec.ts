@@ -67,12 +67,9 @@ describe("SuggestionStrip explanation control", () => {
     expect(popover?.textContent).toContain("progress towards the GIRs");
     expect(control.attributes("aria-expanded")).toBe("true");
 
-    // Reka UI's dismissable layer listens on window (a real keypress
-    // bubbles there through the DOM naturally); dispatching there directly
-    // is the precise way to simulate it without a bubble-chain from focus.
-    // The close itself runs through Presence's own exit-animation check,
-    // an extra async hop beyond the model update, hence flushPromises
-    // over a fixed number of nextTicks.
+    // Reka UI's dismissable layer listens on window. The close runs
+    // through Presence's exit-animation check, an extra async hop, hence
+    // flushPromises rather than a fixed number of nextTicks.
     window.dispatchEvent(
       new KeyboardEvent("keydown", {
         key: "Escape",

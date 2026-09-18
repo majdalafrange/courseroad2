@@ -1,23 +1,16 @@
 /**
- * Deterministic incremental layout: no live force simulation. Every node
- * sits in a grid cell: row = the road term it belongs to (or is projected
- * to reach), column = its position among that row's department-sorted
+ * Deterministic incremental layout, no force simulation. Every node sits
+ * in a grid cell: row = the road term it belongs to (or is projected to
+ * reach), column = its position among that row's department-sorted
  * occupants.
  *
- * Rows are compacted: only buckets a *currently present* node actually
- * uses get a row, in ascending bucket order, so an empty semester never
- * reserves a gap. That means a node's row can shift when the set of
- * populated buckets changes, since a semester gaining its first node, or
- * losing its last one, slides every row after it. What's protected
- * instead is narrower but still the thing that matters for a stable feel:
- * a node's COLUMN within its row never changes once assigned, and a node
- * whose row hasn't changed keeps its exact position across a pass. A
- * newly discovered (or newly re-termed) node only ever searches for an
- * open column within its own row.
+ * Rows are compacted to the buckets present nodes use, so a node's row
+ * can shift when a semester gains its first node or loses its last. A
+ * node's column within its row never changes once assigned, and a node
+ * whose row is unchanged keeps its exact position across a pass.
  *
  * Pinned/dragged positions are authoritative and survive every pass,
- * including the optional one-shot "tidy" (row re-pack); row compaction
- * and column packing never touch them.
+ * including tidy.
  */
 
 import { NUM_SEMESTERS } from "../offering";
@@ -138,14 +131,10 @@ function placeInRow(next: LayoutState, id: string, row: number): void {
 }
 
 /**
- * Reconcile positions against the current graph and term map. Every
- * pinned/dragged node keeps its exact position, full stop. Every other
- * node still in the graph gets its row re-derived from the *current*
- * compacted mapping: unchanged if that's still where it already sits
- * (column preserved too), otherwise (a new node, or one whose term just
- * changed: placed onto the road, a semester ahead of it emptying out,
- * ...) it's placed fresh into its new row. Pure; returns a new
- * LayoutState; the input is untouched.
+ * Reconcile positions against the current graph and term map. Fixed nodes
+ * keep their position. Every other node gets its row re-derived:
+ * unchanged if it already sits there (column preserved), otherwise placed
+ * fresh into its new row. Pure.
  */
 export function reconcileLayout(
   prev: LayoutState,
@@ -170,11 +159,9 @@ export function reconcileLayout(
 
   const rowOf = new Map(gridRows(state, termOf).map((r) => [r.bucket, r.row]));
 
-  // Nodes still at the row they already occupied keep their exact spot
-  // (column included); everyone else is (re)placed. Sorted once, globally,
-  // so within any one row, ids are visited in ascending (department, id)
-  // order, so a row built fresh packs as 0, 1, 2, ... with no gaps, whether
-  // its nodes are anchors or discovered, all at once or across passes.
+  // Nodes still at their row keep their spot; everyone else is (re)placed.
+  // Sorted once globally, so a row built fresh packs 0, 1, 2, ... with no
+  // gaps.
   const pending: string[] = [];
   for (const id of state.nodes.keys()) {
     if (next.fixed.has(id)) {
@@ -216,11 +203,9 @@ export function setNodePosition(
 }
 
 /**
- * Optional one-shot "tidy": re-pack every row. Non-fixed nodes in a row
- * re-sort by department and close up left-to-right, columns pinned/dragged
- * (fixed) nodes hold onto skipped in place. Restores clean order after
- * removals leave gaps; never the source of correctness, purely cosmetic.
- * Fixed nodes never move.
+ * Optional one-shot tidy: re-pack every row. Non-fixed nodes re-sort by
+ * department and close up left to right; fixed nodes hold their columns.
+ * Cosmetic only.
  */
 export function tidyLayout(
   layout: LayoutState,
@@ -291,13 +276,10 @@ export function computeBounds(layout: LayoutState): Bounds {
 }
 
 /**
- * Viewport that fits `bounds` into a w×h canvas with padding, clamped
- * zoom. maxZoom caps at 1 so a small graph frames at natural card size
- * instead of blowing a lone seed up to fill the screen. `extraLeftMargin`
- * reserves additional screen-independent room on the left before the
- * symmetric `padding` applies on top of it, for content (like the
- * canvas's row labels) that extends further left than any node's own
- * position, and so isn't part of `bounds` at all.
+ * Viewport that fits `bounds` into a w×h canvas with padding and clamped
+ * zoom. maxZoom caps at 1 so a lone seed is not blown up to fill the
+ * screen. `extraLeftMargin` reserves room on the left for content outside
+ * `bounds` (the row labels).
  */
 export function fitViewport(
   bounds: Bounds,

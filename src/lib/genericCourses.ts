@@ -3,9 +3,6 @@
  * from GIR/HASS/CI attribute combinations so requirements can be planned
  * before choosing a real class. Offered-terms and hours are aggregated
  * over all catalog subjects carrying the attribute.
- *
- * Ported exactly from the Vuex store's parseGenericCourses +
- * getMatchingAttributes.
  */
 
 import type { Subject } from "./types";
@@ -89,10 +86,8 @@ function getMatchingAttributes(
       out_of_class_hours: 0,
     },
   );
-  // No subject in the loaded catalog matches this attribute combination
-  // (a real possibility, not just a malformed-data case): dividing by 0
-  // would leave NaN hours on the generic course, poisoning every semester
-  // total it's later summed into.
+  // No subject matches this attribute combination: dividing by 0 would
+  // leave NaN hours on the generic course.
   if (matchingClasses.length > 0) {
     totalObject.in_class_hours /= matchingClasses.length;
     totalObject.out_of_class_hours /= matchingClasses.length;

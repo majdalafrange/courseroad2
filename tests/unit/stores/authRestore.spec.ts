@@ -6,10 +6,7 @@ import { newRoad } from "../../../src/lib/roads";
 import { useAuthStore } from "../../../src/stores/auth";
 import { useCourseDataStore } from "../../../src/stores/courseData";
 
-/**
- * restoreFromStorage against damaged storage. Recovering to a fresh road
- * is the right behavior; doing it without a word was the defect (N8).
- */
+/** restoreFromStorage against damaged storage: recovery must be reported, not silent. */
 describe("auth.restoreFromStorage", () => {
   beforeEach(() => {
     setActivePinia(createPinia());

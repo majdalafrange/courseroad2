@@ -1,9 +1,7 @@
 /**
- * The window-level keyboard shortcuts, with their lifecycle handled:
- * listeners attach on mount and detach on unmount. "/" opens the palette;
- * Cmd/Ctrl+Z and Shift reverse run the history service, with Cmd/Ctrl+Y as
- * the Windows spelling of redo. Everything else stays element-scoped or on
- * its own escape layering.
+ * Window-level keyboard shortcuts: "/" opens the palette; Cmd/Ctrl+Z and
+ * Shift+Z run the history service, Cmd/Ctrl+Y is redo on Windows.
+ * Listeners attach on mount and detach on unmount.
  */
 
 import { onBeforeUnmount, onMounted } from "vue";
@@ -28,9 +26,8 @@ function isEditableTarget(event: KeyboardEvent): boolean {
   );
 }
 
-// Focus inside a sheet, drawer or popover means the student is acting on
-// that layer, not the plan behind it: opening the palette or undoing from
-// there would change what they cannot see or reach.
+// Focus inside a sheet, drawer or popover: the shortcuts would change
+// what the student cannot see.
 function isInsideOverlay(event: KeyboardEvent): boolean {
   const target = event.target;
   return (

@@ -99,9 +99,9 @@ import GButton from "./design/components/GButton.vue";
 import GLiveRegion from "./design/components/GLiveRegion.vue";
 import GToastHost from "./design/components/GToastHost.vue";
 
-// Lazy: none of these render on first paint, only after a menu click.
-// CustomClass and CommandPalette stay eager: both are reached through a
-// typed ref, and the palette should answer its shortcut instantly.
+// Lazy: none of these render on first paint. CustomClass and
+// CommandPalette stay eager: both are reached through a typed ref, and
+// the palette answers a shortcut.
 const AboutSheet = defineAsyncComponent(
   () => import("./components/sheets/AboutSheet.vue"),
 );
@@ -176,10 +176,8 @@ const customClassRef = ref<InstanceType<typeof CustomClass>>();
 const isMobile = useIsMobile();
 const mobileView = ref<"plan" | "progress">("plan");
 
-// Placement mode only makes sense with the canvas visible: switch to
-// Plan and close any class-detail popup covering it. Every entry point
-// (ClassDetail, palette, suggestions) already funnels through this
-// flag, so one watcher covers them all.
+// Placement mode needs the canvas visible: switch to Plan and close any
+// class-detail popup. Every entry point funnels through this flag.
 watch(
   () => store.addingFromCard,
   (adding) => {
@@ -200,9 +198,7 @@ const isStyleguide = computed(() => route.name === "/styleguide");
 useSystemThemeSync();
 
 /* ---- catalog + requirements list: shared across every route, so the
-   shell (not a page) is where they're kicked off; both are Pinia Colada
-   queries (see loaders/courseData.ts), fetched once and shared with
-   whichever other code also calls the same loader. ---- */
+   shell kicks them off (Pinia Colada queries, see loaders/courseData.ts) ---- */
 useSubjectsLoader();
 const { error: reqListError } = useReqListLoader();
 watch(reqListError, (e) => {
@@ -236,7 +232,7 @@ function onMobileNavigate(view: "plan" | "progress") {
   mobileView.value = view;
 }
 
-/* ---- road-change orchestration (replaces the legacy deep watcher) ---- */
+/* ---- road-change orchestration ---- */
 onRoadChange((event) => {
   auth.justLoaded = false;
   if (store.activeRoad !== "") {
@@ -264,9 +260,9 @@ watch(
     } else if (newRoad !== "") {
       auditStore.updateFulfillment(store.fulfillmentNeeded);
     }
-    // The URL's :road segment follows the store either way, under
-    // whichever mode prefix is already active, so switching roads while
-    // exploring stays on /explore instead of bouncing back to the plan.
+    // The URL's :road segment follows the store under whichever mode
+    // prefix is active, so switching roads while exploring stays on
+    // /explore.
     if (newRoad !== "" && !auth.justLoaded) {
       const name = route.name;
       if (name === "/road/[[road]]" || name === "/explore/[[road]]") {
@@ -350,9 +346,8 @@ watch(paletteRequest, (request) => {
 /* ---- onboarding ---- */
 
 // Skip and Finish both close the wizard, and either counts as having seen
-// it. Recorded on the close itself, without the consent gate: on a true
-// first run the cookie banner is still unanswered behind the wizard's
-// scrim, and gating on it made the wizard reopen on every load.
+// it. Not gated on consent: on a first run the cookie banner is still
+// unanswered behind the wizard, and gating reopened it on every load.
 watch(onboardingOpen, (open) => {
   if (!open) {
     writeValue(STORAGE_KEYS.hasOnboarded, "true");
@@ -427,18 +422,14 @@ function seedDemoRoad() {
   }
 }
 
-/* ---- boot ----
-   Everything that needs the route resolved (which road, plan or
-   explore) lives in useAppBootLoader instead, attached to the road and
-   explore pages so vue-router runs it only once that's settled. This is
-   left with what doesn't: the unload listener, and the demo seed. */
+/* ---- boot: what needs the route resolved lives in useAppBootLoader;
+   this is the unload listener and the demo seed ---- */
 onMounted(() => {
   window.addEventListener("beforeunload", onBeforeUnload);
   window.addEventListener("pagehide", onPageHide);
 
-  // Dev-only demo seed for screenshots/design review: /road?demo=1 (read
-  // before routing drops the query). Waits for useSubjectsLoader (called
-  // above) to land: subjectsLoaded flips once applyCatalog runs.
+  // Dev-only demo seed: /road?demo=1, read before routing drops the
+  // query. Waits for the catalog (subjectsLoaded).
   if (
     import.meta.env.DEV &&
     new URLSearchParams(window.location.search).has("demo")
@@ -470,17 +461,15 @@ function onBeforeUnload(event: BeforeUnloadEvent) {
 }
 
 function onPageHide(event: PageTransitionEvent) {
-  // beforeunload also fires when the student then chooses to stay, which
-  // released this live tab's id for the next tab to claim. pagehide with
-  // persisted false only fires when the page is genuinely going away.
+  // beforeunload also fires when the student chooses to stay; pagehide
+  // with persisted false only fires when the page is going away.
   if (!event.persisted) {
     releaseTabID();
   }
 }
 
 onBeforeUnmount(() => {
-  // Named so it can come off again: the anonymous version accumulated
-  // one listener per remount.
+  // Named so it can come off again.
   window.removeEventListener("beforeunload", onBeforeUnload);
   window.removeEventListener("pagehide", onPageHide);
 });

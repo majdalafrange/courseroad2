@@ -1,12 +1,9 @@
 /**
- * Subject search with identical semantics to the legacy ClassSearch
- * autocomplete (text match over subject_id/title/old_id + instructor
+ * Subject search (text match over subject_id/title/old_id + instructor
  * names, AND across filter groups, ranked literal/prefix first), plus an
  * incremental index: when the new query extends the previous one as a
- * plain literal (the overwhelmingly common case while typing), only the
- * previous result set is re-scanned instead of the full ~6000-subject
- * catalog. Regex queries and filter changes fall back to a full scan, so
- * results are always exactly what a full scan would produce.
+ * plain literal, only the previous result set is re-scanned. Regex
+ * queries and filter changes fall back to a full scan.
  */
 
 import type { Subject } from "./types";
@@ -40,10 +37,7 @@ export class SearchIndex {
     return this.filterGroups;
   }
 
-  /**
-   * Search with the legacy semantics. Returns [] when neither text nor any
-   * filter is active (the old "only display subjects if filtering" rule).
-   */
+  /** Returns [] when neither text nor any filter is active. */
   search(
     nameInput: string,
     chosenFilters: ChosenFilters = emptyChosenFilters(),

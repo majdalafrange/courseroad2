@@ -1,12 +1,9 @@
 /**
- * Guarded reads of persisted app state. localStorage and the `newRoads`
- * cookie are untrusted input (localStorage can hold a truncated/hand-edited
- * blob; a `.mit.edu`-scoped cookie can be planted by any MIT subdomain), so
- * nothing reaches the store without passing through here: parse failures
- * yield `undefined`, allowlist-excluded keys are dropped (`loggedIn`/
- * `cookiesAllowed` especially, since restoring those would forge login/consent),
- * `__proto__`-style keys are discarded, and restored objects are rebuilt
- * onto a fresh literal rather than merged in place.
+ * Guarded reads of persisted app state. localStorage is untrusted input
+ * (a truncated or hand-edited blob), so nothing reaches the store without
+ * passing through here: parse failures yield `undefined`, keys outside the
+ * allowlist are dropped (`loggedIn` and `cookiesAllowed` especially),
+ * `__proto__`-style keys are discarded, and objects are rebuilt fresh.
  */
 
 import type {
@@ -21,10 +18,8 @@ import { isCustomColor } from "./colors";
 import { formatFireroadDate } from "./dates";
 import { getSimpleSelectedSubjects } from "./roads";
 
-// Single source of truth for this key: clearAppStorage (appStorage.ts)
-// iterates STORAGE_KEYS to wipe everything on opt-out/logout, so a copy
-// hard-coded here instead of importing it could silently drift out of
-// sync with what that clear actually reaches.
+// Imported, not copied: clearAppStorage iterates STORAGE_KEYS, and a
+// hard-coded duplicate could drift.
 export const PERSISTED_STORE_KEY = STORAGE_KEYS.store;
 
 export type ThemeMode = "light" | "dark" | "system";
@@ -128,8 +123,8 @@ function cleanProgressAssertions(
 
 /**
  * One selected-subject entry. Only the id is required; the semester is
- * canonicalized by getSimpleSelectedSubjects afterwards, and missing
- * display fields are back-filled from the catalog downstream.
+ * canonicalized by getSimpleSelectedSubjects and display fields are
+ * back-filled from the catalog.
  */
 function cleanSelectedSubject(value: unknown): SelectedSubject | undefined {
   if (!isPlainObject(value)) {
@@ -143,15 +138,12 @@ function cleanSelectedSubject(value: unknown): SelectedSubject | undefined {
   for (const key of safeKeys(value)) {
     subject[key] = value[key];
   }
-  // A save from before the id -> subject_id rename (SelectedSubject.id's
-  // doc comment: "Legacy field still found in old saves") validates above
-  // via the id fallback but never actually carries subject_id; this is
-  // the localStorage-path equivalent of roads.ts's normalizeIncomingSubject.
+  // Pre-rename saves carry `id` only; mirrors roads.ts's
+  // normalizeIncomingSubject.
   subject.subject_id = id;
   delete subject.id;
-  // A color that does not name a palette entry is dropped rather than
-  // carried: the render path falls back to the department color for a
-  // missing value, but a malformed one used to reach the poster as undefined.
+  // A color that does not name a palette entry is dropped; the render path
+  // falls back to the department color.
   if (!isCustomColor(subject.custom_color)) {
     delete subject.custom_color;
   }
@@ -160,9 +152,8 @@ function cleanSelectedSubject(value: unknown): SelectedSubject | undefined {
 
 /**
  * One stored road, rebuilt onto a fresh object. Accepts the bucketed
- * layout ($state snapshots) and the flat list (cookies, old saves);
- * both normalize to 16 buckets. Returns undefined when the value is not
- * road-shaped at all.
+ * layout ($state snapshots) and the flat list (old saves); both normalize
+ * to 16 buckets. Undefined when the value is not road-shaped.
  */
 function cleanStoredRoad(value: unknown): Road | undefined {
   if (!isPlainObject(value) || !isPlainObject(value.contents)) {
@@ -206,10 +197,9 @@ function cleanStoredRoad(value: unknown): Road | undefined {
 }
 
 /**
- * Untrusted road map (the localStorage blob's `roads`, or the whole
- * `newRoads` cookie) → a clean map on a fresh object. Roads that are not
- * road-shaped are dropped without taking their siblings down. Returns
- * undefined when the value is not a map at all.
+ * Untrusted road map → a clean map on a fresh object. Roads that are not
+ * road-shaped are dropped individually. Undefined when the value is not a
+ * map.
  */
 export function sanitizeRoadMap(
   value: unknown,
@@ -251,9 +241,8 @@ function cleanSubjectList(value: unknown): Subject[] {
 
 /**
  * Allowlist + per-key sanitization of a parsed snapshot, ready for
- * `$patch`. The output never carries `loggedIn`, `cookiesAllowed`, or any
- * other session key, and `activeRoad` is kept only when it names a road
- * that survived sanitization.
+ * `$patch`. Never carries session keys; `activeRoad` is kept only when it
+ * names a surviving road.
  */
 export function sanitizePersistedStore(
   blob: Record<string, unknown>,
@@ -299,10 +288,8 @@ export function sanitizePersistedStore(
         break;
       case "roads": {
         const roads = sanitizeRoadMap(value);
-        // undefined means no roads-shaped value to restore; {} means a
-        // roads field was present but every entry failed validation.
-        // Setting clean.roads whenever it's defined keeps those apart
-        // instead of conflating them into the same silent no-op.
+        // undefined: nothing roads-shaped to restore. {}: every entry
+        // failed validation. Kept apart.
         if (roads !== undefined) {
           if (
             Object.keys(roads).length === 0 &&
@@ -348,10 +335,8 @@ export function loadPersistedStore(): Record<string, unknown> | undefined {
 }
 
 /**
- * Pre-paint theme read. A stored mode wins as-is; a pre-"System Default"
- * blob (only the old `isDarkMode` flag) migrates to the equivalent
- * explicit choice instead of silently becoming "system". Absent or
- * garbage falls back to the default.
+ * Pre-paint theme read. A pre-"system" blob (only the old `isDarkMode`
+ * flag) migrates to the equivalent explicit choice.
  */
 export function persistedThemeMode(): ThemeMode {
   const blob = loadPersistedStore();
@@ -367,18 +352,16 @@ export function persistedThemeMode(): ThemeMode {
 }
 
 /**
- * Write only the theme mode into the persisted blob, leaving the rest of
- * the snapshot as it was. This runs mid-session, so it must not go
- * through savePersistedStore: that call strips descriptions off the live
- * catalog because it assumes the page is closing.
+ * Single-key mid-session write. Not through savePersistedStore, which
+ * strips catalog descriptions on the assumption the page is closing.
  */
 export function persistThemeMode(mode: ThemeMode): void {
   try {
     const blob =
       parsePersistedBlob(localStorage.getItem(PERSISTED_STORE_KEY)) ?? {};
     blob.themeMode = mode;
-    // Clear the legacy flag so a stale explicit choice can't resurface
-    // for persistedThemeMode's migration path after a newer pick.
+    // Clear the legacy flag so persistedThemeMode's migration path cannot
+    // resurface it.
     delete blob.isDarkMode;
     localStorage.setItem(PERSISTED_STORE_KEY, JSON.stringify(blob));
   } catch {
@@ -394,10 +377,7 @@ export function persistedPanelSide(): PanelSide {
     : DEFAULT_PANEL_SIDE;
 }
 
-/**
- * Write only the panel side into the persisted blob, the same
- * mid-session single-key write persistThemeMode does.
- */
+/** Single-key mid-session write, like persistThemeMode. */
 export function persistPanelSide(side: PanelSide): void {
   try {
     const blob =
@@ -410,10 +390,8 @@ export function persistPanelSide(side: PanelSide): void {
 }
 
 /**
- * Write only the current-semester choice into the persisted blob, the
- * same mid-session single-key write persistThemeMode does. Logged
- * in, the choice also syncs to FireRoad; logged out this copy is the
- * only one, so without it the "I am a..." year reset on every reload.
+ * Single-key mid-session write, like persistThemeMode. Logged out this
+ * copy is the only one.
  */
 export function persistCurrentSemester(semester: number): void {
   try {
@@ -426,11 +404,7 @@ export function persistCurrentSemester(semester: number): void {
   }
 }
 
-/**
- * Boot-time read of the persisted semester choice. Anything but a whole
- * number in the valid bucket range reads as absent, so a hand-edited
- * blob falls back to the clock-derived default.
- */
+/** Boot-time read of the persisted semester; anything but a whole number in bucket range reads as absent. */
 export function persistedCurrentSemester(): number | undefined {
   const stored = loadPersistedStore()?.currentSemester;
   if (
@@ -447,7 +421,7 @@ export function persistedCurrentSemester(): number | undefined {
 /**
  * The beforeunload snapshot write. Descriptions are stripped from the
  * catalog first; they dominate the payload and reload from the network
- * anyway. Mutating the live store is fine here: the page is closing.
+ * anyway.
  */
 export function savePersistedStore(store: {
   $state: unknown;

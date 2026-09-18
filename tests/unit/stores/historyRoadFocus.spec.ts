@@ -64,8 +64,7 @@ describe("history across roads", () => {
     store.addClass(placed("8.01", 1));
     createRoad();
 
-    // The long mixed run from the defect report: everything back, then
-    // everything forward, twice.
+    // A long mixed run: everything back, then everything forward, twice.
     for (let round = 0; round < 2; round++) {
       while (history.canUndo) {
         history.undo();

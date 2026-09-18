@@ -6,10 +6,9 @@
 
 <script setup lang="ts">
 /**
- * A form field's caption. Reka's Label over a plain span/label mainly for
- * one thing a plain element can't do itself: pointed at a control via
- * `for` (not wrapping it), clicking the caption still focuses that
- * control, and a double-click doesn't select the caption text.
+ * A form field's caption. Reka's Label: pointed at a control via `for`,
+ * clicking the caption focuses the control and a double-click doesn't
+ * select the text.
  */
 import { Label } from "reka-ui";
 

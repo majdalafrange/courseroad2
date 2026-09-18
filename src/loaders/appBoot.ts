@@ -1,11 +1,9 @@
 /**
- * The one-time boot sequence for whichever road/explore route the app
- * first lands on: restore persisted state, resolve the active road from
- * the URL, and gate first-run onboarding. A data loader (not App.vue's
- * onMounted) is where this lives: App.vue is the tree's root, not a
- * page, so its mount has no guarantee the router's initial navigation
- * has resolved, but a loader attached to the road/explore pages does.
- * Not lazy: everything downstream needs the resolved road in place first.
+ * The one-time boot sequence for the road/explore route: restore
+ * persisted state, resolve the active road from the URL, gate first-run
+ * onboarding. A data loader attached to those pages, rather than App.vue's
+ * onMounted, because only that runs after the initial navigation has
+ * resolved. Not lazy: everything downstream needs the resolved road.
  */
 import { ref } from "vue";
 import { defineBasicLoader } from "vue-router/experimental";
@@ -54,10 +52,8 @@ export const useAppBootLoader = defineBasicLoader(async (to) => {
   const isExplore = to.name === "/explore/[[road]]";
 
   // A stored version that differs resets local state. An absent one is
-  // stamped without a reset: the stamp is written only on consented
-  // boots, so the first boot after consent always saw it absent, treated
-  // that as a version change, and wiped the flags written before consent
-  // (hasOnboarded among them, which reopened the first-run wizard).
+  // stamped without a reset: the stamp is written only on consented boots,
+  // so treating absence as a change wiped flags written before consent.
   const storedVersion = readValue<string>(STORAGE_KEYS.versionNumber);
   if (store.cookiesAllowed && storedVersion !== store.versionNumber) {
     if (storedVersion !== undefined) {
@@ -85,21 +81,17 @@ export const useAppBootLoader = defineBasicLoader(async (to) => {
     store.setFromLocalStorage(persisted);
   }
 
-  // Hydrate the logged-out roads (and start the logged-in sync) BEFORE
-  // anything reads store.roads. Running this last meant the route
-  // resolution, the first audit recompute, and the onboarding gate all
-  // saw only the empty default road.
+  // Hydrate the logged-out roads (and start the logged-in sync) before
+  // anything reads store.roads.
   const roadRequested = routeRoad(to);
   auth.restoreFromStorage(roadRequested);
 
   if (roadRequested !== undefined && roadRequested in store.roads) {
     store.setActiveRoad(roadRequested);
   } else if (!hasValue(STORAGE_KEYS.accessInfo) && !isExplore) {
-    // Missing or unknown id on /road rewrites to the road actually shown;
-    // the roads are hydrated above, so store.activeRoad is already that
-    // road. /explore skips this: a stale id there just means the URL and
-    // the active road disagree until the next road switch corrects it,
-    // rather than bouncing the student out of exploring.
+    // Missing or unknown id on /road rewrites to the road shown. /explore
+    // skips this so a stale id does not bounce the student out of
+    // exploring.
     void router.replace({ path: `/road/${store.activeRoad}` });
   }
 

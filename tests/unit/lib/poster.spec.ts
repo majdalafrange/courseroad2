@@ -81,7 +81,7 @@ describe("buildRoadPoster escaping", () => {
     expect(svg).toContain('EVIL"&gt;&lt;rect&gt;');
   });
 
-  it("truncates a very long road name the way subject titles are truncated (N5)", () => {
+  it("truncates a very long road name the way subject titles are truncated", () => {
     const longName = "Ω" + "long-road-name-".repeat(30) + "🚀END";
     const svg = buildRoadPoster(
       road(longName, [placed("8.01", 1)]),
@@ -116,8 +116,7 @@ describe("buildRoadPoster escaping", () => {
 
   it("renders a road whose custom_color names no palette entry", () => {
     // An imported road pairing a real catalog id with a malformed color
-    // reached resolveColor as undefined and threw on `.trim`, so opening the
-    // share sheet broke for the rest of the session.
+    // must not reach resolveColor as undefined.
     expect(() =>
       buildRoadPoster(
         road("Imported", [

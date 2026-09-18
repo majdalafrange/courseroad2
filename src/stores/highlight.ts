@@ -1,8 +1,7 @@
 /**
  * Consequence-highlighting state: while a class is hovered or dragged,
  * its prerequisite ancestors and dependents on the canvas illuminate.
- * Plain reactive module shared by the canvas, search, and (later) the
- * audit's cross-highlighting.
+ * Plain reactive module shared by the canvas, search, and the audit.
  */
 
 import { reactive } from "vue";
@@ -71,10 +70,8 @@ export function clearHighlight(): void {
 }
 
 /**
- * Clear the highlight only if it belongs (or is about to belong, via the
- * pending timer) to this subject. Used on a card's unmount: an unrelated
- * card being removed elsewhere on the canvas shouldn't wipe the highlight
- * of whatever's still actually hovered.
+ * Clear the highlight only if it belongs (or is about to, via the pending
+ * timer) to this subject, so unmounting an unrelated card leaves it alone.
  */
 export function clearHighlightIfOwnedBy(subjectId: string): void {
   if (

@@ -31,14 +31,11 @@
 
 <script setup lang="ts">
 /**
- * Teleporting, viewport-collision positioning, and outside-click detection
- * are all Reka UI's Popper/DismissableLayer; this file adds the two bits
- * that are specific to how this app's layers cooperate:
- *  - a re-click on the anchor toggles through the caller's own handler
- *    (every #anchor slot already manages that), so it must not also count
- *    as an outside interaction and re-close what the click just opened.
- *  - Escape closes one layer, so it's marked consumed for window-level
- *    listeners (canvas, class detail) instead of also bubbling to them.
+ * Teleporting, collision positioning, and outside-click detection are
+ * Reka UI's Popper/DismissableLayer. Added here: a re-click on the anchor
+ * toggles through the caller's own handler and must not also count as an
+ * outside interaction; Escape closes one layer and is marked consumed for
+ * window-level listeners.
  */
 import { ref } from "vue";
 import {
@@ -50,10 +47,8 @@ import {
   type PointerDownOutsideEvent,
 } from "reka-ui";
 
-// PopoverRoot is context-only (no DOM node of its own), so a class or
-// attrs passed to <g-popover> can't fall through to it automatically;
-// forward $attrs to the anchor by hand instead, the element that
-// actually sits in the caller's layout.
+// PopoverRoot has no DOM node, so attrs passed to <g-popover> are
+// forwarded to the anchor by hand.
 defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(
@@ -101,11 +96,9 @@ function onInteractOutside(event: PointerDownOutsideEvent | FocusOutsideEvent) {
 </script>
 
 <style>
-/* Not scoped: PopoverContent is teleported out through several layers of
-   Reka's own internal components before reaching a real DOM node, and
-   Vue's scoped-CSS attribute doesn't reliably survive that chain (Reka's
-   own styling guide calls this out for any teleported content). The g-*
-   classes here are unique enough app-wide that a global rule is safe. */
+/* Not scoped: PopoverContent is teleported through several layers of
+   Reka's components and Vue's scoped-CSS attribute does not survive
+   that. The g-* classes are unique app-wide. */
 .g-popover-anchor {
   display: inline-flex;
   flex-shrink: 0;
@@ -123,11 +116,9 @@ function onInteractOutside(event: PointerDownOutsideEvent | FocusOutsideEvent) {
 .g-popover.menu {
   padding: var(--space-1);
 }
-/* Entry animation only, scoped to data-state (Reka's Presence reads
-   computed animation-name to decide whether to wait for an exit
-   animation before unmounting; an unconditional rule here would read as
-   "still animating" on close and delay it a tick for no visual gain).
-   Closing stays an instant unmount. */
+/* Entry animation only, scoped to data-state: Reka's Presence reads
+   animation-name to decide whether to wait for an exit animation, so an
+   unconditional rule would delay the close. */
 .g-popover[data-state="open"] {
   animation: g-pop-in var(--motion-quick) var(--ease-out);
 }

@@ -1,9 +1,6 @@
 /**
- * Typed FireRoad API client. Centralizes every endpoint the app touches;
- * the implicit `response.data.whatever` contracts of the legacy code are
- * now explicit response types.
- *
- * Framework-free: base URL and token are injected, so tests can stub it.
+ * Typed FireRoad API client, centralizing every endpoint the app touches.
+ * Base URL and token are injected so tests can stub it.
  */
 
 import axios, { type AxiosResponse } from "axios";

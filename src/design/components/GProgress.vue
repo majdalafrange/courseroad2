@@ -15,11 +15,9 @@
 
 <script setup lang="ts">
 /**
- * A completion bar: role="progressbar" and its aria-value* trio are Reka
- * UI's Progress, in place of each caller hand-writing the same three
- * attributes (and, a few times, skipping them entirely). Visuals stay
- * with the caller via the g-progress/fill-class classes; since the fill
- * is a grandchild from the caller's view, its rule needs :deep().
+ * A completion bar: role="progressbar" and the aria-value* trio are Reka
+ * UI's Progress. Visuals stay with the caller; the fill is a grandchild,
+ * so its rule needs :deep().
  */
 import { computed } from "vue";
 import { ProgressIndicator, ProgressRoot } from "reka-ui";

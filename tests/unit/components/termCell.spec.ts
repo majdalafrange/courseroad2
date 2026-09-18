@@ -7,9 +7,8 @@ import { termYearLabel } from "../../../src/lib/offering";
 import { emptySelectedSubjects } from "../../../src/lib/roads";
 
 /**
- * Placement targets name their term (F7). Every target read "Add here"
- * from its visible text, so a screen reader heard fifteen identical
- * buttons and the term was recoverable only from the enclosing region.
+ * Placement targets name their term: a screen reader must not hear
+ * fifteen identical "Add here" buttons.
  */
 
 let wrapper: VueWrapper | undefined;
@@ -44,7 +43,7 @@ function mountCell(
 }
 
 describe("TermCell placement target", () => {
-  it("carries its term in the accessible name (F7)", () => {
+  it("carries its term in the accessible name", () => {
     wrapper = mountCell("ok", 4);
     const slot = document.querySelector<HTMLButtonElement>(".place-slot");
     expect(slot).not.toBeNull();

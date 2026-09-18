@@ -105,9 +105,9 @@ watch(
   (open) => {
     if (open) {
       inputtext.value = "";
-      // Naming is not a gate anywhere else (a new road is created as
-      // "Untitled road", and picking a file names the road after it), so
-      // pasting must not stall on an empty field either.
+      // Naming is not a gate elsewhere (a new road is "Untitled road", a
+      // file names the road after itself), so pasting must not stall on
+      // an empty field.
       suggestedName.value = uniqueRoadName(store.roads, "Imported road");
       roadtitle.value = suggestedName.value;
       badinput.value = false;
@@ -126,10 +126,7 @@ const hasDuplicateName = computed(() => {
   );
 });
 
-/**
- * Why the import cannot run, as far as the name goes. The button reads
- * this too, so a disabled button always has its reason on screen.
- */
+/** Why the import cannot run, as far as the name goes. The button reads this too. */
 const nameError = computed(() => {
   if (roadtitle.value === "") {
     return "A road name is required.";
@@ -169,9 +166,8 @@ function onFileChange(event: Event) {
 
 function importRoad() {
   if (nameError.value !== undefined || inputtext.value === "") {
-    // Enter can reach this while the button is disabled. The field
-    // already carries the reason, and the file-format message below
-    // would name a different cause than the real one.
+    // Enter can reach this while the button is disabled; the field already
+    // carries the reason.
     return;
   }
   try {

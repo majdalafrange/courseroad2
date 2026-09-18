@@ -1,14 +1,14 @@
 /**
  * Degree-audit helpers: smart ordering of the program picker,
  * client-side list-id assignment on requirement trees, petition/ignore
- * state. Ported from Audit.vue.
+ * state.
  */
 
 import type { ProgressAssertion, ReqListEntry, RequirementNode } from "./types";
 
 /**
  * Sort programs for the picker: majors first (numeric course order), then
- * minors, then everything else alphabetically. Brute force, as before.
+ * minors, then everything else alphabetically.
  */
 /** Whether Number() reads the whole string as a number ("" counts as 0). */
 function isNumericHead(head: string): boolean {
@@ -19,7 +19,7 @@ function isNumericHead(head: string): boolean {
  * Course-number key of a lowercased program title: the first word up to a
  * dash, with one trailing letter dropped when that makes it numeric
  * ("21m" reads as 21). Kept as a string so "6" and "06" stay distinct
- * for the tie-break, exactly as the legacy comparator behaved.
+ * for the tie-break.
  */
 function programNumberKey(title: string): string {
   const head = title.split(" ")[0].split("-")[0];
@@ -46,8 +46,7 @@ export function sortCoursesList(reqList: ReqListEntry[]): ReqListEntry[] {
       const numeric2 = isNumericHead(k2);
       if (numeric1 && numeric2) return Number(k1) - Number(k2);
       if (numeric1 !== numeric2) return numeric1 ? -1 : 1;
-      // Two non-numeric keys: the legacy comparator subtracted strings
-      // and yielded NaN, which sorts treated as equal. Stated plainly.
+      // Two non-numeric keys compare equal.
       return 0;
     } else if (a.includes("major") && b.includes("minor")) return -1;
     else if (b.includes("major") && a.includes("minor")) return 1;
@@ -61,7 +60,7 @@ export function sortCoursesList(reqList: ReqListEntry[]): ReqListEntry[] {
 /**
  * Give each requirement node a list-id ("major6.0.2") and uniqueKey.
  * Progress overrides and assertions are keyed by these ids. Mutates and
- * returns the tree (top-level ".reql" suffix stripped, as before).
+ * returns the tree (top-level ".reql" suffix stripped).
  */
 export function assignListIDs(
   req: RequirementNode,

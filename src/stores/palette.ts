@@ -1,8 +1,4 @@
-/**
- * Tiny cross-surface bus for opening the command palette pre-scoped;
- * the audit's "gap to action" (an unfulfilled requirement one click away
- * from the classes that could satisfy it).
- */
+/** Cross-surface bus for opening the command palette pre-scoped (the audit's gap-to-action). */
 
 import { ref } from "vue";
 

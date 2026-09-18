@@ -67,9 +67,8 @@ describe("collapse never orphans", () => {
     g = collapseNode(g, "1.001"); // would otherwise sweep 2.002 and 3.003
     expect(g.nodes.has("1.001")).toBe(true); // anchor stays
     expect(g.nodes.has("3.003")).toBe(true); // pinned stays
-    // 2.002 is reachable as a side effect? No, and it is not pinned/anchor either, so
-    // its only live justification is gone, yet 3.003 (pinned) does not expand,
-    // so 2.002 is swept. Pinned nodes are roots, not bridges.
+    // 2.002 is neither pinned nor an anchor, and 3.003 (pinned) is not
+    // expanded, so 2.002 is swept. Pinned nodes are roots, not bridges.
     expect(g.nodes.has("2.002")).toBe(false);
   });
 });

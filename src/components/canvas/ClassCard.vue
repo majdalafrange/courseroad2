@@ -121,8 +121,7 @@ const emit = defineEmits<{
 const store = useCourseDataStore();
 
 // The highlight begins on a 120ms timer; a card removed inside that
-// window must not fire a stale highlight after it's gone. Scoped to this
-// subject so removing an unrelated card doesn't clear someone else's.
+// window must not fire it after unmount. Scoped to this subject.
 onBeforeUnmount(() => clearHighlightIfOwnedBy(props.subject.subject_id));
 
 const warningsOpen = ref(false);
@@ -240,8 +239,7 @@ function onHoverEnd() {
   position: relative;
   display: flex;
   align-items: stretch;
-  /* Solid department color, not a rail beside it (see tokens.css →
-     course chips). */
+  /* Solid department color (see tokens.css, course chips). */
   background: var(--dept-color, var(--g-line-strong));
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-1);
@@ -361,9 +359,8 @@ function onHoverEnd() {
   opacity: 1;
   pointer-events: auto;
 }
-/* Touch: nothing reveals a hover-only control, and removing a class has no
-   other route (the detail panel moves a class, it does not drop one), so
-   the button stays out. Desktop keeps the reveal. */
+/* Touch: nothing reveals a hover-only control, and removing a class has
+   no other route, so the button stays visible. */
 @media (hover: none) {
   .card-remove {
     opacity: 1;
@@ -372,8 +369,8 @@ function onHoverEnd() {
 }
 .card-remove:hover {
   background: var(--g-danger);
-  /* --g-surface, not #fff: dark-theme danger is a pastel that needs the
-     near-black on-color (5.6:1); white on it is 1.9:1 */
+  /* --g-surface, not #fff: dark-theme danger needs the near-black
+     on-color (5.6:1); white on it is 1.9:1 */
   color: var(--g-surface);
 }
 

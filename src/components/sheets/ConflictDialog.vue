@@ -109,7 +109,7 @@ function dateFor(side: string): string {
   return isNaN(parsed.getTime()) ? raw : parsed.toLocaleString();
 }
 
-/* ---- change highlighting (ported from the legacy diff coloring) ---- */
+/* ---- change highlighting ---- */
 function count(arr: string[], elem: string): number {
   return arr.reduce((n, e) => (e === elem ? n + 1 : n), 0);
 }

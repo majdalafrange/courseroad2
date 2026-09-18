@@ -9,8 +9,7 @@ import {
 
 /**
  * The glyph field must span the canvas's full scrollable area, padding
- * included. It used to cover only the content box, leaving a bare frame
- * where the page background showed through at every edge.
+ * included, not only the content box.
  */
 
 /** Field geometry relative to the canvas's own scroll space. */

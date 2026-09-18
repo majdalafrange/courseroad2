@@ -18,10 +18,9 @@ import { useAuditStore } from "../../../src/stores/audit";
 import { useCourseDataStore } from "../../../src/stores/courseData";
 
 /**
- * updateFulfillment before hydration and after failure. The first case is
- * the page-load defect: the boot-time recompute ran against a store whose
- * roads had not been restored yet, scored the empty default road, and
- * nothing ever retried.
+ * updateFulfillment before hydration and after failure. The boot-time
+ * recompute must not score the empty default road before the real roads
+ * are restored.
  */
 describe("audit fulfillment", () => {
   beforeEach(() => {
@@ -85,7 +84,7 @@ describe("audit fulfillment", () => {
     ).toEqual(["8.01"]);
   });
 
-  it("a failed progress request lands in failedPrograms and a retry clears it (N9)", async () => {
+  it("a failed progress request lands in failedPrograms and a retry clears it", async () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
     const store = useCourseDataStore();
     const audit = useAuditStore();

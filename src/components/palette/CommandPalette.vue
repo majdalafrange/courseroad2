@@ -381,8 +381,8 @@ const baseActions = computed<PaletteAction[]>(() => {
       run: () => emit("action", "redo"),
     });
   }
-  // Connections' graph isn't offered on mobile: it's easy to expand into
-  // something heavy enough to slow down or crash the browser there.
+  // The graph is not offered on mobile: it can grow heavy enough to slow
+  // or crash the browser there.
   if (!isMobile.value) {
     actions.push({
       label: "Explore connections",
@@ -423,9 +423,8 @@ const programActions = computed<PaletteAction[]>(() => {
       label: `Add program: ${entry["medium-title"]}`,
       icon: "check",
       keywords: "",
-      // runAction() below keeps the palette open after this action, so a
-      // student can add several programs in one session; closing here
-      // too would make that guard dead code.
+      // runAction() keeps the palette open after this action so several
+      // programs can be added in one go.
       run: () => {
         store.addReq(entry.key);
       },
@@ -580,11 +579,10 @@ function onInputKeydown(event: KeyboardEvent) {
 }
 
 /**
- * Escape closes the palette from anywhere inside it, not only from the
- * input: clicking a result row moves focus off the input, and the palette
- * still owes the key an answer. Document level, marked consumed, so the
- * window listeners in ClassDetail (clears the detail stack) and RoadCanvas
- * (cancels placement) skip the same keypress. One Escape, one layer.
+ * Escape closes the palette from anywhere inside it, since clicking a
+ * result row moves focus off the input. Document level and marked
+ * consumed, so ClassDetail's and RoadCanvas's window listeners skip the
+ * same keypress: one Escape, one layer.
  */
 function onDocumentKeydown(event: KeyboardEvent) {
   if (!props.modelValue || event.key !== "Escape" || event.defaultPrevented) {
@@ -791,8 +789,7 @@ defineExpose({
   color: var(--g-ink-3);
   padding: var(--space-2) var(--space-3) var(--space-1);
 }
-/* The count aside needs to read as secondary now that caps isn't doing
-   that job; italic is the plain-typography way to mark an aside. */
+/* The count aside is secondary; italic marks it. */
 .section-note {
   font-style: italic;
 }

@@ -72,10 +72,8 @@ export default defineConfig(({ mode }) => ({
     coverage: {
       provider: "v8",
       include: ["src/lib/**", "src/stores/**"],
-      // Floors sit five points under the measured baseline (2026-08-15:
-      // 72.93% stmts, 66.49% branch, 71.07% funcs, 72.90% lines). They are
-      // a ratchet against regression, not a target; raise them as reality
-      // rises.
+      // Floors sit five points under the 2026-08-15 baseline: a ratchet
+      // against regression, not a target.
       thresholds: {
         statements: 67,
         branches: 61,

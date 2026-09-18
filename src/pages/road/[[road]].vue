@@ -141,9 +141,8 @@ const footLinksOpen = ref(false);
 const roads = computed(() => store.roads);
 const activeRoad = computed(() => store.activeRoad);
 const detailOpen = computed(() => store.classInfoStack.length > 0);
-// True while the active road is still a blank placeholder awaiting its
-// first fetch (see auth.retrieveRoad). Without this its empty placeholder
-// reads as "Search for a class" instead of "still loading".
+// True while the active road is a blank placeholder awaiting its first
+// fetch (see auth.retrieveRoad), so it reads as loading rather than empty.
 const roadLoading = computed(() =>
   store.unretrieved.includes(activeRoad.value),
 );
@@ -220,7 +219,7 @@ function focusSearch() {
   }
 }
 
-/* The disclaimer holds one quiet line; the rest lives behind “more”. */
+/* The disclaimer holds one line; the rest lives behind “more”. */
 .progress-foot {
   display: flex;
   align-items: center;
@@ -298,15 +297,13 @@ function focusSearch() {
   --canvas-pad-bottom: var(--space-16);
   padding: var(--canvas-pad-top) var(--canvas-pad-x) var(--canvas-pad-bottom);
 }
-/* Holds the plan and the glyph field together. The field is absolute against
-   this sheet, so it spans the whole plan rather than one screen of it, and
-   every card stacks above it. */
+/* Holds the plan and the glyph field. The field is absolute against this
+   sheet, so it spans the whole plan. */
 .canvas-sheet {
   position: relative;
   min-height: 100%;
-  /* Contain child margins: the empty state's top margin used to collapse
-     through the sheet, shifting it (and the field with it) 20px down and
-     leaving the top run of padding bare. */
+  /* Contain child margins: the empty state's top margin collapsed through
+     the sheet and shifted it down. */
   display: flow-root;
 }
 .canvas-sheet > *:not(.glyph-field) {

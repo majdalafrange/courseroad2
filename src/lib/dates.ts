@@ -1,13 +1,9 @@
 /**
- * FireRoad timestamp formatting.
- *
- * The legacy app produced road timestamps with
- * `moment().format("YYYY-MM-DDTHH:mm:ss.SSS000Z")`, i.e. *local* time with
- * millisecond precision, three literal zeros (faux microseconds), and the
- * UTC offset with a colon ("+05:30", "-04:00"). These strings are stored in
- * roads, sent to FireRoad on save, and compared during conflict resolution,
- * so the format must stay byte-identical. Pinned against moment in
- * tests/unit/lib/dates.spec.ts.
+ * FireRoad timestamp formatting: moment's "YYYY-MM-DDTHH:mm:ss.SSS000Z",
+ * i.e. local time, millisecond precision, three literal zeros, and a
+ * colon UTC offset ("+05:30"). The strings are stored, sent, and compared
+ * during conflict resolution, so the format must stay byte-identical.
+ * Pinned against moment in tests/unit/lib/dates.spec.ts.
  */
 
 function pad(n: number, width: number): string {

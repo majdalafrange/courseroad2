@@ -301,9 +301,8 @@ const expandTitle = computed(() =>
 const pinTitle = computed(() => (isPinned.value ? "Unpin" : "Pin in place"));
 
 /**
- * Status renders as one quiet fact line, the same recipe as the meta line
- * below it. Warn ink marks offering doubt, the one exception here; the
- * rest is the normal case and stays neutral.
+ * Status renders as one fact line, like the meta line below it. Warn ink
+ * marks offering doubt; the rest stays neutral.
  */
 interface Fact {
   text: string;
@@ -451,10 +450,7 @@ function toggleExpand() {
   padding: 0 var(--space-4) var(--space-3);
   border-bottom: 1px solid var(--g-line);
 }
-/* Solid department color, the way legacy CourseRoad's own class-info
-   card led with a colored header bar: identity is a color, not a
-   hairline beside it. Only the id and title live in here; facts,
-   actions, and the rest of the header stay neutral below it. */
+/* Solid department color header; only the id and title live in it. */
 .panel-ident {
   background: var(--dept-color);
   border-radius: var(--radius-md);

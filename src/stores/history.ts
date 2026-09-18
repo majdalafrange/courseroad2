@@ -1,11 +1,8 @@
 /**
- * Undo/redo service: store-level history of road mutations. Every
- * user-initiated mutation (class add/move/remove, road create/delete/
- * rename, program add/remove, petitions, manual progress) records an
- * inverse pair here; ⌘Z/⌘⇧Z walk the stacks. Load-bearing for the whole
- * product: destructive actions are "confirmed" with undo, never
- * dialogs. Plain reactive module (not Pinia) so courseData can import it
- * without store-in-store cycles.
+ * Undo/redo service: every user-initiated road mutation records an
+ * inverse pair here; ⌘Z/⌘⇧Z walk the stacks. Destructive actions are
+ * confirmed with undo, never dialogs. Plain reactive module (not Pinia)
+ * so courseData can import it without store cycles.
  */
 
 import { reactive } from "vue";
@@ -16,19 +13,16 @@ export interface HistoryEntry {
   undo: () => void;
   redo: () => void;
   /**
-   * The road this entry edits, as captured at record time. Undo/redo
-   * focuses it (via the hook below) before replaying, so a replayed edit
-   * is always on the road the student is looking at, never an invisible
-   * mutation of another road.
+   * The road this entry edits, captured at record time. Undo/redo focuses
+   * it before replaying so the edit is visible.
    */
   roadID?: string;
 }
 
 /**
- * Focus hook: switches the app to the road an entry edits before that
- * entry replays. Registered by courseData, which owns road-key aliasing;
- * a setter keeps this module free of store imports (courseData imports
- * this module, so the dependency cannot point the other way).
+ * Focus hook: switches to the road an entry edits before it replays.
+ * Registered by courseData, which owns road-key aliasing and imports this
+ * module, so the dependency cannot point the other way.
  */
 let focusRoad: (roadID: string) => void = () => {};
 
@@ -82,10 +76,8 @@ export const history = {
   },
 
   /**
-   * Remove a recorded entry by identity, wherever it sits in the stack.
-   * For toast undo paths that restore state out-of-band: the entry must
-   * not stay armed, or a later redo replays a deletion the student
-   * already took back. No-op when the entry is absent.
+   * Remove an entry by identity. For toast undo paths that restore out of
+   * band: the entry must not stay armed, or a later redo replays it.
    */
   drop(entry: HistoryEntry): void {
     const index = state.undoStack.indexOf(entry);

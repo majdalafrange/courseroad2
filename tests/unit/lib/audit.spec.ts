@@ -65,8 +65,8 @@ describe("sortCoursesList", () => {
       entry("majorCMS", "cms Major"),
       entry("major18", "18 Major"),
     ];
-    // Non-numeric pairs compare as equal (legacy comparator), so their
-    // input order is preserved by the stable sort.
+    // Non-numeric pairs compare as equal, so their input order is
+    // preserved by the stable sort.
     expect(sortCoursesList(list).map((c) => c.key)).toEqual([
       "major18",
       "majorWGS",

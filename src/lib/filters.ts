@@ -1,10 +1,8 @@
 /**
  * Generic subject-filter engine (Regex/Math-range/Boolean/Array filters
  * over arbitrary attributes, composable in AND/OR groups), plus the
- * concrete search filters the UI uses (GIR/HASS/CI/Level/Units/Term/
- * Virtual, text/instructor). Ported from utilities/filters.js +
- * ClassSearch.vue with identical matching/ranking (pinned by
- * tests/unit/filter/*).
+ * concrete search filters the UI uses. Matching and ranking are pinned
+ * by tests/unit/filter/*.
  */
 
 type CombineMode = "AND" | "OR";
@@ -21,11 +19,7 @@ export type FilterInputs = Record<string, string>;
 // The filter engine inspects arbitrary subject attributes by name.
 type AttributeBag = Record<string, unknown>;
 
-/**
- * View a typed subject as an attribute bag. Interfaces are not assignable
- * to Record<string, unknown> in TS, so the engine's callers name the
- * boundary here once instead of casting at every call site.
- */
+/** View a typed subject as an attribute bag (interfaces are not assignable to Record<string, unknown>). */
 export function toAttributeBag(subject: object): AttributeBag {
   return subject as AttributeBag;
 }
@@ -62,10 +56,8 @@ export class Filter<V = unknown> {
   setupInputs(_inputs: FilterInputs): void {}
 
   /**
-   * Test one raw attribute value against the predicate. The engine reads
-   * untyped attribute bags, so this cast is the one typed boundary; a
-   * predicate given the wrong runtime shape falls back on JS coercion,
-   * which is the legacy engine's documented behavior.
+   * Test one raw attribute value. The cast is the engine's one typed
+   * boundary; a wrong runtime shape falls back on JS coercion.
    */
   testValue(value: unknown): boolean {
     return this.filter(value as V);
@@ -113,9 +105,7 @@ export class RegexFilter extends Filter<string> {
 
   /**
    * Longest input compiled as a live pattern; longer inputs match as
-   * escaped literals. Short pathological patterns stay possible but are
-   * bounded by short haystacks (subject ids and titles); the cap guards
-   * against pasted input long enough to make backtracking hang the tab.
+   * escaped literals, so pasted input cannot make backtracking hang the tab.
    */
   static readonly MAX_REGEX_INPUT = 128;
 
@@ -157,7 +147,7 @@ export class RegexFilter extends Filter<string> {
 
   /**
    * Build ranked match-variant test functions (literal vs regex, prefix vs
-   * anywhere) used to order search results. See legacy docs for details.
+   * anywhere) used to order search results.
    */
   setupVariants(
     inputs: FilterInputs,
@@ -308,19 +298,15 @@ export class FilterGroup {
 }
 
 /**
- * Any filter regardless of its value type. `never` is the correct
- * supertype here: a Filter<V> consumes V, so contravariance makes every
- * Filter<V> assignable to Filter<never>. Callers hand values through
- * testValue, which owns the boundary cast.
+ * Any filter regardless of its value type. A Filter<V> consumes V, so
+ * contravariance makes every Filter<V> assignable to Filter<never>.
  */
 export type AnyFilter = Filter<never>;
 
 /**
- * Constructor shape ArrayFilter can wrap: name and short name first,
- * then subfilter-specific arguments, then attributeNames and mode. The
- * never[] rest accepts every concrete subclass constructor (each
- * parameter type accepts never), which is exactly the forwarding
- * contract; the spread cast in ArrayFilter is its runtime half.
+ * Constructor shape ArrayFilter can wrap: name and short name, then
+ * subfilter-specific arguments, then attributeNames and mode. The never[]
+ * rest accepts every concrete subclass constructor.
  */
 type SubfilterConstructor = new (
   name: string,
@@ -358,7 +344,7 @@ export class ArrayFilter extends Filter<never> {
       const attribute = this.attributes[a];
       if (Array.isArray(subject[attribute])) {
         // The whole array is handed to the subfilter's predicate; a regex
-        // subfilter matches via the array's string form. Legacy behavior.
+        // subfilter matches via the array's string form.
         isMatch = this.combine(
           isMatch,
           this.subfilter.testValue(subject[attribute]),
@@ -376,7 +362,7 @@ export class ArrayFilter extends Filter<never> {
 }
 
 /* ------------------------------------------------------------------ *
- * Concrete search filters (formerly defined inline in ClassSearch.vue)
+ * Concrete search filters
  * ------------------------------------------------------------------ */
 
 export const textFilter = new RegexFilter(

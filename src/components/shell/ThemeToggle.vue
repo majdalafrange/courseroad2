@@ -56,12 +56,10 @@ const emit = defineEmits<{
 
 <style scoped>
 /*
- * A switch, not an action, so it does not use the ghost header-icon-btn
- * recipe: it is a filled round chip carrying the theme it switches TO.
- * --g-ink-2 and --g-bg already invert per theme, so the same rule reads
- * as a dark chip on a light page and a light chip on a dark one, which
- * is a swatch of the other theme sitting in the header. The round shape
- * separates it from the square action buttons beside it.
+ * A switch, not an action: a filled round chip carrying the theme it
+ * switches to. --g-ink-2 and --g-bg invert per theme, so the same rule
+ * reads as a swatch of the other theme. The round shape separates it
+ * from the square action buttons beside it.
  */
 .theme-toggle {
   display: inline-flex;
@@ -84,9 +82,8 @@ const emit = defineEmits<{
   box-shadow: var(--g-focus-ring);
 }
 
-/* Everything inside the chip is the chip's own ink. The dome is the
-   ground and stays put; only the sky changes, so the celestial body in
-   the clear upper corner carries the state. */
+/* The dome is the ground and stays put; only the sky changes, so the
+   celestial body carries the state. */
 .dome {
   fill: currentColor;
 }

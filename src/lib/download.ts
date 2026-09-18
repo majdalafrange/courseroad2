@@ -6,11 +6,9 @@ import { formatRoadContents } from "./roads";
 export type SaveFileOutcome = "shared" | "downloaded" | "cancelled";
 
 /**
- * Save a road as `<name>.road` (legacy-compatible JSON), preferring the OS
- * share sheet on a touch device. Same reasoning as poster.ts's savePng:
- * `<a download>` doesn't reliably save on mobile WebKit, and "prefer
- * share" is decided by pointer type rather than viewport width so a
- * rotated/larger phone doesn't fall through to the unreliable path.
+ * Save a road as `<name>.road`, preferring the OS share sheet on a touch
+ * device: `<a download>` does not reliably save on mobile WebKit. Decided
+ * by pointer type, not viewport width.
  */
 export async function downloadRoadFile(
   name: string,

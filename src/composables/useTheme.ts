@@ -20,19 +20,13 @@ export function useTheme(): {
     store.setThemeMode(mode);
     applyThemeAttribute(resolveTheme(mode, store.systemPrefersDark));
     // Written immediately: the beforeunload snapshot only runs for
-    // logged-in students, which lost the theme on reload for everyone
-    // else.
+    // logged-in students.
     if (store.cookiesAllowed) {
       persistThemeMode(mode);
     }
   }
 
-  /**
-   * The styleguide's quick preview control: flips between explicit
-   * light/dark, skipping system (there's nothing to "toggle" once a
-   * third option exists, so this just picks the opposite of what's
-   * showing now).
-   */
+  /** The styleguide's preview control: flips between explicit light/dark, skipping system. */
   function toggleTheme(): void {
     setThemeMode(store.isDarkMode ? "light" : "dark");
   }
@@ -48,9 +42,8 @@ export function useTheme(): {
 export function useSystemThemeSync(): void {
   const store = useCourseDataStore();
 
-  // Covers both an explicit switch and a system-driven change while
-  // themeMode is "system": either way, isDarkMode is what actually
-  // rendered, so it's the one thing worth watching.
+  // isDarkMode covers both an explicit switch and a system change while
+  // themeMode is "system".
   watch(
     () => store.isDarkMode,
     (dark) => applyThemeAttribute(dark ? "dark" : "light"),

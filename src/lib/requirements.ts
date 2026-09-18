@@ -1,17 +1,13 @@
 /**
- * Prerequisite/corequisite fulfillment engine, ported (with some
- * modifications) from the legacy `reqFulfillment` mixin. Years of
- * bug-report fixes are baked into these edge cases (CMS/History "one
- * subject in" strings, the Brain-and-Cognitive-Sciences comma quirk,
- * film matching by title). Do not "clean up" behavior here without
- * pinned tests.
+ * Prerequisite/corequisite fulfillment engine. The edge cases (CMS/History
+ * "one subject in" strings, the Brain-and-Cognitive-Sciences comma quirk,
+ * film matching by title) come from years of bug reports; change behavior
+ * here only with pinned tests.
  *
- * Two intentional changes from legacy: the final boolean expression uses
- * a tiny recursive-descent parser instead of `eval()` (equivalence
- * property-tested in tests/unit/lib/requirements.spec.ts), and assembly
- * follows the shared requirement grammar's precedence (comma loose,
- * slash tight; reqGrammar.ts) instead of JS's, so this agrees with the
- * prereq tree in prereqTree.ts on strings like "A,B/C".
+ * The final boolean expression is evaluated by a small recursive-descent
+ * parser, and assembly follows the shared requirement grammar's
+ * precedence (comma loose, slash tight; reqGrammar.ts) so this agrees
+ * with prereqTree.ts on strings like "A,B/C".
  */
 
 import type { CatalogView, SelectedSubject } from "./types";
@@ -83,10 +79,9 @@ export function classSatisfies(
  * "philosophy" into a matcher for subject ids (e.g. /CMS/ or /24\.[0-8]/).
  */
 export function convertReqToID(category: string): RegExp | string {
-  // Quote stripping, verbatim from legacy: the second test asks whether
-  // the FIRST quote sits at the end, not endsWith, so an interior quote
-  // suppresses the strip. Real category tokens never carry interior
-  // quotes; the shape is pinned in requirements.spec.ts.
+  // The second test asks whether the first quote sits at the end, not
+  // endsWith, so an interior quote suppresses the strip. Pinned in
+  // requirements.spec.ts.
   if (category.indexOf('"') === 0) {
     category = category.slice(1);
   }
@@ -143,9 +138,8 @@ function checkForNumRequired(
 
 /**
  * Evaluate a boolean expression containing only `true`, `false`, `&&`,
- * `||`, and parentheses: the alphabet `reqsFulfilled` produces. Replaces
- * the legacy `eval()` call with identical semantics (JS operator
- * precedence: `&&` binds tighter than `||`).
+ * `||`, and parentheses: the alphabet `reqsFulfilled` produces. JS
+ * operator precedence: `&&` binds tighter than `||`.
  */
 export function evaluateBooleanExpression(expression: string): boolean {
   let pos = 0;
@@ -187,8 +181,7 @@ export function evaluateBooleanExpression(expression: string): boolean {
       pos += 5;
       return false;
     }
-    // Unparseable token: treat as unfulfilled, matching eval's tendency to
-    // throw (legacy callers never hit this branch).
+    // Unparseable token: treat as unfulfilled.
     pos = expression.length;
     return false;
   }
@@ -219,7 +212,7 @@ function toBooleanExpression(expression: string): string {
  * Whether a FireRoad requirement string (e.g. "6.0001/(6.01, 6.02)") is
  * fulfilled by the given subjects.
  *
- * Quirks preserved from the legacy implementation, verbatim:
+ * Quirks:
  * - '"One/Two subject(s) in X"' strings are matched against subject ids
  *   (or titles, for film) using `convertReqToID`.
  * - "one subject in CMS / History" is treated as (one in CMS)||(one in
@@ -241,8 +234,8 @@ export function reqsFulfilled(
       // if the requirement is a string instead of a class ID:
       // If the string is "One subject in X", check for any subject with X
       // in their ID. Other strings (like "permission of instructor") are
-      // automatically false. (Known-imperfect cases, 21M.283, 24.280,
-      // 21L.709/.715/.S96/.S97; preserved as-is from legacy.)
+      // automatically false. (Known-imperfect cases: 21M.283, 24.280,
+      // 21L.709/.715/.S96/.S97.)
       const req = splitReq[i];
       let idCategory: RegExp | string;
       let numRequired: number;
@@ -281,16 +274,15 @@ export function reqsFulfilled(
         const parts = req.split(" ");
         const inIndex = parts.indexOf("in");
         // The containment checks above are case-insensitive, so a string
-        // like '"One subject In X"' can pass them without a lowercase
-        // "in" token; falling back to parts[0] here would match a wrong
-        // category instead of none.
+        // like '"One subject In X"' can pass them without a lowercase "in"
+        // token; then no category rather than a wrong one.
         const category = inIndex >= 0 ? (parts[inIndex + 1] ?? "") : "";
         idCategory = convertReqToID(category);
         splitReq[i] = checkForNumRequired(allIDs, idCategory, numRequired);
         const matchesTitles =
           idCategory instanceof RegExp && idCategory.source === "film";
         if (matchesTitles) {
-          // Film subjects are matched by title, not id (legacy behavior).
+          // Film subjects are matched by title, not id.
           const allTitles = subjects.map((s) => s.title);
           splitReq[i] = checkForNumRequired(allTitles, idCategory, numRequired);
         }

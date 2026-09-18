@@ -17,10 +17,7 @@ vi.mock("../../../src/stores/fireroadClient", () => ({
 import ProgramSection from "../../../src/components/audit/ProgramSection.vue";
 import { useAuditStore } from "../../../src/stores/audit";
 
-/**
- * A program whose progress request failed renders a terminal state with
- * a retry, instead of reading "computing..." forever (N9).
- */
+/** A program whose progress request failed renders a terminal state with a retry. */
 
 let wrapper: VueWrapper | undefined;
 

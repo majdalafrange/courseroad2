@@ -45,8 +45,7 @@ export function preparePosterFonts(): Promise<void> {
         `@font-face{font-family:'IBM Plex Mono';font-weight:500;src:url(data:font/woff2;base64,${monoMedium}) format('woff2');}` +
         `</style>`;
     } catch {
-      // Offline or blocked: still renders, just without the embed (falls
-      // back to the system font, same as before this existed).
+      // Offline or blocked: renders with the system font instead.
       fontFaceCss = "";
     }
   })();
@@ -124,12 +123,10 @@ function esc(s: string): string {
 }
 
 /**
- * Restrict a value to a safe CSS color token before it is interpolated into
- * an SVG `fill="..."` attribute. courseColor() can echo a subject_id verbatim
- * into the token (the dept/generic branch does), so a hostile id arriving
- * from a MITM'd sync or a poisoned newRoads cookie could otherwise break out
- * of the attribute and inject a live <image onerror>. Anything not shaped
- * like a real color falls back; closed by construction, no escaping needed.
+ * Restrict a value to a safe CSS color token before it is interpolated
+ * into an SVG `fill` attribute: courseColor() can echo a subject_id into
+ * the token, so a hostile id could otherwise break out of the attribute.
+ * Closed by construction, no escaping needed.
  */
 export function sanitizeColorToken(value: string | undefined): string {
   const v = (value ?? "").trim();
@@ -287,11 +284,9 @@ ${parts.join("\n")}
 }
 
 /**
- * Cap the header title the way subject titles are capped below: SVG text
- * does not wrap or clip, so an unbounded road name ran past the poster's
- * right edge. 48 characters of 22px IBM Plex Sans Variable fit the 812px
- * sheet. Sliced by code point, not code unit, so the cut can never split
- * an astral character and emit invalid XML.
+ * SVG text does not wrap or clip, so the title is capped like subject
+ * titles: 48 characters of 22px IBM Plex Sans fit the 812px sheet. Sliced
+ * by code point so the cut never splits an astral character.
  */
 function truncateTitle(name: string): string {
   const chars = Array.from(name);
@@ -334,11 +329,8 @@ function termBlock(
       `<text x="${x + 14}" y="${y + 24}" font-family="'IBM Plex Sans Variable',sans-serif" font-size="12.5" fill="${theme.ink3}">${esc(season)}</text>`,
     );
   } else {
-    // A season label reads as a coordinate (mono, sentence case, weight
-    // 500, not 600), the same register TermCell's own .term-name now
-    // uses; accent-colored while it's the current term, the way
-    // TermCell's .is-current .term-name is. The year half stays legible
-    // but quieter (TermCell's .term-year, opacity 0.8).
+    // Season label: mono, sentence case, weight 500, accent while current
+    // (TermCell's .term-name); the year half at opacity 0.8 (.term-year).
     parts.push(
       `<text x="${x + 14}" y="${y + 24}" font-family="'IBM Plex Mono',monospace" font-size="11" font-weight="500" fill="${isCurrent ? theme.accent : theme.ink3}">` +
         `<tspan>${esc(season)}</tspan><tspan dx="3" fill-opacity="0.8">${esc(yearLabel)}</tspan></text>`,
@@ -362,16 +354,14 @@ function termBlock(
   }
   let cy = y + headerH;
   for (const subj of subjects) {
-    // Course chips and cards: the subject's own color as the whole card's
-    // fill, not a rail beside a neutral card (tokens.css → "Course chips
-    // and cards"; legacy CourseRoad's rail convention, retired).
+    // The subject's color fills the whole card (tokens.css, "Course chips
+    // and cards").
     const color = resolveColor(courseColor(subj));
     parts.push(
       `<rect x="${x + 10}" y="${cy}" width="${w - 20}" height="${cardH}" rx="4" fill="${color}"/>`,
     );
-    // A subject missing subject_id/title (a pre-migration save, or a
-    // hand-edited/malformed .road import) would otherwise throw here and
-    // take down the whole poster instead of just this one card.
+    // A subject missing subject_id/title (a pre-migration save or a
+    // malformed import) must not take down the whole poster.
     const subjectId = subj.subject_id ?? "?";
     parts.push(
       `<text x="${x + 14}" y="${cy + 13}" font-family="'IBM Plex Mono',monospace" font-size="11" font-weight="600" fill="${theme.deptOn}">${esc(subjectId)}</text>`,

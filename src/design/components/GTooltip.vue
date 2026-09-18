@@ -26,10 +26,9 @@
 
 <script setup lang="ts">
 /**
- * Hover/focus delay, show/hide timing, and dismiss-on-scroll are all Reka
- * UI's TooltipRoot; this file is just the visual skin (positioning comes
- * from TooltipContent's Popper, escaping overflow:hidden ancestors the old
- * absolute-positioned version could get clipped by).
+ * Hover/focus delay, timing, and dismiss-on-scroll are Reka UI's
+ * TooltipRoot; this is the visual skin. TooltipContent's Popper escapes
+ * overflow:hidden ancestors.
  */
 import { ref } from "vue";
 import {
@@ -40,10 +39,8 @@ import {
   TooltipTrigger,
 } from "reka-ui";
 
-// TooltipProvider/TooltipRoot are context-only (no DOM node of their
-// own), so a class or attrs passed to <g-tooltip> can't fall through to
-// them automatically; forward $attrs to the trigger by hand instead,
-// the element that actually sits in the caller's layout.
+// TooltipProvider/TooltipRoot have no DOM node, so attrs passed to
+// <g-tooltip> are forwarded to the trigger by hand.
 defineOptions({ inheritAttrs: false });
 
 withDefaults(
@@ -58,11 +55,10 @@ withDefaults(
   { text: "", placement: "bottom", delay: 350, wide: false },
 );
 
-// Reka's trigger listens for "focus", which does not bubble up to this
-// span from the wrapped control; focusin does, so keyboard focus opens
-// the tooltip the way hover already does. Gated on :focus-visible because
-// a click fires focusin too, and a tooltip flashing open on every press
-// sits over the control's own layer and eats its next outside click.
+// Reka's trigger listens for "focus", which does not bubble from the
+// wrapped control; focusin does. Gated on :focus-visible because a click
+// fires focusin too, and the tooltip would sit over the control's layer
+// and eat its next outside click.
 const open = ref(false);
 
 function onFocusin(event: FocusEvent) {
@@ -91,10 +87,9 @@ function onFocusin(event: FocusEvent) {
   pointer-events: none;
   box-shadow: var(--shadow-2);
 }
-/* Scoped to the open states (not unconditional): Presence reads computed
-   animation-name to decide whether to wait for an exit animation before
-   unmounting, so an always-on rule would read as "still animating" and
-   delay the close by a tick for no visual gain. */
+/* Scoped to the open states: Presence reads animation-name to decide
+   whether to wait for an exit animation, so an always-on rule would
+   delay the close. */
 .g-tooltip:not([data-state="closed"]) {
   animation: g-tip-in var(--motion-quick) var(--ease-out);
 }

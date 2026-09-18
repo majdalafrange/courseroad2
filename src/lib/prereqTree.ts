@@ -1,11 +1,9 @@
 /**
  * Parses FireRoad prerequisite/corequisite strings (e.g.
- * "6.0001/(6.01, 6.02)") into a recursive any/all tree with live
- * fulfilled-state, for the class-detail view. Ported exactly from
- * ClassInfo.vue's parseRequirements, including the legacy quirk that
- * `firstAppearance === -1` (class not on the road) evaluates against
- * `selectedSubjects.slice(0, -1)`: all buckets but the last. Pinned in
- * tests.
+ * "6.0001/(6.01, 6.02)") into a recursive any/all tree with fulfilled
+ * state, for the class-detail view. Quirk, pinned in tests:
+ * `firstAppearance === -1` (class not on the road) evaluates against all
+ * buckets but the last.
  */
 
 import type { CatalogView, SelectedSubject, Subject } from "./types";
@@ -119,8 +117,8 @@ export function parseRequirements(
       } else {
         subRequirement = Object.assign({}, leafInfo(catalog, token));
       }
-      // Legacy quirk preserved: -1 (class not on the road) yields
-      // slice(0, -1), evaluating against all buckets but the last.
+      // Quirk: -1 (not on the road) yields slice(0, -1), all buckets but
+      // the last.
       const allPreviousSubjects = flatten(
         selectedSubjects.slice(0, classFirstAppearance),
       );
@@ -184,7 +182,6 @@ export function parseRequirements(
 /**
  * Reverse-prereq search: all catalog subjects that list `subject` (or its
  * GIR attribute) in their prerequisites, same-department subjects first.
- * Ported from ClassInfo.vue's subjectsWithPrereq.
  */
 export function subjectsWithPrereq(
   subject: Subject,

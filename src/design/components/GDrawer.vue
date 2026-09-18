@@ -20,10 +20,8 @@
 <script setup lang="ts">
 /*
  * A bottom sheet (mobile panels): swipe-to-dismiss, the drag handle, and
- * the same focus trap/return-focus/keyboard contract as GSheet are Reka
- * UI's Drawer, a purpose-built sibling of Dialog for a panel anchored to
- * an edge instead of floating centered. Escape closes one layer, same
- * convention as GSheet.
+ * the focus trap are Reka UI's Drawer. Escape closes one layer, as in
+ * GSheet.
  */
 import {
   DrawerContent,

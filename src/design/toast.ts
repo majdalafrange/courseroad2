@@ -1,10 +1,6 @@
 /**
- * Toast service with a first-class undo affordance.
- *
- * Design rule: destructive actions are confirmed with *undo*, not with
- * interrogation dialogs. `toast.undoable("Road deleted", restoreFn)` is
- * the canonical pattern: the action happens immediately and the student
- * has a calm window to take it back.
+ * Toast service with a first-class undo affordance: destructive actions
+ * are confirmed with undo (`toast.undoable`), not dialogs.
  */
 
 import { reactive, readonly } from "vue";
@@ -40,10 +36,7 @@ function dismiss(id: number): void {
 function push(toast: Omit<Toast, "id">): number {
   const id = nextId++;
   state.toasts.push({ ...toast, id });
-  // Keep at most 3 visible. Prefer evicting a plain toast over an
-  // undoable one, since losing an undo affordance loses the only way
-  // back from a destructive action; falls back to the oldest if every
-  // visible toast is undoable.
+  // Keep at most 3 visible, evicting a plain toast before an undoable one.
   while (state.toasts.length > 3) {
     const evictIndex = state.toasts.findIndex((t) => t.action === undefined);
     state.toasts.splice(evictIndex >= 0 ? evictIndex : 0, 1);
@@ -80,7 +73,7 @@ export const toast = {
     return push({ message, detail, variant: "danger", duration: 6000 });
   },
 
-  /** The undo pattern: act immediately, offer a calm way back. */
+  /** Act immediately, offer a way back. */
   undoable(message: string, onUndo: () => void, detail?: string): number {
     const id = push({
       message,

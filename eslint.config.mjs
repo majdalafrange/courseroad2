@@ -35,8 +35,7 @@ export default tseslint.config(
         "error",
         { argsIgnorePattern: "^_" },
       ],
-      // Legacy single-word component filenames (Road, Semester, ...) are
-      // kept through the migration; they are always used via imports, never
+      // Single-word component filenames are always used via imports, never
       // as raw tags, so they cannot clash with HTML elements.
       "vue/multi-word-component-names": "off",
       // warn and error report real failures; anything else is leftover

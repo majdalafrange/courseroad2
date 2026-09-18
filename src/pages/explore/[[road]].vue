@@ -118,8 +118,7 @@ import { useConnectionsStore } from "../../stores/connections";
 import { useIsMobile } from "../../composables/useIsMobile";
 
 // Attaches useAppBootLoader to this route (see loaders/appBoot.ts); the
-// catalog is already covered by App.vue's own useSubjectsLoader() call,
-// which every route shares regardless of which page happens to mount.
+// catalog is covered by App.vue's useSubjectsLoader().
 useAppBootLoader();
 const route = useRoute();
 const router = useRouter();
@@ -199,7 +198,7 @@ function onSeedKeydown(event: KeyboardEvent) {
   }
 }
 
-/* the prompt is the page's one action, so the input takes focus itself */
+/* the prompt is the page's one action, so the input takes focus */
 watch(
   () => store.status,
   async (status) => {
@@ -245,8 +244,7 @@ const showPanel = computed(() => {
 
 /* ---------- actions reuse the road's existing flows ---------- */
 /** Opening leaves the exploration: the route change lands on the plan,
-    where the stacked right panel (or the mobile sheet) renders the stack
-    this push created. Explore itself keeps NodePanel. */
+    which renders the stack this push created. */
 function onOpen(id: string) {
   courseData.pushClassStack(id);
   void router.push({

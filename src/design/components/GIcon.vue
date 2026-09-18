@@ -59,11 +59,9 @@ import imageDown from "@iconify-icons/lucide/image-down";
 import printer from "@iconify-icons/lucide/printer";
 
 /**
- * The shell's icon set: Lucide, via @iconify/vue's offline renderer (no
- * network calls) and @iconify-icons/lucide's per-icon exports, so each
- * import below pulls in only that one icon's data rather than Lucide's
- * full ~1600-icon collection. Names here are the app's own semantic
- * labels, mapped to their Lucide icon.
+ * The shell's icon set: Lucide via @iconify/vue's offline renderer and
+ * @iconify-icons/lucide's per-icon exports, so each import pulls in one
+ * icon's data. Names are the app's own semantic labels.
  */
 const NAME_TO_LUCIDE = {
   plus,

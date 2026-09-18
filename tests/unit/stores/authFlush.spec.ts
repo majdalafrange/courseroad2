@@ -6,10 +6,9 @@ import { useAuthStore } from "../../../src/stores/auth";
 import { useCourseDataStore } from "../../../src/stores/courseData";
 
 /**
- * The unload flush (F8). Saves debounce for 600ms and the timer dies
- * with the page, so a logged-out edit made just before closing the tab
- * was lost. Local saves are synchronous writes; at unload they run
- * immediately.
+ * The unload flush. Saves debounce for 600ms and the timer dies with the
+ * page, so a logged-out edit just before closing the tab must be written
+ * at unload.
  */
 describe("auth.flushPendingSaves", () => {
   beforeEach(() => {
@@ -30,7 +29,7 @@ describe("auth.flushPendingSaves", () => {
     return Object.keys(JSON.parse(raw).v as Record<string, unknown>);
   }
 
-  it("writes a pending logged-out save immediately (F8)", () => {
+  it("writes a pending logged-out save immediately", () => {
     const store = useCourseDataStore();
     const auth = useAuthStore();
     store.allowCookies();

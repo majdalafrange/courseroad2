@@ -191,8 +191,8 @@ describe("comma/slash grammar, in agreement with parseRequirements", () => {
     const met = bothPaths("8.01,6.0001/6.0002", ["8.01", "6.0002"]);
     expect(met.flag).toBe(true);
     expect(met.tree).toBe(met.flag);
-    // Only the OR branch on the road. The old assembly read this as
-    // (A AND B) OR C and returned true.
+    // Only the OR branch on the road. JS precedence would read this as
+    // (A AND B) OR C and return true.
     const unmet = bothPaths("8.01,6.0001/6.0002", ["6.0002"]);
     expect(unmet.flag).toBe(false);
     expect(unmet.tree).toBe(unmet.flag);

@@ -68,10 +68,10 @@ test("the detail card names a repeat before adding one", async ({ page }) => {
 });
 
 /**
- * Dropping a card must not also open it, and the suppression that ensures
- * that must not outlive the drop. A move takes the pressed card out of the
- * DOM, so no click follows the pointerup, and an unbounded suppression sat
- * armed until the student's next click and swallowed that one instead.
+ * Dropping a card must not also open it, and the suppression must not
+ * outlive the drop: a move takes the pressed card out of the DOM, so no
+ * click follows, and an unbounded suppression would swallow the
+ * student's next click instead.
  */
 test.describe("the click after a drag", () => {
   async function placeAndDrag(page: import("@playwright/test").Page) {

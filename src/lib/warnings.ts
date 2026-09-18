@@ -1,12 +1,10 @@
 /**
- * Per-class warning computation for a semester bucket. Ported exactly
- * from Semester.vue's `warnings`, including the quarter-aware
- * prerequisite window (a second-half-term class may use first-half-term
- * classes in the same semester as prereqs).
+ * Per-class warning computation for a semester bucket, including the
+ * quarter-aware prerequisite window (a second-half-term class may use
+ * first-half-term classes in the same semester as prereqs).
  *
- * WARNING: these strings render as HTML. They only ever embed FireRoad
- * catalog data. Never user input from custom activities (skipped
- * entirely). Keep it that way to avoid XSS.
+ * These strings render as HTML. They only ever embed FireRoad catalog
+ * data, never custom-activity input.
  */
 
 import type { CatalogView, SelectedSubject, Subject } from "./types";
@@ -28,10 +26,8 @@ import {
 import { reqsFulfilled } from "./requirements";
 
 /**
- * Escape a value before embedding it in a warning's HTML string. Catalog
- * data is trusted content but a compromised/MITM'd FireRoad response is in
- * scope, so escaping here is defense-in-depth against a hostile field like
- * `not_offered_year: "<img src=x onerror=...>"` reaching ClassCard's v-html.
+ * Escape a value before embedding it in a warning's HTML string: a
+ * compromised FireRoad response is in scope.
  */
 function escapeHtml(value: unknown): string {
   return String(value ?? "")
@@ -154,11 +150,9 @@ export function subjectWarnings(
           : concurrentSubjects(selectedSubjects, index);
       prereqsfulfilled = reqsFulfilled(catalog, prereqString, prereqWindow);
       if (!prereqsfulfilled) {
-        // Same window as the check above, handed to the parser as one
-        // bucket, so the named set can never disagree with the flag on
-        // quarter placement. (createReadinessEvaluator evaluates against
-        // the current semester and is not quarter-aware; do not use it
-        // here.)
+        // Same window as the check above, as one bucket, so the named set
+        // agrees with the flag. createReadinessEvaluator is not
+        // quarter-aware; do not use it here.
         const tree = parseRequirements(
           prereqString,
           catalog,

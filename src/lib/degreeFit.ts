@@ -56,11 +56,9 @@ export interface FitGroups {
 }
 
 /**
- * Category from the program key rather than its `medium-title`.
- *
- * The key is an API identifier that is persisted inside saved roads, so it
- * cannot be reworded upstream; the title is display copy that can. Both
- * agree across all 148 entries FireRoad currently lists.
+ * Category from the program key rather than its title: the key is
+ * persisted inside saved roads and cannot be reworded; the title is
+ * display copy.
  */
 export function classifyProgram(key: string): ProgramCategory | undefined {
   if (key.startsWith("major")) {
@@ -92,11 +90,9 @@ function finite(value: unknown): number | undefined {
 }
 
 /**
- * Fold one program's probe into a ranked (or explicitly unranked) fit.
- *
- * A program is never dropped and never defaulted to 0%: a missing or
- * unusable percentage is reported as such, because an omitted program reads
- * as an answer the scan did not actually give.
+ * Fold one program's probe into a ranked (or explicitly unranked) fit. A
+ * program is never dropped or defaulted to 0%: a missing percentage is
+ * reported as such.
  */
 export function toFit(
   entry: ReqListEntry,

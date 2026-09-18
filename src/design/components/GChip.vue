@@ -108,8 +108,8 @@ const deptStyle = computed(() =>
 }
 .g-chip-close:hover {
   opacity: 1;
-  /* follows the chip's own text color, so it reads correctly on department
-     chips and neutral chips in both themes (was hard-coded black) */
+  /* follows the chip's text color, so it reads on department and neutral
+     chips in both themes */
   background: color-mix(in srgb, currentColor 18%, transparent);
 }
 .g-chip-close:focus-visible {

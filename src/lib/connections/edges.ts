@@ -1,23 +1,14 @@
 /**
- * Edge extraction: turns the catalog's relational signals into typed,
- * reasoned, deduplicated graph edges. The catalog's edge cases live
- * here, so the tests pay off here.
+ * Edge extraction: turns the catalog's prerequisite graph (forward and
+ * reverse) into typed, deduplicated graph edges. Other signals (curated
+ * relateds, shared prereqs, topical similarity) were tried and dropped as
+ * noise.
  *
- * The one signal used, client-side from the cached catalog: the
- * prerequisite graph (forward + reverse). Curated relateds, shared
- * prereqs, and topical similarity were tried and dropped: they crowded
- * the canvas without telling a student anything actionable.
- *
- * Invariants: prereq strings parse to *leaf subject ids only* (booleans,
- * parens, GIR/HASS/CI tokens, quoted phrases, ranges never become nodes);
- * references resolve through `old_id`, unresolvable ones drop silently
- * (no ghost nodes); generic placeholders and custom activities are never
- * nodes; no self-edges, one merged edge per pair carrying every reason
- * and a combined weight; hub fan-out is bounded and ranked so expansion
- * can cap it.
- *
- * Memoized per-subject: extraction, the reverse-prereq scan, and the
- * prereq-leaf parse, so repeated expansion is cheap.
+ * Invariants: prereq strings parse to leaf subject ids only; references
+ * resolve through `old_id`, unresolvable ones drop; generic placeholders
+ * and custom activities are never nodes; no self-edges; one merged edge
+ * per pair; hub fan-out is ranked so expansion can cap it. Extraction is
+ * memoized per subject.
  */
 
 import type { CatalogView, Subject } from "../types";
@@ -60,8 +51,7 @@ function prereqLabel(prereqId: string, dependentId: string): string {
  * Pull candidate subject-id *tokens* out of a prerequisite/corequisite
  * string, dropping everything that isn't a subject id: boolean operators,
  * grouping, GIR/HASS/CI attribute tokens, and quoted phrases like
- * "permission of instructor". Catalog resolution happens separately, so
- * this is catalog-free and trivially unit-testable.
+ * "permission of instructor". Catalog resolution happens separately.
  */
 export function extractPrereqTokens(reqString: string | undefined): string[] {
   if (reqString === undefined || reqString === "") {
@@ -208,10 +198,8 @@ export class EdgeEngine {
   }
 
   /**
-   * Corequisites are deliberately excluded: takeable concurrently (see
-   * readiness.ts), not "must complete before". Folding them in here
-   * would render one as a strict "Prerequisite for X" arrow, the same
-   * distinction readiness.ts and warnings.ts both preserve.
+   * Corequisites are excluded: takeable concurrently (see readiness.ts),
+   * not "must complete before".
    */
   private prereqLeaves(id: string, subject: Subject): string[] {
     const cached = this.prereqLeafCache.get(id);

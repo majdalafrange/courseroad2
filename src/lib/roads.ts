@@ -1,9 +1,8 @@
 /**
  * Road data plumbing: bucket conversion, sanitizing roads from FireRoad
  * or `.road` files, save/export formatting, renumbered subject-id
- * migration, road-name deduplication. Ported from sanitizeSubjects.js,
- * Auth.vue, ImportExport.vue, the Vuex store. The flattened save format
- * is FireRoad's contract; keep it byte-compatible.
+ * migration, road-name deduplication. The flattened save format is
+ * FireRoad's contract; keep it byte-compatible.
  */
 
 import type {
@@ -57,13 +56,11 @@ export function getSimpleSelectedSubjects(
   const simpless = emptySelectedSubjects();
   for (let i = 0; i < selectedSubjects.length; i++) {
     const s = selectedSubjects[i];
-    // Canonicalize to an integer bucket index in [0,15] and ALWAYS write it
-    // back. Coercing without reassigning would leave non-canonical values
-    // (null, "", "03", " 3", false, []), all of which Number() maps to a
-    // valid in-range integer, in place, so simpless[s.semester] indexed a
-    // missing array property and threw inside the cloud/cookie load path
-    // (→ logout + localStorage wipe). Missing/negative/NaN → Prior Credit;
-    // out-of-range/fractional → clamped to the last bucket.
+    // Canonicalize to an integer bucket index in [0,15] and always write it
+    // back: Number() maps null, "", "03", false and [] to in-range integers,
+    // and left in place they index a missing array property. Missing,
+    // negative or NaN → Prior Credit; out of range or fractional → the last
+    // bucket.
     const n = Number(s.semester);
     const sem = !Number.isFinite(n) || n < 0 ? 0 : Math.min(15, Math.floor(n));
     s.semester = sem;
@@ -75,10 +72,8 @@ export function getSimpleSelectedSubjects(
 /**
  * Normalize one incoming subject: the legacy `id` field becomes
  * `subject_id`, and a `custom_color` that names no palette entry is
- * dropped. Both `.road` imports and cloud payloads carry arbitrary JSON
- * here, and the render paths read `custom_color` directly, so a value that
- * is not a real palette reference has to be removed at ingest rather than
- * guarded at each of the several places that draw a class.
+ * dropped. Imports and cloud payloads carry arbitrary JSON, and the render
+ * paths read `custom_color` directly.
  */
 function normalizeIncomingSubject(s: SelectedSubject): SelectedSubject {
   if ("id" in s && s.id !== undefined) {
@@ -173,12 +168,11 @@ export class RoadImportError extends Error {}
 
 /**
  * Parse and sanitize `.road` file text into road pieces ready for
- * addRoad. Custom activities (marked `public: false`, the same marker the
- * rest of the app uses) carry their own units and hours and pass through
- * without catalog resolution. Other unknown subjects are rescued via
- * old_id or dropped, and the dropped ids are returned so callers can say
- * so; missing fields are back-filled from the catalog. Throws
- * RoadImportError on malformed input.
+ * addRoad. Custom activities (`public: false`) carry their own units and
+ * hours and pass through without catalog resolution. Other unknown
+ * subjects are rescued via old_id or dropped and reported; missing fields
+ * are back-filled from the catalog. Throws RoadImportError on malformed
+ * input.
  */
 export function parseRoadFile(
   text: string,
@@ -196,9 +190,8 @@ export function parseRoadFile(
   } catch (error) {
     throw new RoadImportError(`not valid JSON: ${error}`);
   }
-  // JSON.parse also accepts null and bare primitives; the property reads
-  // below would turn those into TypeErrors, which the documented contract
-  // says must surface as RoadImportError.
+  // JSON.parse also accepts null and bare primitives, which must surface
+  // as RoadImportError.
   if (obj === null || typeof obj !== "object") {
     throw new RoadImportError("not a road object");
   }
@@ -215,10 +208,9 @@ export function parseRoadFile(
   const droppedSubjects: string[] = [];
   const ss = newss
     .map((s) => {
-      // A custom activity is its own record: it carries its units and
-      // hours and its id is user-chosen, so the catalog can never resolve
-      // it. It passes through whole, or an export with a UROP on it lost
-      // the UROP on re-import.
+      // A custom activity carries its own units and hours and its id is
+      // user-chosen, so the catalog can never resolve it; it passes through
+      // whole.
       if (s.public === false) {
         if (s.overrideWarnings === undefined) {
           s.overrideWarnings = false;
@@ -286,9 +278,7 @@ export function renumberName(name: string, otherNames: string[]): string {
 
 /**
  * The first free name from `base`: `base` itself, then "base (2)",
- * "base (3)". Compared case-insensitively, the same way
- * otherRoadHasName compares, so the result never collides with the
- * duplicate-name check that guards renaming and importing.
+ * "base (3)". Compared case-insensitively, like otherRoadHasName.
  */
 export function uniqueRoadName(
   roads: Record<string, Road>,

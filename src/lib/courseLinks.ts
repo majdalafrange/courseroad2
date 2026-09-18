@@ -1,7 +1,4 @@
-/**
- * External per-program links (department checklists, NEET threads) shown
- * under the audit. Ported from the courseLinks mixin.
- */
+/** External per-program links (department checklists, NEET threads) shown under the audit. */
 
 export interface CourseLink {
   link: string;
@@ -68,10 +65,9 @@ const COURSE_LINKS: { courses: string[]; link: string; text: string }[] = [
 ];
 
 /**
- * Guard a catalog- or requirements-supplied URL before binding it to an
- * href. Only absolute http(s) URLs pass; anything else, notably
- * `javascript:` and `data:`, is dropped so a hostile or MITM'd FireRoad
- * response cannot turn a link into click-to-execute script.
+ * Guard a FireRoad-supplied URL before binding it to an href: only
+ * absolute http(s) URLs pass, so `javascript:` and `data:` cannot become
+ * click-to-execute script.
  */
 export function safeHref(url: unknown): string | undefined {
   return typeof url === "string" && /^https?:\/\//i.test(url.trim())

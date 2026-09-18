@@ -202,8 +202,7 @@ function submit() {
 function openNewClass() {
   form.shortTitle = "";
   form.fullTitle = "";
-  // The former placeholder numbers, now prefilled so what the form shows
-  // is what submitting saves.
+  // Prefilled, so what the form shows is what submitting saves.
   form.units = 12;
   form.inClassHours = 0;
   form.outOfClassHours = 10;
@@ -286,10 +285,9 @@ defineExpose({ openNewClass });
   font: var(--text-small);
   font-weight: 600;
 }
-/* ColorSwatch is unstyled by design; the fill sits behind the check
-   indicator and takes the item's own shape (square or, for "default",
-   the wider pill), whatever that is. :deep(): both are GColorSwatchPickerItem's
-   own elements, grandchildren from here. */
+/* ColorSwatch is unstyled; the fill sits behind the check indicator and
+   takes the item's own shape. :deep(): both are GColorSwatchPickerItem's
+   own elements. */
 :deep(.cc-swatch-fill) {
   position: absolute;
   inset: 0;

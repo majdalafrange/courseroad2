@@ -29,11 +29,11 @@
 import { computed } from "vue";
 
 /**
- * The planning canvas material: numerals/operators as a substance, not
- * labels. Based on the character-lattice in the Alchemist on the Stratton
- * lawn. Rendered as an SVG pattern (not a background-image data URI) so
- * glyphs get the page's own Plex Mono and theme tokens; the tile repeats
- * to any height and scrolls with the content.
+ * Canvas background material: numerals and operators, after the
+ * character lattice of the Alchemist on the Stratton lawn. An SVG
+ * pattern rather than a background image, so the glyphs use the page's
+ * Plex Mono and theme tokens; the tile repeats and scrolls with the
+ * content.
  */
 
 interface Glyph {
@@ -51,11 +51,7 @@ interface Glyph {
 
 const TILE = 220;
 
-/**
- * Jittered grid at ~31px pitch: even coverage so characters interlock
- * into a fabric rather than reading as a loose numeral scatter. Small
- * and packed: a material the cards sit on, not something to read.
- */
+/** Jittered grid at ~31px pitch: even coverage, small and packed. */
 const GLYPHS: Glyph[] = [
   { c: "8", x: 12, y: 18, s: 17, r: -14, o: 0.85 },
   { c: "√", x: 47, y: 24, s: 13, r: 38, o: 0.6 },
@@ -150,13 +146,10 @@ const tiled = computed<Glyph[]>(() => {
 <style scoped>
 .glyph-field {
   position: absolute;
-  /* The field reaches back across the canvas padding (the --canvas-pad-*
-     vars sit beside that padding in MainPage.vue), so the material meets
-     every edge of the scrollable area instead of leaving a bare frame
-     where the page background showed through. Sized with calc rather
-     than opposing insets: an SVG is a replaced element, so left+right
-     with an auto width collapses it to its intrinsic size. It still
-     lives inside the scrolled sheet, so it moves with the plan. */
+  /* The field reaches back across the canvas padding (--canvas-pad-*, set
+     on the road page) so it meets every edge of the scrollable area.
+     Sized with calc rather than opposing insets: an SVG is a replaced
+     element, so left+right with an auto width collapses it. */
   top: calc(-1 * var(--canvas-pad-top, 0px));
   left: calc(-1 * var(--canvas-pad-x, 0px));
   width: calc(100% + 2 * var(--canvas-pad-x, 0px));

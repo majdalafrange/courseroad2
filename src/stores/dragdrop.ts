@@ -83,18 +83,17 @@ export function configureDrag(options: {
 
 /**
  * Begin tracking a possible drag (pointer down on a draggable). Touch is
- * excluded: it fights the page's own scroll gesture, and every capability
- * here already has a tap-based equivalent.
+ * excluded: it fights the page's scroll gesture, and everything here has
+ * a tap equivalent.
  */
 export function pointerDown(event: PointerEvent, source: DragSource): void {
   if (event.button !== 0 || event.pointerType === "touch") {
     return;
   }
   if (dragState.pending !== null || dragState.active) {
-    // A second pointerdown before the first's pointerup (a stray/duplicate
-    // event, a pen+mouse combo) would otherwise overwrite startPoint and
-    // dragState.pending, hijacking the drag onto this new source. The
-    // first press keeps ownership until it resolves.
+    // A second pointerdown before the first's pointerup (a stray event, a
+    // pen+mouse combo) must not hijack the drag; the first press keeps
+    // ownership.
     return;
   }
   startPoint = { x: event.clientX, y: event.clientY };
@@ -242,15 +241,11 @@ let swallowClick: ((event: MouseEvent) => void) | null = null;
 let swallowTimer: ReturnType<typeof setTimeout> | null = null;
 
 /**
- * Suppress the click a completed drop synthesizes on the card that was
- * pressed, and nothing else.
- *
- * Only that card's own click has to go: it would otherwise open the class
- * the student just dropped. Every other target passes through, because a
- * drop that carries the card to another term replaces the pressed element
- * and the browser then synthesizes no click at all. Swallowing the next
- * click whatever it landed on meant the student's following click was
- * eaten instead, which is what killed the term's Hydrant link.
+ * Suppress the click a completed drop synthesizes on the pressed card,
+ * and nothing else: it would open the class just dropped. A drop that
+ * carries the card to another term replaces the pressed element and
+ * synthesizes no click, so swallowing whatever click came next ate the
+ * student's following click instead.
  */
 function armClickSwallow(): void {
   disarmClickSwallow();
@@ -287,8 +282,8 @@ function endDrag(swallowNextClick: boolean): void {
   if (dragState.active && swallowNextClick) {
     armClickSwallow();
   }
-  // armClickSwallow has taken its own reference; releasing it here keeps a
-  // card that the drop detached from being held to the next drag.
+  // armClickSwallow holds its own reference; releasing this one keeps a
+  // detached card from being retained until the next drag.
   pressedElement = null;
   dragState.pending = null;
   dragState.active = false;

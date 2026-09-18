@@ -73,7 +73,7 @@
         <button class="onroad-action" @click="moveIt">Move it</button>
       </div>
 
-      <!-- decision line: one row of facts, not a tile grid -->
+      <!-- stats -->
       <p class="detail-stats">
         <span
           v-if="subject.rating !== undefined"
@@ -502,13 +502,11 @@ const totalHours = computed(() => {
 });
 
 /**
- * Hours relative to the units norm (1 unit ≈ 1 h/week), ±35% band,
- * symmetric on purpose. Evaluation hours run systematically below the
- * nominal count, so the old −15% floor fired on 57% of subjects with
- * hours (it marked the norm, not an exception). Keep these thresholds
- * algebraically identical to `hoursVerdict` below (ratio ≥ 1.35 ==
- * diff ≥ 0.35×units; ratio ≤ 0.65 == diff ≤ −0.35×units) so the tint and
- * the sentence never disagree.
+ * Hours relative to the units norm (1 unit ≈ 1 h/week), ±35% band.
+ * Evaluation hours run systematically below the nominal count, so a
+ * tighter floor marks the norm rather than an exception. Keep these
+ * thresholds algebraically identical to `hoursVerdict` below (ratio ≥
+ * 1.35 == diff ≥ 0.35×units) so the tint and the sentence agree.
  */
 const hoursTone = computed(() => {
   if (totalHours.value === null || subject.value?.total_units === undefined) {
@@ -549,10 +547,9 @@ const hoursVerdict = computed(() => {
 });
 
 /**
- * Why the verdict line above says what it says. MIT counts a unit as an
- * hour of work a week, so the unit count is the claim and the evaluation
- * hours are what students actually reported. The line appears when the two
- * disagree by more than the thresholds in `hoursVerdict`.
+ * MIT counts a unit as an hour of work a week; the line appears when
+ * evaluation hours disagree with that by more than the `hoursVerdict`
+ * thresholds.
  */
 const hoursExplainer = computed(() => {
   const s = subject.value;
@@ -620,10 +617,9 @@ const offeredSummary = computed(() => {
   return terms.length ? terms.join(" · ") : "no scheduled terms";
 });
 
-// Subject ids are encoded before they reach these third-party URLs: a
-// custom activity's id is typed by the user, and an imported road can carry
-// any string, so an unencoded value could add or overwrite query parameters
-// on someone else's site.
+// Subject ids are encoded: a custom activity's id is user-typed and an
+// import can carry any string, so an unencoded value could inject query
+// parameters on another site.
 const evaluationsUrl = computed(
   () =>
     "https://sisapp.mit.edu/ose-rpt/subjectEvaluationSearch.htm?search=Search&subjectCode=" +
@@ -827,9 +823,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
   min-height: 0;
 }
 
-/* Solid department color, the way legacy CourseRoad's own class-info
-   card led with a colored header bar: identity is a color, not a
-   hairline beside it. */
+/* Solid department color header bar. */
 .detail-ident {
   background: var(--dept-color);
   border-radius: var(--radius-md);
@@ -852,7 +846,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
   margin: var(--space-1) 0 0;
 }
 
-/* One encoding: warn ink on the words, no tint behind them. */
+/* warn ink on the words, no tint behind them */
 .detail-alert {
   display: flex;
   align-items: center;
@@ -889,9 +883,8 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
 }
 
 /* ---------- stats ---------- */
-/* One line of facts. The value carries mono weight and the unit stays quiet
-   beside it. Space separates the pairs rather than a glyph, so a wrap never
-   orphans a separator at the start of the second line. */
+/* One line of facts. Space separates the pairs rather than a glyph, so a
+   wrap never orphans a separator. */
 .detail-stats {
   display: flex;
   flex-wrap: wrap;
@@ -933,8 +926,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
   margin: var(--space-2) 0 0;
   color: var(--g-ink-2);
 }
-/* The icon stays neutral even when the verdict is toned, so the tone reads
-   as a property of the claim and not of the affordance beside it. */
+/* The icon stays neutral even when the verdict is toned. */
 .verdict-why {
   display: inline-flex;
   align-items: center;
@@ -973,8 +965,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
 }
 
 /* ---------- sections ---------- */
-/* A link to another surface, not a call to action: no fill, no full width,
-   no trailing arrow. */
+/* A link to another surface, not a call to action. */
 .explore-link {
   display: inline-flex;
   align-items: center;
@@ -1064,9 +1055,8 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
   outline: none;
   box-shadow: var(--g-focus-ring);
 }
-/* "Offered" is the normal case, so it carries no color: the neutral base
-   above is the whole treatment. Only the exceptions are marked, and each is
-   marked once (tint alone, not tint plus border plus text). */
+/* Offered is the normal case and carries no color; only the exceptions
+   are marked, once. */
 .term-fit.maybe,
 .term-fit.no-longer-offered,
 .term-fit.not-this-year {
@@ -1091,8 +1081,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
   flex-wrap: wrap;
   gap: var(--space-1);
 }
-/* Solid department color, not a rail beside it (see tokens.css → course
-   chips). */
+/* Solid department color (see tokens.css, course chips). */
 .subject-chip {
   display: inline-flex;
   align-items: center;

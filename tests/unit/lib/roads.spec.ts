@@ -24,7 +24,7 @@ const catalog = makeCatalog();
 describe("custom_color validation at ingest", () => {
   it("drops a malformed custom_color on import, keeping valid ones", () => {
     // parseRoadFile back-fills only EXPECTED_IMPORT_FIELDS, so custom_color
-    // used to survive untouched on any subject whose id resolved.
+    // would otherwise survive untouched on any subject whose id resolves.
     const file = JSON.stringify({
       coursesOfStudy: ["girs"],
       selectedSubjects: [
@@ -83,8 +83,8 @@ describe("getSimpleSelectedSubjects", () => {
   });
 
   it("clamps out-of-range / fractional semesters instead of crashing (B1)", () => {
-    // A corrupt cloud/cookie road with semester > 15 or a fractional value
-    // used to index past the 16 buckets and throw inside the load path.
+    // A corrupt road with semester > 15 or a fractional value would index
+    // past the 16 buckets.
     const flat = [
       placed("6.006", 16),
       placed("8.01", 40),
@@ -103,9 +103,8 @@ describe("getSimpleSelectedSubjects", () => {
   });
 
   it("canonicalizes coercible-but-non-canonical semesters (B1, round 2)", () => {
-    // Number(x) maps all of these to a valid in-range integer, so an earlier
-    // clamp that only reassigned out-of-range values left them in place and
-    // simpless[s.semester] crashed on the cloud/cookie load path.
+    // Number(x) maps all of these to a valid in-range integer, so a clamp
+    // that only reassigns out-of-range values leaves them in place.
     const flat = [
       { ...placed("6.006", 0), semester: null } as never,
       { ...placed("8.01", 0), semester: "" } as never,
@@ -259,9 +258,8 @@ describe("parseRoadFile", () => {
   });
 
   it("keeps a custom activity through an export then import round trip", () => {
-    // A custom activity's id is user-chosen and never in the catalog; the
-    // importer used to resolve it nowhere and drop it, so exporting a road
-    // with a UROP on it and importing it back lost the UROP.
+    // A custom activity's id is user-chosen and never in the catalog; it
+    // must survive an export and re-import.
     const road = newRoad("Mine");
     road.contents.selectedSubjects[1].push(placed("8.01", 1));
     road.contents.selectedSubjects[1].push({
@@ -316,8 +314,8 @@ describe("parseRoadFile", () => {
   });
 
   it("throws RoadImportError, not TypeError, on non-object JSON", () => {
-    // "null" parses to null; obj.selectedSubjects on null used to throw
-    // a raw TypeError, breaking the documented contract.
+    // "null" parses to null; the documented contract is RoadImportError,
+    // not a raw TypeError.
     expect(() => parseRoadFile("null", catalog)).toThrow(RoadImportError);
     expect(() => parseRoadFile("42", catalog)).toThrow(RoadImportError);
     expect(() => parseRoadFile('"road"', catalog)).toThrow(RoadImportError);

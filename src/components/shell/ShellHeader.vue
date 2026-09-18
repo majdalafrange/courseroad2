@@ -256,7 +256,7 @@ const totalUnits = computed(() => {
   );
 });
 
-/* ---- save-state whisper: one quiet line + dot; detail in the tooltip ---- */
+/* ---- save state: one line + dot; detail in the tooltip ---- */
 interface SaveState {
   label: string;
   icon: IconName;
@@ -361,7 +361,7 @@ const saveState = computed<SaveState>(() => {
   white-space: nowrap;
 }
 .header-units {
-  /* the figure ticks up while editing; tabular digits keep it from dancing */
+  /* tabular digits keep the figure from shifting while it ticks */
   font-variant-numeric: tabular-nums;
 }
 .meta-dot {
@@ -457,7 +457,7 @@ const saveState = computed<SaveState>(() => {
   flex: 1;
   text-align: left;
 }
-/* Plan ⁄ Explore is a mode, so it reads as a segmented control, not a CTA. */
+/* Plan/Explore is a mode, so it reads as a segmented control. */
 .mode-switch {
   display: inline-flex;
   align-items: center;
@@ -484,7 +484,7 @@ const saveState = computed<SaveState>(() => {
 .mode-btn:hover {
   color: var(--g-ink);
 }
-/* the thumb is a control, not a floating card; it sits, ringed, no shadow */
+/* the thumb is a control: ringed, no shadow */
 .mode-btn.active {
   background: var(--g-surface);
   color: var(--g-ink);
@@ -568,7 +568,7 @@ const saveState = computed<SaveState>(() => {
 @media (max-width: 859px) {
   .shell-header {
     padding: 0 var(--space-3);
-    /* 40px touch targets need more headroom than the old 48px row gave. */
+    /* 40px touch targets need more headroom than a 48px row gives. */
     min-height: 56px;
     gap: var(--space-2);
   }
@@ -603,10 +603,9 @@ const saveState = computed<SaveState>(() => {
   .mode-switch {
     display: none;
   }
-  /* :global: these classes land on GTooltip's trigger span, which Vue's
-     scoped CSS can't tag with this component's data-v attribute (Reka's
-     TooltipProvider/Root are context-only, with no DOM node of their own
-     to inherit it onto). */
+  /* :global: these classes land on GTooltip's trigger span, which scoped
+     CSS can't tag (Reka's TooltipProvider/Root have no DOM node to inherit
+     the attribute onto). */
   .header-right :global(.header-feedback) {
     display: none;
   }
@@ -621,9 +620,8 @@ const saveState = computed<SaveState>(() => {
   }
 }
 
-/* On the narrowest phones the road name has almost no room left; the
-   brand mark is icon-only already and the bottom nav covers navigation,
-   so it's the cheapest thing to drop. */
+/* On the narrowest phones the road name has no room; the brand mark is
+   icon-only already, so it is the cheapest thing to drop. */
 @media (max-width: 380px) {
   .header-brand {
     display: none;

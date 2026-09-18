@@ -64,9 +64,8 @@ app.use(DataLoaderPlugin, { router });
 app.use(router);
 
 // Last resort: an uncaught error in render, a watcher, or a lifecycle
-// hook otherwise leaves whatever the crash froze on screen, with no
-// affordance to recover. Roads are already persisted locally as they're
-// edited, so a reload is safe, not a data-loss risk.
+// hook otherwise leaves the crashed screen up. Roads are persisted as
+// they're edited, so a reload is safe.
 app.config.errorHandler = (err, _instance, info) => {
   console.error("Unhandled error:", err, info);
   fatalError.value = true;
@@ -83,8 +82,8 @@ router.onError((error) => {
   }
 });
 
-// router.isReady() rejects if the initial navigation fails. catch the rejection
-// so the app still mounts instead of leaving the page blank.
+// router.isReady() rejects if the initial navigation fails; catch so the
+// app still mounts.
 void Promise.all([isCacheReady(), router.isReady()])
   .catch(() => {})
   .then(() => {

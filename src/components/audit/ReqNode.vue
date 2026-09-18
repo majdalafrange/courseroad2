@@ -522,8 +522,8 @@ export default { name: "ReqNode" };
   margin-left: auto;
   flex-shrink: 0;
 }
-/* fulfilled earns the progress green (encodes, not decorates);
-   mid and low are one gray; a 1.4:1 text distinction reads as none */
+/* fulfilled earns the progress green; mid and low are one gray (a 1.4:1
+   text distinction reads as none) */
 .tone-ok {
   color: var(--g-progress);
 }
@@ -672,9 +672,8 @@ export default { name: "ReqNode" };
   opacity: 1;
   pointer-events: auto;
 }
-/* Touch: no hover state to reveal these, and petitioning or ignoring a
-   requirement has no other entry point. The slot is already reserved, so
-   showing them costs no reflow. */
+/* Touch: no hover to reveal these, and petitioning has no other entry
+   point. The slot is already reserved. */
 @media (hover: none) {
   .leaf-actions {
     opacity: 1;

@@ -11,8 +11,7 @@ type CookieValue = string | number | boolean | object;
 function escapeKey(key: string): string {
   // encodeURIComponent leaves -.!~*'() unescaped; of those, only the
   // regex metacharacters need a backslash before this becomes part of a
-  // RegExp below (get(), isKey()). Parens were missing: a key containing
-  // one built an unbalanced/mismatching group.
+  // RegExp below (get(), isKey()).
   return encodeURIComponent(key).replace(/[-.+*()]/g, "\\$&");
 }
 
@@ -38,11 +37,9 @@ export const cookies = {
   set(key: string, value: CookieValue, expires?: string | number): void {
     const stringValue =
       typeof value === "object" ? JSON.stringify(value) : String(value);
-    // SameSite=Lax blunts cross-site sends while still allowing the cookie
-    // on the top-level OAuth return navigation; Secure is added only over
-    // https so localhost dev (http) can still set cookies. HttpOnly is not
-    // settable from JS; moving the token to an HttpOnly server-issued
-    // cookie is a separate FireRoad-side hardening.
+    // SameSite=Lax still allows the cookie on the top-level OAuth return;
+    // Secure only over https so localhost dev works. HttpOnly is not
+    // settable from JS.
     const secure =
       typeof location !== "undefined" && location.protocol === "https:"
         ? "; Secure"

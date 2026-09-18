@@ -11,10 +11,8 @@
 
 <script setup lang="ts" generic="T extends string | number">
 /**
- * A tab set: roving tabindex, arrow/Home/End keys, and all the
- * id/aria-controls/aria-labelledby wiring between GTabsTrigger and
- * GTabsContent are Reka UI's Tabs, in place of a caller hand-rolling
- * that between its own buttons and panels.
+ * A tab set: roving tabindex, arrow/Home/End keys, and the id/aria
+ * wiring between GTabsTrigger and GTabsContent are Reka UI's Tabs.
  */
 import { TabsRoot } from "reka-ui";
 

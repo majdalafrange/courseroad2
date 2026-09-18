@@ -1,13 +1,10 @@
 /**
  * Connections store: reactive bridge between the pure graph engine in
- * `src/lib/connections/` and the canvas. Owns no graph logic itself: calls
- * the pure transitions, holds state in a `shallowRef` (reassignment is the
- * only reactive trigger; engine caches never get proxied), projects view
- * models for rendering.
+ * `src/lib/connections/` and the canvas. Holds state in a `shallowRef`
+ * (reassignment is the only reactive trigger) and projects view models.
  *
- * Exploration lives per tab via `ConnectionsPersistence` (sessionStorage
- * with consent, memory otherwise): reload keeps it, closing the tab ends
- * it. Account-backed saving is a later drop-in behind the same seam.
+ * Exploration is per tab via `ConnectionsPersistence` (sessionStorage
+ * with consent, memory otherwise).
  */
 
 import { computed, ref, shallowRef, watch } from "vue";
@@ -92,8 +89,7 @@ const EDGE_GAP = 7;
  * A subject's grid row: its road bucket if it's already placed, else the
  * bucket the current plan could first reach it by (a `ready-after`
  * readiness), else undefined (Unscheduled), since `ready`/`missing`/
- * `unknown` don't name an actual term. Pure, so it's unit-testable on its
- * own.
+ * `unknown` don't name an actual term.
  */
 export function subjectTermRow(
   id: string,
@@ -111,11 +107,7 @@ export function subjectTermRow(
 export interface FrameRequest {
   token: number;
   ids?: string[];
-  /**
-   * Lowest zoom the fit may choose. The opening fit floors at COMPACT_ZOOM:
-   * a big road then opens on a readable center to pan from, instead of
-   * framing every subject as an unreadable sliver.
-   */
+  /** Lowest zoom the fit may choose; the opening fit floors at COMPACT_ZOOM. */
   floor?: number;
 }
 
@@ -134,11 +126,7 @@ export interface NodeView {
   deptClass: string;
   color: string;
   anchor: boolean;
-  /**
-   * Tinted on the canvas as the exploration's landmark. Only a deliberate
-   * starting subject earns this; on a road seed every node is an anchor, and
-   * a tint that marks the normal case would say nothing.
-   */
+  /** Tinted as the exploration's landmark: a deliberately chosen starting subject. */
   landmark: boolean;
   pinned: boolean;
   focused: boolean;
@@ -185,9 +173,8 @@ export const useConnectionsStore = defineStore("connections", () => {
   // Non-reactive engine: rebuilt only when the catalog array identity changes.
   let engine: EdgeEngine | undefined;
   let engineForSubjects: Subject[] | undefined;
-  // Per-tab snapshot so a reload keeps the exploration. Consent must be
-  // granted, not merely unrefused: an unanswered banner stores nothing, and
-  // opting out keeps the exploration in memory only.
+  // Per-tab snapshot so a reload keeps the exploration. Stored only after
+  // consent is granted; otherwise memory only.
   const persistence: ConnectionsPersistence = new SessionConnectionsPersistence(
     () => courseData.cookiesAllowed === true,
   );
@@ -216,9 +203,9 @@ export const useConnectionsStore = defineStore("connections", () => {
   const placementRequest = ref<Subject | undefined>(undefined);
 
   /**
-   * Pending viewport ask, consumed by the canvas: fit everything when `ids`
-   * is absent, otherwise make sure those nodes are inside the view. State
-   * mutations only ever *request* framing; the canvas owns the camera.
+   * Pending viewport request, consumed by the canvas: fit everything when
+   * `ids` is absent, else bring those nodes into view. The canvas owns the
+   * camera.
    */
   const frameRequest = ref<FrameRequest | undefined>(undefined);
   let frameToken = 0;
@@ -345,11 +332,9 @@ export const useConnectionsStore = defineStore("connections", () => {
   }
 
   /**
-   * One entry per row the grid actually uses (rows with no node don't get
-   * drawn), sorted top to bottom. "Prior credit" and "Unscheduled" are row
-   * *names*, not column headers, so `special` marks them for the canvas to
-   * render in sentence case instead of the caps term-label treatment (same
-   * distinction TermCell's `.term-name.is-prior` draws on the plan grid).
+   * One entry per row the grid uses, top to bottom. `special` marks
+   * "Prior credit" and "Unscheduled", rendered in sentence case rather
+   * than as term labels.
    */
   const rows = computed<
     {
@@ -418,8 +403,7 @@ export const useConnectionsStore = defineStore("connections", () => {
 
   /**
    * The emphasized node (debounced hover, else selection) and everything
-   * one edge away from it. Drives the calm dim/brighten conversation;
-   * opacity only, never positions.
+   * one edge away. Drives dimming: opacity only, never positions.
    */
   const neighborhood = computed<
     { focus: string; nodeIds: Set<string>; edgeIds: Set<string> } | undefined
@@ -487,11 +471,10 @@ export const useConnectionsStore = defineStore("connections", () => {
   const compact = computed(() => viewport.value.zoom < COMPACT_ZOOM);
 
   /**
-   * Fraction of the segment a→b consumed before a line leaving a card's
-   * center clears the card's outline (plus EDGE_GAP). The cards are
-   * stadiums: a core rectangle with half-circle end caps of radius halfH,
-   * so a flat exit uses the slab and an end exit intersects the cap circle.
-   * Lets edges meet the drawn border instead of a bounding-box corner.
+   * Fraction of segment a→b before a line from a card's center clears the
+   * card outline plus EDGE_GAP. Cards are stadiums (rectangle with
+   * half-circle caps of radius halfH): a flat exit hits the slab, an end
+   * exit hits the cap circle.
    */
   function exitFraction(dx: number, dy: number, halfH: number): number {
     const halfW = NODE_WIDTH / 2 + EDGE_GAP;
@@ -609,11 +592,9 @@ export const useConnectionsStore = defineStore("connections", () => {
   const SEED_GLIDE = 0.4;
 
   /**
-   * Mark freshly revealed nodes/edges for their decorative entrance: nodes
-   * glide in from the node that revealed them, strongest connection first.
-   * A seed has no revealer, so its nodes bloom outward from the center
-   * instead, inner ring first. Edges fade in after. Visual only: final
-   * positions come from the layout.
+   * Mark freshly revealed nodes/edges for their entrance animation: nodes
+   * glide in from the revealer, strongest connection first; a seed blooms
+   * from the center, inner ring first. Edges fade in after. Visual only.
    */
   function pulse(
     nodeIds: string[],
@@ -715,9 +696,8 @@ export const useConnectionsStore = defineStore("connections", () => {
   }
 
   /**
-   * Everything a destructive action (reset, re-seed) replaces. Held by
-   * reference safely: graph/layout mutators are all copy-on-write, so
-   * nothing written after this snapshot can corrupt the way back.
+   * Everything a destructive action (reset, re-seed) replaces. Safe to
+   * hold by reference: graph/layout mutators are copy-on-write.
    */
   interface RestorePoint {
     graph: GraphState;
@@ -808,9 +788,8 @@ export const useConnectionsStore = defineStore("connections", () => {
       layout.value = reconcileLayout(emptyLayout(), graph.value, termOf.value);
       persist();
     }
-    // the opening moment: the map assembles in a quiet wave, never a pop,
-    // and stays bright. Only a deliberate seed (deep-link/manual) opens with
-    // its subject selected; a road seed waits for the student to point.
+    // Only a deliberate seed (deep link or manual) opens with its subject
+    // selected.
     pulse([...graph.value.nodes.keys()]);
     selectedId.value =
       newSeed.origin === "road"
@@ -831,9 +810,8 @@ export const useConnectionsStore = defineStore("connections", () => {
    */
   async function open(fromId?: string): Promise<void> {
     status.value = "loading";
-    // Called fresh rather than held from setup: this store is constructed
-    // in unit tests that never open an exploration and don't install the
-    // PiniaColada plugin, so this stays out of their way until needed.
+    // Resolved here, not at setup: unit tests construct this store without
+    // the PiniaColada plugin.
     const state = await useSubjectsLoader().refresh();
     if (state.status === "error") {
       status.value = "error";
@@ -875,16 +853,12 @@ export const useConnectionsStore = defineStore("connections", () => {
     startFromSeed({ subjectIds: roadSeedIds(), origin: "road" });
   }
 
-  /**
-   * Back to a fresh exploration of the current road. Drops the whole graph,
-   * so, like reset, it lands immediately and the toast carries the way back.
-   */
+  /** Fresh exploration of the current road. Like reset: applies immediately, undo via toast. */
   function reseedFromRoad(): void {
     const before = captureRestorePoint();
     quietReseedFromRoad();
 
-    // Nothing to hand back if the canvas was empty, or if re-seeding landed
-    // on the same graph it started from (a second click in a row).
+    // No undo toast when the canvas was empty or the graph did not change.
     if (before.graph.nodes.size === 0 || !tookSomethingAway(before)) {
       return;
     }
@@ -941,11 +915,7 @@ export const useConnectionsStore = defineStore("connections", () => {
     }
   }
 
-  /**
-   * The panel's row click: put the neighbor on the canvas (if it isn't
-   * already), select it, and bring it into view. The exploration continues
-   * from it without ever leaving the graph.
-   */
+  /** Panel row click: add the neighbor to the canvas if needed, select it, bring it into view. */
   function focusNeighbor(parentId: string, neighborId: string): void {
     const e = ensureEngine();
     if (e === undefined) {
@@ -974,10 +944,8 @@ export const useConnectionsStore = defineStore("connections", () => {
   }
 
   /**
-   * Put a missing prerequisite on the canvas: ensure the subject that needs
-   * it is a node first (revealing it from the selection if necessary), then
-   * reveal the prerequisite from it; the unmet requirement becomes the next
-   * hop of the exploration.
+   * Put a missing prerequisite on the canvas: make sure the subject that
+   * needs it is a node first, then reveal the prerequisite from it.
    */
   function revealMissingPrereq(parentId: string, prereqId: string): void {
     const e = ensureEngine();
@@ -1022,11 +990,7 @@ export const useConnectionsStore = defineStore("connections", () => {
     commit(removeNode(graph.value, id), { relayout: false });
   }
 
-  /**
-   * Back to the seed. Destructive, so it follows the app's undo doctrine:
-   * the reset lands immediately and the toast carries the way
-   * back to the graph it replaced.
-   */
+  /** Back to the seed. Applies immediately; the toast offers undo. */
   function reset(): void {
     const e = ensureEngine();
     if (e === undefined) {
@@ -1044,8 +1008,7 @@ export const useConnectionsStore = defineStore("connections", () => {
       return;
     }
 
-    // Deliberately unconditional: whatever happened while the toast was up
-    // goes back too. A no-op Undo would be stranger than a clean restore.
+    // Unconditional: edits made while the toast was up are reverted too.
     toast.undoable("Reset to your starting subjects", () => {
       restore(before);
       announce("Reset undone.");
@@ -1057,9 +1020,8 @@ export const useConnectionsStore = defineStore("connections", () => {
   }
 
   /**
-   * Pointer hover, from the canvas or the panel. Canvas hover also drives
-   * (debounced) neighborhood emphasis; panel-row hover only glows the node,
-   * leaving the selection's neighborhood in place.
+   * Pointer hover from the canvas or the panel. Canvas hover also drives
+   * (debounced) neighborhood emphasis; panel-row hover only glows the node.
    */
   function hover(
     id: string | undefined,
@@ -1100,10 +1062,7 @@ export const useConnectionsStore = defineStore("connections", () => {
     placementRequest.value = undefined;
   }
 
-  /**
-   * Place the pending subject into a term, through the road's own add flow
-   * (history and undo included), without ever leaving the exploration.
-   */
+  /** Place the pending subject into a term through the road's own add flow (with history). */
   function confirmPlacement(index: number): void {
     const subject = placementRequest.value;
     if (subject === undefined) {
@@ -1111,10 +1070,9 @@ export const useConnectionsStore = defineStore("connections", () => {
     }
     placementRequest.value = undefined;
     courseData.addFromCard(subject);
-    // Identify the new entry by reference, not a stack-length delta (unsound
-    // at the MAX_ENTRIES cap, where record() pushes and shifts in the same
-    // step). Stays undefined if nothing was recorded, making the toast a
-    // no-op instead of undoing the wrong thing.
+    // By reference, not stack length: at the MAX_ENTRIES cap record()
+    // pushes and shifts in one step. Undefined when nothing was recorded,
+    // so the toast undoes nothing rather than the wrong entry.
     const stack = history.state.undoStack;
     const topBefore = stack[stack.length - 1];
     courseData.addAtPlaceholder(index);
@@ -1145,11 +1103,7 @@ export const useConnectionsStore = defineStore("connections", () => {
     requestFrame();
   }
 
-  /**
-   * Every pan/zoom lands here. The snapshot is refreshed after a quiet
-   * moment so a reload reopens on the camera the student last held, without
-   * serializing on every pointermove.
-   */
+  /** Every pan/zoom lands here; the snapshot is written after a quiet moment, not on every pointermove. */
   let viewportPersistTimer: ReturnType<typeof setTimeout> | undefined;
   function setViewport(vp: Viewport): void {
     viewport.value = vp;

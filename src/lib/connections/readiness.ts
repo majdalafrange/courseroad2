@@ -14,7 +14,7 @@
  * Reuses the app's own prerequisite evaluation (`reqsFulfilled`,
  * `parseRequirements`), so a "Ready" badge always agrees with the class
  * detail's checkmarks. Corequisites excluded: takeable concurrently by
- * definition. Pure, framework-free.
+ * definition.
  */
 
 import type { CatalogView, SelectedSubject, Subject } from "../types";
@@ -158,15 +158,11 @@ export function createReadinessEvaluator(
   };
 
   function fulfilledAt(prereqs: string, t: number): boolean {
-    // Containment boundary: a malformed catalog string must degrade this
-    // one subject to "missing", never take down the whole graph pass.
-    // reqsFulfilled has no known throw path today, so a throw here means
-    // an engine bug; the graph still renders while it gets fixed.
+    // A throw here degrades this one subject to "missing" instead of
+    // taking down the graph pass.
     try {
       return reqsFulfilled(catalog, prereqs, cumulative[t]);
     } catch (err) {
-      // Log it: silently returning false here would make every readiness
-      // badge for this subject go "not ready" with no trace of why.
       console.error(`reqsFulfilled failed for "${prereqs}":`, err);
       return false;
     }

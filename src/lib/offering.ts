@@ -2,7 +2,7 @@
  * Semester arithmetic and subject-offering rules. The road has 16
  * buckets: index 0 is Prior Credit, then 5 years of (Fall, IAP, Spring).
  * `currentSemester` (1-based, FireRoad's set_semester) anchors "now";
- * `userYear` derives from it. Ported exactly from Semester.vue/schedule.js.
+ * `userYear` derives from it.
  */
 
 import type { Subject } from "./types";
@@ -202,10 +202,7 @@ export type PlacementStatus =
   | { kind: "unavailable" } // red: same year, definitely not offered
   | { kind: "maybe" }; // yellow: other year, may not be offered
 
-/**
- * Classify how safely `course` can be placed into bucket `index`: the
- * green/yellow/red logic of the legacy add-from-card flow, exactly.
- */
+/** Classify how safely `course` can be placed into bucket `index`. */
 /**
  * Placement eligibility across every bucket, for the drag layer and
  * click-to-place: one status kind per bucket index.
@@ -260,7 +257,7 @@ export function placementStatus(
 
 /**
  * Whether a drop into bucket `index` is accepted (anything except a
- * definite "unavailable" in the current academic year), per legacy ondrop.
+ * definite "unavailable" in the current academic year).
  */
 export function dropAllowed(
   course: Subject,

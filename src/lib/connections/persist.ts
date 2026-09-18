@@ -1,15 +1,10 @@
 /**
- * Persistence: ephemeral *behavior* now, account-ready *architecture*. An
- * exploration serializes to a compact, catalog-independent snapshot: the
- * seed, the expanded/pinned/removed ids, the viewport. Derived edges and
- * positions are NEVER serialized: rebuilt from the live catalog on load,
- * so a snapshot survives a catalog that changed underneath it (vanished
- * subjects dropped, renumbered ones followed via old_id).
- *
- * All persistence flows through the `ConnectionsPersistence` seam. The
- * live implementation is per-tab sessionStorage (consent-gated, in-memory
- * fallback): an exploration survives a reload but ends with the visit.
- * Account-backed storage later is just a new implementation of this seam.
+ * Exploration persistence. A snapshot holds only the seed, the
+ * expanded/pinned/removed ids, and the viewport; edges and positions are
+ * rebuilt from the live catalog on load, so a snapshot survives catalog
+ * changes. All persistence flows through `ConnectionsPersistence`; the
+ * live implementation is per-tab sessionStorage with an in-memory
+ * fallback.
  */
 
 import type { EdgeEngine } from "./edges";
@@ -52,11 +47,7 @@ export class InMemoryConnectionsPersistence implements ConnectionsPersistence {
 /** sessionStorage key for the per-tab exploration snapshot. */
 const SESSION_KEY = "connectionsExploration";
 
-/**
- * Drop the stored exploration. Called when the user opts out of storage, so
- * the snapshot goes with the rest of their data rather than lingering for
- * the life of the tab.
- */
+/** Drop the stored exploration (storage opt-out). */
 export function clearExplorationSnapshot(): void {
   try {
     sessionStorage.removeItem(SESSION_KEY);
@@ -102,11 +93,9 @@ function isSnapshot(value: unknown): value is ConnectionsSnapshot {
 }
 
 /**
- * Per-tab persistence: the exploration survives a reload but still ends with
- * the visit, keeping the ephemeral contract. `allowed` follows the app's
- * storage-consent answer; when it returns false the snapshot stays in memory
- * only. Storage access is best-effort (a private window can deny it), so
- * every path is guarded and falls back to the in-memory behavior.
+ * Per-tab persistence: survives a reload, ends with the visit. `allowed`
+ * follows the storage-consent answer; when false the snapshot stays in
+ * memory. Storage access is guarded.
  */
 export class SessionConnectionsPersistence implements ConnectionsPersistence {
   private memory = new InMemoryConnectionsPersistence();

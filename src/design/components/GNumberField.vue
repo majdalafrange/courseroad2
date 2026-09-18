@@ -29,10 +29,8 @@
 <script setup lang="ts">
 /**
  * A numeric field: min/max clamping, arrow/Page/Home/End stepping, and
- * scroll-to-adjust are all Reka UI's NumberField, in place of a plain
- * `<input type="number">` whose min/max are advisory only (a typed value
- * outside range submits as-is; the browser's own up/down spinners are
- * the only enforcement, and only on click, not on typed input).
+ * scroll-to-adjust are Reka UI's NumberField; a plain `<input
+ * type="number">` only enforces min/max on its spinners.
  */
 import { useId } from "vue";
 import {

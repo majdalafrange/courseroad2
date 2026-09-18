@@ -93,19 +93,16 @@ watch(
         dark: Boolean(store.isDarkMode),
         hideIAP: Boolean(store.hideIAP),
       });
-      // Warm the embedded-font cache now (usually instant: same files
-      // main.ts already loaded) so Save/Print don't wait on it later.
+      // Warm the font cache now so Save/Print don't wait on it.
       void preparePosterFonts();
     }
   },
 );
 
 /**
- * The live preview (posterSvg, injected via v-html) already renders in
- * the right font since it's part of this document. Save/Print open
- * the SVG *outside* this document, so they need the fonts embedded in
- * it; rebuilding here (after the cache is warm) is cheap and guarantees
- * whichever path runs first still gets the embed.
+ * The preview renders in the right font as part of this document;
+ * Save/Print open the SVG outside it, so the fonts must be embedded.
+ * Rebuilding after the cache is warm is cheap.
  */
 async function exportSvg(): Promise<string> {
   await preparePosterFonts();
@@ -139,11 +136,9 @@ async function printPoster() {
   }
   try {
     const svg = await exportSvg();
-    // The road name is NOT interpolated into markup: it is assigned via
-    // document.title (plain text, never HTML-parsed) so a hostile road
-    // name like `</title><img src=x onerror=...>` cannot inject script into
-    // this same-origin window. posterSvg is safe by construction
-    // (poster.ts esc()s every text node; colors are dictionary lookups).
+    // The road name is assigned via document.title (plain text), never
+    // interpolated into markup, so a hostile name cannot inject script
+    // into this same-origin window. posterSvg escapes every text node.
     win.document.write(
       `<!doctype html><html><head>` +
         `<style>@page { margin: 12mm; } body { margin: 0; } svg { width: 100%; height: auto; }</style>` +
@@ -154,10 +149,9 @@ async function printPoster() {
     // Give the SVG fonts a beat to lay out, then print.
     win.setTimeout(() => win.print(), 350);
   } catch {
-    // road.value can go undefined mid-render (e.g. the active road was
-    // switched via the palette while this sheet was still open); without
-    // this, the already-opened blank tab was left dangling with no
-    // explanation.
+    // road.value can go undefined mid-render (the active road switched
+    // while this sheet was open); close the blank tab instead of leaving
+    // it dangling.
     win.close();
     toast.danger("The poster didn't render", "Try again in a moment.");
   }

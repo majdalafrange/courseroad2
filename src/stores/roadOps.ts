@@ -1,9 +1,7 @@
 /**
  * Road lifecycle operations shared by the shell surfaces (header
- * switcher, palette, import dialog, onboarding seeding). Moved out of
- * MainPage.vue verbatim; a plain module, not a Pinia store (like
- * `history`): each function resolves its stores at call time, since
- * these run on user action after Pinia is installed.
+ * switcher, palette, import dialog, onboarding seeding). A plain module,
+ * not a Pinia store: each function resolves its stores at call time.
  */
 
 import { toast } from "../design/toast";
@@ -27,9 +25,8 @@ export function addRoad(
 ): string {
   const store = useCourseDataStore();
   const auth = useAuthStore();
-  // First free "$n$": the newRoads length alone collided after a
-  // delete-then-create run (length 1 with "$1$" still live reissued "$1$"
-  // and overwrote that road).
+  // First free "$n$": the newRoads length alone reissues a live id after
+  // a delete-then-create.
   let tempNumber = auth.newRoads.length;
   while (
     "$" + tempNumber + "$" in store.roads ||
@@ -116,10 +113,8 @@ function removeRoadEverywhere(roadID: string): void {
 }
 
 /**
- * A replayed redo that recreates a road must also put its id back in
- * auth.newRoads: deleting it (the undo) spliced the id out, and a road
- * present in the store but missing from that list was skipped by the
- * persisted-save bookkeeping, so it vanished on reload.
+ * A replayed redo that recreates a road must re-register its id in
+ * auth.newRoads, which the undo spliced out.
  */
 function reregisterLocalRoad(roadID: string): void {
   const auth = useAuthStore();
@@ -155,10 +150,8 @@ export function deleteRoadWithUndo(roadID: string): void {
     () => auth.deleteRoad(roadID),
     roadID,
   );
-  // Capture this deletion's own entry by identity (the pattern from the
-  // connections placement toast). Matching on the label instead can hit a
-  // different road with the same name, and it left the real entry armed:
-  // a later redo re-deleted the road the student had just taken back.
+  // Captured by identity: matching on the label can hit a different road
+  // with the same name and leave the real entry armed for a later redo.
   const stack = history.state.undoStack;
   const deletionEntry = stack[stack.length - 1];
   toast.undoable(`Deleted “${name}”`, () => {

@@ -37,12 +37,10 @@
 
 <script setup lang="ts">
 /*
- * Auto-dismiss timing, pause-on-hover/focus/window-blur, and swipe-to-
- * dismiss are all Reka UI's Toast; this file is the visual skin plus the
- * one bit of glue Reka can't own: toast.state.toasts is the source of
- * truth (see ../toast.ts), so a toast closing (by timeout, swipe, or the
- * close button) just removes it from that array instead of tracking its
- * own open state.
+ * Auto-dismiss timing, pause-on-hover/focus/blur, and swipe-to-dismiss
+ * are Reka UI's Toast; this is the visual skin. toast.state.toasts is
+ * the source of truth (see ../toast.ts), so closing removes from that
+ * array.
  */
 import {
   ToastAction,
@@ -166,11 +164,10 @@ import { toast } from "../toast";
   }
 }
 
-/* Toasts rise into place and settle; timing out or the close button fades
-   and slides down. A swipe dismiss (data-swipe="end") gets its own exit
-   so it flies out the direction it was dragged instead of fighting the
-   timeout animation; data-state still flips to "closed" at the same
-   moment, so the two are scoped to not both apply. */
+/* Toasts rise into place; timing out or the close button fades and slides
+   down. A swipe dismiss (data-swipe="end") exits in the direction it was
+   dragged; data-state flips to "closed" at the same moment, so the two
+   are scoped not to both apply. */
 .g-toast[data-state="open"] {
   animation: g-toast-in var(--motion-standard) var(--ease-settle);
 }

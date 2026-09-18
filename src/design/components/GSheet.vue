@@ -36,15 +36,11 @@
 
 <script setup lang="ts">
 /*
- * The modal sheet primitive: scrim, panel, and the keyboard contract every
- * modal owes. Focus trapping, body-scroll locking, and returning focus to
- * whatever had it before opening are all Reka UI's Dialog (it captures
- * `document.activeElement` itself when content mounts, since there's no
- * `DialogTrigger` here: every caller opens this from its own separate
- * button, not a slot inside this component). This file adds only the one
- * behavior that's specific to how this app's layers cooperate: Escape
- * closes one layer, so it's marked consumed for window-level listeners
- * (canvas, class detail) instead of also bubbling to them.
+ * The modal sheet primitive. Focus trapping, body-scroll locking, and
+ * focus restore are Reka UI's Dialog (it captures `document.activeElement`
+ * itself when content mounts, since there is no `DialogTrigger` here).
+ * Added here: Escape closes one layer and is marked consumed for
+ * window-level listeners.
  */
 import {
   DialogContent,
@@ -78,9 +74,8 @@ const props = withDefaults(
     scrim?: "default" | "opaque";
     /**
      * false keeps the focus trap but lands initial focus on the panel
-     * itself rather than its first control, so opening a sheet on a cold
-     * page load doesn't draw a focus ring around whichever control
-     * happens to come first (the onboarding wizard's Skip, say).
+     * itself, so a sheet opening on page load does not draw a ring
+     * around its first control.
      */
     autoFocus?: boolean;
   }>(),
@@ -111,8 +106,7 @@ function onUpdateOpen(open: boolean) {
 
 function onEscapeKeyDown(event: KeyboardEvent) {
   if (event.defaultPrevented) {
-    // Already consumed by an inner layer (a popover open on top of this
-    // sheet); one Escape closes one layer, so this one sits still.
+    // Already consumed by an inner layer; one Escape closes one layer.
     return;
   }
   if (!props.dismissible) {
@@ -132,9 +126,9 @@ function onInteractOutside(event: PointerDownOutsideEvent | FocusOutsideEvent) {
   }
 }
 
-// Reka's FocusScope focuses the first tabbable unless this is prevented,
-// and then focuses nothing at all; the panel takes focus itself so the
-// trap still has an anchor and Tab moves on to the first control.
+// Reka's FocusScope focuses the first tabbable unless prevented, and
+// then focuses nothing; the panel takes focus itself so the trap has an
+// anchor.
 function onOpenAutoFocus(event: Event) {
   if (!props.autoFocus) {
     event.preventDefault();
@@ -159,9 +153,8 @@ function onOpenAutoFocus(event: Event) {
 .g-sheet-scrim[data-state="open"] {
   animation: g-sheet-fade-in var(--motion-standard) var(--ease-out);
 }
-/* An opaque scrim is a full takeover (first-run onboarding): whatever it
-   covers must never be visible through it, not even for a fade-in's
-   first frame, so it skips the animation and appears instantly. */
+/* An opaque scrim is a full takeover; it skips the fade so nothing shows
+   through on the first frame. */
 .g-sheet-scrim.opaque[data-state="open"] {
   animation: none;
 }

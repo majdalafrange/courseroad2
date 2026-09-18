@@ -119,7 +119,7 @@ const terms = computed<TermChip[]>(() => {
   return out;
 });
 
-/** One quiet line of prereq context under the grid: advice, not a gate. */
+/** One line of prereq context under the grid: advice, not a gate. */
 const note = computed(() => {
   const s = subject.value;
   if (s !== undefined) {
@@ -216,8 +216,8 @@ onMounted(() => {
     background-color var(--motion-quick) var(--ease-out),
     border-color var(--motion-quick) var(--ease-out);
 }
-/* The dashed border is the one steady mark of offering doubt; hover says
-   only that the chip is interactive, and the dash stays visible under it. */
+/* The dashed border is the mark of offering doubt; it stays visible under
+   hover. */
 .term-chip.k-maybe,
 .term-chip.k-not-this-year,
 .term-chip.k-no-longer-offered {

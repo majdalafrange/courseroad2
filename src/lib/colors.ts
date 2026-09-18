@@ -1,9 +1,8 @@
 /**
- * Department/course color assignments. Ported keying from the legacy
- * colorMixin: department, generic-GIR/HASS/CI, and 42-color custom
- * activity keys. The perceptually coherent hex values live in
- * generate-palette.mjs/departmentColors.css; this is the stable contract
- * they key off.
+ * Department/course color assignments: department, generic-GIR/HASS/CI,
+ * and 42-color custom activity keys. The hex values live in
+ * generate-palette.mjs/departmentColors.css; this is the contract they
+ * key off.
  */
 
 import type { Subject, SelectedSubject } from "./types";
@@ -201,14 +200,10 @@ export function courseColorClassFromId(id: string | undefined): string {
 /**
  * Palette key for a custom-activity color reference ("@0" ... "@41"), or
  * undefined when the value does not name a real palette entry.
- *
- * `custom_color` is untrusted: it rides through `parseRoadFile` and the
- * cloud-sync path unvalidated whenever the subject id resolves in the
- * catalog, so an imported `.road` file can carry any JSON value here. A
- * non-string threw on `.slice`, and an out-of-range index produced an
- * undefined color that broke the poster. Both now fall back to the
- * department color. The "custom_color-" prefix means a lookup can never
- * reach an inherited Object key.
+ * `custom_color` is untrusted (imports and cloud payloads carry any JSON),
+ * so a non-string or out-of-range value falls back to the department
+ * color. The "custom_color-" prefix keeps lookups off inherited Object
+ * keys.
  */
 function paletteClass(customColor: unknown): string | undefined {
   if (typeof customColor !== "string") {

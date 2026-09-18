@@ -113,7 +113,7 @@ describe("comma/slash precedence", () => {
     const buckets = emptyBuckets();
     buckets[0].push(placed("6.0001", 0));
     const tree = parseRequirements("8.01,6.0001/6.0002", catalog, buckets, 2);
-    // The old last-separator parse read this as any-of and said true.
+    // A last-separator parse would read this as any-of and say true.
     expect(tree.fulfilled).toBe(false);
     const group = tree.reqs.find(isGroup) as ParsedRequirement;
     expect(group.fulfilled).toBe(true);
@@ -206,9 +206,8 @@ describe("subjectsWithPrereq", () => {
   });
 
   it("orders same-department results first regardless of input order", () => {
-    // The legacy comparator returned only -1 or 0, so the documented
-    // "same department first" order held only when the catalog happened
-    // to arrive in a favorable order.
+    // "Same department first" must not depend on the catalog's arrival
+    // order.
     const extended = makeCatalog([
       ...catalog.subjectsInfo,
       {

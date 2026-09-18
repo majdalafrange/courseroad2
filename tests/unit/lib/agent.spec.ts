@@ -81,7 +81,7 @@ describe("claimTabID", () => {
     vi.restoreAllMocks();
   });
 
-  it("still returns an id where sessionStorage access throws (F9)", () => {
+  it("still returns an id where sessionStorage access throws", () => {
     // Safari's block-all setting makes the sessionStorage global itself
     // throw on access. The claim must degrade to an unpersisted id, the
     // way appStorage treats unreadable localStorage as absent.

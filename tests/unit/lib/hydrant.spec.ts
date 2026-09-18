@@ -8,7 +8,7 @@ import { placed } from "./fixtures";
 
 describe("hydrant encoding", () => {
   it("produces the pinned msgpack+base64 payload", () => {
-    // Pinned against the legacy implementation's output
+    // Pinned against Hydrant's own encoder output
     expect(
       hydrantState([
         placed("8.01", 1),

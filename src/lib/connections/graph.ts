@@ -1,15 +1,13 @@
 /**
- * The Connections graph state machine: pure, deterministic, unit-tested.
- * Every operation takes a `GraphState` and returns a new one (never
- * mutated). Grows only on demand: starts as the student's road (anchors),
- * each expansion reveals a capped, ranked set of neighbors.
+ * The Connections graph state machine: pure and deterministic. Every
+ * operation takes a `GraphState` and returns a new one. The graph starts
+ * as the student's road (anchors); each expansion reveals a capped,
+ * ranked set of neighbors.
  *
- * Trickiest invariant: collapse without orphaning. Reference-counting
- * introductions isn't enough, it strands introducer cycles (expand A→N,
- * N→M, M re-introduces N; collapsing A leaves N/M pointing only at each
- * other). So collapse recomputes reachability by mark-and-sweep from the
- * roots (anchors ∪ pinned); anything not reached is swept. Bounded node
- * counts keep this cheap.
+ * Collapse recomputes reachability by mark-and-sweep from the roots
+ * (anchors ∪ pinned) rather than reference-counting introductions, which
+ * strands introducer cycles (expand A→N, N→M, M re-introduces N;
+ * collapsing A leaves N/M pointing only at each other).
  */
 
 import type { EdgeEngine } from "./edges";
@@ -55,10 +53,8 @@ function placeNode(
 /** Drop a node and every edge touching it, plus all its bookkeeping. */
 function deleteNode(state: GraphState, id: string): void {
   state.nodes.delete(id);
-  // anchors are documented as permanent roots, never swept: removing a
-  // seed subject's card from view (Delete key, the Remove action) must
-  // not also revoke its anchor status, or "Reset to your starting
-  // subjects" can no longer bring it back.
+  // anchors are permanent roots: removing a seed subject's card must not
+  // revoke its anchor status, or reset cannot bring it back.
   state.pinned.delete(id);
   state.expanded.delete(id);
   state.shownCount.delete(id);
@@ -226,10 +222,8 @@ export function expandNode(
 }
 
 /**
- * Reveal one specific neighbor of a node (the side panel's "show on graph"
- * action, the keyboard-driven equivalent of clicking a single connection).
- * Marks the parent expanded so the new node participates in collapse logic.
- * A no-op if the two aren't actually connected.
+ * Reveal one specific neighbor of a node. Marks the parent expanded so the
+ * new node participates in collapse. A no-op if the two are unconnected.
  */
 export function revealNeighbor(
   state: GraphState,

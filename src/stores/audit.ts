@@ -1,8 +1,7 @@
 /**
  * Audit store: the FireRoad requirements list and per-program progress
- * trees for the active road. Extracted from MainPage.vue; recomputation
- * is triggered through courseData's road-change notifications instead of
- * the old deep watcher.
+ * trees for the active road, recomputed on courseData's road-change
+ * notifications.
  */
 
 import { defineStore } from "pinia";
@@ -25,39 +24,21 @@ export const useAuditStore = defineStore("audit", {
     ] as ReqListEntry[],
     reqTrees: {} as Record<string, RequirementNode>,
     updatingFulfillment: false,
-    /**
-     * A recompute that arrived before the roads were hydrated. Held here
-     * instead of being dropped; flushPendingFulfillment replays it once
-     * the active road exists (auth.restoreFromStorage calls it after
-     * restoring logged-out roads).
-     */
+    /** A recompute that arrived before the roads were hydrated; flushPendingFulfillment replays it. */
     pendingFulfillment: null as string | null,
-    /**
-     * Programs whose last progress request failed (an unresolvable key,
-     * or FireRoad unreachable). Keyed by program; the audit renders these
-     * as a terminal state with a retry instead of "computing..." forever.
-     */
+    /** Programs whose last progress request failed; rendered with a retry. */
     failedPrograms: {} as Record<string, boolean>,
-    /**
-     * Per-program request generation, bumped on each (re-)request. A
-     * response is applied only if it's still the latest for that program,
-     * so an out-of-order reply can't clobber fresher data (mirrors
-     * startPreview's own guard, below).
-     */
+    /** Per-program request generation; only the latest response is applied. */
     fulfillmentGeneration: {} as Record<string, number>,
     /** What-if preview: a program tried against the road, uncommitted. */
     previewProgram: null as string | null,
     previewTree: null as RequirementNode | null,
     previewLoading: false,
     /**
-     * Expansion state for the audit tree, held here so it survives the
+     * Expansion state for the audit tree, kept here so it survives the
      * detail panel swapping in and out. Branch rows are keyed
-     * programKey + "/" + list-id (list-id is stable within a program;
-     * uniqueKey renumbers when a program is removed). Program headers
-     * are keyed by programKey alone. An absent key means the render
-     * default applies: depth < 1 for branches, first program only for
-     * program headers. In memory only; persisting across reload would
-     * mean extending the persistedStore allowlist.
+     * programKey + "/" + list-id, program headers by programKey. An absent
+     * key means the render default applies. In memory only.
      */
     expanded: {} as Record<string, boolean>,
   }),
@@ -138,9 +119,8 @@ export const useAuditStore = defineStore("audit", {
       }
       const activeRoad = store.roads[store.activeRoad];
       if (activeRoad === undefined) {
-        // Called before the roads were hydrated (boot ordering) or between
-        // a delete and the switch to the next road. Hold the request so
-        // hydration can replay it instead of scoring an absent road.
+        // Roads not hydrated yet (boot), or between a delete and the next
+        // switch: hold the request for replay.
         this.pendingFulfillment =
           this.pendingFulfillment === null ||
           this.pendingFulfillment === fulfillmentNeeded
@@ -162,8 +142,7 @@ export const useAuditStore = defineStore("audit", {
         fireroad
           .getProgress(req, alteredRoadContents)
           .then((response) => {
-            // A later edit already re-requested this program; that
-            // request's own response will land and this one is stale.
+            // A later edit re-requested this program; this response is stale.
             if (this.fulfillmentGeneration[req] !== generation) {
               return;
             }
@@ -178,8 +157,7 @@ export const useAuditStore = defineStore("audit", {
             this.failedPrograms[req] = true;
           });
       }
-      // Mirror the legacy nextTick release: allow the next change to
-      // recompute once this batch has been dispatched.
+      // Release once this batch has been dispatched.
       void Promise.resolve().then(() => {
         this.updatingFulfillment = false;
       });

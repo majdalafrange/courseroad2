@@ -119,8 +119,7 @@ function dismiss() {
 </script>
 
 <style scoped>
-/* Audit gaps, not a recommendation widget: no card, no fill. A hairline
-   separates it from the programs below. */
+/* Audit gaps, not a recommendation widget: no card, no fill. */
 .suggestion-strip {
   padding-bottom: var(--space-3);
   margin-bottom: var(--space-3);
@@ -138,7 +137,7 @@ function dismiss() {
   gap: var(--space-1);
 }
 .strip-label {
-  /* a label, not an action: accent never decorates */
+  /* a label, not an action */
   font: var(--text-small);
   color: var(--g-ink-3);
 }
@@ -201,8 +200,7 @@ function dismiss() {
   flex-wrap: wrap;
   gap: var(--space-1);
 }
-/* the shared course-chip anatomy (see tokens.css): solid department
-   color, not a rail beside it. A preview of the card it would become. */
+/* the shared course-chip anatomy (see tokens.css) */
 .suggestion-class {
   display: inline-flex;
   align-items: center;

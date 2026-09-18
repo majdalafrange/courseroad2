@@ -1,11 +1,8 @@
 /**
- * Core domain types for CourseRoad: the implicit contracts with the
- * FireRoad API and this app's own persistence formats (localStorage,
- * cookies, `.road` files). Single source of truth for every module in
- * `src/lib`. Treat this file as the public SDK surface.
- *
- * IMPORTANT: field names mirror FireRoad's JSON exactly (snake_case and
- * all). Renaming a field breaks byte-compatibility with saved user data.
+ * Core domain types: the contracts with the FireRoad API and this app's
+ * persistence formats (localStorage, `.road` files). Field names mirror
+ * FireRoad's JSON exactly (snake_case); renaming one breaks saved user
+ * data.
  */
 
 /** A subject as returned by FireRoad's `/courses/all?full=true` catalog. */
@@ -163,7 +160,7 @@ export interface RequirementNode {
   url?: string;
 }
 
-/** OAuth payload from FireRoad's `/fetch_token/`, stored in a cookie. */
+/** OAuth payload from FireRoad's `/fetch_token/`, persisted in localStorage. */
 export interface AccessInfo {
   access_token: string;
   academic_id: string;
@@ -214,7 +211,7 @@ export function getSubject(
   return undefined;
 }
 
-/** Flatten semester buckets into a single list (old `flatten` mixin). */
+/** Flatten semester buckets into a single list. */
 export function flatten<T>(array: T[][]): T[] {
   return ([] as T[]).concat(...array);
 }

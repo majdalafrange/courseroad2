@@ -63,11 +63,9 @@ function accept() {
   dismissed.value = true;
   writeValue(STORAGE_KEYS.consent, "true");
   // Every save before this click was skipped by saveLocal's consent
-  // guard, so the roads on screen exist in memory only. Write them now,
-  // or the first session survives only if something edits a road after
-  // this point. Only the click path flushes: the stored-answer path above
-  // runs before restoreFromStorage has hydrated the roads, and a save
-  // there would overwrite the stored map with the empty default.
+  // guard, so write now. Only the click path flushes: the stored-answer
+  // path above runs before restoreFromStorage has hydrated the roads and
+  // would overwrite the stored map with the empty default.
   auth.saveLocal();
 }
 

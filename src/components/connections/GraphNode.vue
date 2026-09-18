@@ -99,9 +99,9 @@ const height = computed(() =>
 );
 
 /**
- * Department hue, plus the decorative entrance: a freshly revealed node
- * starts at the node that revealed it, settling into its final position
- * one beat after its stronger siblings. Never load-bearing.
+ * Department hue, plus the entrance: a freshly revealed node starts at
+ * the node that revealed it and settles one beat after its stronger
+ * siblings.
  */
 const nodeStyle = computed(() => {
   const style: Record<string, string> = { "--dept-color": props.node.color };
@@ -122,9 +122,8 @@ const expandTitle = computed(() => {
 });
 
 /**
- * Status renders as one quiet fact line. Warn ink marks offering doubt,
- * the one exception here; membership and readiness are the normal case
- * and stay neutral.
+ * Status renders as one fact line. Warn ink marks offering doubt;
+ * membership and readiness stay neutral.
  */
 const facts = computed<{ text: string; warn?: boolean }[]>(() => {
   const out: { text: string; warn?: boolean }[] = [];
@@ -166,9 +165,8 @@ const ariaLabel = computed(() => {
 
 /** Keyboard shortcuts mirror the side panel so the graph is operable. */
 function onKeydown(event: KeyboardEvent) {
-  // A modified chord (Cmd/Ctrl/Alt+<letter>) is the browser's or OS's,
-  // not this node's: without this, Cmd+A on a focused card opened the
-  // term-placement flow instead of "select all".
+  // A modified chord (Cmd/Ctrl/Alt+letter) belongs to the browser or OS:
+  // Cmd+A on a focused card must select all, not open placement.
   if (event.ctrlKey || event.metaKey || event.altKey) {
     return;
   }
@@ -210,9 +208,8 @@ function onKeydown(event: KeyboardEvent) {
   width: 100%;
   height: 100%;
   background: var(--g-surface);
-  /* the outline carries the department, so the card is identifiable as a
-     whole shape at any zoom. It rests mixed toward the hairline and takes
-     full chroma on interaction (the shared --dept-rest recipe). */
+  /* the outline carries the department; it rests mixed toward the
+     hairline and takes full chroma on interaction (--dept-rest recipe) */
   border: 1.5px solid
     color-mix(
       in srgb,
@@ -250,9 +247,8 @@ function onKeydown(event: KeyboardEvent) {
 .node.anchor {
   background: var(--g-accent-tint);
 }
-/* selection rings the card from outside, with a gap so the accent and the
-   department outline never blend into one muddy edge (the --g-focus-ring
-   construction). The department survives being selected. */
+/* selection rings the card from outside with a gap, so the accent and
+   the department outline never blend (the --g-focus-ring construction) */
 .node.focused {
   border-color: var(--dept-color, var(--g-line-strong));
   box-shadow:
@@ -342,9 +338,8 @@ function onKeydown(event: KeyboardEvent) {
   color: var(--g-accent);
 }
 
-/* Decorative entrance for freshly revealed nodes: settle in from the node
-   that revealed them, staggered strongest-first. Positions are final before
-   the animation starts; it is never load-bearing. */
+/* Entrance for freshly revealed nodes: settle in from the revealer,
+   staggered strongest first. Positions are final before it starts. */
 .node.added {
   animation: node-settle 340ms var(--ease-settle);
   animation-delay: var(--reveal-delay, 0ms);

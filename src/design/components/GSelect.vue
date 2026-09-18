@@ -47,10 +47,9 @@
 
 <script setup lang="ts" generic="T extends string | number">
 /**
- * A single-choice field: typeahead, roving highlight, and the popper
- * positioning are all Reka UI's Select, in place of a plain <select>
- * whose only styling hook browsers give is the outer box (the dropdown
- * panel itself renders however the OS wants).
+ * A single-choice field: typeahead, roving highlight, and popper
+ * positioning are Reka UI's Select; a plain <select>'s dropdown cannot
+ * be styled.
  */
 import { useId } from "vue";
 import {
@@ -162,10 +161,8 @@ const fieldId = `g-select-${useId()}`;
 }
 
 .g-select-content {
-  /* Above GSheet's z-index: 100, the highest a select nests inside
-     (CompareRoads' road pickers sit in one; the year picker sits in a
-     GPopover at 50). Below that, its own scrim swallowed every click on
-     an option. */
+  /* Above GSheet's z-index 100, the highest a select nests inside
+     (CompareRoads' road pickers). */
   z-index: 105;
   min-width: var(--reka-select-trigger-width);
   max-height: min(320px, var(--reka-select-content-available-height));

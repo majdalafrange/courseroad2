@@ -131,9 +131,8 @@ export default { name: "PrereqTree" };
 </script>
 
 <style scoped>
-/* The root group is a box with no rule of its own. Nested groups indent
-   off a single rule, stepped two levels: strong at depth 1, hairline
-   deeper, so a deep tree reads as structure rather than boxes in boxes. */
+/* The root group is a box with no rule; nested groups indent off a
+   single rule, strong at depth 1 and hairline deeper. */
 .prereq-group {
   display: flex;
   flex-direction: column;
@@ -170,9 +169,9 @@ export default { name: "PrereqTree" };
   flex-basis: 100%;
 }
 
-/* the shared course-chip anatomy (see tokens.css); unknown ids stay a
-   sunken neutral. A satisfied chip stays neutral too: the check icon is
-   the single mark, per the one-encoding rule. */
+/* the shared course-chip anatomy (see tokens.css); unknown ids stay
+   neutral. A satisfied chip stays neutral too: the check icon is the
+   single mark. */
 .prereq-chip {
   display: inline-flex;
   align-items: center;

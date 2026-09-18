@@ -1,19 +1,14 @@
 /**
  * Core types for Connections, CourseRoad's course-discovery graph. Built
- * entirely from the cached FireRoad catalog: nodes are real subjects,
- * edges are prerequisite relationships. Framework-free, derived from a
- * `CatalogView`: no Vue, no Pinia, no DOM.
+ * from the cached FireRoad catalog: nodes are real subjects, edges are
+ * prerequisite relationships.
  *
  * An edge is keyed by the *unordered* pair of its endpoints, so two
  * subjects share at most one edge no matter how many reasons relate
  * them; direction is a property of the edge, not a second parallel edge.
  */
 
-/**
- * Relationship category. Prerequisites are the only relationship the graph
- * draws; the type survives as a single member so an edge still declares
- * what it is at every render and ranking site.
- */
+/** Relationship category. Prerequisites are the only relationship drawn. */
 export type EdgeType = "prereq";
 
 /** One reason two subjects are connected, with its plain-language copy. */
@@ -46,9 +41,8 @@ export interface GraphEdge {
 }
 
 /**
- * A node in the live graph. Deliberately minimal: title, rating, status,
- * and color are resolved from the catalog/road/audit at render time so the
- * graph model stays catalog-independent and serializable.
+ * A node in the live graph. Title, rating, status, and color are resolved
+ * at render time so the model stays catalog-independent and serializable.
  */
 export interface GraphNode {
   id: string;
@@ -57,9 +51,8 @@ export interface GraphNode {
 }
 
 /**
- * The full mutable state of an exploration. All graph operations in
- * `graph.ts` take and return one of these (shallow-cloned), so every
- * transition is a pure function that's trivial to unit-test.
+ * The full state of an exploration. Graph operations in `graph.ts` take
+ * and return one of these (shallow-cloned).
  */
 export interface GraphState {
   nodes: Map<string, GraphNode>;

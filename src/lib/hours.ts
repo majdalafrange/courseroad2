@@ -1,9 +1,8 @@
 /**
- * Units and expected-hours math for a semester bucket. Ported exactly
- * from Semester.vue's `semesterInformation`: expected hours are in-class
- * + out-of-class, falling back to total units when unknown; half-term
- * (quartered) classes bucket into quarter 1/2, and the semester total is
- * the max of the two.
+ * Units and expected-hours math for a semester bucket: expected hours are
+ * in-class + out-of-class, falling back to total units when unknown;
+ * half-term (quartered) classes bucket into quarter 1/2, and the semester
+ * total is the max of the two.
  */
 
 import type { CatalogView, SelectedSubject, Subject } from "./types";

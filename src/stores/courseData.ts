@@ -1,11 +1,8 @@
 /**
- * Central app store (Pinia port of the legacy Vuex store). State shape
- * mirrors the Vuex original field-for-field: the whole state is
- * serialized to localStorage ("courseRoadStore") on unload, so existing
- * users' snapshots must keep working. The legacy deep `roads` watcher
- * (autosave + audit recompute on every nested change) is replaced by
- * explicit `notifyRoadChange` calls per mutating action: targeted and
- * debounced instead of cascade-triggered.
+ * Central app store. The state shape is serialized to localStorage
+ * ("courseRoadStore") on unload, so existing snapshots must keep loading.
+ * Mutating actions call `notifyRoadChange` explicitly (autosave and audit
+ * recompute) instead of relying on a deep watcher on `roads`.
  */
 
 import { defineStore } from "pinia";
@@ -63,14 +60,10 @@ export function onRoadChange(subscriber: RoadChangeSubscriber): void {
 }
 
 /**
- * When a locally-created road's temporary key (`$defaultroad$` or a client
- * id) is swapped for its server id, `resetID` records the mapping here.
- * History undo/redo closures capture the road key at record time, so after
- * a resetID they'd otherwise dereference a now-deleted key and silently
- * no-op while the undo stack still advances. The low-level `*Raw` mutators
- * resolve their road key through this alias so replayed history lands on
- * the live road. Kept at module scope (not in the serialized store state)
- * because it is session-only, like the undo stacks themselves.
+ * Temporary road key (`$defaultroad$` or a client id) → the server id
+ * `resetID` swapped in. History closures capture the key at record time;
+ * the `*Raw` mutators resolve through this so replayed history lands on
+ * the live road. Session-only, like the undo stacks.
  */
 const roadIdAlias = new Map<string, string>();
 
@@ -84,11 +77,9 @@ function followAlias(id: string): string {
 }
 
 const getDefaultState = () => {
-  // Scope the id-alias table to the store instance's lifetime. It runs once
-  // when the store's state is created (page load, or a fresh Pinia in tests)
-  // and never again mid-session ($patch/setFromLocalStorage don't re-run
-  // this factory), so live resetID mappings survive a session but never leak
-  // across store instances.
+  // Runs once per store instance (page load, or a fresh Pinia in tests) and
+  // never mid-session, so aliases last a session and never leak across
+  // instances.
   roadIdAlias.clear();
   return {
     versionNumber: APP_VERSION, // change when making backwards-incompatible changes
@@ -103,9 +94,7 @@ const getDefaultState = () => {
     genericIndex: {} as Record<string, number>,
     itemAdding: undefined as Subject | undefined,
     loggedIn: false,
-    // Guarded access: this factory runs at store construction, and a bare
-    // localStorage read here crashed the whole boot where storage throws
-    // (Safari private mode).
+    // Guarded read: storage can throw here (Safari private mode).
     hideIAP: readRawFlag(STORAGE_KEYS.hideIAP),
     roads: {
       [DEFAULT_ROAD_ID]: {
@@ -190,12 +179,9 @@ export const useCourseDataStore = defineStore("courseData", {
 
     /** Low-level class splice: mutate + notify, no history recording. */
     /**
-     * The current storage key for a (possibly stale) captured road key. If
-     * the key is still a live road, use it directly; only a key that
-     * resetID renamed away (and is now absent) follows the alias chain. This
-     * is what makes history closures survive a temp→server id swap WITHOUT
-     * misdirecting edits when a temp key like "$0$" is later reused for a
-     * brand-new road.
+     * The live storage key for a captured road key. A key that is still a
+     * live road is used as is; only a key resetID renamed away follows the
+     * alias chain, so a reused temp key like "$0$" is never misdirected.
      */
     liveRoadKey(id: string): string {
       return id in this.roads ? id : followAlias(id);
@@ -254,9 +240,7 @@ export const useCourseDataStore = defineStore("courseData", {
     addClass(newClass: SelectedSubject) {
       const roadID = this.activeRoad;
       if (!(roadID in this.roads)) {
-        // No active road (e.g. every road was just deleted and the /explore
-        // placement flow is still reachable): drop the add instead of
-        // dereferencing this.roads[""] and throwing.
+        // No active road (every road was just deleted): drop the add.
         return;
       }
       const semester = newClass.semester;
@@ -282,16 +266,12 @@ export const useCourseDataStore = defineStore("courseData", {
     addReq(event: string) {
       const roadID = this.activeRoad;
       if (!(roadID in this.roads)) {
-        // No active road (e.g. every road was just deleted and the palette
-        // or audit panel is still reachable): drop the add instead of
-        // dereferencing this.roads[""] and throwing.
+        // No active road (every road was just deleted): drop the add.
         return;
       }
       if (this.roads[roadID].contents.coursesOfStudy.includes(event)) {
-        // Already on the road: a stale "undo" toast for this same program
-        // (clicked after the program was independently re-added through
-        // the picker) would otherwise push a second copy, giving two
-        // program-section rows the same v-for key.
+        // Already on the road (a stale undo toast after the program was
+        // re-added): a second copy would duplicate a v-for key.
         return;
       }
       this.roads[roadID].contents.coursesOfStudy.push(event);
@@ -363,8 +343,7 @@ export const useCourseDataStore = defineStore("courseData", {
 
     deleteRoad(id: string) {
       delete this.roads[id];
-      // Legacy parity: deletion recomputed fulfillment but never saved
-      // the deletion itself (the server delete is a separate call).
+      // The server delete is a separate call, so no save here.
       this.notifyRoadChange({ fulfillment: "all", save: false });
     },
 
@@ -401,11 +380,9 @@ export const useCourseDataStore = defineStore("courseData", {
         this.customClassEditing = undefined;
         return;
       }
-      // Locate the class positionally (semester, index) rather than by the
-      // `editing` object reference: an intervening add/remove undo/redo
-      // reinserts a clone(), so the reference goes stale, but the position is
-      // valid at undo time because LIFO undoes every later action first. The
-      // edit never changes the semester, so the bucket is stable.
+      // Located by (semester, index), not object reference: undo/redo
+      // reinsert clones, so references go stale, while positions are valid
+      // at undo time because later actions are undone first.
       const semester = editing.semester;
       const classIndex =
         road.contents.selectedSubjects[semester].indexOf(editing);
@@ -512,11 +489,8 @@ export const useCourseDataStore = defineStore("courseData", {
     },
 
     /**
-     * Low-level warning-override toggle on a placed class, located by
-     * (semester, index), NOT object identity. add/remove undo/redo reinsert
-     * clone()s, so an identity lookup would miss the class after an
-     * intervening remove+undo; a positional lookup is valid because the LIFO
-     * history undoes every later action first, restoring the position.
+     * Low-level warning-override toggle, located by (semester, index)
+     * rather than object identity; see finishEditCustomClass.
      */
     setOverrideWarningsRaw(
       roadID: string,
@@ -581,11 +555,7 @@ export const useCourseDataStore = defineStore("courseData", {
       );
     },
 
-    /**
-     * Low-level progress-assertion write, resolving the live road key.
-     * `value === undefined` deletes the assertion. No history recording;
-     * callers wrap apply + inverse in a single history.record pair.
-     */
+    /** Low-level progress-assertion write; `undefined` deletes. No history recording. */
     setProgressAssertionRaw(
       roadID: string,
       uniqueKey: string,
@@ -653,8 +623,7 @@ export const useCourseDataStore = defineStore("courseData", {
         // Unignore but keep an existing substitution.
         next = { substitutions: prior.substitutions };
       } else {
-        // Unignore with nothing else to keep (or no assertion at all): drop
-        // it. This also covers the crash case where `prior` is undefined.
+        // Nothing else to keep: drop it.
         next = undefined;
       }
       this.setProgressAssertionRaw(roadID, uniqueKey, next);
@@ -724,16 +693,12 @@ export const useCourseDataStore = defineStore("courseData", {
       if (this.classInfoStack[this.activeClassIndex] === id) {
         return;
       }
-      // Browser-history semantics: navigating onward from a crumb you stepped
-      // back to drops the now-orphaned forward trail before appending, so the
-      // trail stays one clean path instead of accumulating dead ends.
+      // Browser-history semantics: navigating onward from an earlier crumb
+      // drops the forward trail.
       this.classInfoStack.splice(this.activeClassIndex + 1);
       this.classInfoStack.push(id);
       this.activeClassIndex = this.classInfoStack.length - 1;
-      // Hard-bound the trail so it can never grow without limit: the oldest
-      // crumbs fall off the front. This keeps memory/DOM constant even under a
-      // tight loop of navigations (it's client-only state, but an unbounded
-      // structure tied to the DOM shouldn't exist regardless).
+      // Bounded: the oldest crumbs fall off the front.
       const MAX_TRAIL = 6;
       if (this.classInfoStack.length > MAX_TRAIL) {
         const overflow = this.classInfoStack.length - MAX_TRAIL;
@@ -765,8 +730,7 @@ export const useCourseDataStore = defineStore("courseData", {
     removeReq(event: string) {
       const roadID = this.activeRoad;
       if (!(roadID in this.roads)) {
-        // No active road: drop the remove instead of dereferencing
-        // this.roads[""] and throwing.
+        // No active road: drop the remove.
         return;
       }
       const reqIndex =
@@ -793,9 +757,8 @@ export const useCourseDataStore = defineStore("courseData", {
         this.activeRoad = newid;
       }
       delete this.roads[oldid];
-      // Redirect history closures that captured the old key onto the new one
-      // (see roadIdAlias). Without this, undo/redo of edits made before the
-      // first server-save silently no-op while the undo stack still moves.
+      // History closures that captured the old key resolve to the new one
+      // (see roadIdAlias).
       roadIdAlias.set(oldid, newid);
       this.fulfillmentNeeded = "none";
       const migrationIndex = this.roadsToMigrate.indexOf(oldid);
@@ -831,8 +794,7 @@ export const useCourseDataStore = defineStore("courseData", {
     }) {
       const road = this.roads[this.liveRoadKey(id)];
       if (road === undefined) {
-        // The road was deleted (e.g. a placeholder removed) before an
-        // in-flight save resolved and called back here; don't throw.
+        // Deleted before an in-flight save resolved.
         return;
       }
       if (prop !== "contents") {
@@ -901,10 +863,7 @@ export const useCourseDataStore = defineStore("courseData", {
       this.currentSemester = Math.max(1, sem);
     },
 
-    /**
-     * Low-level manual-progress write, resolving the live road key.
-     * `value === undefined` clears the override. No history recording.
-     */
+    /** Low-level manual-progress write; `undefined` clears. No history recording. */
     setProgressOverrideRaw(
       roadID: string,
       listID: string,
@@ -949,16 +908,13 @@ export const useCourseDataStore = defineStore("courseData", {
     },
 
     setFromLocalStorage(localStore: Record<string, unknown>) {
-      // The blob is untrusted (hand-editable, shared origin storage). The
-      // sanitizer runs here, at the sink, so every caller is covered. The
-      // cast is the runtime-validated boundary: the sanitizer rebuilds the
-      // allowlisted fields onto fresh objects, which the static deep-partial
-      // type of $patch cannot express.
+      // The blob is untrusted (hand-editable); sanitized here at the sink.
+      // The cast is the validated boundary: $patch's deep-partial type
+      // cannot express the rebuilt fields.
       const clean = sanitizePersistedStore(localStore);
-      // The live catalog can already be applied (Colada's persisted cache
-      // lands before this restore). $patch replaces the arrays but merges
-      // the index maps, so a shorter snapshot catalog leaves index entries
-      // pointing past the end of the array; keep the live catalog instead.
+      // The live catalog may already be applied (Colada's cache restores
+      // first). $patch replaces arrays but merges the index maps, which
+      // would leave stale indices; keep the live catalog.
       if (this.subjectsLoaded) {
         delete clean.subjectsInfo;
         delete clean.subjectsIndex;
@@ -985,11 +941,7 @@ export const useCourseDataStore = defineStore("courseData", {
       this.panelSide = side;
     },
 
-    /* ---- catalog loading ----
-       The fetch itself (cache, retry, cross-reload persistence) is
-       loaders/courseData.ts's useSubjectsLoader, a Pinia Colada query.
-       This is left with just applying a fetched catalog to the rest of
-       the store's state. */
+    /* ---- catalog: fetched by loaders/courseData.ts, applied here ---- */
 
     applyCatalog(subjects: Subject[]) {
       this.subjectsLoaded = true;
@@ -1007,10 +959,7 @@ export const useCourseDataStore = defineStore("courseData", {
       if (this.subjectsLoaded) {
         this.migrateOldSubjects(roadID);
       } else {
-        // App.vue's useSubjectsLoader() call already has the catalog in
-        // flight by the time any road is retrieved; this just queues
-        // the migration to drain in applyCatalog once it lands. Nothing
-        // to migrate against if that load ends up failing, which is fine.
+        // Queued until applyCatalog drains it once the catalog lands.
         this.queueRoadMigration(roadID);
       }
     },
@@ -1049,12 +998,9 @@ export const useCourseDataStore = defineStore("courseData", {
   },
 });
 
-// Undo/redo focus: before a history entry replays, switch the app to the
-// road it edits, resolving the captured key through the alias table the
-// same way the raw mutators do. Registered here rather than in history.ts
-// because courseData imports history, so the hook is the only direction
-// the dependency can run. The store is resolved at call time; undo/redo
-// only ever run after Pinia is installed.
+// Before a history entry replays, switch to the road it edits (alias
+// resolved). Registered here because courseData imports history, not the
+// reverse.
 setHistoryRoadFocus((roadID) => {
   const store = useCourseDataStore();
   const live = store.liveRoadKey(roadID);

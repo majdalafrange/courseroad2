@@ -6,11 +6,9 @@ import { useAuthStore } from "../../../src/stores/auth";
 import { useCourseDataStore } from "../../../src/stores/courseData";
 
 /**
- * Logged-out deletion must reach localStorage (F2). deleteRoad spliced
- * the in-memory state and relied on "the server delete is a separate
- * call", which exists only when logged in. Logged out, the stored map
- * kept the road, so it came back on the next load unless some later
- * edit happened to rewrite the map.
+ * Logged-out deletion must reach localStorage: there is no server delete
+ * in that case, and a stored map that keeps the road brings it back on
+ * the next load.
  */
 describe("auth.deleteRoad while logged out", () => {
   beforeEach(() => {
@@ -38,7 +36,7 @@ describe("auth.deleteRoad while logged out", () => {
     return auth;
   }
 
-  it("removes the deleted road from the stored map (F2)", () => {
+  it("removes the deleted road from the stored map", () => {
     const auth = seedTwoRoads();
 
     auth.deleteRoad("$1$");

@@ -208,8 +208,8 @@ const anyResults = computed(
 );
 
 /**
- * What the scan actually established. Programs it could not measure are
- * counted out loud, so a partial answer never reads as a complete one.
+ * What the scan established. Programs it could not measure are counted,
+ * so a partial answer never reads as complete.
  */
 const summary = computed(() => {
   const ranked = fit.rankedCount;
@@ -333,8 +333,8 @@ function close() {
   max-width: 48ch;
 }
 
-/* Majors ⁄ Minors is a mode, so it uses the header's segmented-control
-   recipe rather than inventing a second tab look. */
+/* Majors/Minors is a mode, so it uses the header's segmented-control
+   recipe. */
 .fit-tabs {
   display: inline-flex;
   align-items: center;

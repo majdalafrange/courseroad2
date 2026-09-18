@@ -151,10 +151,8 @@ const emit = defineEmits<{
 const auditStore = useAuditStore();
 
 /* Expansion lives in the audit store so it survives the panel swapping
-   between audit and class detail. The store key for a program header is
-   the program key itself, suffixed for a what-if preview so a preview
-   and an already-committed section for the same program don't clobber
-   the same expansion entry. */
+   between audit and class detail. A what-if preview gets its own suffix
+   so it does not share the committed section's entry. */
 const storeKey = computed(
   () => props.programKey + (props.preview === true ? "/preview" : ""),
 );
@@ -164,7 +162,7 @@ const open = computed({
 });
 
 /* In ledger mode the header is a passive summary row; a click must not
-   silently rewrite the stored expansion state. */
+   rewrite the stored expansion state. */
 function toggleOpen() {
   if (props.collapsed) {
     return;
@@ -221,9 +219,8 @@ const percent = computed(() => {
   return Math.round(Number(value));
 });
 
-/* A program whose progress request failed (an unresolvable key, or
-   FireRoad unreachable) and that has no tree to show. A terminal state
-   with a retry, where it used to read "computing..." forever. */
+/* A program whose progress request failed and has no tree to show: a
+   terminal state with a retry. */
 const failed = computed(
   () =>
     !props.preview &&
@@ -248,9 +245,8 @@ const ringTone = computed(() => {
   return (percent.value ?? 0) > 15 ? "tone-mid" : "tone-low";
 });
 
-/* When a program crosses into "complete", let it land: a brief pulse on
-   the ring and a screen-reader announcement. A requirement completing
-   should feel like something. */
+/* When a program crosses into complete: a brief pulse on the ring and a
+   screen-reader announcement. */
 const celebrating = ref(false);
 watch(
   () => props.tree?.fulfilled,
@@ -472,9 +468,8 @@ watch(
   background: var(--g-danger-tint);
   color: var(--g-danger);
 }
-/* Touch: these carry no pointer-events guard, so hiding them left a live
-   hit target with nothing drawn in it, and removing a program sat under
-   it. Show what is already tappable. */
+/* Touch: hiding these left a live hit target with nothing drawn in it.
+   Show what is already tappable. */
 @media (hover: none) {
   .program-expandall,
   .program-remove {

@@ -1,10 +1,8 @@
 /**
  * Auth + cloud-sync store: MIT login via FireRoad OAuth, road
- * retrieval/saving with conflict detection, logged-out cookie-persistence.
- * Extracted from legacy Auth.vue; payload formats and cookie keys
- * unchanged. Departures: cookie-restored roads are now validated
- * (lib/persistedStore.ts), and only genuine auth failures log out;
- * transient network errors keep local data and skip cloud sync instead.
+ * retrieval/saving with conflict detection, and local persistence when
+ * logged out. Only genuine auth failures log out; transient network
+ * errors keep local data and skip cloud sync.
  */
 
 import { defineStore } from "pinia";
@@ -40,10 +38,8 @@ import { useCourseDataStore } from "./courseData";
 const SAVE_DEBOUNCE_MS = 600;
 
 /**
- * Road ids with a getRoad request in flight, keyed to that request's
- * promise. A background prefetch (see getUserData) and a manual switch to
- * the same road can now overlap; this lets the second caller share the
- * first's result instead of firing a redundant fetch.
+ * Road ids with a getRoad request in flight, keyed to its promise, so a
+ * background prefetch and a manual switch to the same road share one fetch.
  */
 const roadFetchesInFlight = new Map<
   string,
@@ -51,11 +47,9 @@ const roadFetchesInFlight = new Map<
 >();
 
 /**
- * Whether an error is evidence the login itself is gone (missing token,
- * or the server refusing it) rather than a transient network/server
- * failure. Only auth failures may wipe local state: logoutUser() clears
- * localStorage, so treating an offline moment as a bad token would cost
- * the user their local roads.
+ * Whether an error means the login itself is gone (missing token, 401,
+ * 403) rather than a transient failure. Only auth failures may wipe local
+ * state: logoutUser() clears localStorage.
  */
 function isAuthFailure(err: unknown): boolean {
   if (err instanceof NoAuthError) {
@@ -145,9 +139,8 @@ export const useAuthStore = defineStore("auth", {
         return existing;
       }
       const store = useCourseDataStore();
-      // Background prefetches skip gettingUserData: it drives the header's
-      // "Loading..." state, which shouldn't flash for work the user never
-      // asked for.
+      // Background prefetches skip gettingUserData, which drives the
+      // header's "Loading..." state.
       if (options.background !== true) {
         this.gettingUserData = true;
       }
@@ -159,9 +152,8 @@ export const useAuthStore = defineStore("auth", {
             roadData.data.success &&
             roadData.data.file
           )) {
-            // Server error, deleted road, or malformed payload: skip
-            // gracefully instead of dereferencing an absent `file`, and
-            // leave it in `unretrieved` so switching to it again retries.
+            // Server error, deleted road, or malformed payload: leave it
+            // in `unretrieved` so the next switch retries.
             return roadData;
           }
           roadData.data.file.downloaded = formatFireroadDate();
@@ -176,9 +168,8 @@ export const useAuthStore = defineStore("auth", {
           store.waitAndMigrateOldSubjects(roadID);
           return roadData;
         } catch (err) {
-          // A dropped request (flaky connection, a blocked/blocking
-          // extension, ...): leave the road in `unretrieved` so the next
-          // switch retries instead of the caller hanging on this forever.
+          // Dropped request: leave the road in `unretrieved` so the next
+          // switch retries.
           console.error(`Road retrieval failed for ${roadID}:`, err);
           return undefined;
         }
@@ -223,15 +214,11 @@ export const useAuthStore = defineStore("auth", {
           };
           store.setRoad({ id: fileKeys[i], road: blankRoad, ignoreSet: true });
         }
-        // Remove the anonymous pre-login placeholder, but ONLY if it is still
-        // the untouched default (no classes, default programs). Keyed on
-        // pristine CONTENT, not on `justLoaded` (which a store mutation
-        // earlier in this sync flips false via the onRoadChange subscriber
-        // before this runs; the bug that stranded $defaultroad$). A default
-        // road carrying real pre-login work is left alone: the saveRemote
-        // loop above migrates it to a server id (via resetID). Deleting it
-        // here would race that in-flight save, losing the work and crashing
-        // the save's resolve handler on a now-missing road.
+        // Remove the pre-login placeholder only if it is still the untouched
+        // default. Keyed on content, not `justLoaded`, which a mutation
+        // earlier in this sync already flipped. A default road carrying real
+        // work is migrated to a server id by the saveRemote loop above;
+        // deleting it here would race that save.
         const defaultRoad = store.roads[DEFAULT_ROAD_ID];
         const defaultIsPristine =
           defaultRoad !== undefined &&
@@ -286,9 +273,8 @@ export const useAuthStore = defineStore("auth", {
       const cloudNames = cloudRoads.map((cr) => cr?.name);
       for (const roadID in store.roads) {
         if (roadID in cloudFiles) {
-          // A road stored under a cloud id IS that cloud road; matching it
-          // against its own server name would renumber every restored road
-          // on boot and queue a save for each.
+          // A road stored under a cloud id is that cloud road; matching it
+          // against its own server name would renumber every road on boot.
           continue;
         }
         const localName = store.roads[roadID].name;
@@ -297,9 +283,8 @@ export const useAuthStore = defineStore("auth", {
             localName,
             cloudNames as string[],
           );
-          // Raw (non-recording) rename: this is a background sync operation,
-          // not a user edit: it must persist the name but must NOT push a
-          // "Renamed road" entry onto the user's undo stack.
+          // Raw rename: a background sync operation, not a user edit, so it
+          // must not land on the undo stack.
           store.setRoadNameRaw(roadID, renumberedName);
         }
       }
@@ -347,7 +332,7 @@ export const useAuthStore = defineStore("auth", {
       void routeRoadID;
     },
 
-    /** Debounced save entry point (replaces the deep-watcher autosave). */
+    /** Debounced save entry point. */
     queueSave(roadID: string) {
       if (this.pendingSaves[roadID] !== undefined) {
         clearTimeout(this.pendingSaves[roadID]);
@@ -368,12 +353,10 @@ export const useAuthStore = defineStore("auth", {
     },
 
     /**
-     * Run pending debounced saves now (tab close): the timers die with
-     * the page, so an edit inside the debounce window was lost. Local
-     * saves are synchronous localStorage writes and safe at unload.
-     * Remote saves keep their debounce: a network call at unload is cut
-     * off anyway, and interrupting it here would also skip the local
-     * fallback the debounced path never had.
+     * Run pending debounced saves now (tab close), since the timers die
+     * with the page. Local saves are synchronous and safe at unload; remote
+     * saves keep their debounce, as a network call at unload is cut off
+     * anyway.
      */
     flushPendingSaves() {
       if (this.loggedIn) {
@@ -393,9 +376,8 @@ export const useAuthStore = defineStore("auth", {
     saveRemote(roadID: string, override = false) {
       const store = useCourseDataStore();
       if (!(roadID in store.roads)) {
-        // The road was deleted/renamed away before this debounced save
-        // fired. Reset the flag we optimistically set in queueSave, or the
-        // header's "Saving..." indicator sticks on forever.
+        // The road was deleted or renamed away before this debounced save
+        // fired; reset the flag queueSave set, or "Saving..." sticks.
         this.currentlySaving = false;
         return;
       }
@@ -525,12 +507,9 @@ export const useAuthStore = defineStore("auth", {
 
     getNewRoadData(): Record<string, Road> {
       const store = useCourseDataStore();
-      // Derived from the roads that actually exist, not from the newRoads
-      // bookkeeping list: a replayed redo can put a road back in the store
-      // without re-registering it, and any such drift used to mean the
-      // persisted map described fewer roads than the switcher showed, so a
-      // reload lost them. The untouched default road stays unpersisted,
-      // matching the restore path, which ignores an empty map.
+      // Derived from the roads that exist, not the newRoads list: a replayed
+      // redo can put a road back without re-registering it. The untouched
+      // default road stays unpersisted, matching the restore path.
       const newRoadData: Record<string, Road> = {};
       for (const roadID of Object.keys(store.roads)) {
         if (!roadID.includes("$")) {
@@ -616,19 +595,16 @@ export const useAuthStore = defineStore("auth", {
       }
       if (this.loggedIn) {
         if (roadID.indexOf("$") < 0) {
-          // The road is already gone locally (optimistic delete, with an
-          // undo affordance upstream); a failed server delete just means
-          // it could reappear on the next sync, which isn't worth
-          // blocking or alarming the user over.
+          // The road is already gone locally (optimistic delete with undo);
+          // a failed server delete only means it may reappear on the next
+          // sync.
           fireroad.deleteRoad(roadID).catch((err: unknown) => {
             console.warn(`Server delete failed for road ${roadID}:`, err);
           });
         }
       } else {
-        // The server delete above is the logged-in path's persistence.
-        // Logged out there is no separate call, and courseData.deleteRoad
-        // notifies with save:false, so without this write the stored map
-        // keeps the road and a reload brings it back.
+        // Logged out there is no server call, and courseData.deleteRoad
+        // notifies with save:false, so persist here.
         this.saveLocal();
       }
     },
@@ -654,14 +630,11 @@ export const useAuthStore = defineStore("auth", {
         })
         .catch((err) => {
           if ((err as Error).message === "No auth information") {
-            // Logged out: the server holds nothing, so the local copy is
-            // the only one. It persists like hideIAP and the theme do.
+            // Logged out: the local copy is the only one.
             store.setCurrentSemester(sem);
             persistCurrentSemester(sem);
           } else {
-            // Logged in but the request itself failed (offline, a 500):
-            // without this, the picker looked like it silently ignored
-            // the click.
+            // Logged in but the request failed (offline, a 500).
             console.error("Semester change failed:", err);
             toast.danger(
               "Couldn't change your semester",
@@ -672,10 +645,9 @@ export const useAuthStore = defineStore("auth", {
     },
 
     /**
-     * Restore locally-persisted state on startup (newRoads + accessInfo).
-     * Both come from origin-isolated storage, so no other host can plant
-     * them; the road map is still validated, since the blob is editable by
-     * hand and carries data from older versions.
+     * Restore locally persisted state on startup (newRoads + accessInfo).
+     * The road map is validated: the blob is hand-editable and may come
+     * from older versions.
      */
     restoreFromStorage(routeRoadID?: string) {
       const store = useCourseDataStore();
@@ -700,8 +672,7 @@ export const useAuthStore = defineStore("auth", {
           // arrived while the store still held only the empty default.
           useAuditStore().flushPendingFulfillment();
         }
-        // A stored road the sanitizer had to drop is user data lost on
-        // this path; say so instead of passing it off as a fresh start.
+        // A stored road the sanitizer dropped is lost user data; say so.
         const storedCount =
           typeof stored === "object" && stored !== null
             ? Object.keys(stored).length
@@ -722,8 +693,7 @@ export const useAuthStore = defineStore("auth", {
         store.allowCookies();
       } else if (hasRawValue(STORAGE_KEYS.newRoads)) {
         // Bytes exist but the entry is unreadable (truncated storage or a
-        // hand edit). Recovering to a fresh road is right; doing it in
-        // silence is not.
+        // hand edit).
         toast.warn(
           "Saved roads couldn't be read",
           "The stored copy was unreadable. Starting with an empty road.",
@@ -740,8 +710,7 @@ export const useAuthStore = defineStore("auth", {
           .then(() => this.getUserData(routeRoadID))
           .catch((err) => {
             // Offline or FireRoad down: stay logged in locally and skip
-            // cloud sync for this session. (Auth failures already logged
-            // out and reloaded inside verify.)
+            // cloud sync. Auth failures already logged out inside verify.
             console.warn("Login verification failed; skipping sync:", err);
           });
       }

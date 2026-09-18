@@ -203,12 +203,10 @@ const termDeltas = computed(() =>
     : [],
 );
 /**
- * Rows for the chart: every term the plans span, first occupied through
- * last, not only the terms carrying hours. Empty terms are drawn at 0h,
- * which is what the canvas does with its empty IAP columns. Dropping them
- * left holes in the timeline (a Sophomore Fall between two occupied
- * terms would vanish) and left Hide IAP with nothing to act on whenever
- * a plan had no January classes.
+ * Rows for the chart: every term from the first occupied through the
+ * last, empty terms drawn at 0h (as the canvas does with empty IAP
+ * columns). Dropping them left holes in the timeline and left Hide IAP
+ * with nothing to act on.
  */
 const chartDeltas = computed(() => {
   const occupied = termDeltas.value.filter((d) => d.hoursA > 0 || d.hoursB > 0);
@@ -351,9 +349,8 @@ function titleFor(key: string): string {
   color: var(--g-ink-3);
   margin-bottom: var(--space-1);
 }
-/* Solid department color, not a rail beside it (see tokens.css → course
-   chips): a class names its own department, so the add-a/add-b side is
-   carried by a ring instead of competing with that fill. */
+/* Solid department color (see tokens.css, course chips); the add-a/add-b
+   side is carried by a ring. */
 .diff-chip {
   font: var(--text-id-small);
   border-radius: var(--radius-xs);

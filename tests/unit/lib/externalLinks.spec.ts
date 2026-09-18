@@ -3,7 +3,7 @@ import { join } from "path";
 import { describe, expect, it } from "vitest";
 
 /**
- * Every external link leaves over https (F4). A plain http link from an
+ * Every external link leaves over https. A plain http link from an
  * https page hands the click to the network unprotected, and both hosts
  * this caught (catalog.mit.edu, student.mit.edu) serve https. XML
  * namespace identifiers are not links and stay http by specification.

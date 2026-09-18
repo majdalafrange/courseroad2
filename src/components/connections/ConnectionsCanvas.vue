@@ -70,7 +70,7 @@
       </g>
     </svg>
 
-    <!-- "why are these connected?": every reason, right where you're looking -->
+    <!-- edge hover card: every reason for the connection -->
     <div
       v-if="edgeCard"
       class="edge-card"
@@ -164,8 +164,7 @@ const MAX_ZOOM = 2;
    ("Unscheduled") so "fit everything" doesn't clip its own labels. */
 const LABEL_MARGIN = 140;
 const FIT_LEFT_MARGIN = 240;
-/* A fixed length, like a printed rule that doesn't shrink to fit what's
-   written on it; comfortably past the typical row's card count. */
+/* A fixed length, comfortably past the typical row's card count. */
 const RAIL_LENGTH = 2600;
 
 /* CSS transform (not the SVG attribute) so programmatic camera moves can
@@ -525,10 +524,8 @@ function frameNodes(ids?: string[], floor?: number): boolean {
   let x = size.width / 2 - ((size.width / 2 - v.x) / v.zoom) * zoom;
   let y = size.height / 2 - ((size.height / 2 - v.y) / v.zoom) * zoom;
   // ...then pan the minimum that brings the bounds inside the padding.
-  // This bounds box is built from card positions alone, so it doesn't
-  // know a row's label sits further left; reserving FIT_LEFT_MARGIN here
-  // (pan only, zoom is already fixed above) keeps a freshly-expanded
-  // row's label from landing behind the side panel.
+  // The bounds come from card positions alone, so reserve FIT_LEFT_MARGIN
+  // for the row label.
   const labelRoom = store.showRowLabels ? FIT_LEFT_MARGIN : 0;
   const sMinX = (minX - labelRoom) * zoom + x;
   const sMaxX = maxX * zoom + x;
@@ -587,7 +584,7 @@ watch(
 );
 
 // Settings' panel-side choice resizes the canvas; the existing pan/zoom
-// was framed for the old area and reads as off-center until reframed.
+// reads as off-center until reframed.
 watch(
   () => courseData.panelSide,
   () => store.requestFrame(),
@@ -673,9 +670,9 @@ function anyNodeVisible(): boolean {
 
 onMounted(async () => {
   document.addEventListener("keydown", onDocKeydown);
-  // After the mount flush the svg measures synchronously, so no
-  // requestAnimationFrame: rAF never fires in a hidden tab, which would
-  // leave a pre-mount frame request stranded until the next interaction.
+  // The svg measures synchronously after the mount flush. No rAF: it
+  // never fires in a hidden tab and would strand a pre-mount frame
+  // request.
   await nextTick();
   // consume a frame request fired before mount (a fresh seed); a preserved
   // camera stays put unless it opens on nothing, which falls back to a fit
@@ -725,9 +722,7 @@ onBeforeUnmount(() => {
 }
 
 /* A ledger line behind each row's cards: solid for a real term, dashed
-   for Unscheduled (no real term to point to), the same distinction
-   TermCell draws with a dashed border for Prior Credit. Drawn first, so
-   it sits under the edges and cards. */
+   for Unscheduled. Drawn first so it sits under edges and cards. */
 .row-rail {
   stroke: var(--g-line);
   stroke-width: 1.5;
@@ -736,19 +731,16 @@ onBeforeUnmount(() => {
 .row-rail.is-unscheduled {
   stroke-dasharray: 8 6;
 }
-/* The current term: same cardinal cue TermCell's own current-term box
-   uses on the plan grid, so the two views share one "you are here".
-   Mixed toward the line color, not full-strength --g-brand, since that
-   equals the active-prereq-edge color in light mode and would read as
-   just another edge. */
+/* The current term: the same cardinal cue as TermCell's current-term
+   box. Mixed toward the line color, since full --g-brand equals the
+   active-prereq-edge color in light mode. */
 .row-rail.is-current {
   stroke: color-mix(in srgb, var(--g-brand) 55%, var(--g-line-strong));
   stroke-width: 2;
 }
 
-/* A term label reads as a coordinate, the same register TermCell's own
-   season labels use, so it's mono rather than caps. "Prior credit" and
-   "Unscheduled" are row names, not column headers, so they stay sans. */
+/* Term labels are mono like TermCell's season labels; "Prior credit" and
+   "Unscheduled" are row names and stay sans. */
 .row-label {
   font: var(--text-id-small);
   fill: var(--g-ink-3);
@@ -823,8 +815,8 @@ onBeforeUnmount(() => {
   font-weight: 600;
   color: var(--g-ink);
 }
-/* a crossing is information, not a caution; warn stays reserved for
-   not-offered staleness */
+/* a crossing is information, not a caution; warn is reserved for
+   not-offered */
 .edge-card-crossing {
   font: var(--text-micro);
   color: var(--g-info);

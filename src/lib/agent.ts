@@ -2,7 +2,7 @@
  * Per-tab agent identity for FireRoad conflict detection: each browser
  * tab gets a numeric id (sessionStorage plus a shared "tabs" entry in
  * origin-isolated storage), and saves are stamped
- * "<platform> <browser> Tab <id>". Ported from Auth.vue.
+ * "<platform> <browser> Tab <id>".
  */
 
 import { UAParser } from "ua-parser-js";
@@ -29,10 +29,8 @@ export function randomTabID(): string {
 }
 
 /**
- * The sessionStorage global itself throws where storage is blocked
- * entirely (Safari's block-all setting), the same failure appStorage
- * guards for localStorage. An unreadable id means this tab holds none;
- * an unwritable one lives for this page view only.
+ * sessionStorage itself throws where storage is blocked (Safari's
+ * block-all setting). An unreadable id means this tab holds none.
  */
 function readSessionTabID(): string | undefined {
   try {

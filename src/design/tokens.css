@@ -1,23 +1,19 @@
 /**
- * CourseRoad design tokens. The reference point is a drafting table, not
- * a dashboard: MIT students plan in coordinates (subject ids, term
- * columns, the requirement tree), so the surface is cool drafting paper
- * rather than warm institute off-white, and cardinal is used the way a
- * grader's pen is, sparingly, for the one mark that matters (the current
- * term's flag, the primary action) rather than as brand wallpaper.
+ * CourseRoad design tokens.
  *
- * TYPE, two voices, self-hosted: IBM Plex Sans Variable (display/headings
- * /wordmark AND UI/body, matching Hydrant, MIT's other SIPB planning
- * tool) and IBM Plex Mono (subject ids/numbers, tabular so "6.006" scans
- * like a coordinate; also shared with Hydrant).
+ * Surfaces are cool drafting paper rather than warm off-white; cardinal
+ * is used sparingly, for the one mark that matters (the current term's
+ * flag, the primary action), never as wallpaper.
  *
- * Light/dark are the same drafting table under two lights, not one
- * inverted into the other: light is paper, garnet-led; dark is blueprint,
- * blue-black rather than neutral charcoal, where MIT silver carries every
- * interactive state and cardinal red (--g-brand) is reserved for identity
- * (the wordmark), so red never reads as an alert on the page.
- * Department colors live in departmentColors.css (generated; fixed OKLCH
- * bands guarantee contrast).
+ * TYPE, self-hosted: IBM Plex Sans Variable for display and body
+ * (matching Hydrant, MIT's other SIPB planning tool) and IBM Plex Mono
+ * for subject ids and numbers (tabular).
+ *
+ * Light is paper, garnet-led; dark is blueprint, blue-black rather than
+ * neutral charcoal, where MIT silver carries every interactive state and
+ * cardinal (--g-brand) is reserved for identity, so red never reads as
+ * an alert. Department colors live in departmentColors.css (generated;
+ * fixed OKLCH bands guarantee contrast).
  *
  * INTERACTION-STATE STANDARD (every component complies; transitions always
  * list explicit properties, never `transition: all`):
@@ -52,8 +48,8 @@
  *     opacity 0 + pointer-events none → opacity 1 over var(--motion-quick),
  *     with the box reserved so rows never reflow. Never display: none.
  *
- *   Course chips and cards (a subject's own color, not a rail beside it —
- *     legacy CourseRoad's own convention): background = var(--dept-color);
+ *   Course chips and cards (a subject's own color, not a rail beside it):
+ *     background = var(--dept-color);
  *     text = var(--dept-on), or --dept-on-2/-on-3 for lower emphasis (a
  *     title under an id). Those are fixed opaque greys, not --dept-on
  *     faded toward transparent, which fades toward the fill's own hue and
@@ -72,9 +68,8 @@
  *     (a season, a subject id) reads as --text-id-small mono, everything
  *     else as --text-small/--text-micro sans.
  *
- * STACKING SCALE (not CSS vars — z-index doesn't inherit, so each site
- * still writes its own literal; new overlays should slot into this order
- * and say so in a comment, the way GSelect.vue does):
+ * STACKING SCALE (not CSS vars: z-index doesn't inherit, so each site
+ * writes its own literal; new overlays should slot into this order):
  *   50  GPopover, MobileNav (the nav bar is fine sharing this level: any
  *       popover it triggers teleports to the end of <body>, so it still
  *       paints on top by document order)
@@ -196,17 +191,14 @@
   --g-line: #dde2e5; /* hairlines */
   --g-line-strong: #c3c9ce;
 
-  /* Plan canvas material: numerals/operators as a substance (after the
-     Alchemist character-lattice on the Stratton lawn). Drawn by
-     CanvasGlyphs.vue as an SVG pattern, not a gradient, since the glyphs
-     need the page's own Plex Mono. Hairline weight only. Connections graph uses --canvas-lattice instead (its
-     content pans/zooms). */
+  /* Plan canvas material (after the Alchemist character lattice on the
+     Stratton lawn), drawn by CanvasGlyphs.vue as an SVG pattern. Hairline
+     weight only. The Connections graph uses --canvas-lattice. */
   --canvas-glyph: #e0e0e4;
 
-  /* Graph canvas material: a dot lattice, sized/offset from the viewport
-     so it pans and zooms with the graph. Dots, not contours/lines: the
-     graph's own edges run straight at every angle, and a background
-     stroke near one would read as a phantom edge. Dot sits at the tile
+  /* Graph canvas material: a dot lattice sized/offset from the viewport so
+     it pans and zooms with the graph. Dots, not lines: a background stroke
+     near an edge would read as a phantom edge. The dot sits at the tile
      origin, so halving the tile drops alternate dots instead of sliding
      the field. */
   --canvas-lattice: radial-gradient(
@@ -215,9 +207,8 @@
     transparent 1.6px
   );
 
-  /* cardinal: MIT's own red (#A31F34, the Institute's brand cardinal),
-     not a near-miss: the accent is literally the school color. Deep enough
-     to hold white text (7.5:1), never used to mean status. */
+  /* cardinal: MIT's brand red (#A31F34). Holds white text at 7.5:1; never
+     used to mean status. */
   --g-accent: #a31f34;
   --g-accent-hover: #8b1a2c;
   --g-accent-active: #731523;
@@ -286,10 +277,8 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  /* Paper by day, blueprint by night: the same drafting table, lit
-     differently. Blue-black rather than neutral charcoal, so dark mode
-     reads as the instrument's own negative image, not a generic "invert
-     the greys" theme swap. */
+  /* Blueprint: blue-black rather than neutral charcoal, so dark mode is
+     not a generic grey inversion. */
   --g-bg: #10141b;
   --g-surface: #171b23;
   --g-surface-2: #1e232c;
@@ -318,9 +307,9 @@
   --g-accent-tint-strong: rgba(166, 178, 187, 0.24);
   --g-on-accent: #10141a;
 
-  /* primary-action fill: the same silver two steps lighter, so the one CTA
-     is unmistakably lit (12.4:1 with --g-on-accent) instead of a mid-gray
-     slab that pattern-matches "disabled" */
+  /* primary-action fill: the silver two steps lighter, so the one CTA is
+     lit (12.4:1 with --g-on-accent) rather than a mid-gray slab reading as
+     disabled */
   --g-accent-fill: #cdd5db;
   --g-accent-fill-hover: #dde3e8;
   --g-accent-fill-active: #bfc9d0;

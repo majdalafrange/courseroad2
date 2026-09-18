@@ -79,8 +79,8 @@ const seedLabel = computed(() => {
   background: var(--g-surface);
   flex-wrap: wrap;
 }
-/* The surface is already named by the mode switch in the header, so the
-   left slot states only what the graph was seeded from. */
+/* The mode switch in the header already names the surface; the left slot
+   states what the graph was seeded from. */
 .seed-label {
   font: var(--text-small);
   color: var(--g-ink-3);
@@ -99,8 +99,7 @@ const seedLabel = computed(() => {
   font: var(--text-small);
   color: var(--g-ink-2);
   background: transparent;
-  /* outlined at rest: these are toggles, and a legend that only looks like a
-     control on hover reads as a caption until someone clicks it */
+  /* outlined at rest: these are toggles and should read as controls */
   border: 1px solid var(--g-line-strong);
   border-radius: var(--radius-full);
   padding: var(--space-05) var(--space-2);
@@ -120,8 +119,8 @@ const seedLabel = computed(() => {
   outline: none;
   box-shadow: var(--g-focus-ring);
 }
-/* switched off: recede the chip, but keep the outline so it still reads as
-   something you can press again */
+/* switched off: recede the chip, keep the outline so it still reads as
+   pressable */
 .legend-item.off {
   color: var(--g-ink-3);
   border-color: var(--g-line);

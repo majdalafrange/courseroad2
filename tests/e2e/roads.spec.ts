@@ -40,7 +40,7 @@ test("create, rename, and delete a road through the switcher", async ({
   await cy(page, "deleteRoadButton").last().click({ force: true });
   await expect(cy(page, "roadSwitcher")).not.toContainText("Thesis plan");
 
-  // With no further edits, a reload used to bring the road back (F2).
+  // With no further edits, a reload must not bring the road back.
   await page.reload();
   await openSwitcher(page);
   await expect(cy(page, "roadSwitcher")).toContainText("My First Road");
@@ -122,8 +122,8 @@ test("import via paste round-trips into a new road", async ({ page }) => {
 });
 
 test("pasting a road imports it without naming it first", async ({ page }) => {
-  // The reported dead end: the paste path filled in no name, so the
-  // primary action stayed disabled with nothing on screen saying why.
+  // The paste path must not leave the primary action disabled with
+  // nothing on screen saying why.
   const file = JSON.stringify({
     coursesOfStudy: ["girs"],
     selectedSubjects: [{ subject_id: "8.01", semester: 1 }],

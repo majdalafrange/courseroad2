@@ -1,16 +1,9 @@
 /**
- * Origin-isolated app storage: localStorage only, never cookies. Security
- * boundary, not preference: a cookie set with `Domain=.mit.edu` from any
- * MIT subdomain reaches courseroad.mit.edu and was attacker-writable:
- * planting `accessInfo` substituted the user's FireRoad token (roads
- * would sync into someone else's account); planting `versionNumber`
- * triggered the version-change branch that clears localStorage.
- * localStorage is origin-keyed, so no other host can touch it.
- *
- * Nothing here reaches a server: the FireRoad token travels in an
- * `Authorization: Bearer` header (lib/fireroad.ts). localStorage has no
- * expiry, so entries carry their own: a ttl'd value reads as absent once
- * past it, and is dropped on read.
+ * Origin-isolated app storage: localStorage only, never cookies. A cookie
+ * set with `Domain=.mit.edu` from any MIT subdomain reaches this origin,
+ * so cookie-held state (the FireRoad token, the schema version that
+ * triggers a reset) was attacker-writable. localStorage is origin-keyed.
+ * Entries carry their own expiry, enforced on read.
  */
 
 /** Every key this app owns. Used to clear storage on opt-out and logout. */
@@ -27,10 +20,7 @@ export const STORAGE_KEYS = {
   consent: "dismissedCookies",
   /** Per-tab agent ids for FireRoad conflict detection. */
   tabs: "tabs",
-  /**
-   * Scratch key for claimTabID's (agent.ts) retry-on-collision check:
-   * which tab most recently claimed a given number.
-   */
+  /** Scratch key for claimTabID's retry-on-collision check (agent.ts). */
   tabClaim: "tabClaimToken",
   /** Schema version; a mismatch resets local state. */
   versionNumber: "versionNumber",
@@ -63,9 +53,8 @@ function isEntry(value: unknown): value is Entry {
 }
 
 /**
- * Read a stored value. Returns undefined when absent, unparseable, or
- * expired. Storage access itself can throw (Safari private mode, disabled
- * storage), so every path is guarded.
+ * Read a stored value; undefined when absent, unparseable, or expired.
+ * Storage access itself can throw, so every path is guarded.
  */
 export function readValue<T>(key: StorageKey): T | undefined {
   let raw: string | null;
@@ -107,8 +96,7 @@ export function writeValue(
   try {
     localStorage.setItem(key, JSON.stringify(entry));
   } catch {
-    // Quota exceeded or storage unavailable. The road still lives in the
-    // cloud for logged-in users; logged-out state is best-effort.
+    // Quota exceeded or storage unavailable.
   }
 }
 
@@ -123,16 +111,14 @@ export function removeValue(key: StorageKey): void {
 /**
  * Read a raw-string boolean flag. hideIAP and showFifthYear predate the
  * Entry envelope and existing browsers hold them as bare "true"/"false"
- * strings, so these two keys keep that byte format forever. Never route
- * them through readValue: the envelope check would read them as absent
- * and silently reset the preference.
+ * strings, so these keys keep that byte format. Never route them through
+ * readValue.
  */
 export function readRawFlag(key: StorageKey): boolean {
   try {
     return localStorage.getItem(key) === "true";
   } catch {
-    // Storage access itself can throw (Safari private mode, disabled
-    // storage); an unreadable flag is simply off.
+    // Storage access can throw; an unreadable flag is off.
     return false;
   }
 }
@@ -152,10 +138,8 @@ export function hasValue(key: StorageKey): boolean {
 }
 
 /**
- * Whether ANY bytes exist for `key`, readable or not. readValue treats a
- * truncated or hand-edited entry as absent; restore paths use this to
- * tell "nothing was saved" from "something was saved and is unreadable",
- * so data loss can be reported instead of passing as a fresh start.
+ * Whether any bytes exist for `key`, readable or not. Restore paths use
+ * this to tell "nothing saved" from "saved but unreadable".
  */
 export function hasRawValue(key: StorageKey): boolean {
   try {
@@ -166,11 +150,9 @@ export function hasRawValue(key: StorageKey): boolean {
 }
 
 /**
- * Keys that survive every clear, including an explicit opt-out. The
- * migration marker must never be cleared: re-running the legacy import
- * would re-read cookies, and a domain-scoped cookie this origin cannot
- * delete would be pulled back in. Consent is the user's standing answer,
- * not session data, so a logout keeps it rather than re-asking.
+ * Keys that survive every clear, including opt-out. The migration marker
+ * must never be cleared: re-running the import would re-read a domain
+ * cookie this origin cannot delete. Consent is the user's standing answer.
  */
 const DURABLE_KEYS: readonly StorageKey[] = [
   STORAGE_KEYS.migrated,
@@ -179,10 +161,8 @@ const DURABLE_KEYS: readonly StorageKey[] = [
 
 /**
  * Drop the app's user data (opt-out, logout, version reset). Unsynced
- * `newRoads` created while logged out are the student's own work, so a
- * mere logout or version reset must not destroy them (see
- * legacyStorage.ts). Only an explicit opt-out does, via
- * `alsoWipeUnsyncedRoads`.
+ * `newRoads` are the student's own work, so only an explicit opt-out
+ * (`alsoWipeUnsyncedRoads`) removes them.
  */
 export function clearAppStorage(options?: {
   alsoWipeUnsyncedRoads?: boolean;
@@ -205,8 +185,7 @@ export function clearAppStorage(options?: {
 export const ACCESS_INFO_TTL_MS = 3 * 24 * 60 * 60 * 1000;
 
 /**
- * Local-state schema version. A stored value that differs from this resets
- * local state, so it is a destructive trigger: it is written only by this
- * app, never carried over from an untrusted source.
+ * Local-state schema version. A mismatch resets local state, so it is
+ * written only by this app, never from an untrusted source.
  */
 export const APP_VERSION = "1.0.0";

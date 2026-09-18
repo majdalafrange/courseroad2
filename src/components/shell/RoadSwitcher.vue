@@ -218,8 +218,8 @@ function commitRename() {
   renamingId.value = null;
   const road = store.roads[roadId];
   if (road === undefined) {
-    // Deleted out from under the still-focused rename input (e.g. from
-    // another open menu) before its blur fired.
+    // Deleted out from under the still-focused rename input before its
+    // blur fired.
     return;
   }
   const newName = renameValue.value.trim();
@@ -400,9 +400,8 @@ function cancelRename() {
 .switch-road:focus-within .road-count {
   opacity: 0;
 }
-/* Touch: no hover state exists to reveal the actions and a tap produces
-   no :focus-visible, so the buttons stay visible and the count yields
-   its slot. A tap where the icons sit acts on the icon, not the row. */
+/* Touch: no hover state and a tap produces no :focus-visible, so the
+   buttons stay visible and the count yields its slot. */
 @media (hover: none) {
   .road-actions {
     opacity: 1;

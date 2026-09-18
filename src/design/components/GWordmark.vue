@@ -46,8 +46,7 @@ const markSize = computed(() => ({ sm: 18, md: 22, lg: 30 })[props.size]);
   fill: var(--g-mark);
 }
 .mark-road {
-  /* paper, not --g-surface: the tile never inverts, so the mark reads the
-     same way on either theme's brand tile */
+  /* paper, not --g-surface: the tile never inverts */
   fill: #fff;
   stroke: var(--g-mark);
   stroke-width: 2.5;
@@ -69,9 +68,8 @@ const markSize = computed(() => ({ sm: 18, md: 22, lg: 30 })[props.size]);
   color: var(--g-ink);
   letter-spacing: -0.015em;
 }
-/* Echoes Hydrant's own two-tone wordmark ("hydr" + "ant"): --g-brand, not
-   --g-accent, since accent goes neutral-silver in dark mode and this half
-   is meant to stay the road's own red in both themes. */
+/* Echoes Hydrant's two-tone wordmark: --g-brand, not --g-accent, since
+   accent goes silver in dark mode. */
 .name-road {
   color: var(--g-brand);
 }

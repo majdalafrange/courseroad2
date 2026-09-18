@@ -49,8 +49,7 @@ describe("auth.getUserData: $defaultroad$ deletion (C2 / R3)", () => {
       status: 200,
       data: { success: true, files: { "100": { name: "Cloud road" } } },
     });
-    // A save that is still in flight (never resolves during the test); the
-    // exact condition under which the old unconditional delete crashed.
+    // A save that is still in flight (never resolves during the test).
     mocks.syncRoad.mockReturnValue(new Promise(() => {}));
     mocks.getRoad.mockResolvedValue({
       status: 200,

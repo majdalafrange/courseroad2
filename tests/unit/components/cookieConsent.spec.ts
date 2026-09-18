@@ -9,11 +9,9 @@ import { useAuthStore } from "../../../src/stores/auth";
 import { useCourseDataStore } from "../../../src/stores/courseData";
 
 /**
- * The consent flush (F1). Every road save before the banner is answered
- * is skipped by saveLocal's consent guard, and accepting used to write
- * only the consent marker. The whole first session (the onboarding
- * starting plan included) lived in memory only, and a reload after
- * clicking OK lost it.
+ * The consent flush. Every road save before the banner is answered is
+ * skipped by saveLocal's consent guard, so accepting must write the roads
+ * on screen, not only the consent marker.
  */
 describe("CookieConsent accept", () => {
   beforeEach(() => {
@@ -25,7 +23,7 @@ describe("CookieConsent accept", () => {
     return JSON.stringify({ v, e: 0 });
   }
 
-  it("writes the roads held in memory when consent is granted (F1)", async () => {
+  it("writes the roads held in memory when consent is granted", async () => {
     const store = useCourseDataStore();
     useAuthStore();
     store.setRoad({ id: "$0$", road: newRoad("Pre-consent"), ignoreSet: true });

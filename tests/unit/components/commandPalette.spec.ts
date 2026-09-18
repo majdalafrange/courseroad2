@@ -5,11 +5,9 @@ import { createPinia, setActivePinia } from "pinia";
 import CommandPalette from "../../../src/components/palette/CommandPalette.vue";
 
 /**
- * The palette's Escape contract. Escape used to be handled on the search
- * input alone, so a palette whose focus had moved off the input (clicking
- * a result row does that) stopped answering the key. It is handled at the
- * document now, and marked consumed so the window listeners in ClassDetail
- * and RoadCanvas skip the same keypress.
+ * The palette's Escape contract: handled at the document (focus can move
+ * off the input by clicking a result row) and marked consumed so the
+ * window listeners in ClassDetail and RoadCanvas skip the same keypress.
  */
 
 let wrapper: VueWrapper | undefined;
@@ -95,9 +93,8 @@ describe("CommandPalette Escape", () => {
 
 describe("CommandPalette filter-grammar hint", () => {
   it("shows the hint on an empty query and hides it once typing starts", async () => {
-    // The old placement inside the empty state was unreachable: an empty
-    // query always renders the base actions, so the empty state never
-    // appeared and the grammar was documented nowhere.
+    // An empty query always renders the base actions, so the empty state
+    // never appears; the grammar has to be documented elsewhere.
     wrapper = mount(CommandPalette, {
       props: { modelValue: true },
       attachTo: document.body,
@@ -114,10 +111,9 @@ describe("CommandPalette filter-grammar hint", () => {
     expect(hint()).toBeNull();
   });
 
-  it("names the key that applies a filter (F3)", () => {
-    // The hint used to read "try hass-a spring to compose filters", but
-    // typed literally that query dead-ends: words never become filters on
-    // their own. The hint has to state the mechanism, which is Tab.
+  it("names the key that applies a filter", () => {
+    // Typed literally, "hass-a spring" dead-ends: words never become
+    // filters on their own. The hint has to state the mechanism, Tab.
     wrapper = mount(CommandPalette, {
       props: { modelValue: true },
       attachTo: document.body,
@@ -127,7 +123,7 @@ describe("CommandPalette filter-grammar hint", () => {
     );
   });
 
-  it("states the Tab mechanism at the dead end itself (F3)", async () => {
+  it("states the Tab mechanism at the dead end itself", async () => {
     // A query whose words are filter aliases matches nothing as text.
     // With a filter suggestion pending, the empty state has to say how
     // to apply it, not only that nothing matches.

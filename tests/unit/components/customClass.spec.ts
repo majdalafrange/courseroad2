@@ -62,7 +62,7 @@ describe("CustomClass defaults", () => {
     expect(store.itemAdding?.out_of_class_hours).toBe(10);
   });
 
-  it("names every color swatch, the department default included (F6)", async () => {
+  it("names every color swatch, the department default included", async () => {
     // The palette swatches carry "Color 1" through "Color 42"; the
     // department-default swatch rendered as a bare button, so a screen
     // reader announced nothing for it.

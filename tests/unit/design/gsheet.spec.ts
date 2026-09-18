@@ -7,12 +7,10 @@ import GSheet from "../../../src/design/components/GSheet.vue";
 
 /**
  * The modal keyboard contract: Escape closes one layer, Tab stays
- * inside, focus returns to the opener. These are the behaviors the
- * eight scrim dialogs lost when each hand-rolled its own shell; Reka
- * UI's Dialog owns the mechanics now, so these tests drive it the way
- * it actually listens (window for Escape, document for a scrim
- * pointerdown, bubbling from the focused element for Tab) rather than
- * the old single document-level keydown listener.
+ * inside, focus returns to the opener. Reka UI's Dialog owns the
+ * mechanics, so these tests drive it where it listens: window for
+ * Escape, document for a scrim pointerdown, bubbling from the focused
+ * element for Tab.
  */
 
 let wrapper: VueWrapper | undefined;
@@ -146,8 +144,7 @@ describe("GSheet", () => {
     mountHost();
     await flushPromises();
     // The built-in close button is the panel's first focusable, Reka's
-    // FocusScope default (the old shell focused the panel container
-    // itself instead; either way, focus starts inside the trap).
+    // FocusScope default.
     expect(document.activeElement).toBe(
       document.querySelector(".g-sheet-close"),
     );

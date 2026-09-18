@@ -238,10 +238,9 @@ const isCurrentTerm = computed(
     isSameYear(props.index, store.currentSemester),
 );
 
-/* Empty prior credit collapses to a single line; most students never use
-   it, and it shouldn't be the tallest thing above freshman fall. It expands
-   the instant it could receive something (drag, placement, keyboard move);
-   rects are captured a frame after drag start, so geometry stays honest. */
+/* Empty prior credit collapses to a single line and expands the instant
+   it could receive something (drag, placement, keyboard move); rects are
+   captured a frame after drag start. */
 const collapsedPrior = computed(
   () =>
     props.index === 0 &&
@@ -359,8 +358,7 @@ const placementMessage = computed(() => {
   }
 });
 
-/* The visible text stays short; the accessible name carries the term,
-   or every target in placement mode announces an identical "Add here". */
+/* The visible text stays short; the accessible name carries the term. */
 const placementAriaLabel = computed(() => {
   switch (props.placementStatusKind) {
     case "ok":
@@ -394,8 +392,8 @@ const placementAriaLabel = computed(() => {
   border-color: var(--g-brand);
   box-shadow: 0 0 0 1px var(--g-brand);
 }
-/* The rotation and clipped bottom corners read as physically attached,
-   not a floating badge. */
+/* Rotation and clipped bottom corners read as attached, not a floating
+   badge. */
 .now-flag {
   position: absolute;
   top: -1px;
@@ -479,9 +477,8 @@ const placementAriaLabel = computed(() => {
   justify-content: space-between;
   gap: var(--space-2);
 }
-/* A semester label reads as a coordinate, the same register subject ids and
-   the Hydrant mark beside it already use, so it's mono rather than caps.
-   Prior credit is a row name, not a column, so it stays sans. */
+/* Season labels are mono like subject ids; prior credit is a row name and
+   stays sans. */
 .term-name {
   font: var(--text-id-small);
   color: var(--g-ink-3);
@@ -539,11 +536,10 @@ const placementAriaLabel = computed(() => {
   font-weight: 600;
 }
 
-/* GTooltip's trigger (the actual DOM anchor) is a grandchild through
-   TooltipProvider/TooltipRoot, which render no DOM node of their own, so
-   it never receives this component's scope attribute; :deep() reaches it
-   the same way .load-fill below reaches into GProgress. Its own
-   inline-flex default let the gauge collapse to zero width. */
+/* GTooltip's trigger is a grandchild through TooltipProvider/TooltipRoot,
+   which render no DOM node, so it never receives this component's scope
+   attribute; :deep() reaches it. Its inline-flex default let the gauge
+   collapse to zero width. */
 :deep(.load-gauge-wrap) {
   display: block;
   width: 100%;
@@ -556,10 +552,8 @@ const placementAriaLabel = computed(() => {
   margin-top: var(--space-2);
   overflow: hidden;
 }
-/* A notch where the tone turns amber (48h of the 60h scale the gauge is
-   capped at): "too much" starts here, not just "how full." Danger's own
-   threshold is the scale's own cap, so it needs no notch of its own. Sits
-   above the fill so it cuts it, not just the track. */
+/* A notch at 48h of the 60h scale, where the tone turns amber; danger's
+   threshold is the cap itself. Sits above the fill so it cuts it. */
 .load-gauge::before {
   content: "";
   position: absolute;
@@ -615,9 +609,8 @@ const placementAriaLabel = computed(() => {
   }
 }
 
-/* A control that whispers: it opens the palette scoped to this term,
-   and its label surfaces on cell hover or its own focus so an empty
-   cell stays quiet at rest. */
+/* Opens the palette scoped to this term; the label surfaces on cell
+   hover or its own focus. */
 .term-empty {
   flex: 1;
   min-height: 24px;
@@ -644,8 +637,7 @@ const placementAriaLabel = computed(() => {
 .term-empty:focus-visible .term-empty-label {
   opacity: 1;
 }
-/* Touch: the slot is tappable either way, so without a hover state to
-   name it an empty term read as inert. */
+/* Touch: without a hover state to name it, an empty term read as inert. */
 @media (hover: none) {
   .term-empty-glyph,
   .term-empty-label {
@@ -660,8 +652,8 @@ const placementAriaLabel = computed(() => {
   box-shadow: var(--g-focus-ring);
 }
 
-/* An eligible slot is the normal case, so it stays neutral; the warn
-   variants carry the doubt in their words alone. */
+/* An eligible slot stays neutral; the warn variants carry the doubt in
+   their words. */
 .place-slot {
   display: flex;
   align-items: center;

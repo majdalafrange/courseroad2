@@ -1,6 +1,5 @@
 /**
- * Road comparison: the real question is "which version of my life is
- * better?" so we surface class differences, per-term load deltas, and
+ * Road comparison: class differences, per-term load deltas, and
  * requirement-coverage deltas between two roads.
  */
 

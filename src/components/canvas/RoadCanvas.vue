@@ -252,17 +252,16 @@ function placeHere(index: number) {
 /* ---- keyboard move mode ---- */
 const moveSource = ref<{ semester: number; index: number } | null>(null);
 const moveTarget = ref<number | null>(null);
-// Captured once at move-start, not recomputed from the live index, so a
-// later index shift can't silently swap in a different subject.
+// Captured at move start, so a later index shift cannot swap in a
+// different subject.
 const moveSourceSubjectId = ref<string | undefined>(undefined);
 
 const eligibleMoveTargets = computed<number[]>(() => {
   if (moveSource.value === null) {
     return [];
   }
-  // The source card can vanish or change identity out from under an
-  // in-progress move (e.g. deleting an earlier card in the same term):
-  // bail rather than crash or move the wrong subject.
+  // The source card can vanish or change identity mid-move (deleting an
+  // earlier card in the same term): bail.
   const placedSubject =
     props.selectedSubjects[moveSource.value.semester][moveSource.value.index];
   if (
@@ -435,7 +434,7 @@ void dragState;
   align-items: center;
   gap: var(--space-3);
 }
-/* A disclosure control, not a floating card: it sits, ringed, no shadow. */
+/* A disclosure control: ringed, no shadow. */
 .year-pill {
   display: inline-flex;
   align-items: center;
@@ -555,8 +554,8 @@ void dragState;
   color: var(--text-body) !important;
 }
 .placement-id {
-  /* inherits the banner's ink-inversion color (17:1 light, 15.7:1 dark);
-     the accent on this near-black bar measured ~1.6:1 and was illegible */
+  /* inherits the banner's inverted ink; the accent on this near-black bar
+     measured ~1.6:1 */
   font: var(--text-id);
   font-weight: 600;
   color: inherit;
@@ -610,8 +609,8 @@ void dragState;
 }
 
 /* On a phone, the year grid stacks into a single column. minmax(0, 1fr),
-   not bare 1fr: a bare track's automatic minimum size still comes from
-   its content, so it can force the column wider than the viewport. */
+   not bare 1fr: a bare track's minimum comes from its content and can
+   force the column wider than the viewport. */
 @media (max-width: 859px) {
   .year-row,
   .year-row.no-iap {
