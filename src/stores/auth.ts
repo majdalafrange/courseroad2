@@ -447,8 +447,9 @@ export const useAuthStore = defineStore("auth", {
           this.startConflict(conflictInfo);
           return Promise.resolve({ oldid, state: "same" });
         } else if (response.data.result === "update_local") {
-          alert(
-            "Server has more recent edits.  Overriding local road.  If this is unexpected, check that your computer clock is accurate.",
+          toast.warn(
+            "Loaded newer edits from the cloud",
+            "This road was changed elsewhere, so the copy in this tab was replaced. If that is unexpected, check that your computer clock is accurate.",
           );
           const updatedRoad = {
             downloaded: formatFireroadDate(),

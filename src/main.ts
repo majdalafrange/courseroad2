@@ -25,7 +25,11 @@ import {
   resolveTheme,
   systemPrefersDark,
 } from "./design/tokens";
-import { fatalError } from "./lib/errorBoundary";
+import {
+  fatalError,
+  isChunkLoadError,
+  recoverFromChunkLoadError,
+} from "./lib/errorBoundary";
 import { migrateLegacyCookies } from "./lib/legacyStorage";
 import { persistedThemeMode } from "./lib/persistedStore";
 
@@ -67,6 +71,17 @@ app.config.errorHandler = (err, _instance, info) => {
   console.error("Unhandled error:", err, info);
   fatalError.value = true;
 };
+
+// A lazy chunk that fails to load: Vite reports it as vite:preloadError,
+// the router when it was a route component.
+window.addEventListener("vite:preloadError", () => {
+  recoverFromChunkLoadError();
+});
+router.onError((error) => {
+  if (isChunkLoadError(error)) {
+    recoverFromChunkLoadError();
+  }
+});
 
 // router.isReady() rejects if the initial navigation fails. catch the rejection
 // so the app still mounts instead of leaving the page blank.
