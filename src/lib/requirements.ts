@@ -14,6 +14,12 @@ import type { CatalogView, SelectedSubject } from "./types";
 import { getSubject } from "./types";
 import { splitReqLevel } from "./reqGrammar";
 
+// the catalog lists no equivalent_subjects for these two, so a placed 6.100L
+// never satisfied a prereq that only names 6.100A. checked both ways.
+const EQUIVALENT_IDS: Partial<Record<string, readonly string[]>> = {
+  "6.100A": ["6.100L"],
+};
+
 /**
  * Whether having taken `id` satisfies the requirement token `req`
  * (exact id, equivalent subject, parent/child grouping, or GIR/HASS/CI
@@ -26,6 +32,13 @@ export function classSatisfies(
   allSubjects: string[],
 ): boolean {
   if (req === id) {
+    return true;
+  }
+
+  if (
+    EQUIVALENT_IDS[req]?.includes(id) === true ||
+    EQUIVALENT_IDS[id]?.includes(req) === true
+  ) {
     return true;
   }
 

@@ -69,6 +69,11 @@ describe("classSatisfies", () => {
     expect(classSatisfies(catalog, "18.062", "6.042", ["6.042"])).toBe(true);
   });
 
+  it("matches 6.100A and 6.100L in either direction", () => {
+    expect(classSatisfies(catalog, "6.100A", "6.100L", ["6.100L"])).toBe(true);
+    expect(classSatisfies(catalog, "6.100L", "6.100A", ["6.100A"])).toBe(true);
+  });
+
   it("lets a parent satisfy a child requirement (6.00 → 6.0001)", () => {
     expect(classSatisfies(catalog, "6.0001", "6.00", ["6.00"])).toBe(true);
   });
@@ -108,6 +113,14 @@ describe("reqsFulfilled", () => {
     expect(reqsFulfilled(catalog, "6.0001, 18.01", [placed("6.0001", 1)])).toBe(
       false,
     );
+  });
+
+  it("accepts 6.100L where a prereq names only 6.100A (6.1010's string)", () => {
+    const req = "6.1000/(6.100A, (6.100B/16.C20))";
+    expect(
+      reqsFulfilled(catalog, req, [placed("6.100L", 1), placed("6.100B", 2)]),
+    ).toBe(true);
+    expect(reqsFulfilled(catalog, req, [placed("6.100B", 2)])).toBe(false);
   });
 
   it("evaluates nested OR/AND like 6.006's prereq", () => {
