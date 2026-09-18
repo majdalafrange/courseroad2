@@ -136,6 +136,25 @@
         <g-icon name="graph" :size="14" />
         Show in Connections
       </button>
+      <div class="external-links">
+        <a
+          v-if="subject.url"
+          :href="safeHref(subject.url)"
+          target="_blank"
+          rel="noopener"
+          >Catalog <g-icon name="external" :size="11"
+        /></a>
+        <a
+          v-if="inCatalog"
+          :href="evaluationsUrl"
+          target="_blank"
+          rel="noopener"
+          >Evaluations <g-icon name="external" :size="11"
+        /></a>
+        <a v-if="inCatalog" :href="openGradesUrl" target="_blank" rel="noopener"
+          >OpenGrades <g-icon name="external" :size="11"
+        /></a>
+      </div>
 
       <!-- add to a term -->
       <section v-if="!placing" class="detail-section">
@@ -230,29 +249,6 @@
         <p class="detail-desc" data-cy="cardDescription">
           {{ subject.description }}
         </p>
-        <div class="external-links">
-          <a
-            v-if="subject.url"
-            :href="safeHref(subject.url)"
-            target="_blank"
-            rel="noopener"
-            >Catalog <g-icon name="external" :size="11"
-          /></a>
-          <a
-            v-if="inCatalog"
-            :href="evaluationsUrl"
-            target="_blank"
-            rel="noopener"
-            >Evaluations <g-icon name="external" :size="11"
-          /></a>
-          <a
-            v-if="inCatalog"
-            :href="openGradesUrl"
-            target="_blank"
-            rel="noopener"
-            >OpenGrades <g-icon name="external" :size="11"
-          /></a>
-        </div>
       </section>
 
       <!-- unlocks -->
@@ -1134,6 +1130,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
   display: flex;
   gap: var(--space-3);
   flex-wrap: wrap;
+  margin-top: var(--space-2);
 }
 .external-links a {
   display: inline-flex;
