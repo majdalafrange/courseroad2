@@ -127,6 +127,16 @@ export const SUBJECTS: Subject[] = [
     title: "Intro to Neural Computation",
     not_offered_year: "2026-2027",
   }),
+  makeSubject({
+    subject_id: "6.100A",
+    title: "Introduction to CS Programming in Python",
+    equivalent_subjects: ["6.100L"],
+  }),
+  makeSubject({
+    subject_id: "6.100L",
+    title: "Introduction to CS and Python",
+    equivalent_subjects: ["6.100A"],
+  }),
 ];
 
 export const GENERIC_COURSES: Subject[] = [
