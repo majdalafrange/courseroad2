@@ -66,9 +66,8 @@ test("renaming a road to a name another road holds is explained", async ({
 });
 
 test("export produces a parseable flat .road file", async ({ page }) => {
-  // Share lives in the header's overflow menu ("More", capital; the
-  // audit's "more" expander is a different control).
-  await page.getByRole("button", { name: "More", exact: true }).click();
+  // Share sits with the other road operations in the road switcher.
+  await cy(page, "roadSwitcher").click();
   await cy(page, "shareRoadButton").click();
   const downloadPromise = page.waitForEvent("download");
   await cy(page, "exportRoadFileButton").click();

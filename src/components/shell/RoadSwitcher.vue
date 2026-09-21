@@ -98,6 +98,10 @@
 
       <div class="switch-divider" />
 
+      <button class="switch-op" data-cy="shareRoadButton" @click="openShare">
+        <g-icon name="upload" :size="14" />
+        Share this road...
+      </button>
       <button class="switch-op" data-cy="importRoadButton" @click="openImport">
         <g-icon name="download" :size="14" />
         Import a road...
@@ -132,6 +136,7 @@ const emit = defineEmits<{
   (e: "delete-road", roadID: string): void;
   (e: "open-import"): void;
   (e: "open-compare"): void;
+  (e: "open-share"): void;
 }>();
 
 const store = useCourseDataStore();
@@ -170,6 +175,11 @@ function openImport() {
 
 function openCompare() {
   emit("open-compare");
+  open.value = false;
+}
+
+function openShare() {
+  emit("open-share");
   open.value = false;
 }
 

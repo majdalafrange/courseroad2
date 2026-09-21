@@ -12,6 +12,7 @@
         @delete-road="emit('delete-road', $event)"
         @open-import="emit('open-import')"
         @open-compare="emit('open-compare')"
+        @open-share="emit('open-share')"
       />
       <span class="header-meta">
         <span v-if="totalUnits > 0" class="header-units"
@@ -128,13 +129,6 @@
           </button>
         </template>
         <div class="more-menu" @click.stop>
-          <button
-            class="more-item"
-            data-cy="shareRoadButton"
-            @click="closeAnd('open-share')"
-          >
-            <g-icon name="upload" :size="14" /> Share this road...
-          </button>
           <button class="more-item" @click="closeAnd('open-about')">
             <g-icon name="info" :size="14" /> About CourseRoad
           </button>
@@ -223,11 +217,9 @@ const moreOpen = ref(false);
 /* Feedback and issue-report form. */
 const feedbackFormUrl = "https://forms.gle/VAY3E7RbjmUrw3ww5";
 
-function closeAnd(event: "open-share" | "open-about" | "open-settings") {
+function closeAnd(event: "open-about" | "open-settings") {
   moreOpen.value = false;
-  if (event === "open-share") {
-    emit("open-share");
-  } else if (event === "open-about") {
+  if (event === "open-about") {
     emit("open-about");
   } else {
     emit("open-settings");
