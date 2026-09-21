@@ -755,18 +755,23 @@ const placementAriaLabel = computed(() => {
 @keyframes shake-term {
   0% {
     transform: translateX(0) rotate(0deg);
+    scale: 1;
   }
   25% {
     transform: translateX(-5px) rotate(-1deg);
+    scale: 1.05;
   }
   50% {
     transform: translateX(5px) rotate(1deg);
+    scale: 1.05;
   }
   75% {
     transform: translateX(-5px) rotate(-1deg);
+    scale: 1.05;
   }
   100% {
     transform: translateX(0) rotate(0deg);
+    scale: 1;
   }
 }
 </style>
