@@ -26,7 +26,7 @@
       </div>
       <p v-if="headFacts.length" class="head-facts">
         <template v-for="(fact, i) in headFacts" :key="fact.text"
-          ><span v-if="i > 0"> · </span
+          ><span v-if="i > 0" class="sep spaced">·</span
           ><span :class="{ 'fact-warn': fact.warn }">{{
             fact.text
           }}</span></template
@@ -50,7 +50,7 @@
       </p>
       <p v-if="headMetaParts.length" class="head-meta">
         <template v-for="(part, i) in headMetaParts" :key="i"
-          ><span v-if="i > 0"> · </span
+          ><span v-if="i > 0" class="sep spaced">·</span
           ><g-icon
             v-if="part.icon"
             :name="part.icon"
@@ -195,21 +195,29 @@
                   <span class="neighbor-title">{{ n.subject.title }}</span>
                   <span class="neighbor-reason">{{ n.reason }}</span>
                   <span class="neighbor-meta">
-                    <template v-if="n.rating"
-                      ><g-icon name="star" :size="10" class="rating-icon" />
-                      {{ n.rating.toFixed(1) }}</template
-                    >
-                    <template v-if="n.hours">
-                      · {{ Math.round(n.hours) }}h/wk</template
-                    >
-                    <template v-if="n.status">
-                      · {{ n.status === "taken" ? "Taken" : "Planned" }}
+                    <template v-if="n.rating">
+                      <g-icon name="star" :size="10" class="rating-icon" />
+                      {{ n.rating.toFixed(1) }}
                     </template>
-                    <span v-if="readyText(n)"> · {{ readyText(n) }}</span>
+                    <template v-if="n.hours">
+                      <span class="sep spaced">·</span>
+                      {{ Math.round(n.hours) }}h/wk
+                    </template>
+                    <template v-if="n.status">
+                      <span class="sep spaced">· </span>
+                      {{ n.status === "taken" ? "Taken" : "Planned" }}
+                    </template>
+                    <span v-if="readyText(n)">
+                      <span class="sep spaced">·</span>
+                      {{ readyText(n) }}
+                    </span>
                     <span v-if="n.requirementBadge">
-                      · {{ n.requirementBadge }}</span
+                      <span class="sep spaced">·</span>
+                      {{ n.requirementBadge }}
+                    </span>
+                    <template v-if="!n.offered">
+                      <span class="sep spaced">·</span>not offered</template
                     >
-                    <template v-if="!n.offered"> · not offered</template>
                   </span>
                 </span>
               </button>

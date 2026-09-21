@@ -35,11 +35,15 @@
         <div class="compare-summary">
           <div class="summary-col">
             <span class="summary-units">{{ unitsA }}</span>
-            <span class="summary-label">units · {{ programsA }} programs</span>
+            <span class="summary-label"
+              >units <span class="sep">·</span> {{ programsA }} programs</span
+            >
           </div>
           <div class="summary-col">
             <span class="summary-units">{{ unitsB }}</span>
-            <span class="summary-label">units · {{ programsB }} programs</span>
+            <span class="summary-label"
+              >units <span class="sep">·</span> {{ programsB }} programs</span
+            >
           </div>
         </div>
 
@@ -72,7 +76,8 @@
         <!-- classes -->
         <section class="compare-section">
           <h3 class="section-label">
-            Classes · {{ classDiff.shared.length }} in common
+            Classes <span class="sep">·</span> {{ classDiff.shared.length }} in
+            common
           </h3>
           <div class="diff-cols">
             <div class="diff-col">

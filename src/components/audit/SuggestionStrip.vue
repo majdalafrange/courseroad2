@@ -19,8 +19,8 @@
             </button>
           </template>
           <p class="strip-explain">
-            Based on your progress towards the GIRs: the highest-rated subjects
-            that fill an open requirement and run next term.
+            These are the subjects with the best course evaluations that satisfy
+            an unsatisfied requirement and are offered next term.
           </p>
         </g-popover>
       </div>

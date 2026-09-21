@@ -102,17 +102,18 @@
                     <template v-if="subject.total_units !== undefined"
                       >{{ subject.total_units }}u</template
                     >
-                    <span v-if="termBadges(subject)">{{
-                      termBadges(subject)
-                    }}</span>
-                    <template v-if="subject.rating"
-                      >· <g-icon name="star" :size="10" class="rating-icon" />{{
-                        subject.rating.toFixed(1)
-                      }}</template
-                    >
-                    <template v-if="subjectHoursLabel(subject)"
-                      >· {{ subjectHoursLabel(subject) }}h/wk</template
-                    >
+                    <template v-if="termBadges(subject)">
+                      <span class="sep spaced">·</span>{{ termBadges(subject) }}
+                    </template>
+                    <template v-if="subject.rating">
+                      <span class="sep spaced">·</span
+                      ><g-icon name="star" :size="10" class="rating-icon" />
+                      {{ subject.rating.toFixed(1) }}
+                    </template>
+                    <template v-if="subjectHoursLabel(subject)">
+                      <span class="sep spaced">·</span
+                      >{{ subjectHoursLabel(subject) }}h/wk
+                    </template>
                   </span>
                 </span>
                 <span
@@ -120,7 +121,8 @@
                   class="row-place"
                   aria-hidden="true"
                 >
-                  <g-kbd :keys="['Enter']" /> open · <g-kbd :keys="['Tab']" />
+                  <g-kbd :keys="['Enter']" /> open <span class="sep">·</span>
+                  <g-kbd :keys="['Tab']" />
                   place
                 </span>
               </div>
@@ -311,7 +313,7 @@ const resultOverflow = computed(() =>
 
 function termBadges(subject: Subject): string {
   const letters = offeredSeasonLetters(subject);
-  return letters.length ? "· " + letters.join("/") : "";
+  return letters.join("/");
 }
 
 /* ------------------------------------------------------------- actions */
@@ -341,7 +343,7 @@ const baseActions = computed<PaletteAction[]>(() => {
     },
     {
       label: "New custom activity",
-      detail: "UROP, PE, anything with hours",
+      detail: "Cross-registered subjects, PE, etc.",
       icon: "pencil",
       keywords: "custom activity urop create new class",
       run: () => emit("action", "new-custom-activity"),

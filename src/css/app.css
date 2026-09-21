@@ -20,6 +20,19 @@ body {
   margin: 0;
 }
 
+/* Middle dot. Overpass files U+00B7 under GDEF as a combining mark, so every
+   shaper zeroes its advance and the dot paints over the next glyph. A fixed
+   box the width of the dot's own advance restores its centering: the ink sits
+   in the middle of that box. Keep the spaces around it in the text, or use
+   .spaced where the markup would trim them. */
+.sep {
+  display: inline-block;
+  width: 0.23em;
+}
+.sep.spaced {
+  margin-inline: 0.25em;
+}
+
 #app-wrapper {
   min-height: 100vh;
 }

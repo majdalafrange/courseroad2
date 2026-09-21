@@ -13,7 +13,8 @@
           {{ fit.percent }}% complete<template
             v-if="fit.remaining !== undefined"
           >
-            · {{ fit.progress }} of {{ fit.max }} done</template
+            <span class="sep spaced">·</span>{{ fit.progress }} of
+            {{ fit.max }} done</template
           >
         </template>
       </span>

@@ -18,7 +18,9 @@
         <span v-if="totalUnits > 0" class="header-units"
           >{{ totalUnits }} units</span
         >
-        <span v-if="totalUnits > 0" class="meta-dot" aria-hidden="true">·</span>
+        <span v-if="totalUnits > 0" class="meta-dot sep" aria-hidden="true"
+          >·</span
+        >
         <g-tooltip :text="saveState.detail" placement="bottom" :delay="200">
           <span class="save-state" :class="saveState.tone">
             <g-icon class="save-icon" :name="saveState.icon" :size="12" />
@@ -269,7 +271,7 @@ const saveState = computed<SaveState>(() => {
     return {
       label: `${auth.saveWarnings.length} save issue${auth.saveWarnings.length > 1 ? "s" : ""}`,
       icon: "cloudAlert",
-      detail: auth.saveWarnings.map((w) => `${w.name}: ${w.error}`).join(" · "),
+      detail: auth.saveWarnings.map((w) => `${w.name}: ${w.error}`).join("; "),
       tone: "warn",
     };
   }

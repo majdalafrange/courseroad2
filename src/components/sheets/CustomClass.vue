@@ -9,8 +9,9 @@
 
       <div class="cc-body">
         <p class="cc-hint">
-          Anything that takes time but isn't in the catalog: a UROP, a sport, a
-          job. It'll count toward your units and hours, just like a class.
+          This can be any class that does not appear in the catalog, such as
+          cross-registered classes at Harvard or Wellesley. It will count toward
+          your units and hours, just as a class would.
         </p>
 
         <g-input

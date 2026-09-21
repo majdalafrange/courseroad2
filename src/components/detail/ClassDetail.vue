@@ -41,9 +41,9 @@
       >
         <h2 class="detail-id">
           {{ subject.subject_id
-          }}<sub v-if="subject.old_id" class="detail-old-id">{{
-            subject.old_id
-          }}</sub>
+          }}<sub v-if="subject.old_id" class="detail-old-id">
+            [{{ subject.old_id }}]
+          </sub>
         </h2>
         <p class="detail-title" data-cy="cardSubjectTitle">
           {{ subject.title }}
@@ -193,7 +193,7 @@
           data-cy="addClassFromCardButton"
           @click="store.addFromCard(subject)"
         >
-          Or place it on the canvas
+          Or place it on your road
         </button>
       </section>
       <section v-else class="detail-section">
@@ -241,9 +241,14 @@
             <dt>Level</dt>
             <dd>{{ levelSummary }}</dd>
           </template>
-          <template v-if="offeredSummary">
+          <template v-if="offeredParts.length">
             <dt>Offered</dt>
-            <dd>{{ offeredSummary }}</dd>
+            <dd>
+              <template v-for="(part, i) in offeredParts" :key="part">
+                <span v-if="i > 0">, </span>
+                {{ part }}
+              </template>
+            </dd>
           </template>
         </dl>
         <p class="detail-desc" data-cy="cardDescription">
@@ -599,18 +604,18 @@ const levelSummary = computed(() => {
   }
 });
 
-const offeredSummary = computed(() => {
+const offeredParts = computed(() => {
   const s = subject.value;
   if (s === undefined) {
-    return "";
+    return [];
   }
   const terms = [
     s.offered_fall ? "Fall" : null,
     s.offered_IAP ? "IAP" : null,
     s.offered_spring ? "Spring" : null,
     s.offered_summer ? "Summer" : null,
-  ].filter(Boolean);
-  return terms.length ? terms.join(" · ") : "no scheduled terms";
+  ].filter((t): t is string => t !== null);
+  return terms.length ? terms : ["no scheduled terms"];
 });
 
 // Subject ids are encoded: a custom activity's id is user-typed and an
@@ -834,7 +839,6 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
 .detail-old-id {
   font-size: 0.55em;
   color: var(--dept-on-3);
-  margin-left: var(--space-1);
 }
 .detail-title {
   font: var(--text-heading);

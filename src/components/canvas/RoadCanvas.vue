@@ -8,7 +8,8 @@
           >. Choose a term below
         </span>
         <g-button size="sm" variant="ghost" @click="store.cancelAddFromCard()">
-          Cancel · <g-kbd class="placement-keys" :keys="['Esc']" />
+          Cancel<span class="sep spaced">·</span
+          ><g-kbd class="placement-keys" :keys="['Esc']" />
         </g-button>
       </div>
     </transition>
@@ -35,7 +36,8 @@
           >
             <g-icon name="map" :size="14" class="year-pill-icon" />
             <span class="year-pill-text">
-              {{ termLabelNow }} · {{ yearNames[store.userYear] }}
+              {{ termLabelNow }} <span class="sep">·</span>
+              {{ yearNames[store.userYear] }}
             </span>
             <span class="year-pill-tag">Now</span>
             <g-icon name="chevronDown" :size="12" class="year-pill-icon" />

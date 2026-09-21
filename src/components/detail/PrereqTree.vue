@@ -14,6 +14,7 @@
           v-else
           class="prereq-chip"
           :class="{ known: isKnown(child) }"
+          :style="{ '--dept-color': courseColor(child) }"
           :title="child.title || undefined"
           @click="openLeaf(child)"
           @pointerdown="dragLeaf($event, child)"
@@ -39,6 +40,7 @@ import {
   type ParsedLeaf,
   type ParsedRequirement,
 } from "../../lib/prereqTree";
+import { courseColor } from "../../lib/colors";
 import { getSubject } from "../../lib/types";
 import { useCourseDataStore } from "../../stores/courseData";
 import { pointerDown } from "../../stores/dragdrop";
@@ -169,37 +171,33 @@ export default { name: "PrereqTree" };
   flex-basis: 100%;
 }
 
-/* the shared course-chip anatomy (see tokens.css); unknown ids stay
-   neutral. A satisfied chip stays neutral too: the check icon is the
-   single mark. */
+/* the shared course-chip anatomy (see tokens.css): the subject's solid
+   department color, same as the joint and related chips. Ids that are not
+   in the catalog keep the color but are not interactive. A satisfied chip
+   carries a check icon. */
 .prereq-chip {
   display: inline-flex;
   align-items: center;
   gap: 3px;
   font: var(--text-id-small);
-  color: var(--g-ink-2);
+  color: var(--dept-on);
   height: 22px;
-  background: var(--g-surface-sunken);
+  background: var(--dept-color, var(--g-line-strong));
   border: none;
-  border-left: 3px solid var(--g-line-strong);
   border-radius: var(--radius-sm);
   padding: 0 var(--space-2);
   cursor: default;
   white-space: nowrap;
-  transition: background-color var(--motion-quick) var(--ease-out);
+  transition: box-shadow var(--motion-quick) var(--ease-out);
 }
 .prereq-chip.known {
   cursor: pointer;
-  color: var(--g-ink);
-  background: var(--g-surface);
-  box-shadow: inset 0 0 0 1px var(--g-line);
 }
 .prereq-chip.known:hover {
-  background: var(--g-accent-tint);
+  box-shadow: 0 0 0 1.5px var(--g-accent);
 }
 .chip-check {
   flex-shrink: 0;
-  color: var(--g-ok);
 }
 
 .sr-only {

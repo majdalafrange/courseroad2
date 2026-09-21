@@ -79,7 +79,8 @@
                     v-for="subj in info.expectedHoursQuarter1"
                     :key="subj.subject_id"
                   >
-                    {{ subj.subject_id }} · {{ subj.hours.toFixed(1) }}h
+                    {{ subj.subject_id }} <span class="sep">·</span>
+                    {{ subj.hours.toFixed(1) }}h
                   </span>
                   <em
                     >{{ info.totalExpectedHoursQuarter1.toFixed(1) }}h total</em
@@ -91,7 +92,8 @@
                     v-for="subj in info.expectedHoursQuarter2"
                     :key="subj.subject_id"
                   >
-                    {{ subj.subject_id }} · {{ subj.hours.toFixed(1) }}h
+                    {{ subj.subject_id }} <span class="sep">·</span>
+                    {{ subj.hours.toFixed(1) }}h
                   </span>
                   <em
                     >{{ info.totalExpectedHoursQuarter2.toFixed(1) }}h total</em
@@ -103,7 +105,8 @@
                   v-for="subj in info.expectedHoursQuarter1"
                   :key="subj.subject_id"
                 >
-                  {{ subj.subject_id }} · {{ subj.hours.toFixed(1) }}h
+                  {{ subj.subject_id }} <span class="sep">·</span>
+                  {{ subj.hours.toFixed(1) }}h
                 </span>
                 <em>expected hours per week</em>
               </template>

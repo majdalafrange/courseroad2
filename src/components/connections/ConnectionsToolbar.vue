@@ -1,7 +1,11 @@
 <template>
   <div class="toolbar">
     <div class="toolbar-left">
-      <span class="seed-label">{{ seedLabel }}</span>
+      <span class="seed-label"
+        ><template v-for="(part, i) in seedParts" :key="part"
+          ><span v-if="i > 0" class="sep spaced">·</span>{{ part }}</template
+        ></span
+      >
     </div>
 
     <div class="toolbar-center" role="group" aria-label="Edge filters">
@@ -54,17 +58,17 @@ import { useConnectionsStore } from "../../stores/connections";
 
 const store = useConnectionsStore();
 
-const seedLabel = computed(() => {
+const seedParts = computed((): string[] => {
   const count = store.seed.subjectIds.length;
   if (store.seed.origin === "road") {
     return count === 0
-      ? "No subjects yet"
-      : `From your road · ${count} ${count === 1 ? "subject" : "subjects"}`;
+      ? ["No subjects yet"]
+      : ["From your road", `${count} ${count === 1 ? "subject" : "subjects"}`];
   }
   if (store.seed.origin === "subject" || store.seed.origin === "manual") {
-    return `From ${store.seed.subjectIds[0] ?? ""}`;
+    return [`From ${store.seed.subjectIds[0] ?? ""}`];
   }
-  return "";
+  return [];
 });
 </script>
 

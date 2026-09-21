@@ -31,7 +31,9 @@
     <div class="card-body">
       <span class="card-id">
         {{ subject.subject_id
-        }}<sub v-if="oldID !== undefined" class="card-old-id">{{ oldID }}</sub>
+        }}<sub v-if="oldID !== undefined" class="card-old-id">
+          [{{ oldID }}]
+        </sub>
       </span>
       <span class="card-title">{{ subject.title }}</span>
     </div>
@@ -83,7 +85,7 @@
               })
             "
           />
-          Mute warnings for this class
+          Hide warnings for this class
         </label>
       </div>
     </g-popover>
@@ -324,7 +326,6 @@ function onHoverEnd() {
 .card-old-id {
   font: var(--text-micro);
   color: var(--dept-on-3);
-  margin-left: var(--space-1);
 }
 .card-title {
   font: var(--text-small);

@@ -41,7 +41,7 @@
         </div>
         <div v-if="!compact && facts.length" class="node-facts">
           <template v-for="(fact, i) in facts" :key="fact.text"
-            ><span v-if="i > 0"> · </span
+            ><span v-if="i > 0" class="sep spaced">·</span
             ><span :class="{ 'fact-warn': fact.warn }">{{
               fact.text
             }}</span></template
