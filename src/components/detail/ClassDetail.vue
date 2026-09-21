@@ -81,7 +81,7 @@
           data-cy="cardRating"
         >
           <a :href="evaluationsUrl" target="_blank" rel="noopener"
-            ><g-icon name="star" :size="11" />
+            ><g-icon name="star" :size="11" class="stat-icon" />
             {{ subject.rating.toFixed(1) }}</a
           ><span class="stat-label">/7</span>
         </span>
@@ -888,6 +888,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
   gap: var(--space-2) var(--space-4);
   margin: var(--space-3) 0 0;
   font: var(--text-id);
+  font-variant-numeric: tabular-nums;
   color: var(--g-ink);
 }
 .stat {
@@ -895,12 +896,17 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
   align-items: baseline;
   gap: 3px;
 }
+/* the number gives the link its baseline, so it lines up with "/7"; the
+   star just rides centered beside it */
 .stat a {
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   gap: var(--space-05);
   color: inherit;
   text-decoration: none;
+}
+.stat-icon {
+  align-self: center;
 }
 .stat a:hover {
   color: var(--g-accent);

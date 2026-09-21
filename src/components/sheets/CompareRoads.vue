@@ -297,7 +297,6 @@ function titleFor(key: string): string {
 }
 .summary-units {
   font: var(--text-display);
-  font-family: var(--font-mono);
   color: var(--g-ink);
 }
 .summary-label {

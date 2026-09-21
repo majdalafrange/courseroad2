@@ -6,8 +6,9 @@
  * flag, the primary action), never as wallpaper.
  *
  * TYPE, self-hosted: IBM Plex Sans Variable for display and body
- * (matching Hydrant, MIT's other SIPB planning tool) and IBM Plex Mono
- * for subject ids and numbers (tabular).
+ * (matching Hydrant, MIT's other SIPB planning tool) and Overpass for
+ * subject ids and numbers, a face whose figures match its capitals in
+ * height and stroke, so "5.602" and "GIR:REST" sit level in one list.
  *
  * Light is paper, garnet-led; dark is blueprint, blue-black rather than
  * neutral charcoal, where MIT silver carries every interactive state and
@@ -101,7 +102,7 @@
      TYPE note above): one voice for headings and body, matching Hydrant. */
   --font-display: "IBM Plex Sans Variable", "Helvetica Neue", Arial, sans-serif;
   --font-text: "IBM Plex Sans Variable", "Helvetica Neue", Arial, sans-serif;
-  --font-mono: "IBM Plex Mono", "SF Mono", "Cascadia Mono", monospace;
+  --font-id: "Overpass Variable", "Helvetica Neue", Arial, sans-serif;
 
   /* type scale: 1.25 ratio anchored at 14px body */
   --text-display: 600 1.75rem/1.2 var(--font-display); /* 28px */
@@ -112,10 +113,11 @@
   --text-body-strong: 600 0.875rem/1.5 var(--font-text);
   --text-small: 400 0.78125rem/1.45 var(--font-text); /* 12.5px */
   --text-micro: 500 0.6875rem/1.4 var(--font-text); /* 11px */
-  --text-id-lg: 600 1.25rem/1.3 var(--font-mono); /* 20px, detail-panel subject id */
-  --text-data: 600 1.375rem/1.25 var(--font-mono); /* 22px, stat values */
-  --text-id: 500 0.875rem/1.4 var(--font-mono); /* subject ids */
-  --text-id-small: 500 0.78125rem/1.35 var(--font-mono);
+  /* ids sit one notch above the body scale so they lead the rows they head */
+  --text-id-lg: 550 1.34375rem/1.3 var(--font-id); /* 21.5px, detail-panel subject id */
+  --text-data: 550 1.46875rem/1.25 var(--font-id); /* 23.5px, stat values */
+  --text-id: 500 0.9375rem/1.4 var(--font-id); /* 15px, subject ids */
+  --text-id-small: 500 0.84375rem/1.35 var(--font-id); /* 13.5px */
   /* Plex Sans opens up slightly at display sizes; tighten anything ≥22px */
   --tracking-tight: -0.01em;
 

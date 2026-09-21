@@ -102,7 +102,7 @@
                     <template v-if="subject.total_units !== undefined"
                       >{{ subject.total_units }}u</template
                     >
-                    <span v-if="termBadges(subject)" class="row-terms">{{
+                    <span v-if="termBadges(subject)">{{
                       termBadges(subject)
                     }}</span>
                     <template v-if="subject.rating"
@@ -877,9 +877,6 @@ defineExpose({
 .row-sub .rating-icon {
   display: inline-block;
   vertical-align: -1px;
-}
-.row-terms {
-  font-family: var(--font-mono);
 }
 .row-place {
   display: inline-flex;

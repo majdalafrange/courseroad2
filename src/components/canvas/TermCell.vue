@@ -477,8 +477,8 @@ const placementAriaLabel = computed(() => {
   justify-content: space-between;
   gap: var(--space-2);
 }
-/* Season labels are mono like subject ids; prior credit is a row name and
-   stays sans. */
+/* Season labels take the id face like subject ids; prior credit is a row
+   name and stays in the body face. */
 .term-name {
   font: var(--text-id-small);
   color: var(--g-ink-3);
@@ -521,6 +521,8 @@ const placementAriaLabel = computed(() => {
   align-items: baseline;
   gap: var(--space-2);
   font: var(--text-id-small);
+  /* totals tick as classes move; tabular figures keep them from jittering */
+  font-variant-numeric: tabular-nums;
   color: var(--g-ink-2);
   margin-top: var(--space-05);
 }

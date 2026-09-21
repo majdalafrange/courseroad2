@@ -17,7 +17,7 @@ import {
 } from "./offering";
 import { useTouchDevice } from "../composables/useIsMobile";
 import ibmPlexSansUrl from "@fontsource-variable/ibm-plex-sans/files/ibm-plex-sans-latin-wdth-normal.woff2?url";
-import ibmPlexMonoMediumUrl from "@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-500-normal.woff2?url";
+import overpassUrl from "@fontsource-variable/overpass/files/overpass-latin-wght-normal.woff2?url";
 
 let fontFaceCss = "";
 let fontFacesPromise: Promise<void> | undefined;
@@ -35,14 +35,14 @@ async function toBase64(url: string): Promise<string> {
 export function preparePosterFonts(): Promise<void> {
   fontFacesPromise ??= (async () => {
     try {
-      const [sans, monoMedium] = await Promise.all([
+      const [sans, overpass] = await Promise.all([
         toBase64(ibmPlexSansUrl),
-        toBase64(ibmPlexMonoMediumUrl),
+        toBase64(overpassUrl),
       ]);
       fontFaceCss =
         `<style>` +
         `@font-face{font-family:'IBM Plex Sans Variable';font-weight: 100 700;src:url(data:font/woff2;base64,${sans}) format('woff2');}` +
-        `@font-face{font-family:'IBM Plex Mono';font-weight:500;src:url(data:font/woff2;base64,${monoMedium}) format('woff2');}` +
+        `@font-face{font-family:'Overpass Variable';font-weight: 100 900;src:url(data:font/woff2;base64,${overpass}) format('woff2');}` +
         `</style>`;
     } catch {
       // Offline or blocked: renders with the system font instead.
@@ -329,10 +329,10 @@ function termBlock(
       `<text x="${x + 14}" y="${y + 24}" font-family="'IBM Plex Sans Variable',sans-serif" font-size="12.5" fill="${theme.ink3}">${esc(season)}</text>`,
     );
   } else {
-    // Season label: mono, sentence case, weight 500, accent while current
+    // Season label: the id face, sentence case, accent while current
     // (TermCell's .term-name); the year half at opacity 0.8 (.term-year).
     parts.push(
-      `<text x="${x + 14}" y="${y + 24}" font-family="'IBM Plex Mono',monospace" font-size="11" font-weight="500" fill="${isCurrent ? theme.accent : theme.ink3}">` +
+      `<text x="${x + 14}" y="${y + 24}" font-family="'Overpass Variable',sans-serif" font-size="11.5" font-weight="500" fill="${isCurrent ? theme.accent : theme.ink3}">` +
         `<tspan>${esc(season)}</tspan><tspan dx="3" fill-opacity="0.8">${esc(yearLabel)}</tspan></text>`,
     );
   }
@@ -364,7 +364,7 @@ function termBlock(
     // malformed import) must not take down the whole poster.
     const subjectId = subj.subject_id ?? "?";
     parts.push(
-      `<text x="${x + 14}" y="${cy + 13}" font-family="'IBM Plex Mono',monospace" font-size="11" font-weight="600" fill="${theme.deptOn}">${esc(subjectId)}</text>`,
+      `<text x="${x + 14}" y="${cy + 13}" font-family="'Overpass Variable',sans-serif" font-size="11.5" font-weight="550" fill="${theme.deptOn}">${esc(subjectId)}</text>`,
     );
     const rawTitle = subj.title ?? "";
     const title =

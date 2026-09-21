@@ -315,7 +315,7 @@ function onHoverEnd() {
 }
 .card-id {
   font: var(--text-id-small);
-  font-weight: 600; /* the id is the atomic unit; it leads by weight */
+  font-weight: 550; /* the id is the atomic unit; it leads by weight */
   color: var(--dept-on);
   white-space: nowrap;
   text-overflow: clip;

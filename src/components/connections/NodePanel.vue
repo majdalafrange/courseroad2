@@ -464,7 +464,6 @@ function toggleExpand() {
 }
 .head-id {
   font: var(--text-title);
-  font-family: var(--font-mono);
   margin: 0;
   color: var(--dept-on);
 }
@@ -527,7 +526,6 @@ function toggleExpand() {
 }
 .missing-chip {
   font: var(--text-micro);
-  font-family: var(--font-mono);
   font-weight: 600;
   color: var(--g-accent);
   background: var(--g-accent-tint);
@@ -697,9 +695,8 @@ function toggleExpand() {
 }
 .neighbor-id {
   font: var(--text-id-small);
-  font-family: var(--font-mono);
   color: var(--g-ink);
-  font-weight: 600;
+  font-weight: 550;
 }
 /* a crossing is information; warn stays reserved for staleness */
 .cross-flag {

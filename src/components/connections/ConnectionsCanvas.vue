@@ -811,8 +811,7 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: var(--space-1);
   font: var(--text-id-small);
-  font-family: var(--font-mono);
-  font-weight: 600;
+  font-weight: 550;
   color: var(--g-ink);
 }
 /* a crossing is information, not a caution; warn is reserved for

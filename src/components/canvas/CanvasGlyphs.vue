@@ -32,7 +32,7 @@ import { computed } from "vue";
  * Canvas background material: numerals and operators, after the
  * character lattice of the Alchemist on the Stratton lawn. An SVG
  * pattern rather than a background image, so the glyphs use the page's
- * Plex Mono and theme tokens; the tile repeats and scrolls with the
+ * Plex Sans and theme tokens; the tile repeats and scrolls with the
  * content.
  */
 
@@ -163,7 +163,7 @@ const tiled = computed<Glyph[]>(() => {
 /* fill sits on the glyphs themselves: pattern content is its own rendering
    context and does not inherit paint from the <svg> that references it. */
 .glyph {
-  font-family: var(--font-mono);
+  font-family: var(--font-text);
   font-weight: 500;
   fill: var(--canvas-glyph);
 }

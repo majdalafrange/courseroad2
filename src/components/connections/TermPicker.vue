@@ -176,7 +176,6 @@ onMounted(() => {
   color: var(--g-ink-2);
 }
 .picker-id {
-  font-family: var(--font-mono);
   font-weight: 600;
   color: var(--g-ink);
 }

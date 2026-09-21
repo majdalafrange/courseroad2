@@ -282,9 +282,8 @@ function onKeydown(event: KeyboardEvent) {
 }
 .node-id {
   font: var(--text-id-small);
-  font-family: var(--font-mono);
   color: var(--g-ink);
-  font-weight: 600;
+  font-weight: 550;
 }
 .node-flag {
   width: 6px;

@@ -373,7 +373,6 @@ function onAdd(id: string) {
 }
 .seed-id {
   font: var(--text-id-small);
-  font-family: var(--font-mono);
   color: var(--g-ink);
   min-width: 64px;
 }

@@ -557,7 +557,7 @@ void dragState;
   /* inherits the banner's inverted ink; the accent on this near-black bar
      measured ~1.6:1 */
   font: var(--text-id);
-  font-weight: 600;
+  font-weight: 550;
   color: inherit;
 }
 .placement-banner :deep(.g-button) {
