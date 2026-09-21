@@ -142,17 +142,17 @@
           :href="safeHref(subject.url)"
           target="_blank"
           rel="noopener"
-          >Catalog <g-icon name="external" :size="11"
+          >Catalog <g-icon name="external" :size="12" class="link-out"
         /></a>
         <a
           v-if="inCatalog"
           :href="evaluationsUrl"
           target="_blank"
           rel="noopener"
-          >Evaluations <g-icon name="external" :size="11"
+          >Evaluations <g-icon name="external" :size="12" class="link-out"
         /></a>
         <a v-if="inCatalog" :href="openGradesUrl" target="_blank" rel="noopener"
-          >OpenGrades <g-icon name="external" :size="11"
+          >OpenGrades <g-icon name="external" :size="12" class="link-out"
         /></a>
       </div>
 
@@ -1128,16 +1128,36 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
 }
 .external-links {
   display: flex;
-  gap: var(--space-3);
+  gap: var(--space-2);
   flex-wrap: wrap;
-  margin-top: var(--space-2);
+  margin-top: var(--space-3);
 }
+/* accent text alone read as a note, so each link is ringed like a button */
 .external-links a {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: var(--space-2);
   font: var(--text-small);
-  color: var(--g-accent);
+  font-weight: 500;
+  color: var(--g-ink-2);
   text-decoration: none;
+  border-radius: var(--radius-full);
+  box-shadow: inset 0 0 0 1px var(--g-line-accent);
+  padding: 6px var(--space-3);
+  transition:
+    background-color var(--motion-quick) var(--ease-out),
+    color var(--motion-quick) var(--ease-out);
+}
+.external-links a:hover {
+  background: var(--g-accent-tint);
+  color: var(--g-ink);
+}
+.external-links a:focus-visible {
+  outline: none;
+  box-shadow: var(--g-focus-ring);
+}
+/* the one glyph that says "leaves the app" carries the notice hue */
+.link-out {
+  color: var(--g-info);
 }
 </style>

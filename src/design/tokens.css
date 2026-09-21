@@ -190,6 +190,14 @@
 
   --g-line: #dde2e5; /* hairlines */
   --g-line-strong: #c3c9ce;
+  /* ring for a control that has to read as one at rest: the accent stepped
+     toward the hairline, so it shows without competing with a focus ring.
+     dark mixes further in, since silver on blue-black fades fast */
+  --g-line-accent: color-mix(
+    in srgb,
+    var(--g-accent) 50%,
+    var(--g-line-strong)
+  );
 
   /* Plan canvas material (after the Alchemist character lattice on the
      Stratton lawn), drawn by CanvasGlyphs.vue as an SVG pattern. Hairline
@@ -292,6 +300,11 @@
 
   --g-line: #262b35;
   --g-line-strong: #383f4c;
+  --g-line-accent: color-mix(
+    in srgb,
+    var(--g-accent) 75%,
+    var(--g-line-strong)
+  );
 
   /* Glyph field on blueprint: lifted just off the background, never up to
      the hairline, so the field stays behind the cards rather than beside
