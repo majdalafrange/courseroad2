@@ -64,7 +64,7 @@ describe("SuggestionStrip explanation control", () => {
     const popover = document.querySelector(".g-popover");
     expect(popover).not.toBeNull();
     // the copy names the mechanism and the one network dependency
-    expect(popover?.textContent).toContain("progress towards the GIRs");
+    expect(popover?.textContent).toContain("unsatisfied requirement and are");
     expect(control.attributes("aria-expanded")).toBe("true");
 
     // Reka UI's dismissable layer listens on window. The close runs
