@@ -80,9 +80,9 @@
     <section class="sg-section">
       <h2 class="sg-h2">Type</h2>
       <p class="sg-body sg-note">
-        IBM Plex Sans Variable for display and interface, Overpass for subject
-        ids and numeric data. Its figures match its capitals in height and
-        stroke, so ids made of letters and ids made of digits sit level.
+        Overpass Variable for display and interface, Overpass Mono Variable for
+        subject ids and numeric data. The fixed advance keeps ids made of
+        letters and ids made of digits aligned down a list.
       </p>
       <g-card class="sg-type-ramp">
         <div class="sg-type-row">

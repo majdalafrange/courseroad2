@@ -14,7 +14,6 @@ import App from "./App.vue";
 import { QUERY_CACHE_KEY } from "./loaders/courseData";
 
 // Fonts and design tokens.
-import "@fontsource-variable/ibm-plex-sans/index.css";
 import "./css/fonts.css";
 import "./design/tokens.css";
 import "./design/departmentColors.css";

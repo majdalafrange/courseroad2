@@ -5,10 +5,10 @@
  * is used sparingly, for the one mark that matters (the current term's
  * flag, the primary action), never as wallpaper.
  *
- * TYPE, self-hosted: IBM Plex Sans Variable for display and body
- * (matching Hydrant, MIT's other SIPB planning tool) and Overpass for
- * subject ids and numbers, a face whose figures match its capitals in
- * height and stroke, so "5.602" and "GIR:REST" sit level in one list.
+ * TYPE, self-hosted: Overpass Variable for display and body, and Overpass
+ * Mono Variable for subject ids, numbers, counts and shortcuts. Both share
+ * one skeleton, so a mono id sits comfortably inside a sans row, and the
+ * fixed advance keeps "5.602" and "GIR:REST" aligned down a list.
  *
  * Light is paper, garnet-led; dark is blueprint, blue-black rather than
  * neutral charcoal, where MIT silver carries every interactive state and
@@ -66,8 +66,8 @@
  *
  *   Structural labels (command-palette section heads, term-cell season
  *     labels) are sentence case, never caps: a coordinate-like label
- *     (a season, a subject id) reads as --text-id-small mono, everything
- *     else as --text-small/--text-micro sans.
+ *     (a subject id) reads as --text-id-small mono; a season or term label
+ *     is --text-small sans at weight 500 with tabular figures.
  *
  * STACKING SCALE (not CSS vars: z-index doesn't inherit, so each site
  * writes its own literal; new overlays should slot into this order):
@@ -99,10 +99,11 @@
 
   /* ---------- type ---------- */
   /* --font-display and --font-text are the same stack on purpose (see the
-     TYPE note above): one voice for headings and body, matching Hydrant. */
-  --font-display: "IBM Plex Sans Variable", "Helvetica Neue", Arial, sans-serif;
-  --font-text: "IBM Plex Sans Variable", "Helvetica Neue", Arial, sans-serif;
-  --font-id: "Overpass Variable", "Helvetica Neue", Arial, sans-serif;
+     TYPE note above): one voice for headings and body. --font-mono is for
+     ids, figures, counts and key caps. */
+  --font-display: "Overpass Variable", "Helvetica Neue", Arial, sans-serif;
+  --font-text: "Overpass Variable", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Overpass Mono Variable", ui-monospace, Consolas, monospace;
 
   /* type scale: 1.25 ratio anchored at 14px body */
   --text-display: 600 1.75rem/1.2 var(--font-display); /* 28px */
@@ -114,11 +115,11 @@
   --text-small: 400 0.78125rem/1.45 var(--font-text); /* 12.5px */
   --text-micro: 500 0.6875rem/1.4 var(--font-text); /* 11px */
   /* ids sit one notch above the body scale so they lead the rows they head */
-  --text-id-lg: 550 1.34375rem/1.3 var(--font-id); /* 21.5px, detail-panel subject id */
-  --text-data: 550 1.46875rem/1.25 var(--font-id); /* 23.5px, stat values */
-  --text-id: 500 0.9375rem/1.4 var(--font-id); /* 15px, subject ids */
-  --text-id-small: 500 0.84375rem/1.35 var(--font-id); /* 13.5px */
-  /* Plex Sans opens up slightly at display sizes; tighten anything ≥22px */
+  --text-id-lg: 600 1.25rem/1.3 var(--font-mono); /* 20px, detail-panel subject id */
+  --text-data: 600 1.375rem/1.25 var(--font-mono); /* 22px, stat values */
+  --text-id: 550 0.875rem/1.4 var(--font-mono); /* 14px, subject ids */
+  --text-id-small: 550 0.78125rem/1.35 var(--font-mono); /* 12.5px */
+  /* Overpass opens up slightly at display sizes; tighten anything ≥22px */
   --tracking-tight: -0.01em;
 
   /* ---------- spacing / radius ---------- */

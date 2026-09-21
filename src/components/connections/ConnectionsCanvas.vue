@@ -739,10 +739,13 @@ onBeforeUnmount(() => {
   stroke-width: 2;
 }
 
-/* Term labels are mono like TermCell's season labels; "Prior credit" and
-   "Unscheduled" are row names and stay sans. */
+/* Term labels are sans like TermCell's season labels, medium weight and
+   tabular figures; "Prior credit" and "Unscheduled" are row names and stay
+   regular. */
 .row-label {
-  font: var(--text-id-small);
+  font: var(--text-small);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
   fill: var(--g-ink-3);
   pointer-events: none;
   user-select: none;

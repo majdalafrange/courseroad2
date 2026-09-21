@@ -32,7 +32,7 @@ import { computed } from "vue";
  * Canvas background material: numerals and operators, after the
  * character lattice of the Alchemist on the Stratton lawn. An SVG
  * pattern rather than a background image, so the glyphs use the page's
- * Plex Sans and theme tokens; the tile repeats and scrolls with the
+ * Overpass and theme tokens; the tile repeats and scrolls with the
  * content.
  */
 

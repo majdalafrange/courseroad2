@@ -604,7 +604,9 @@ void dragState;
   color: var(--g-ink);
 }
 .year-span {
-  font: var(--text-id-small);
+  font: var(--text-small);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
   color: var(--g-ink-3);
 }
 

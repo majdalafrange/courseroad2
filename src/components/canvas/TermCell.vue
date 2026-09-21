@@ -477,16 +477,18 @@ const placementAriaLabel = computed(() => {
   justify-content: space-between;
   gap: var(--space-2);
 }
-/* Season labels take the id face like subject ids; prior credit is a row
-   name and stays in the body face. */
+/* Season labels are labels, not identifiers: body face with tabular figures
+   so the year stays aligned down a column of terms. */
 .term-name {
-  font: var(--text-id-small);
+  font: var(--text-small);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
   color: var(--g-ink-3);
   margin: 0;
   white-space: nowrap;
 }
 .term-name.is-prior {
-  font: var(--text-small);
+  font-weight: 400;
 }
 .is-current .term-name {
   color: var(--g-accent);
@@ -520,7 +522,7 @@ const placementAriaLabel = computed(() => {
   display: flex;
   align-items: baseline;
   gap: var(--space-2);
-  font: var(--text-id-small);
+  font: var(--text-small);
   /* totals tick as classes move; tabular figures keep them from jittering */
   font-variant-numeric: tabular-nums;
   color: var(--g-ink-2);

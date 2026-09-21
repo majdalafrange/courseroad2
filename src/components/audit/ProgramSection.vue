@@ -380,7 +380,7 @@ watch(
   gap: 1px;
 }
 .program-title {
-  /* the display face marks the tree's first level; branches stay Plex 14 */
+  /* the display face marks the tree's first level; branches stay 14 */
   font: var(--text-heading);
   color: var(--g-ink);
   overflow: hidden;

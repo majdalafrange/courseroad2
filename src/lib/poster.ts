@@ -16,8 +16,8 @@ import {
   semesterType,
 } from "./offering";
 import { useTouchDevice } from "../composables/useIsMobile";
-import ibmPlexSansUrl from "@fontsource-variable/ibm-plex-sans/files/ibm-plex-sans-latin-wdth-normal.woff2?url";
 import overpassUrl from "@fontsource-variable/overpass/files/overpass-latin-wght-normal.woff2?url";
+import overpassMonoUrl from "@fontsource-variable/overpass-mono/files/overpass-mono-latin-wght-normal.woff2?url";
 
 let fontFaceCss = "";
 let fontFacesPromise: Promise<void> | undefined;
@@ -35,14 +35,14 @@ async function toBase64(url: string): Promise<string> {
 export function preparePosterFonts(): Promise<void> {
   fontFacesPromise ??= (async () => {
     try {
-      const [sans, overpass] = await Promise.all([
-        toBase64(ibmPlexSansUrl),
+      const [sans, mono] = await Promise.all([
         toBase64(overpassUrl),
+        toBase64(overpassMonoUrl),
       ]);
       fontFaceCss =
         `<style>` +
-        `@font-face{font-family:'IBM Plex Sans Variable';font-weight: 100 700;src:url(data:font/woff2;base64,${sans}) format('woff2');}` +
-        `@font-face{font-family:'Overpass Variable';font-weight: 100 900;src:url(data:font/woff2;base64,${overpass}) format('woff2');}` +
+        `@font-face{font-family:'Overpass Variable';font-weight: 100 900;src:url(data:font/woff2;base64,${sans}) format('woff2');}` +
+        `@font-face{font-family:'Overpass Mono Variable';font-weight: 300 700;src:url(data:font/woff2;base64,${mono}) format('woff2');}` +
         `</style>`;
     } catch {
       // Offline or blocked: renders with the system font instead.
@@ -229,7 +229,7 @@ export function buildRoadPoster(
     const rowH = termHeaderH + maxCardsByYear[y] * (cardH + cardGap) + 16;
     // year label
     parts.push(
-      `<text x="${padding}" y="${cursorY - 8}" font-family="'IBM Plex Sans Variable',sans-serif" font-size="16" font-weight="600" fill="${theme.ink}">${esc(yearNames[y])}</text>`,
+      `<text x="${padding}" y="${cursorY - 8}" font-family="'Overpass Variable',sans-serif" font-size="16" font-weight="600" fill="${theme.ink}">${esc(yearNames[y])}</text>`,
     );
     for (let c = 0; c < 3; c++) {
       const index = 1 + y * 3 + c;
@@ -272,8 +272,8 @@ export function buildRoadPoster(
       <line x1="12" y1="12" x2="12" y2="9" stroke="${MARK_TILE}" stroke-width="1.9" stroke-linecap="round"/>
       <line x1="12" y1="5" x2="12" y2="3" stroke="${MARK_TILE}" stroke-width="1.7" stroke-linecap="round"/>
     </g>
-    <text x="${padding + 34}" y="${padding + 10}" font-family="'IBM Plex Sans Variable',sans-serif" font-size="22" font-weight="600" fill="${theme.ink}">${esc(truncateTitle(road.name))}</text>
-    <text x="${padding + 34}" y="${padding + 32}" font-family="'IBM Plex Sans Variable',sans-serif" font-size="13" fill="${theme.ink3}">${totalUnits} units · planned in CourseRoad</text>
+    <text x="${padding + 34}" y="${padding + 10}" font-family="'Overpass Variable',sans-serif" font-size="22" font-weight="600" fill="${theme.ink}">${esc(truncateTitle(road.name))}</text>
+    <text x="${padding + 34}" y="${padding + 32}" font-family="'Overpass Variable',sans-serif" font-size="13" fill="${theme.ink3}">${totalUnits} units · planned in CourseRoad</text>
   `;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
@@ -285,7 +285,7 @@ ${parts.join("\n")}
 
 /**
  * SVG text does not wrap or clip, so the title is capped like subject
- * titles: 48 characters of 22px IBM Plex Sans fit the 812px sheet. Sliced
+ * titles: 48 characters of 22px Overpass fit the 812px sheet. Sliced
  * by code point so the cut never splits an astral character.
  */
 function truncateTitle(name: string): string {
@@ -326,13 +326,13 @@ function termBlock(
     // Prior credit is a row name, not a column header: sentence case, no
     // caps treatment (TermCell's .term-name.is-prior).
     parts.push(
-      `<text x="${x + 14}" y="${y + 24}" font-family="'IBM Plex Sans Variable',sans-serif" font-size="12.5" fill="${theme.ink3}">${esc(season)}</text>`,
+      `<text x="${x + 14}" y="${y + 24}" font-family="'Overpass Variable',sans-serif" font-size="12.5" fill="${theme.ink3}">${esc(season)}</text>`,
     );
   } else {
-    // Season label: the id face, sentence case, accent while current
+    // Season label: the body face, medium weight, accent while current
     // (TermCell's .term-name); the year half at opacity 0.8 (.term-year).
     parts.push(
-      `<text x="${x + 14}" y="${y + 24}" font-family="'Overpass Variable',sans-serif" font-size="11.5" font-weight="500" fill="${isCurrent ? theme.accent : theme.ink3}">` +
+      `<text x="${x + 14}" y="${y + 24}" font-family="'Overpass Variable',sans-serif" font-size="12.5" font-weight="500" fill="${isCurrent ? theme.accent : theme.ink3}">` +
         `<tspan>${esc(season)}</tspan><tspan dx="3" fill-opacity="0.8">${esc(yearLabel)}</tspan></text>`,
     );
   }
@@ -348,7 +348,7 @@ function termBlock(
     parts.push(
       `<g transform="rotate(-1.5 ${cx} ${cy})">` +
         `<rect x="${flagX}" y="${flagY}" width="${flagW}" height="${flagH}" rx="3" fill="${theme.brandFlag}"/>` +
-        `<text x="${cx}" y="${flagY + flagH - 4.5}" text-anchor="middle" font-family="'IBM Plex Sans Variable',sans-serif" font-size="9" font-weight="600" fill="#ffffff">Now</text>` +
+        `<text x="${cx}" y="${flagY + flagH - 4.5}" text-anchor="middle" font-family="'Overpass Variable',sans-serif" font-size="9" font-weight="600" fill="#ffffff">Now</text>` +
         `</g>`,
     );
   }
@@ -364,13 +364,13 @@ function termBlock(
     // malformed import) must not take down the whole poster.
     const subjectId = subj.subject_id ?? "?";
     parts.push(
-      `<text x="${x + 14}" y="${cy + 13}" font-family="'Overpass Variable',sans-serif" font-size="11.5" font-weight="550" fill="${theme.deptOn}">${esc(subjectId)}</text>`,
+      `<text x="${x + 14}" y="${cy + 13}" font-family="'Overpass Mono Variable',monospace" font-size="11" font-weight="600" fill="${theme.deptOn}">${esc(subjectId)}</text>`,
     );
     const rawTitle = subj.title ?? "";
     const title =
       rawTitle.length > 38 ? rawTitle.slice(0, 35) + "..." : rawTitle;
     parts.push(
-      `<text x="${x + 14}" y="${cy + 24}" font-family="'IBM Plex Sans Variable',sans-serif" font-size="10" fill="${theme.deptOn2}">${esc(title)}</text>`,
+      `<text x="${x + 14}" y="${cy + 24}" font-family="'Overpass Variable',sans-serif" font-size="10" fill="${theme.deptOn2}">${esc(title)}</text>`,
     );
     cy += cardH + cardGap;
   }
