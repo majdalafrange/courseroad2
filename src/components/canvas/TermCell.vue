@@ -11,6 +11,7 @@
         'is-iap': isIAP,
         'is-current': isCurrentTerm,
         'is-move-target': moveTarget,
+        'six-seven': info.totalUnits === 67,
       },
     ]"
     :data-cy="'road_' + roadID + '__semester_' + index"
@@ -742,5 +743,27 @@ const placementAriaLabel = computed(() => {
   flex-direction: column;
   gap: 1px;
   padding: var(--space-05) 0;
+}
+
+/* shake a term when 67 unit are added :3 */
+.six-seven {
+  animation: shake-term 0.5s ease-in-out;
+}
+@keyframes shake-term {
+  0% {
+    transform: translateX(0) rotate(0deg);
+  }
+  25% {
+    transform: translateX(-5px) rotate(-1deg);
+  }
+  50% {
+    transform: translateX(5px) rotate(1deg);
+  }
+  75% {
+    transform: translateX(-5px) rotate(-1deg);
+  }
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
 }
 </style>
