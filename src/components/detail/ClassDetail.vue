@@ -105,7 +105,7 @@
           data-cy="cardEnrollment"
         >
           {{ Math.round(subject.enrollment_number) }}
-          <span class="stat-label">enrolled</span>
+          <span class="stat-label">avg enroll</span>
         </span>
       </p>
       <p v-if="hoursVerdict" class="detail-verdict" :class="hoursTone">
@@ -889,7 +889,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: var(--space-2) var(--space-4);
+  gap: var(--space-2) var(--space-3);
   margin: var(--space-3) 0 0;
   font: var(--text-id);
   font-variant-numeric: tabular-nums;
@@ -898,7 +898,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
 .stat {
   display: inline-flex;
   align-items: baseline;
-  gap: 3px;
+  gap: var(--space-05);
 }
 /* the number gives the link its baseline, so it lines up with "/7"; the
    star just rides centered beside it */
