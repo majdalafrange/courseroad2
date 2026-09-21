@@ -9,6 +9,9 @@
         @click="open = !open"
       >
         <span class="switch-name">{{ activeName }}</span>
+        <span v-if="roadIds.length > 1" class="switch-count"
+          >{{ roadIds.length }} roads</span
+        >
         <g-icon name="chevronDown" :size="13" class="switch-chevron" />
       </button>
     </template>
@@ -252,6 +255,8 @@ function cancelRename() {
 </script>
 
 <style scoped>
+/* the bare name read as a page title, so the ring and the road count say
+   this opens a list. the notice hue keeps it clear of the header's cardinal */
 .switch-trigger {
   display: inline-flex;
   align-items: center;
@@ -263,8 +268,8 @@ function cancelRename() {
   background: transparent;
   border: none;
   border-radius: var(--radius-sm);
+  box-shadow: inset 0 0 0 1px var(--g-info);
   padding: var(--space-1) var(--space-2);
-  margin-left: calc(var(--space-2) * -1);
   cursor: pointer;
   transition: background-color var(--motion-quick) var(--ease-out);
 }
@@ -281,8 +286,14 @@ function cancelRename() {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.switch-chevron {
+.switch-count {
+  font: var(--text-small);
   color: var(--g-ink-3);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.switch-chevron {
+  color: var(--g-ink-2);
   flex-shrink: 0;
 }
 
@@ -412,6 +423,11 @@ function cancelRename() {
 }
 /* Touch: no hover state and a tap produces no :focus-visible, so the
    buttons stay visible and the count yields its slot. */
+@media (max-width: 859px) {
+  .switch-count {
+    display: none;
+  }
+}
 @media (hover: none) {
   .road-actions {
     opacity: 1;
