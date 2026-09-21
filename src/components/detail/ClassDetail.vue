@@ -63,12 +63,11 @@
 
       <!-- on the road? -->
       <div v-if="onRoadBucket >= 0" class="detail-onroad">
-        <g-icon name="map" :size="13" />
-        <span
-          >On your road: <strong>{{ bucketName(onRoadBucket) }}</strong></span
-        >
+        <span>
+          On your road: <strong>{{ bucketName(onRoadBucket) }}</strong>
+        </span>
         <button class="onroad-action" @click="jumpToBucket(onRoadBucket)">
-          Jump to it
+          Go to it
         </button>
         <button class="onroad-action" @click="moveIt">Move it</button>
       </div>
