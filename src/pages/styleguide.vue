@@ -324,7 +324,7 @@
                 >Move 6.006 here?</strong
               >
               <span style="font: var(--text-small); color: var(--g-ink-2)">
-                Offered in spring · prereqs satisfied
+                Offered in spring <span class="sep">·</span> prereqs satisfied
               </span>
               <g-button variant="primary" size="sm" @click="demoPopover = false"
                 >Place it</g-button
@@ -460,8 +460,8 @@ const semanticSwatches = [
   { name: "Ink 2", varName: "--g-ink-2" },
   { name: "Ink 3", varName: "--g-ink-3" },
   { name: "Line", varName: "--g-line" },
-  { name: "Cardinal", varName: "--g-accent" },
-  { name: "Brand", varName: "--g-brand" },
+  { name: "Accent", varName: "--g-accent" },
+  { name: "Cardinal", varName: "--g-brand" },
   { name: "OK", varName: "--g-ok" },
   { name: "Warn", varName: "--g-warn" },
   { name: "Danger", varName: "--g-danger" },
