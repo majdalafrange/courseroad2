@@ -11,18 +11,18 @@ end-to-end tests under Playwright.
 
 ## Install
 
-Node 22 or newer (CI uses the requirements in `package.json`).
+Node 24 or newer (CI uses the requirements in `package.json`).
 
 ```sh
 npm install
 npm run dev
 ```
 
-The dev server serves http://localhost:8080.
+The dev server serves <http://localhost:8080>.
 
 ## Scripts
 
-- `npm run dev`: Vite dev server at http://localhost:8080
+- `npm run dev`: Vite dev server at <http://localhost:8080>
 - `npm run devdev`: dev server in `devdev` mode (local FireRoad)
 - `npm test`: unit suite (Vitest)
 - `npm run test:watch`: unit suite in watch mode
