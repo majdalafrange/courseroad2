@@ -10,7 +10,6 @@
         <g-button variant="subtle" @click="toggleTheme">
           {{ isDark ? "Switch to light" : "Switch to dark" }}
         </g-button>
-        <theme-toggle :dark="isDark" @toggle="toggleTheme" />
         <router-link to="/road" class="sg-back"
           ><g-icon name="back" :size="12" /> back to the app</router-link
         >
@@ -92,7 +91,7 @@
         <div class="sg-type-row">
           <code class="sg-type-token">--text-title</code>
           <span style="font: var(--text-title)"
-            >Sophomore Spring · 48 units</span
+            >Sophomore Spring <span class="sep">·</span> 48 units</span
           >
         </div>
         <div class="sg-type-row">
@@ -109,7 +108,8 @@
         <div class="sg-type-row">
           <code class="sg-type-token">--text-small</code>
           <span style="font: var(--text-small); color: var(--g-ink-2)">
-            Prereq: 6.1200 or 18.062 · 12 units · Fall, Spring
+            Prereq: 6.1200 or 18.062 <span class="sep">·</span> 12 units
+            <span class="sep">·</span> Fall, Spring
           </span>
         </div>
         <div class="sg-type-row">
@@ -363,7 +363,7 @@
 
     <footer class="sg-footer">
       <span class="sg-small">
-        CourseRoad design language · tokens in
+        CourseRoad design language <span class="sep">·</span> tokens in
         <code>src/design/tokens.css</code>
       </span>
     </footer>
@@ -387,7 +387,6 @@ import GSelect from "../design/components/GSelect.vue";
 import GToastHost from "../design/components/GToastHost.vue";
 import GTooltip from "../design/components/GTooltip.vue";
 import GWordmark from "../design/components/GWordmark.vue";
-import ThemeToggle from "../components/shell/ThemeToggle.vue";
 import { toast } from "../design/toast.ts";
 import { useTheme } from "../composables/useTheme.ts";
 import { useCourseDataStore } from "../stores/courseData.ts";
