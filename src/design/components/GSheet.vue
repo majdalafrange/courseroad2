@@ -20,14 +20,14 @@
         <VisuallyHidden as-child>
           <DialogTitle>{{ label }}</DialogTitle>
         </VisuallyHidden>
-        <button
+        <g-button
           v-if="closeButton && dismissible"
           class="g-sheet-close"
           aria-label="Close"
           @click="close"
         >
           <g-icon name="close" :size="16" />
-        </button>
+        </g-button>
         <slot />
       </DialogContent>
     </DialogPortal>
@@ -53,6 +53,7 @@ import {
   type PointerDownOutsideEvent,
 } from "reka-ui";
 import GIcon from "./GIcon.vue";
+import GButton from "./GButton.vue";
 
 defineOptions({ inheritAttrs: false });
 
@@ -204,15 +205,6 @@ function onOpenAutoFocus(event: Event) {
   justify-content: center;
   width: 30px;
   height: 30px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: var(--g-surface);
-  color: var(--g-ink-3);
-  cursor: pointer;
   z-index: 1;
-  box-shadow: var(--shadow-1);
-}
-.g-sheet-close:hover {
-  color: var(--g-ink);
 }
 </style>
