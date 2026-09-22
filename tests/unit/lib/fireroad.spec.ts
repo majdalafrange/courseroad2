@@ -98,9 +98,7 @@ describe("FireRoadClient endpoint bytes", () => {
   });
 
   it("sends the bearer token on every authenticated GET", () => {
-    mockedFetch.mockImplementation(async () =>
-      jsonResponse({ success: true }),
-    );
+    mockedFetch.mockImplementation(async () => jsonResponse({ success: true }));
     const client = makeClient("secret");
     void client.verify();
     void client.getRoads();
@@ -122,9 +120,7 @@ describe("FireRoadClient endpoint bytes", () => {
   });
 
   it("posts sync, delete, and semester to their legacy paths", () => {
-    mockedFetch.mockImplementation(async () =>
-      jsonResponse({ success: true }),
-    );
+    mockedFetch.mockImplementation(async () => jsonResponse({ success: true }));
     const client = makeClient();
     const road = { override: false, agent: "t" } as RoadToSend;
     void client.syncRoad(road);
@@ -182,15 +178,15 @@ describe("FireRoadClient endpoint bytes", () => {
   });
 
   it("rejects with an axios-shaped error on a non-2xx response", async () => {
-    mockedFetch.mockResolvedValueOnce(
-      jsonResponse({ error: "bad key" }, 400),
-    );
-    await expect(makeClient().getProgress("bogus", {
-      coursesOfStudy: [],
-      selectedSubjects: [],
-      progressOverrides: {},
-      progressAssertions: {},
-    })).rejects.toMatchObject({
+    mockedFetch.mockResolvedValueOnce(jsonResponse({ error: "bad key" }, 400));
+    await expect(
+      makeClient().getProgress("bogus", {
+        coursesOfStudy: [],
+        selectedSubjects: [],
+        progressOverrides: {},
+        progressAssertions: {},
+      }),
+    ).rejects.toMatchObject({
       response: { status: 400, data: { error: "bad key" } },
     });
   });
