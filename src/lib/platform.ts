@@ -1,4 +1,5 @@
 import { UAParser } from "ua-parser-js";
+import { OSName } from "ua-parser-js/enums";
 
 /**
  * Keyboard-shortcut display: Cmd on a Mac, Ctrl elsewhere
@@ -6,7 +7,8 @@ import { UAParser } from "ua-parser-js";
  * deprecated navigator.platform.
  */
 export function isMac(): boolean {
-  return /mac/i.test(UAParser(navigator.userAgent).os.name ?? "");
+  const os = UAParser(navigator.userAgent).os.name;
+  return os === OSName.MACOS || os === OSName.IOS;
 }
 
 /** Flat "⌘K"/"Ctrl+K" string for plain-text contexts (toasts) that can't
