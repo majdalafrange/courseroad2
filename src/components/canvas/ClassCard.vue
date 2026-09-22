@@ -31,9 +31,9 @@
     <div class="card-body">
       <span class="card-id">
         {{ subject.subject_id
-        }}<sub v-if="oldID !== undefined" class="card-old-id">
-          [{{ oldID }}]
-        </sub>
+        }}<sub v-if="oldID !== undefined" class="card-old-id"
+          >[{{ oldID }}]</sub
+        >
       </span>
       <span class="card-title">{{ subject.title }}</span>
     </div>
@@ -317,14 +317,14 @@ function onHoverEnd() {
 }
 .card-id {
   font: var(--text-id-small);
-  font-weight: 550; /* the id is the atomic unit; it leads by weight */
+  font-weight: 700; /* the id is the atomic unit; it leads by weight */
   color: var(--dept-on);
   white-space: nowrap;
   text-overflow: clip;
   overflow: hidden;
 }
 .card-old-id {
-  font: var(--text-micro);
+  font: var(--text-id-micro);
   color: var(--dept-on-3);
 }
 .card-title {

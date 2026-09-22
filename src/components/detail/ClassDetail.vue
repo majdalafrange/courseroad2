@@ -41,9 +41,9 @@
       >
         <h2 class="detail-id">
           {{ subject.subject_id
-          }}<sub v-if="subject.old_id" class="detail-old-id">
-            [{{ subject.old_id }}]
-          </sub>
+          }}<sub v-if="subject.old_id" class="detail-old-id"
+            >[{{ subject.old_id }}]</sub
+          >
         </h2>
         <p class="detail-title" data-cy="cardSubjectTitle">
           {{ subject.title }}
@@ -835,9 +835,10 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
   font: var(--text-id-lg);
   margin: 0;
   color: var(--dept-on);
+  font-weight: 700;
 }
 .detail-old-id {
-  font-size: 0.55em;
+  font: var(--text-id-small);
   color: var(--dept-on-3);
 }
 .detail-title {
