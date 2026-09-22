@@ -1,9 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import axios from "axios";
 import { FireRoadClient, NoAuthError } from "../../../src/lib/fireroad";
 import type { RoadToSend } from "../../../src/lib/fireroad";
-
-vi.mock("axios");
 
 /**
  * Pins the FireRoad wire surface: endpoint paths, query encoding, the
@@ -18,8 +15,13 @@ function makeClient(token = "tok123"): FireRoadClient {
   return new FireRoadClient(BASE, () => token);
 }
 
-const mockedGet = vi.mocked(axios.get);
-const mockedPost = vi.mocked(axios.post);
+/** A minimal Response-like object, matching what fetch() resolves to. */
+function jsonResponse(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), { status });
+}
+
+const mockedFetch = vi.fn<typeof fetch>();
+vi.stubGlobal("fetch", mockedFetch);
 
 afterEach(() => {
   vi.resetAllMocks();
@@ -36,23 +38,25 @@ describe("FireRoadClient endpoint bytes", () => {
   });
 
   it("fetches the full catalog from /courses/all?full=true", () => {
-    mockedGet.mockResolvedValueOnce({ data: [] });
+    mockedFetch.mockResolvedValueOnce(jsonResponse([]));
     void makeClient().getFullCatalog();
-    expect(mockedGet).toHaveBeenCalledWith(
+    expect(mockedFetch).toHaveBeenCalledWith(
       "https://fireroad.mit.edu/courses/all?full=true",
+      { method: "GET", headers: undefined },
     );
   });
 
   it("fetches the requirements list from /requirements/list_reqs/", () => {
-    mockedGet.mockResolvedValueOnce({ data: {} });
+    mockedFetch.mockResolvedValueOnce(jsonResponse({}));
     void makeClient().getRequirementsList();
-    expect(mockedGet).toHaveBeenCalledWith(
+    expect(mockedFetch).toHaveBeenCalledWith(
       "https://fireroad.mit.edu/requirements/list_reqs/",
+      { method: "GET", headers: undefined },
     );
   });
 
   it("posts road contents to /requirements/progress/<key>/", () => {
-    mockedPost.mockResolvedValueOnce({ data: {} });
+    mockedFetch.mockResolvedValueOnce(jsonResponse({}));
     const contents = {
       coursesOfStudy: [],
       selectedSubjects: [],
@@ -60,78 +64,105 @@ describe("FireRoadClient endpoint bytes", () => {
       progressAssertions: {},
     };
     void makeClient().getProgress("major6", contents);
-    expect(mockedPost).toHaveBeenCalledWith(
+    expect(mockedFetch).toHaveBeenCalledWith(
       "https://fireroad.mit.edu/requirements/progress/major6/",
-      contents,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(contents),
+      },
     );
   });
 
   it("percent-encodes the requirement key in the progress path", () => {
-    mockedPost.mockResolvedValueOnce({ data: {} });
+    mockedFetch.mockResolvedValueOnce(jsonResponse({}));
     void makeClient().getProgress("a/b c", {
       coursesOfStudy: [],
       selectedSubjects: [],
       progressOverrides: {},
       progressAssertions: {},
     });
-    expect(mockedPost).toHaveBeenCalledWith(
+    expect(mockedFetch).toHaveBeenCalledWith(
       "https://fireroad.mit.edu/requirements/progress/a%2Fb%20c/",
       expect.anything(),
     );
   });
 
   it("percent-encodes the OIDC code in /fetch_token/", () => {
-    mockedGet.mockResolvedValueOnce({ data: { success: true } });
+    mockedFetch.mockResolvedValueOnce(jsonResponse({ success: true }));
     void makeClient().fetchToken("abc&code=evil");
-    expect(mockedGet).toHaveBeenCalledWith(
+    expect(mockedFetch).toHaveBeenCalledWith(
       "https://fireroad.mit.edu/fetch_token/?code=abc%26code%3Devil",
+      { method: "GET", headers: undefined },
     );
   });
 
   it("sends the bearer token on every authenticated GET", () => {
-    mockedGet.mockResolvedValue({ data: { success: true } });
+    mockedFetch.mockImplementation(async () =>
+      jsonResponse({ success: true }),
+    );
     const client = makeClient("secret");
     void client.verify();
     void client.getRoads();
     void client.getRoad("$defaultroad$");
-    expect(mockedGet.mock.calls).toEqual([
+    expect(mockedFetch.mock.calls).toEqual([
       [
         "https://fireroad.mit.edu/verify/",
-        { headers: { Authorization: "Bearer secret" } },
+        { method: "GET", headers: { Authorization: "Bearer secret" } },
       ],
       [
         "https://fireroad.mit.edu/sync/roads/",
-        { headers: { Authorization: "Bearer secret" } },
+        { method: "GET", headers: { Authorization: "Bearer secret" } },
       ],
       [
         "https://fireroad.mit.edu/sync/roads/?id=%24defaultroad%24",
-        { headers: { Authorization: "Bearer secret" } },
+        { method: "GET", headers: { Authorization: "Bearer secret" } },
       ],
     ]);
   });
 
   it("posts sync, delete, and semester to their legacy paths", () => {
-    mockedPost.mockResolvedValue({ data: { success: true } });
+    mockedFetch.mockImplementation(async () =>
+      jsonResponse({ success: true }),
+    );
     const client = makeClient();
     const road = { override: false, agent: "t" } as RoadToSend;
     void client.syncRoad(road);
     void client.deleteRoad("12345");
     void client.setSemester(7);
-    expect(mockedPost.mock.calls).toEqual([
+    expect(mockedFetch.mock.calls).toEqual([
       [
         "https://fireroad.mit.edu/sync/sync_road/",
-        road,
-        { headers: { Authorization: "Bearer tok123" } },
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer tok123",
+          },
+          body: JSON.stringify(road),
+        },
       ],
       [
         "https://fireroad.mit.edu/sync/delete_road/",
-        { id: "12345" },
-        { headers: { Authorization: "Bearer tok123" } },
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer tok123",
+          },
+          body: JSON.stringify({ id: "12345" }),
+        },
       ],
       [
         "https://fireroad.mit.edu/set_semester/",
-        { semester: 7 },
-        { headers: { Authorization: "Bearer tok123" } },
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer tok123",
+          },
+          body: JSON.stringify({ semester: 7 }),
+        },
       ],
     ]);
   });
@@ -147,7 +178,20 @@ describe("FireRoadClient endpoint bytes", () => {
     await expect(client.syncRoad({} as RoadToSend)).rejects.toBeInstanceOf(
       NoAuthError,
     );
-    expect(mockedGet).not.toHaveBeenCalled();
-    expect(mockedPost).not.toHaveBeenCalled();
+    expect(mockedFetch).not.toHaveBeenCalled();
+  });
+
+  it("rejects with an axios-shaped error on a non-2xx response", async () => {
+    mockedFetch.mockResolvedValueOnce(
+      jsonResponse({ error: "bad key" }, 400),
+    );
+    await expect(makeClient().getProgress("bogus", {
+      coursesOfStudy: [],
+      selectedSubjects: [],
+      progressOverrides: {},
+      progressAssertions: {},
+    })).rejects.toMatchObject({
+      response: { status: 400, data: { error: "bad key" } },
+    });
   });
 });

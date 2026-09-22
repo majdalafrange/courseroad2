@@ -32,7 +32,6 @@
     "@pinia/colada": "^1.4.5",
     "@pinia/colada-plugin-cache-persister": "^1.1.2",
     "@pinia/colada-plugin-retry": "^1.0.2",
-    "axios": "^1.20.0",
     "idb-keyval": "^6.3.0",
     "pinia": "^4.0.3",
     "reka-ui": "^2.10.5",

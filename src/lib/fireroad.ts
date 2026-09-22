@@ -3,7 +3,6 @@
  * Base URL and token are injected so tests can stub it.
  */
 
-import axios, { type AxiosResponse } from "axios";
 import type {
   AccessInfo,
   FlatRoadContents,
@@ -11,6 +10,65 @@ import type {
   Road,
   Subject,
 } from "./types";
+
+export interface HttpResponse<T> {
+  data: T;
+  status: number;
+}
+
+/**
+ * Mirrors axios's default behavior (reject on non-2xx, with the status and
+ * parsed body on `.response`) since callers (auth.ts, degreeFit.ts) branch
+ * on `err.response.status`/`err.response.data`.
+ */
+export class HttpError extends Error {
+  response: { status: number; data: unknown };
+  constructor(status: number, data: unknown) {
+    super(`Request failed with status ${status}`);
+    this.response = { status, data };
+  }
+}
+
+async function parseBody(res: Response): Promise<unknown> {
+  const text = await res.text();
+  if (text.length === 0) {
+    return undefined;
+  }
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+}
+
+async function httpGet<T>(
+  url: string,
+  config?: { headers?: Record<string, string> },
+): Promise<HttpResponse<T>> {
+  const res = await fetch(url, { method: "GET", headers: config?.headers });
+  const data = await parseBody(res);
+  if (!res.ok) {
+    throw new HttpError(res.status, data);
+  }
+  return { data: data as T, status: res.status };
+}
+
+async function httpPost<T>(
+  url: string,
+  body: unknown,
+  config?: { headers?: Record<string, string> },
+): Promise<HttpResponse<T>> {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...config?.headers },
+    body: JSON.stringify(body),
+  });
+  const data = await parseBody(res);
+  if (!res.ok) {
+    throw new HttpError(res.status, data);
+  }
+  return { data: data as T, status: res.status };
+}
 
 export interface FetchTokenResponse {
   success: boolean;
@@ -88,9 +146,9 @@ export class FireRoadClient {
     return { headers: { Authorization: "Bearer " + token } };
   }
 
-  private getSecure<T>(link: string): Promise<AxiosResponse<T>> {
+  private getSecure<T>(link: string): Promise<HttpResponse<T>> {
     try {
-      return axios.get<T>(this.baseUrl + link, this.authHeaders());
+      return httpGet<T>(this.baseUrl + link, this.authHeaders());
     } catch (err) {
       return Promise.reject(err);
     }
@@ -99,9 +157,9 @@ export class FireRoadClient {
   private postSecure<T>(
     link: string,
     params: unknown,
-  ): Promise<AxiosResponse<T>> {
+  ): Promise<HttpResponse<T>> {
     try {
-      return axios.post<T>(this.baseUrl + link, params, this.authHeaders());
+      return httpPost<T>(this.baseUrl + link, params, this.authHeaders());
     } catch (err) {
       return Promise.reject(err);
     }
@@ -109,21 +167,21 @@ export class FireRoadClient {
 
   /* ---- public, unauthenticated ---- */
 
-  getFullCatalog(): Promise<AxiosResponse<Subject[]>> {
-    return axios.get<Subject[]>(this.baseUrl + "/courses/all?full=true");
+  getFullCatalog(): Promise<HttpResponse<Subject[]>> {
+    return httpGet<Subject[]>(this.baseUrl + "/courses/all?full=true");
   }
 
   getRequirementsList(): Promise<
-    AxiosResponse<Record<string, Omit<import("./types").ReqListEntry, "key">>>
+    HttpResponse<Record<string, Omit<import("./types").ReqListEntry, "key">>>
   > {
-    return axios.get(this.baseUrl + "/requirements/list_reqs/");
+    return httpGet(this.baseUrl + "/requirements/list_reqs/");
   }
 
   getProgress(
     reqKey: string,
     roadContents: FlatRoadContents,
-  ): Promise<AxiosResponse<RequirementNode>> {
-    return axios.post<RequirementNode>(
+  ): Promise<HttpResponse<RequirementNode>> {
+    return httpPost<RequirementNode>(
       this.baseUrl +
         "/requirements/progress/" +
         encodeURIComponent(reqKey) +
@@ -132,39 +190,39 @@ export class FireRoadClient {
     );
   }
 
-  fetchToken(code: string): Promise<AxiosResponse<FetchTokenResponse>> {
+  fetchToken(code: string): Promise<HttpResponse<FetchTokenResponse>> {
     // `code` arrives via this page's own URL query, so it is attacker-
     // choosable; encoding keeps it a single parameter.
-    return axios.get<FetchTokenResponse>(
+    return httpGet<FetchTokenResponse>(
       this.baseUrl + "/fetch_token/?code=" + encodeURIComponent(code),
     );
   }
 
   /* ---- authenticated ---- */
 
-  verify(): Promise<AxiosResponse<VerifyResponse>> {
+  verify(): Promise<HttpResponse<VerifyResponse>> {
     return this.getSecure<VerifyResponse>("/verify/");
   }
 
-  getRoads(): Promise<AxiosResponse<RoadsListResponse>> {
+  getRoads(): Promise<HttpResponse<RoadsListResponse>> {
     return this.getSecure<RoadsListResponse>("/sync/roads/");
   }
 
-  getRoad(roadID: string): Promise<AxiosResponse<RoadGetResponse>> {
+  getRoad(roadID: string): Promise<HttpResponse<RoadGetResponse>> {
     return this.getSecure<RoadGetResponse>(
       "/sync/roads/?id=" + encodeURIComponent(roadID),
     );
   }
 
-  syncRoad(road: RoadToSend): Promise<AxiosResponse<SyncRoadResponse>> {
+  syncRoad(road: RoadToSend): Promise<HttpResponse<SyncRoadResponse>> {
     return this.postSecure<SyncRoadResponse>("/sync/sync_road/", road);
   }
 
-  deleteRoad(roadID: string): Promise<AxiosResponse<unknown>> {
+  deleteRoad(roadID: string): Promise<HttpResponse<unknown>> {
     return this.postSecure("/sync/delete_road/", { id: roadID });
   }
 
-  setSemester(semester: number): Promise<AxiosResponse<{ success: boolean }>> {
+  setSemester(semester: number): Promise<HttpResponse<{ success: boolean }>> {
     return this.postSecure("/set_semester/", { semester });
   }
 }
