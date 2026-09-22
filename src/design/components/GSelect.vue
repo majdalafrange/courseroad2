@@ -1,6 +1,6 @@
 <template>
   <div class="g-select" :class="{ invalid, disabled }">
-    <g-label v-if="label" :for="fieldId" class="g-select-label">{{
+    <g-label v-if="label" :for-id="fieldId" class="g-select-label">{{
       label
     }}</g-label>
     <SelectRoot :id="fieldId" v-model="model" :disabled="disabled">
@@ -70,28 +70,24 @@ import GIcon from "./GIcon.vue";
 import GLabel from "./GLabel.vue";
 
 const model = defineModel<T>({ required: true });
-
-withDefaults(
-  defineProps<{
-    options: { value: T; label: string }[];
-    label?: string;
-    placeholder?: string;
-    hint?: string;
-    error?: string;
-    invalid?: boolean;
-    disabled?: boolean;
-    dataCy?: string;
-  }>(),
-  {
-    label: undefined,
-    placeholder: "",
-    hint: undefined,
-    error: undefined,
-    invalid: false,
-    disabled: false,
-    dataCy: undefined,
-  },
-);
+const {
+  label = undefined,
+  placeholder = "",
+  hint = undefined,
+  error = undefined,
+  invalid = false,
+  disabled = false,
+  dataCy = undefined,
+} = defineProps<{
+  options: { value: T; label: string }[];
+  label?: string;
+  placeholder?: string;
+  hint?: string;
+  error?: string;
+  invalid?: boolean;
+  disabled?: boolean;
+  dataCy?: string;
+}>();
 
 const fieldId = `g-select-${useId()}`;
 </script>

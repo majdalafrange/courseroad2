@@ -84,6 +84,7 @@ import {
   onMounted,
   ref,
   watch,
+  useTemplateRef,
 } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
@@ -169,8 +170,8 @@ const shareOpen = ref(false);
 const compareOpen = ref(false);
 const onboardingOpen = ref(false);
 const paletteOpen = ref(false);
-const paletteRef = ref<InstanceType<typeof CommandPalette>>();
-const customClassRef = ref<InstanceType<typeof CustomClass>>();
+const paletteRef = useTemplateRef("paletteRef");
+const customClassRef = useTemplateRef("customClassRef");
 
 /* ---- responsive ---- */
 const isMobile = useIsMobile();

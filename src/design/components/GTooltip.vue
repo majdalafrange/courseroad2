@@ -43,17 +43,19 @@ import {
 // <g-tooltip> are forwarded to the trigger by hand.
 defineOptions({ inheritAttrs: false });
 
-withDefaults(
-  defineProps<{
-    text?: string;
-    placement?: "top" | "bottom";
-    /** ms before showing (default 350; tooltips must never feel eager). */
-    delay?: number;
-    /** Wrap to a fixed column instead of one nowrap line, for a sentence. */
-    wide?: boolean;
-  }>(),
-  { text: "", placement: "bottom", delay: 350, wide: false },
-);
+const {
+  text = "",
+  placement = "bottom",
+  delay = 350,
+  wide = false,
+} = defineProps<{
+  text?: string;
+  placement?: "top" | "bottom";
+  /** ms before showing (default 350; tooltips must never feel eager). */
+  delay?: number;
+  /** Wrap to a fixed column instead of one nowrap line, for a sentence. */
+  wide?: boolean;
+}>();
 
 // Reka's trigger listens for "focus", which does not bubble from the
 // wrapped control; focusin does. Gated on :focus-visible because a click

@@ -129,6 +129,7 @@ import {
   onMounted,
   ref,
   watch,
+  useTemplateRef,
 } from "vue";
 import GraphEdge from "./GraphEdge.vue";
 import GraphNode from "./GraphNode.vue";
@@ -152,8 +153,8 @@ const emit = defineEmits<{
 
 const store = useConnectionsStore();
 const courseData = useCourseDataStore();
-const hostEl = ref<HTMLElement>();
-const svgEl = ref<SVGSVGElement>();
+const hostEl = useTemplateRef("hostEl");
+const svgEl = useTemplateRef("svgEl");
 const panning = ref(false);
 
 const MIN_ZOOM = 0.3;

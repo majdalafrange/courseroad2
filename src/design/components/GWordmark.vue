@@ -25,14 +25,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-const props = withDefaults(
-  defineProps<{
-    size?: "sm" | "md" | "lg";
-  }>(),
-  { size: "md" },
-);
+const { size = "md" } = defineProps<{
+  size?: "sm" | "md" | "lg";
+}>();
 
-const markSize = computed(() => ({ sm: 18, md: 22, lg: 30 })[props.size]);
+const markSize = computed(() => ({ sm: 18, md: 22, lg: 30 })[size]);
 </script>
 
 <style scoped>

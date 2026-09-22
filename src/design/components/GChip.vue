@@ -28,30 +28,27 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-const props = withDefaults(
-  defineProps<{
-    /** Department color key, e.g. "course-6"; colors the chip. */
-    dept?: string;
-    closable?: boolean;
-    interactive?: boolean;
-    selected?: boolean;
-  }>(),
-  {
-    dept: undefined,
-    closable: false,
-    interactive: false,
-    selected: false,
-  },
-);
+const {
+  dept = undefined,
+  closable = false,
+  interactive = false,
+  selected = false,
+} = defineProps<{
+  /** Department color key, e.g. "course-6"; colors the chip. */
+  dept?: string;
+  closable?: boolean;
+  interactive?: boolean;
+  selected?: boolean;
+}>();
 
 const emit = defineEmits<{
   (e: "close"): void;
 }>();
 
 const deptStyle = computed(() =>
-  props.dept !== undefined
+  dept !== undefined
     ? {
-        backgroundColor: `var(--dept-${props.dept})`,
+        backgroundColor: `var(--dept-${dept})`,
         color: "var(--dept-on)",
       }
     : undefined,

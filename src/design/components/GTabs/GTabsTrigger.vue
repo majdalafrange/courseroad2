@@ -7,11 +7,8 @@
 <script setup lang="ts" generic="T extends string | number">
 import { TabsTrigger } from "reka-ui";
 
-withDefaults(
-  defineProps<{
-    value: T;
-    disabled?: boolean;
-  }>(),
-  { disabled: false },
-);
+const { disabled = false } = defineProps<{
+  value: T;
+  disabled?: boolean;
+}>();
 </script>

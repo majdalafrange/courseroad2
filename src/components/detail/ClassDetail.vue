@@ -317,6 +317,7 @@ import {
   onMounted,
   ref,
   watch,
+  useTemplateRef,
 } from "vue";
 import { useRouter } from "vue-router";
 import GButton from "../../design/components/GButton.vue";
@@ -345,7 +346,7 @@ import { pointerDown } from "../../stores/dragdrop";
 
 const store = useCourseDataStore();
 const router = useRouter();
-const bodyEl = ref<HTMLElement>();
+const bodyEl = useTemplateRef("bodyEl");
 const isMobile = useIsMobile();
 
 /** Seed Connections from this subject (the highest-intent entry point). */
@@ -359,7 +360,7 @@ function exploreFromHere() {
     });
   }
 }
-const trailPathEl = ref<HTMLElement>();
+const trailPathEl = useTemplateRef("trailPathEl");
 const unlockLimit = ref(24);
 
 /* The viewed classes form one navigation trail; the active crumb is shown. */

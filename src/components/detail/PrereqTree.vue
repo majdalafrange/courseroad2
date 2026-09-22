@@ -46,14 +46,15 @@ import { useCourseDataStore } from "../../stores/courseData";
 import { pointerDown } from "../../stores/dragdrop";
 import { computed } from "vue";
 
-const props = withDefaults(
-  defineProps<{
-    node: ParsedRequirement;
-    root?: boolean;
-    depth?: number;
-  }>(),
-  { root: true, depth: 0 },
-);
+const {
+  node,
+  root = true,
+  depth = 0,
+} = defineProps<{
+  node: ParsedRequirement;
+  root?: boolean;
+  depth?: number;
+}>();
 
 const store = useCourseDataStore();
 
@@ -68,7 +69,7 @@ function resolve(
   return current;
 }
 
-const effective = computed(() => resolve(props.node));
+const effective = computed(() => resolve(node));
 
 const children = computed<(ParsedRequirement | ParsedLeaf)[]>(() => {
   const node = effective.value;
@@ -99,9 +100,9 @@ const label = computed(() => {
 });
 
 const groupClasses = computed(() => ({
-  "is-root": props.root && isGroup(effective.value),
-  "is-nested": !props.root,
-  "depth-1": !props.root && props.depth === 1,
+  "is-root": root && isGroup(effective.value),
+  "is-nested": !root,
+  "depth-1": !root && depth === 1,
 }));
 
 function isKnown(child: ParsedLeaf): boolean {

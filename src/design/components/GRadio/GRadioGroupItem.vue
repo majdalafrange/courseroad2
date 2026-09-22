@@ -22,11 +22,8 @@
  */
 import { RadioGroupItem, RadioGroupIndicator } from "reka-ui";
 
-withDefaults(
-  defineProps<{
-    value: T;
-    disabled?: boolean;
-  }>(),
-  { disabled: false },
-);
+const { disabled = false } = defineProps<{
+  value: T;
+  disabled?: boolean;
+}>();
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div class="g-number-field" :class="{ invalid, disabled, compact }">
-    <g-label v-if="label" :for="fieldId" class="g-number-field-label">{{
+    <g-label v-if="label" :for-id="fieldId" class="g-number-field-label">{{
       label
     }}</g-label>
     <NumberFieldRoot
@@ -44,32 +44,29 @@ import GLabel from "./GLabel.vue";
 
 const model = defineModel<number | null>({ required: true });
 
-withDefaults(
-  defineProps<{
-    label?: string;
-    hint?: string;
-    error?: string;
-    invalid?: boolean;
-    disabled?: boolean;
-    min?: number;
-    max?: number;
-    step?: number;
-    /** Smaller shell, narrower spinner buttons: an inline field next to
-     *  other context (a suffix, a heading) that already names it. */
-    compact?: boolean;
-  }>(),
-  {
-    label: undefined,
-    hint: undefined,
-    error: undefined,
-    invalid: false,
-    disabled: false,
-    min: undefined,
-    max: undefined,
-    step: 1,
-    compact: false,
-  },
-);
+const {
+  label = undefined,
+  hint = undefined,
+  error = undefined,
+  invalid = false,
+  disabled = false,
+  min = undefined,
+  max = undefined,
+  step = 1,
+  compact = false,
+} = defineProps<{
+  label?: string;
+  hint?: string;
+  error?: string;
+  invalid?: boolean;
+  disabled?: boolean;
+  min?: number;
+  max?: number;
+  step?: number;
+  /** Smaller shell, narrower spinner buttons: an inline field next to
+   *  other context (a suffix, a heading) that already names it. */
+  compact?: boolean;
+}>();
 
 const fieldId = `g-number-field-${useId()}`;
 </script>

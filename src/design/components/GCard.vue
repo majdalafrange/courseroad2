@@ -5,17 +5,18 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(
-  defineProps<{
-    /** 0 = flat outline, 1 = resting, 2 = raised. */
-    elevation?: 0 | 1 | 2;
-    /** Lifts on hover (use for clickable cards). */
-    hoverable?: boolean;
-    /** Recessed well (empty states, drop zones). */
-    sunken?: boolean;
-  }>(),
-  { elevation: 1, hoverable: false, sunken: false },
-);
+const {
+  elevation = 1,
+  hoverable = false,
+  sunken = false,
+} = defineProps<{
+  /** 0 = flat outline, 1 = resting, 2 = raised. */
+  elevation?: 0 | 1 | 2;
+  /** Lifts on hover (use for clickable cards). */
+  hoverable?: boolean;
+  /** Recessed well (empty states, drop zones). */
+  sunken?: boolean;
+}>();
 </script>
 
 <style scoped>

@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, useTemplateRef } from "vue";
 import GIcon from "../../design/components/GIcon.vue";
 import {
   NUM_SEMESTERS,
@@ -55,7 +55,7 @@ import { useConnectionsStore } from "../../stores/connections";
 
 const store = useConnectionsStore();
 const courseData = useCourseDataStore();
-const sheetEl = ref<HTMLElement>();
+const sheetEl = useTemplateRef("sheetEl");
 
 const subject = computed(() => store.placementRequest);
 

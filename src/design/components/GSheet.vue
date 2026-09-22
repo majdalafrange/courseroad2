@@ -57,44 +57,41 @@ import GButton from "./GButton.vue";
 
 defineOptions({ inheritAttrs: false });
 
-const props = withDefaults(
-  defineProps<{
-    modelValue: boolean;
-    /** Accessible dialog name. */
-    label: string;
-    /** Panel width; the panel never exceeds the viewport. */
-    width?: string;
-    closeButton?: boolean;
-    /**
-     * false for forced-choice dialogs (sync-conflict resolution): Escape
-     * and scrim clicks do nothing, and no close button renders. The trap
-     * and focus restore still apply.
-     */
-    dismissible?: boolean;
-    /** "opaque" for full takeovers (first-run onboarding). */
-    scrim?: "default" | "opaque";
-    /**
-     * false keeps the focus trap but lands initial focus on the panel
-     * itself, so a sheet opening on page load does not draw a ring
-     * around its first control.
-     */
-    autoFocus?: boolean;
-  }>(),
-  {
-    width: "560px",
-    closeButton: true,
-    dismissible: true,
-    scrim: "default",
-    autoFocus: true,
-  },
-);
+const {
+  width = "560px",
+  closeButton = true,
+  dismissible = true,
+  scrim = "default",
+  autoFocus = true,
+} = defineProps<{
+  modelValue: boolean;
+  /** Accessible dialog name. */
+  label: string;
+  /** Panel width; the panel never exceeds the viewport. */
+  width?: string;
+  closeButton?: boolean;
+  /**
+   * false for forced-choice dialogs (sync-conflict resolution): Escape
+   * and scrim clicks do nothing, and no close button renders. The trap
+   * and focus restore still apply.
+   */
+  dismissible?: boolean;
+  /** "opaque" for full takeovers (first-run onboarding). */
+  scrim?: "default" | "opaque";
+  /**
+   * false keeps the focus trap but lands initial focus on the panel
+   * itself, so a sheet opening on page load does not draw a ring
+   * around its first control.
+   */
+  autoFocus?: boolean;
+}>();
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: boolean): void;
 }>();
 
 function close() {
-  if (props.dismissible) {
+  if (dismissible) {
     emit("update:modelValue", false);
   }
 }
@@ -110,7 +107,7 @@ function onEscapeKeyDown(event: KeyboardEvent) {
     // Already consumed by an inner layer; one Escape closes one layer.
     return;
   }
-  if (!props.dismissible) {
+  if (!dismissible) {
     // Block Reka's own auto-dismiss; a forced-choice sheet ignores Escape.
     event.preventDefault();
     return;
@@ -122,7 +119,7 @@ function onEscapeKeyDown(event: KeyboardEvent) {
 }
 
 function onInteractOutside(event: PointerDownOutsideEvent | FocusOutsideEvent) {
-  if (!props.dismissible) {
+  if (!dismissible) {
     event.preventDefault();
   }
 }
@@ -131,7 +128,7 @@ function onInteractOutside(event: PointerDownOutsideEvent | FocusOutsideEvent) {
 // then focuses nothing; the panel takes focus itself so the trap has an
 // anchor.
 function onOpenAutoFocus(event: Event) {
-  if (!props.autoFocus) {
+  if (!autoFocus) {
     event.preventDefault();
     (event.target as HTMLElement | null)?.focus();
   }

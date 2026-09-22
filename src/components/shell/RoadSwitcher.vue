@@ -123,7 +123,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from "vue";
+import { computed, nextTick, ref, useTemplateRef, watch } from "vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GPopover from "../../design/components/GPopover.vue";
 import GTooltip from "../../design/components/GTooltip.vue";
@@ -209,7 +209,7 @@ watch(roadIds, (now, before) => {
 /* ---- inline rename (double-click or the pencil) ---- */
 const renamingId = ref<string | null>(null);
 const renameValue = ref("");
-const renameInput = ref<HTMLInputElement[] | HTMLInputElement>();
+const renameInput = useTemplateRef("renameInput");
 
 function startRename(roadId: string) {
   renamingId.value = roadId;

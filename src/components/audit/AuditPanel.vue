@@ -116,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRaw } from "vue";
+import { computed, ref, toRaw, useTemplateRef } from "vue";
 import GButton from "../../design/components/GButton.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GInput from "../../design/components/GInput.vue";
@@ -148,7 +148,7 @@ const auditStore = useAuditStore();
 const pickerOpen = ref(false);
 const fitOpen = ref(false);
 const pickerQuery = ref("");
-const pickerInput = ref<InstanceType<typeof GInput>>();
+const pickerInput = useTemplateRef("pickerInput");
 
 const selectedReqs = computed(
   () => store.roads[store.activeRoad]?.contents.coursesOfStudy ?? [],

@@ -1,5 +1,5 @@
 <template>
-  <Label class="g-label" :as="as" :for="props.for">
+  <Label class="g-label" :as="as" :for="forId">
     <slot />
   </Label>
 </template>
@@ -12,16 +12,13 @@
  */
 import { Label } from "reka-ui";
 
-const props = withDefaults(
-  defineProps<{
-    /** id of the control this labels, when not wrapping it directly. */
-    for?: string;
-    /** "span" when nested inside an element that's already a <label>
-     *  itself (two nested <label>s is invalid HTML). */
-    as?: "label" | "span";
-  }>(),
-  { for: undefined, as: "label" },
-);
+const { forId = undefined, as = "label" } = defineProps<{
+  /** id of the control this labels, when not wrapping it directly. */
+  forId?: string;
+  /** "span" when nested inside an element that's already a <label>
+   *  itself (two nested <label>s is invalid HTML). */
+  as?: "label" | "span";
+}>();
 </script>
 
 <style scoped>

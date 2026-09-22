@@ -104,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from "vue";
+import { computed, nextTick, ref, useTemplateRef, watch } from "vue";
 import CanvasGlyphs from "../canvas/CanvasGlyphs.vue";
 import GButton from "../../design/components/GButton.vue";
 import { GRadioGroup, GRadioGroupItem } from "../../design/components/GRadio";
@@ -140,7 +140,7 @@ const step = ref(0);
 const selectedYear = ref(0);
 const programQuery = ref("");
 const chosenPrograms = ref<string[]>([]);
-const programInput = ref<HTMLInputElement>();
+const programInput = useTemplateRef("programInput");
 
 const years = [
   { value: 0, label: "First year" },

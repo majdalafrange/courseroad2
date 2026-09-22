@@ -24,13 +24,14 @@
 import { ColorSwatch, ColorSwatchPickerItem } from "reka-ui";
 import GColorSwatchPickerItemIndicator from "./GColorSwatchPickerItemIndicator.vue";
 
-withDefaults(
-  defineProps<{
-    value: string;
-    color?: string;
-    fillClass?: string | Record<string, boolean> | unknown[];
-    checkClass?: string | Record<string, boolean> | unknown[];
-  }>(),
-  { color: undefined, fillClass: undefined, checkClass: undefined },
-);
+const {
+  color = undefined,
+  fillClass = undefined,
+  checkClass = undefined,
+} = defineProps<{
+  value: string;
+  color?: string;
+  fillClass?: string | Record<string, boolean> | unknown[];
+  checkClass?: string | Record<string, boolean> | unknown[];
+}>();
 </script>

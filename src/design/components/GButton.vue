@@ -16,24 +16,21 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(
-  defineProps<{
-    variant?: "primary" | "subtle" | "ghost" | "danger";
-    size?: "sm" | "md";
-    disabled?: boolean;
-    loading?: boolean;
-    iconOnly?: boolean;
-    type?: "button" | "submit";
-  }>(),
-  {
-    variant: "subtle",
-    size: "md",
-    disabled: false,
-    loading: false,
-    iconOnly: false,
-    type: "button",
-  },
-);
+const {
+  variant = "subtle",
+  size = "md",
+  disabled = false,
+  loading = false,
+  iconOnly = false,
+  type = "button",
+} = defineProps<{
+  variant?: "primary" | "subtle" | "ghost" | "danger";
+  size?: "sm" | "md";
+  disabled?: boolean;
+  loading?: boolean;
+  iconOnly?: boolean;
+  type?: "button" | "submit";
+}>();
 </script>
 
 <style scoped>

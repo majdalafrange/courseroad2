@@ -38,13 +38,10 @@
 import { computed } from "vue";
 import type { EdgeView } from "../../stores/connections";
 
-const props = withDefaults(
-  defineProps<{
-    edge: EdgeView;
-    dim?: boolean;
-  }>(),
-  { dim: false },
-);
+const { edge, dim = false } = defineProps<{
+  edge: EdgeView;
+  dim?: boolean;
+}>();
 
 const emit = defineEmits<{
   (e: "enter", edge: EdgeView, event: PointerEvent): void;
@@ -55,7 +52,7 @@ const emit = defineEmits<{
 /** A small arrowhead whose tip sits exactly where the edge meets the
  *  dependent card's boundary (the segment is pre-trimmed by the store). */
 const arrowPoints = computed(() => {
-  const a = props.edge.arrow;
+  const a = edge.arrow;
   if (a === undefined) {
     return undefined;
   }

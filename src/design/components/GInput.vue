@@ -25,39 +25,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { useTemplateRef } from "vue";
 
 defineOptions({ inheritAttrs: false });
 
-withDefaults(
-  defineProps<{
-    modelValue: string;
-    label?: string;
-    placeholder?: string;
-    hint?: string;
-    error?: string;
-    invalid?: boolean;
-    disabled?: boolean;
-    type?: string;
-    autocomplete?: string;
-  }>(),
-  {
-    label: undefined,
-    placeholder: undefined,
-    hint: undefined,
-    error: undefined,
-    invalid: false,
-    disabled: false,
-    type: "text",
-    autocomplete: "off",
-  },
-);
+const {
+  label = undefined,
+  placeholder = undefined,
+  hint = undefined,
+  error = undefined,
+  invalid = false,
+  disabled = false,
+  type = "text",
+  autocomplete = "off",
+} = defineProps<{
+  modelValue: string;
+  label?: string;
+  placeholder?: string;
+  hint?: string;
+  error?: string;
+  invalid?: boolean;
+  disabled?: boolean;
+  type?: string;
+  autocomplete?: string;
+}>();
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: string): void;
 }>();
 
-const inputEl = ref<HTMLInputElement>();
+const inputEl = useTemplateRef("inputEl");
 defineExpose({
   focus: () => inputEl.value?.focus(),
   select: () => inputEl.value?.select(),

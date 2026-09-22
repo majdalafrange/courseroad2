@@ -37,7 +37,7 @@
  * outside interaction; Escape closes one layer and is marked consumed for
  * window-level listeners.
  */
-import { ref } from "vue";
+import { useTemplateRef } from "vue";
 import {
   PopoverAnchor,
   PopoverContent,
@@ -51,25 +51,26 @@ import {
 // forwarded to the anchor by hand.
 defineOptions({ inheritAttrs: false });
 
-const props = withDefaults(
-  defineProps<{
-    modelValue: boolean;
-    placement?: "top" | "bottom";
-    align?: "start" | "end";
-    /** Menu density: tight padding so rows own the edge. */
-    menu?: boolean;
-  }>(),
-  { placement: "bottom", align: "start", menu: false },
-);
+const {
+  modelValue,
+  placement = "bottom",
+  align = "start",
+  menu = false,
+} = defineProps<{
+  modelValue: boolean;
+  placement?: "top" | "bottom";
+  align?: "start" | "end";
+  /** Menu density: tight padding so rows own the edge. */
+  menu?: boolean;
+}>();
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: boolean): void;
 }>();
-
-const anchorEl = ref<InstanceType<typeof PopoverAnchor>>();
+const anchorEl = useTemplateRef("anchorEl");
 
 function toggle() {
-  emit("update:modelValue", !props.modelValue);
+  emit("update:modelValue", !modelValue);
 }
 function openPopover() {
   emit("update:modelValue", true);

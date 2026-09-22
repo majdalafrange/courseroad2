@@ -16,16 +16,13 @@
  */
 import { TabsRoot } from "reka-ui";
 
-withDefaults(
-  defineProps<{
-    modelValue?: T;
-    /** false keeps every panel mounted (just hidden), not only the
-     *  active one; the caller's own state per panel then survives a
-     *  tab switch instead of resetting. */
-    unmountOnHide?: boolean;
-  }>(),
-  { modelValue: undefined, unmountOnHide: true },
-);
+const { modelValue = undefined, unmountOnHide = true } = defineProps<{
+  modelValue?: T;
+  /** false keeps every panel mounted (just hidden), not only the
+   *  active one; the caller's own state per panel then survives a
+   *  tab switch instead of resetting. */
+  unmountOnHide?: boolean;
+}>();
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: T): void;

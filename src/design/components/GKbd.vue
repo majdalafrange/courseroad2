@@ -18,16 +18,13 @@
  * <kbd>; more than one nests a <kbd> per key inside the outer one, per
  * the HTML spec's convention for a combination.
  */
-withDefaults(
-  defineProps<{
-    /** Each key pressed together, in order, e.g. ["Ctrl", "K"]. */
-    keys: string[];
-    /** Text between nested keys: "+" on Windows/Linux, "" on Mac, where
+const { keys, joiner = "+" } = defineProps<{
+  /** Each key pressed together, in order, e.g. ["Ctrl", "K"]. */
+  keys: string[];
+  /** Text between nested keys: "+" on Windows/Linux, "" on Mac, where
         the convention shows keys back-to-back with no separator. */
-    joiner?: string;
-  }>(),
-  { joiner: "+" },
-);
+  joiner?: string;
+}>();
 </script>
 
 <style scoped>

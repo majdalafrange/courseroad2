@@ -112,15 +112,12 @@ const NAME_TO_LUCIDE = {
 
 export type IconName = keyof typeof NAME_TO_LUCIDE;
 
-const props = withDefaults(
-  defineProps<{
-    name: IconName;
-    size?: number;
-  }>(),
-  { size: 16 },
-);
+const { name, size = 16 } = defineProps<{
+  name: IconName;
+  size?: number;
+}>();
 
-const data = computed(() => NAME_TO_LUCIDE[props.name]);
+const data = computed(() => NAME_TO_LUCIDE[name]);
 </script>
 
 <style scoped>

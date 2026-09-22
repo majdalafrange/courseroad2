@@ -22,26 +22,28 @@
 import { computed } from "vue";
 import { ProgressIndicator, ProgressRoot } from "reka-ui";
 
-const props = withDefaults(
-  defineProps<{
-    value: number | null;
-    max?: number;
-    /** Extra class(es) for the fill only, e.g. a tone variant. */
-    fillClass?: string | Record<string, boolean> | unknown[];
-    /** Overrides the default "N%" accessible label. */
-    getValueLabel?: (
-      value: number | null | undefined,
-      max: number,
-    ) => string | undefined;
-  }>(),
-  { max: 100, fillClass: undefined, getValueLabel: undefined },
-);
+const {
+  value,
+  max = 100,
+  fillClass = undefined,
+  getValueLabel = undefined,
+} = defineProps<{
+  value: number | null;
+  max?: number;
+  /** Extra class(es) for the fill only, e.g. a tone variant. */
+  fillClass?: string | Record<string, boolean> | unknown[];
+  /** Overrides the default "N%" accessible label. */
+  getValueLabel?: (
+    value: number | null | undefined,
+    max: number,
+  ) => string | undefined;
+}>();
 
 const percent = computed(() => {
-  if (props.value === null) {
+  if (value === null) {
     return 0;
   }
-  return Math.min(100, Math.max(0, (props.value / props.max) * 100));
+  return Math.min(100, Math.max(0, (value / max) * 100));
 });
 </script>
 

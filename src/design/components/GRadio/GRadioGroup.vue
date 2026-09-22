@@ -17,13 +17,10 @@
  */
 import { RadioGroupRoot } from "reka-ui";
 
-withDefaults(
-  defineProps<{
-    modelValue?: T;
-    disabled?: boolean;
-  }>(),
-  { modelValue: undefined, disabled: false },
-);
+const { modelValue = undefined, disabled = false } = defineProps<{
+  modelValue?: T;
+  disabled?: boolean;
+}>();
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: T): void;

@@ -192,6 +192,7 @@ import {
   onBeforeUnmount,
   onMounted,
   ref,
+  useTemplateRef,
   watch,
 } from "vue";
 import GIcon, { type IconName } from "../../design/components/GIcon.vue";
@@ -226,8 +227,8 @@ const store = useCourseDataStore();
 const auditStore = useAuditStore();
 const isMobile = useIsMobile();
 
-const inputEl = ref<HTMLInputElement>();
-const listEl = ref<HTMLElement>();
+const inputEl = useTemplateRef("inputEl");
+const listEl = useTemplateRef("listEl");
 const query = ref("");
 const selectedIndex = ref(0);
 
