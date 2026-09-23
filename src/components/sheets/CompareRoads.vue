@@ -11,9 +11,19 @@
       </header>
 
       <div class="compare-pickers">
-        <g-select v-model="roadA" class="road-select" :options="roadOptions" />
-        <span class="vs">vs</span>
-        <g-select v-model="roadB" class="road-select" :options="roadOptions" />
+        <g-select
+          v-model="roadA"
+          class="road-select"
+          aria-label="First road"
+          :options="roadOptions"
+        />
+        <span class="vs" aria-hidden="true">vs</span>
+        <g-select
+          v-model="roadB"
+          class="road-select"
+          aria-label="Second road"
+          :options="roadOptions"
+        />
       </div>
 
       <div v-if="roadA !== roadB" class="compare-options">
@@ -34,12 +44,14 @@
         <!-- headline numbers -->
         <div class="compare-summary">
           <div class="summary-col">
+            <span class="sr-only">{{ roads[roadA].name }}:</span>
             <span class="summary-units">{{ unitsA }}</span>
             <span class="summary-label"
               >units <span class="sep">·</span> {{ programsA }} programs</span
             >
           </div>
           <div class="summary-col">
+            <span class="sr-only">{{ roads[roadB].name }}:</span>
             <span class="summary-units">{{ unitsB }}</span>
             <span class="summary-label"
               >units <span class="sep">·</span> {{ programsB }} programs</span
@@ -55,6 +67,7 @@
           <h3 class="section-label">Programs</h3>
           <div class="diff-cols">
             <div class="diff-col">
+              <span class="sr-only">Only in {{ roads[roadA].name }}:</span>
               <span
                 v-for="p in programDiff.onlyInA"
                 :key="p"
@@ -63,6 +76,7 @@
               >
             </div>
             <div class="diff-col">
+              <span class="sr-only">Only in {{ roads[roadB].name }}:</span>
               <span
                 v-for="p in programDiff.onlyInB"
                 :key="p"
@@ -112,6 +126,19 @@
         <!-- per-term load -->
         <section class="compare-section">
           <h3 class="section-label">Term load</h3>
+          <!-- Which bar is which road: the fill color alone can't say. -->
+          <div class="load-legend">
+            <span class="legend-item"
+              ><span class="legend-dot bar-a" aria-hidden="true" />{{
+                roads[roadA].name
+              }}</span
+            >
+            <span class="legend-item"
+              ><span class="legend-dot bar-b" aria-hidden="true" />{{
+                roads[roadB].name
+              }}</span
+            >
+          </div>
           <div class="load-chart">
             <div
               v-for="delta in chartDeltas"
@@ -123,12 +150,14 @@
                 <span
                   class="load-bar bar-a"
                   :style="{ width: barWidth(delta.hoursA) }"
-                  >{{ delta.hoursA.toFixed(0) }}h</span
+                  ><span class="sr-only">{{ roads[roadA].name }}:</span>
+                  {{ delta.hoursA.toFixed(0) }}h</span
                 >
                 <span
                   class="load-bar bar-b"
                   :style="{ width: barWidth(delta.hoursB) }"
-                  >{{ delta.hoursB.toFixed(0) }}h</span
+                  ><span class="sr-only">{{ roads[roadB].name }}:</span>
+                  {{ delta.hoursB.toFixed(0) }}h</span
                 >
               </div>
             </div>
@@ -422,6 +451,26 @@ function titleFor(key: string): string {
   height: 14px;
   display: flex;
   align-items: center;
+}
+.load-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  font: var(--text-small);
+  color: var(--g-ink-2);
+  margin-bottom: var(--space-2);
+}
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+}
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
 }
 .bar-a {
   background: var(--g-info);

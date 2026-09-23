@@ -25,6 +25,8 @@
       :tabindex="0"
       :aria-label="ariaLabel"
       :aria-pressed="node.focused"
+      aria-describedby="graphNodeKeys"
+      aria-keyshortcuts="Enter O A P C Delete"
       @pointerdown.stop="emit('pointerdown', $event)"
       @dblclick.stop="emit('toggle')"
       @pointerenter="emit('hover', true)"
@@ -48,12 +50,15 @@
           >
         </div>
       </div>
-      <!-- dblclick.stop: two fast clicks here mean two toggles, not a
-           third from the card's own double-click handler -->
-      <button
+      <!-- A pointer shortcut, so not a control: Enter on the card does the
+           same and its label says so, and a control inside a role="button"
+           card is nested interactive content. dblclick.stop: two fast
+           clicks here mean two toggles, not a third from the card's own
+           double-click handler. -->
+      <span
         class="node-expand"
         :title="expandTitle"
-        :aria-label="expandTitle"
+        aria-hidden="true"
         @pointerdown.stop
         @dblclick.stop
         @click.stop="emit('toggle')"
@@ -62,7 +67,7 @@
           :name="node.expanded && !node.hasMore ? 'minus' : 'plus'"
           :size="12"
         />
-      </button>
+      </span>
     </div>
   </foreignObject>
 </template>

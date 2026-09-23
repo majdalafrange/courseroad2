@@ -85,7 +85,7 @@ const LIGHT_THEME: PosterTheme = {
   line: "#dde2e5",
   ink: "#191c20",
   ink2: "#484d54",
-  ink3: "#676c74",
+  ink3: "#62676f",
   accent: "#a31f34",
   brand: "#a31f34",
   brandFlag: "#a31f34",

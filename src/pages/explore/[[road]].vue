@@ -1,5 +1,10 @@
 <template>
-  <div class="connections">
+  <main
+    id="exploreMain"
+    class="connections"
+    tabindex="-1"
+    aria-label="Connections"
+  >
     <connections-toolbar v-if="store.status === 'ready'" />
 
     <div
@@ -7,7 +12,7 @@
       :class="{ 'panel-left': courseData.panelSide === 'left' }"
     >
       <!-- loading -->
-      <div v-if="store.status === 'loading'" class="state-fill">
+      <div v-if="store.status === 'loading'" class="state-fill" role="status">
         <div class="skeleton-graph" aria-hidden="true">
           <span v-for="i in 6" :key="i" class="skeleton-node" />
         </div>
@@ -91,7 +96,7 @@
            makes it match the audit panel. -->
       <node-panel v-if="showPanel" @open="onOpen" @add="onAdd" />
     </div>
-  </div>
+  </main>
 </template>
 
 <script setup lang="ts">
@@ -260,6 +265,9 @@ function onAdd(id: string) {
 </script>
 
 <style scoped>
+.connections:focus {
+  outline: none;
+}
 .connections {
   display: flex;
   flex-direction: column;

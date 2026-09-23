@@ -1,6 +1,7 @@
 <template>
   <aside
     class="progress-panel"
+    aria-label="Degree progress"
     :class="{ 'panel-right': store.panelSide === 'right' }"
   >
     <!-- The stack holds the audit and the detail that covers it; the
@@ -31,7 +32,12 @@
           official audit <g-icon name="external" :size="11" />
         </a>
       </span>
-      <g-popover v-model="footLinksOpen" align="end" placement="top">
+      <g-popover
+        v-model="footLinksOpen"
+        align="end"
+        placement="top"
+        label="More links"
+      >
         <template #anchor>
           <button
             class="foot-more"
@@ -71,7 +77,7 @@
   </aside>
 
   <div class="shell-main">
-    <main id="canvasScroll" class="canvas">
+    <main id="canvasScroll" class="canvas" tabindex="-1" aria-label="Road">
       <!-- The glyph field sizes to the plan, not the viewport, so it
            scrolls with the cards instead of sitting still behind them. -->
       <div class="canvas-sheet">
@@ -335,6 +341,10 @@ function focusSearch() {
   overflow: hidden;
 }
 
+/* Focusable only as the skip link's target; not a control, so no ring. */
+.canvas:focus {
+  outline: none;
+}
 .canvas {
   flex: 1;
   overflow-y: auto;

@@ -1,16 +1,23 @@
 <template>
-  <span
-    class="g-chip"
-    :class="{ interactive, selected }"
-    :style="deptStyle"
-    :tabindex="interactive ? 0 : undefined"
-    :role="interactive ? 'button' : undefined"
-  >
-    <span class="g-chip-label"><slot /></span>
+  <!-- The label and the close control are sibling buttons: a close button
+       nested inside a role="button" chip is flattened out of reach by
+       screen readers. A click on the label bubbles to this root, so a
+       caller's @click still lands. -->
+  <span class="g-chip" :class="{ interactive, selected }" :style="deptStyle">
+    <button
+      v-if="interactive"
+      type="button"
+      class="g-chip-label g-chip-action"
+      :aria-pressed="selected"
+    >
+      <slot />
+    </button>
+    <span v-else class="g-chip-label"><slot /></span>
     <button
       v-if="closable"
+      type="button"
       class="g-chip-close"
-      aria-label="Remove"
+      :aria-label="removeLabel"
       @click.stop="emit('close')"
     >
       <svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true">
@@ -33,10 +40,13 @@ const {
   closable = false,
   interactive = false,
   selected = false,
+  removeLabel = "Remove",
 } = defineProps<{
   /** Department color key, e.g. "course-6"; colors the chip. */
   dept?: string;
   closable?: boolean;
+  /** The close button's name; name the thing, e.g. "Remove 6-3 Major". */
+  removeLabel?: string;
   interactive?: boolean;
   selected?: boolean;
 }>();
@@ -80,34 +90,50 @@ const deptStyle = computed(() =>
   background: var(--g-accent-tint);
   color: var(--g-ink);
 }
-.g-chip.interactive:focus-visible {
-  outline: none;
+.g-chip:has(.g-chip-action:focus-visible) {
   box-shadow: var(--g-focus-ring);
+}
+.g-chip-action {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: inherit;
+}
+.g-chip-action:focus-visible {
+  outline: none;
 }
 .g-chip.selected {
   background: var(--g-accent);
   color: var(--g-on-accent);
 }
+/* A 24px target (WCAG 2.5.8) that draws as the old 14px disc: the
+   padding holds the extra, background-clip keeps the hover fill to the
+   disc, and the negative margins keep the chip the size it was. */
 .g-chip-close {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 14px;
-  height: 14px;
-  margin-right: -2px;
+  width: 24px;
+  height: 24px;
+  margin: 0 -7px 0 -5px;
+  box-sizing: border-box;
   border: none;
   border-radius: var(--radius-full);
-  background: transparent;
+  background-color: transparent;
+  /* after any background shorthand, which would reset it */
+  background-clip: content-box;
   color: inherit;
   opacity: 0.7;
   cursor: pointer;
-  padding: 0;
+  padding: 5px;
 }
 .g-chip-close:hover {
   opacity: 1;
   /* follows the chip's text color, so it reads on department and neutral
      chips in both themes */
-  background: color-mix(in srgb, currentColor 18%, transparent);
+  background-color: color-mix(in srgb, currentColor 18%, transparent);
 }
 .g-chip-close:focus-visible {
   outline: none;

@@ -13,8 +13,16 @@
       <!-- posterSvg is built by buildRoadPoster from catalog data with
                  every text value escaped (lib/poster.ts esc()); no raw user
                  input reaches the markup. -->
-      <!-- eslint-disable-next-line vue/no-v-html -->
-      <div class="preview-frame" v-html="posterSvg" />
+      <!-- role="img" names the poster as one picture; its SVG text would
+           otherwise be read out as loose fragments. -->
+      <!-- eslint-disable vue/no-v-html -->
+      <div
+        class="preview-frame"
+        role="img"
+        :aria-label="`Preview of the poster for ${roadName}`"
+        v-html="posterSvg"
+      />
+      <!-- eslint-enable vue/no-v-html -->
     </div>
 
     <div class="share-options">

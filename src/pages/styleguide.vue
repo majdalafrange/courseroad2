@@ -313,7 +313,7 @@
       <g-card class="sg-component-block">
         <h3 class="sg-h3">Popover &amp; tooltip</h3>
         <div class="sg-row-wrap">
-          <g-popover v-model="demoPopover">
+          <g-popover v-model="demoPopover" label="Demo popover">
             <template #anchor="{ toggle }">
               <g-button variant="subtle" @click="toggle">Open popover</g-button>
             </template>

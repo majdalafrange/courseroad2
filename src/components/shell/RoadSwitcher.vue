@@ -1,12 +1,11 @@
 <template>
-  <g-popover v-model="open" align="start" menu>
-    <template #anchor>
+  <g-menu v-model="open" align="start" @close-auto-focus="onMenuClosed">
+    <template #trigger>
       <button
+        ref="triggerEl"
         class="switch-trigger"
         data-cy="roadSwitcher"
-        aria-haspopup="menu"
-        :aria-expanded="open"
-        @click="open = !open"
+        :aria-label="triggerLabel"
       >
         <span class="switch-name">{{ activeName }}</span>
         <span v-if="roadIds.length > 1" class="switch-count"
@@ -16,116 +15,137 @@
       </button>
     </template>
 
-    <div class="switch-menu" @click.stop>
+    <div class="switch-menu">
       <div class="switch-label">
-        <span>Roads</span>
+        <g-menu-label as="span">Roads</g-menu-label>
         <g-tooltip text="New road">
-          <button
-            class="switch-icon-btn"
+          <g-menu-item
+            class="switch-icon-btn g-hit"
             data-cy="addRoadButton"
             aria-label="New road"
-            @click="createRoad"
+            @select="createRoad"
           >
             <g-icon name="plus" :size="14" />
-          </button>
+          </g-menu-item>
         </g-tooltip>
       </div>
 
-      <div
-        v-for="roadId in roadIds"
-        :key="roadId"
-        class="switch-road"
-        :class="{ active: roadId === activeRoad }"
-        :data-cy="'roadTab' + roadId"
-        role="button"
-        tabindex="0"
-        @click="pick(roadId)"
-        @keydown.enter.prevent="pick(roadId)"
-        @keydown.space.prevent="pick(roadId)"
-      >
-        <span class="road-active-bar" aria-hidden="true" />
-        <template v-if="renamingId === roadId">
-          <input
-            ref="renameInput"
-            v-model="renameValue"
-            class="road-rename-input"
-            data-cy="renameRoadField"
-            @keydown.enter.prevent.stop="commitRename"
-            @keydown.esc.prevent.stop="cancelRename"
-            @keydown.space.stop
-            @blur="commitRename"
-            @click.stop
-          />
-        </template>
-        <template v-else>
-          <span class="road-name" @dblclick.stop="startRename(roadId)">
-            {{ roads[roadId].name }}
+      <!-- Each road is a radio item, so the active one is announced as
+           checked. Its row actions are sibling menu items (the arrow keys
+           walk road, rename, duplicate, delete, next road), revealed while
+           the row is hovered or one of its items is highlighted. -->
+      <g-menu-radio-group :model-value="activeRoad" @update:model-value="pick">
+        <div
+          v-for="roadId in roadIds"
+          :key="roadId"
+          class="switch-road"
+          :class="{ active: roadId === activeRoad }"
+        >
+          <g-menu-radio-item
+            :value="roadId"
+            class="road-item"
+            :data-cy="'roadTab' + roadId"
+          >
+            <span class="road-active-bar" aria-hidden="true" />
+            <span class="road-name">{{ roads[roadId].name }}</span>
+            <span class="road-count" aria-hidden="true">{{
+              classCount(roadId) || ""
+            }}</span>
+            <span class="sr-only">{{ classCountLabel(roadId) }}</span>
+          </g-menu-radio-item>
+          <span class="road-actions">
+            <g-tooltip text="Rename">
+              <g-menu-item
+                class="switch-icon-btn g-hit"
+                data-cy="editRoadButton"
+                :aria-label="`Rename ${roads[roadId].name}`"
+                @select="queueRename(roadId)"
+              >
+                <g-icon name="pencil" :size="13" />
+              </g-menu-item>
+            </g-tooltip>
+            <g-tooltip text="Duplicate">
+              <g-menu-item
+                class="switch-icon-btn g-hit"
+                data-cy="duplicateRoadButton"
+                :aria-label="`Duplicate ${roads[roadId].name}`"
+                @select="emit('duplicate-road', roadId)"
+              >
+                <g-icon name="copy" :size="13" />
+              </g-menu-item>
+            </g-tooltip>
+            <g-tooltip text="Delete">
+              <g-menu-item
+                class="switch-icon-btn g-hit"
+                danger
+                data-cy="deleteRoadButton"
+                :aria-label="`Delete ${roads[roadId].name}`"
+                @select="emit('delete-road', roadId)"
+              >
+                <g-icon name="trash" :size="13" />
+              </g-menu-item>
+            </g-tooltip>
           </span>
-          <span class="road-right">
-            <span class="road-count">{{ classCount(roadId) || "" }}</span>
-            <span class="road-actions" @click.stop @keydown.stop>
-              <g-tooltip text="Rename">
-                <button
-                  class="switch-icon-btn road-action-btn"
-                  data-cy="editRoadButton"
-                  aria-label="Rename road"
-                  @click="startRename(roadId)"
-                >
-                  <g-icon name="pencil" :size="13" />
-                </button>
-              </g-tooltip>
-              <g-tooltip text="Duplicate">
-                <button
-                  class="switch-icon-btn road-action-btn"
-                  data-cy="duplicateRoadButton"
-                  aria-label="Duplicate road"
-                  @click="duplicateRoad(roadId)"
-                >
-                  <g-icon name="copy" :size="13" />
-                </button>
-              </g-tooltip>
-              <g-tooltip text="Delete">
-                <button
-                  class="switch-icon-btn road-action-btn danger"
-                  data-cy="deleteRoadButton"
-                  aria-label="Delete road"
-                  @click="deleteRoad(roadId)"
-                >
-                  <g-icon name="trash" :size="13" />
-                </button>
-              </g-tooltip>
-            </span>
-          </span>
-        </template>
-      </div>
+        </div>
+      </g-menu-radio-group>
 
-      <div class="switch-divider" />
+      <g-menu-separator />
 
-      <button class="switch-op" data-cy="shareRoadButton" @click="openShare">
+      <g-menu-item data-cy="shareRoadButton" @select="emit('open-share')">
         <g-icon name="upload" :size="14" />
         Share this road...
-      </button>
-      <button class="switch-op" data-cy="importRoadButton" @click="openImport">
+      </g-menu-item>
+      <g-menu-item data-cy="importRoadButton" @select="emit('open-import')">
         <g-icon name="download" :size="14" />
         Import a road...
-      </button>
-      <button
+      </g-menu-item>
+      <g-menu-item
         v-if="roadIds.length > 1"
-        class="switch-op"
         data-cy="compareRoadsButton"
-        @click="openCompare"
+        @select="emit('open-compare')"
       >
         <g-icon name="map" :size="14" />
         Compare roads...
-      </button>
+      </g-menu-item>
     </div>
-  </g-popover>
+  </g-menu>
+
+  <g-sheet
+    v-model="renameOpen"
+    label="Rename road"
+    width="380px"
+    initial-focus="input"
+    @close-auto-focus="onRenameClosed"
+  >
+    <form class="rename-form" @submit.prevent="commitRename">
+      <h2 class="rename-title">Rename road</h2>
+      <g-input
+        v-model="renameValue"
+        label="Road name"
+        data-cy="renameRoadField"
+      />
+      <div class="rename-actions">
+        <g-button variant="ghost" @click="renameOpen = false">Cancel</g-button>
+        <g-button variant="primary" type="submit">Save</g-button>
+      </div>
+    </form>
+  </g-sheet>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, useTemplateRef, watch } from "vue";
+import { computed, ref, useTemplateRef, watch } from "vue";
+import GButton from "../../design/components/GButton.vue";
 import GIcon from "../../design/components/GIcon.vue";
-import GPopover from "../../design/components/GPopover.vue";
+import GInput from "../../design/components/GInput.vue";
+import {
+  GMenu,
+  GMenuItem,
+  GMenuLabel,
+  GMenuRadioGroup,
+  GMenuRadioItem,
+  GMenuSeparator,
+} from "../../design/components/GMenu";
+import GSheet from "../../design/components/GSheet.vue";
 import GTooltip from "../../design/components/GTooltip.vue";
 import { toast } from "../../design/toast";
 import { otherRoadHasName } from "../../lib/roads";
@@ -151,42 +171,74 @@ const activeRoad = computed(() => store.activeRoad);
 const activeName = computed(
   () => store.roads[store.activeRoad]?.name ?? "CourseRoad",
 );
+const triggerLabel = computed(() =>
+  roadIds.value.length > 1
+    ? `Road: ${activeName.value}, one of ${roadIds.value.length}`
+    : `Road: ${activeName.value}`,
+);
 
 function classCount(roadId: string): number {
   return flatten(store.roads[roadId].contents.selectedSubjects).length;
 }
 
+function classCountLabel(roadId: string): string {
+  const count = classCount(roadId);
+  return count === 1 ? ", 1 class" : `, ${count} classes`;
+}
+
 function pick(roadId: string) {
   emit("switch-road", roadId);
-  open.value = false;
 }
 
-function duplicateRoad(roadId: string) {
-  emit("duplicate-road", roadId);
-  open.value = false;
+/* ---- rename: a small dialog, opened once the menu has closed ----
+   The menu returns focus to its trigger as it closes; opening the dialog
+   after that makes the trigger the dialog's focus-restore target too. */
+const pendingRename = ref<string | null>(null);
+const renamingId = ref<string | null>(null);
+const renameValue = ref("");
+const renameOpen = computed({
+  get: () => renamingId.value !== null,
+  set: (value: boolean) => {
+    if (!value) {
+      renamingId.value = null;
+    }
+  },
+});
+
+/* The dialog opens after the menu has gone, so what it saw as focused
+   was nothing in particular; closing goes back to the switcher. */
+const triggerEl = useTemplateRef("triggerEl");
+
+function onRenameClosed(event: Event) {
+  event.preventDefault();
+  triggerEl.value?.focus();
 }
 
-function deleteRoad(roadId: string) {
-  emit("delete-road", roadId);
-  open.value = false;
+function queueRename(roadId: string) {
+  pendingRename.value = roadId;
 }
 
-function openImport() {
-  emit("open-import");
-  open.value = false;
+function onMenuClosed() {
+  const roadId = pendingRename.value;
+  if (roadId === null) {
+    return;
+  }
+  pendingRename.value = null;
+  // After Reka's own return of focus to the trigger, which runs in the
+  // same task as this event.
+  setTimeout(() => startRename(roadId), 0);
 }
 
-function openCompare() {
-  emit("open-compare");
-  open.value = false;
+function startRename(roadId: string) {
+  const road = store.roads[roadId];
+  if (road === undefined) {
+    return;
+  }
+  renameValue.value = road.name;
+  renamingId.value = roadId;
 }
 
-function openShare() {
-  emit("open-share");
-  open.value = false;
-}
-
-/* ---- creation: stay open and offer the rename right away ---- */
+/* ---- creation: offer the rename right away ---- */
 const awaitingNewRoad = ref(false);
 
 function createRoad() {
@@ -195,33 +247,15 @@ function createRoad() {
 }
 
 watch(roadIds, (now, before) => {
-  if (!awaitingNewRoad.value || !open.value) {
-    awaitingNewRoad.value = false;
+  if (!awaitingNewRoad.value) {
     return;
   }
+  awaitingNewRoad.value = false;
   const added = now.find((id) => !before.includes(id));
   if (added !== undefined) {
-    awaitingNewRoad.value = false;
-    startRename(added);
+    queueRename(added);
   }
 });
-
-/* ---- inline rename (double-click or the pencil) ---- */
-const renamingId = ref<string | null>(null);
-const renameValue = ref("");
-const renameInput = useTemplateRef("renameInput");
-
-function startRename(roadId: string) {
-  renamingId.value = roadId;
-  renameValue.value = store.roads[roadId].name;
-  void nextTick(() => {
-    const el = Array.isArray(renameInput.value)
-      ? renameInput.value[0]
-      : renameInput.value;
-    el?.focus();
-    el?.select();
-  });
-}
 
 function commitRename() {
   const roadId = renamingId.value;
@@ -231,8 +265,6 @@ function commitRename() {
   renamingId.value = null;
   const road = store.roads[roadId];
   if (road === undefined) {
-    // Deleted out from under the still-focused rename input before its
-    // blur fired.
     return;
   }
   const newName = renameValue.value.trim();
@@ -247,10 +279,6 @@ function commitRename() {
     return;
   }
   store.setRoadName({ id: roadId, name: newName });
-}
-
-function cancelRename() {
-  renamingId.value = null;
 }
 </script>
 
@@ -318,55 +346,35 @@ function cancelRename() {
   padding: var(--space-1) var(--space-2) var(--space-2);
 }
 
+/* Icon-sized menu items: .g-menu-item supplies the highlight and focus
+   states; this only sizes them. */
 .switch-icon-btn {
-  display: inline-flex;
-  align-items: center;
   justify-content: center;
   width: 22px;
   height: 22px;
-  border: none;
+  padding: 0;
   border-radius: var(--radius-xs);
-  background: transparent;
   color: var(--g-ink-3);
-  cursor: pointer;
-  transition: background-color var(--motion-quick) var(--ease-out);
-}
-.switch-icon-btn:hover {
-  background: var(--g-accent-tint);
-  color: var(--g-ink);
-}
-.switch-icon-btn.danger:hover {
-  background: var(--g-danger-tint);
-  color: var(--g-danger);
-}
-.switch-icon-btn:focus-visible {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
 }
 
+/* The row holds the road's radio item and, over its right end, the
+   action items. */
 .switch-road {
   position: relative;
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font: var(--text-body);
-  color: var(--g-ink-2);
-  transition:
-    background-color var(--motion-quick) var(--ease-out),
-    color var(--motion-quick) var(--ease-out);
 }
-.switch-road:hover {
+.road-item {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
+}
+.switch-road:hover .road-item:not([data-highlighted]) {
   background: var(--g-surface-2);
   color: var(--g-ink);
 }
-.switch-road:focus-visible {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
-}
-.switch-road.active {
+.switch-road.active .road-item {
   background: var(--g-accent-tint);
   color: var(--g-ink);
   font-weight: 600;
@@ -393,22 +401,18 @@ function cancelRename() {
 }
 /* Fixed-width right slot: the count and the actions crossfade in place, so
    the road name never shifts when hovering. 3 × 22px actions + 2 × 2px gap. */
-.road-right {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
+.road-count {
   width: 70px;
   flex-shrink: 0;
-}
-.road-count {
+  text-align: right;
   font: var(--text-id-small);
+  font-weight: 400;
   color: var(--g-ink-3);
   transition: opacity var(--motion-quick) var(--ease-out);
 }
 .road-actions {
   position: absolute;
-  right: 0;
+  right: var(--space-2);
   display: inline-flex;
   align-items: center;
   gap: var(--space-05);
@@ -442,48 +446,20 @@ function cancelRename() {
   }
 }
 
-.road-rename-input {
-  flex: 1;
-  min-width: 0;
-  font: var(--text-body);
-  font-weight: 600;
-  color: var(--g-ink);
-  background: var(--g-surface);
-  border: none;
-  border-radius: var(--radius-xs);
-  padding: var(--space-05) var(--space-1);
-  box-shadow:
-    inset 0 0 0 1.5px var(--g-accent),
-    0 0 0 3px var(--g-accent-tint);
-  outline: none;
-}
-
-.switch-divider {
-  height: 1px;
-  background: var(--g-line);
-  margin: var(--space-2);
-}
-
-.switch-op {
+.rename-form {
   display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font: var(--text-body);
-  color: var(--g-ink-2);
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: var(--space-2) var(--space-3);
-  cursor: pointer;
-  text-align: left;
-  transition: background-color var(--motion-quick) var(--ease-out);
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6);
 }
-.switch-op:hover {
-  background: var(--g-accent-tint);
+.rename-title {
+  font: var(--text-heading);
   color: var(--g-ink);
+  margin: 0;
 }
-.switch-op:focus-visible {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
+.rename-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
 }
 </style>

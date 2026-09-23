@@ -31,6 +31,7 @@ test("undo of an edit on another road switches to that road first", async ({
   await rename.press("Enter");
   await expect(cy(page, "roadSwitcher")).toContainText("RoadB2");
 
+  await cy(page, "roadSwitcher").click();
   await cy(page, "roadTab$0$").click();
   await expect(cy(page, "roadSwitcher")).toContainText("Course 6-3");
 

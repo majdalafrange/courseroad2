@@ -6,10 +6,10 @@
     <div class="strip-head">
       <div class="strip-title">
         <span class="strip-label">Suggestions</span>
-        <g-popover v-model="infoOpen">
+        <g-popover v-model="infoOpen" label="How suggestions are produced">
           <template #anchor="{ toggle }">
             <button
-              class="strip-info"
+              class="strip-info g-hit"
               data-cy="suggestionsInfo"
               aria-label="How suggestions are produced"
               :aria-expanded="infoOpen"
@@ -51,6 +51,7 @@
           "
           :style="{ '--dept-color': courseColor(candidate.subject) }"
           :title="candidate.subject.title"
+          :aria-label="suggestionLabel(candidate)"
           @pointerdown="dragClass($event, candidate.subject)"
           @click="openClass(candidate.subject, $event)"
         >
@@ -63,6 +64,7 @@
         </button>
         <button
           class="suggestion-more"
+          :aria-label="`See all classes for: ${suggestion.headline}`"
           @click="emit('see-all', suggestion.tokens)"
         >
           See all
@@ -114,6 +116,19 @@ function openClass(subject: Subject, event: MouseEvent) {
     event.currentTarget instanceof HTMLElement ? event.currentTarget : null,
   );
   store.pushClassStack(subject.subject_id);
+}
+
+/** The chip shows the id and a star rating; the star is an icon, so the
+ *  name spells both out, with the title the chip only shows on hover. */
+function suggestionLabel(candidate: {
+  subject: Subject;
+  rating?: number | null;
+}): string {
+  const rating =
+    typeof candidate.rating === "number"
+      ? `, rated ${candidate.rating.toFixed(1)} of 7`
+      : "";
+  return `${candidate.subject.subject_id} ${candidate.subject.title}${rating}`;
 }
 
 function dragClass(event: PointerEvent, subject: Subject) {
@@ -176,11 +191,12 @@ function dismiss() {
   margin: 0;
 }
 .strip-dismiss {
+  /* 24px: the minimum target size (WCAG 2.5.8) */
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border: none;
   border-radius: var(--radius-xs);
   background: transparent;

@@ -23,7 +23,10 @@ test("click selects a node; double-click expands it", async ({ page }) => {
   await page.getByText("Calculus", { exact: true }).first().click();
   await page.locator('[data-cy$="__semester_1"]').click();
   await expect(
-    page.locator('[data-cy$="__semester_1"]').getByText("18.01").first(),
+    page
+      .locator('[data-cy$="__semester_1"]')
+      .locator(".card-id", { hasText: "18.01" })
+      .first(),
   ).toBeVisible();
 
   await cy(page, "exploreButton").click();

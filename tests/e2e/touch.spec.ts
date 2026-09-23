@@ -41,7 +41,9 @@ async function placeClass(page: Page) {
   await page.getByText("Classical Mechanics").first().click();
   const fall = page.locator('[data-cy$="__semester_1"]');
   await fall.click();
-  await expect(fall.getByText("8.01").first()).toBeVisible();
+  await expect(
+    fall.locator(".card-id", { hasText: "8.01" }).first(),
+  ).toBeVisible();
   return fall;
 }
 
@@ -53,7 +55,7 @@ test("a class can be removed from the road", async ({ context, page }) => {
   expect(await hitTestable(page, ".card-remove")).toBe(true);
 
   await page.locator(".card-remove").first().tap();
-  await expect(fall.getByText("8.01")).toHaveCount(0);
+  await expect(fall.locator(".card-id", { hasText: "8.01" })).toHaveCount(0);
 });
 
 test("an empty term shows what tapping it does", async ({ context, page }) => {

@@ -4,7 +4,13 @@
       label
     }}</g-label>
     <SelectRoot :id="fieldId" v-model="model" :disabled="disabled">
-      <SelectTrigger class="g-select-trigger" :data-cy="dataCy">
+      <SelectTrigger
+        class="g-select-trigger"
+        :data-cy="dataCy"
+        :aria-label="label ? undefined : ariaLabel"
+        :aria-invalid="invalid || undefined"
+        :aria-describedby="hint || error ? hintId : undefined"
+      >
         <SelectValue class="g-select-value" :placeholder="placeholder" />
         <SelectIcon as-child>
           <g-icon name="chevronDown" :size="13" class="g-select-chevron" />
@@ -39,7 +45,13 @@
         </SelectContent>
       </SelectPortal>
     </SelectRoot>
-    <span v-if="hint || error" class="g-select-hint" :class="{ invalid }">
+    <span
+      v-if="hint || error"
+      :id="hintId"
+      class="g-select-hint"
+      :class="{ invalid }"
+      :role="invalid && error ? 'alert' : undefined"
+    >
       {{ invalid && error ? error : hint }}
     </span>
   </div>
@@ -78,6 +90,7 @@ const {
   invalid = false,
   disabled = false,
   dataCy = undefined,
+  ariaLabel = undefined,
 } = defineProps<{
   options: { value: T; label: string }[];
   label?: string;
@@ -87,9 +100,12 @@ const {
   invalid?: boolean;
   disabled?: boolean;
   dataCy?: string;
+  /** Accessible name when no visible label fits (the context names it). */
+  ariaLabel?: string;
 }>();
 
 const fieldId = `g-select-${useId()}`;
+const hintId = `${fieldId}-hint`;
 </script>
 
 <style>
@@ -117,7 +133,7 @@ const fieldId = `g-select-${useId()}`;
   background: var(--g-surface);
   border: none;
   border-radius: var(--radius-sm);
-  box-shadow: inset 0 0 0 1px var(--g-line-strong);
+  box-shadow: inset 0 0 0 1px var(--g-line-control);
   cursor: pointer;
   transition: box-shadow var(--motion-quick) var(--ease-out);
 }

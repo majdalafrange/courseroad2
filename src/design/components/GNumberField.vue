@@ -15,12 +15,23 @@
       <NumberFieldDecrement class="g-number-field-btn">
         <g-icon name="chevronDown" :size="12" />
       </NumberFieldDecrement>
-      <NumberFieldInput class="g-number-field-input" />
+      <NumberFieldInput
+        class="g-number-field-input"
+        :aria-label="label ? undefined : ariaLabel"
+        :aria-invalid="invalid || undefined"
+        :aria-describedby="hint || error ? hintId : undefined"
+      />
       <NumberFieldIncrement class="g-number-field-btn">
         <g-icon name="chevronDown" :size="12" class="g-number-field-up" />
       </NumberFieldIncrement>
     </NumberFieldRoot>
-    <span v-if="hint || error" class="g-number-field-hint" :class="{ invalid }">
+    <span
+      v-if="hint || error"
+      :id="hintId"
+      class="g-number-field-hint"
+      :class="{ invalid }"
+      :role="invalid && error ? 'alert' : undefined"
+    >
       {{ invalid && error ? error : hint }}
     </span>
   </div>
@@ -54,6 +65,7 @@ const {
   max = undefined,
   step = 1,
   compact = false,
+  ariaLabel = undefined,
 } = defineProps<{
   label?: string;
   hint?: string;
@@ -66,9 +78,12 @@ const {
   /** Smaller shell, narrower spinner buttons: an inline field next to
    *  other context (a suffix, a heading) that already names it. */
   compact?: boolean;
+  /** Accessible name for a compact field with no visible label. */
+  ariaLabel?: string;
 }>();
 
 const fieldId = `g-number-field-${useId()}`;
+const hintId = `${fieldId}-hint`;
 </script>
 
 <style scoped>
@@ -86,7 +101,7 @@ const fieldId = `g-number-field-${useId()}`;
   align-items: stretch;
   background: var(--g-surface);
   border-radius: var(--radius-sm);
-  box-shadow: inset 0 0 0 1px var(--g-line-strong);
+  box-shadow: inset 0 0 0 1px var(--g-line-control);
   height: 34px;
   overflow: hidden;
   transition: box-shadow var(--motion-quick) var(--ease-out);

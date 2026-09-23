@@ -1,43 +1,48 @@
 <template>
   <div class="req-node" :class="{ 'is-root': depth === 0 }">
     <!-- ============ branch ============ -->
-    <div
-      v-if="isBranch"
-      class="branch-row"
-      :data-cy="'auditItem' + (node['list-id'] ?? '')"
-      role="button"
-      tabindex="0"
-      :aria-expanded="open"
-      @click="open = !open"
-      @keydown.enter.prevent="open = !open"
-      @keydown.space.prevent="open = !open"
-    >
-      <g-icon
-        name="chevronRight"
-        :size="12"
-        class="branch-chevron"
-        :style="{ transform: open ? 'rotate(90deg)' : '' }"
-      />
-      <span class="branch-title">{{ branchTitle }}</span>
-      <span v-if="node['threshold-desc']" class="branch-threshold">{{
-        node["threshold-desc"]
-      }}</span>
-      <span
-        v-if="showPercent"
-        class="branch-percent"
-        :class="percentTone"
-        :data-cy="'percentFulfilled' + (node['list-id'] ?? '')"
-        >{{ node.percent_fulfilled }}%</span
+    <div v-if="isBranch" class="branch-line">
+      <button
+        type="button"
+        class="branch-row"
+        :data-cy="'auditItem' + (node['list-id'] ?? '')"
+        :aria-expanded="open"
+        @click="open = !open"
       >
-      <g-popover v-model="infoOpen" align="end">
+        <g-icon
+          name="chevronRight"
+          :size="12"
+          class="branch-chevron"
+          :style="{ transform: open ? 'rotate(90deg)' : '' }"
+        />
+        <span class="branch-title">{{ branchTitle }}</span>
+        <span v-if="node['threshold-desc']" class="branch-threshold">{{
+          node["threshold-desc"]
+        }}</span>
+        <span
+          v-if="showPercent"
+          class="branch-percent"
+          :class="percentTone"
+          :data-cy="'percentFulfilled' + (node['list-id'] ?? '')"
+          >{{ node.percent_fulfilled }}%<span class="sr-only">
+            {{ node.fulfilled ? "fulfilled, complete" : "fulfilled" }}</span
+          ></span
+        >
+      </button>
+      <g-popover
+        v-model="infoOpen"
+        align="end"
+        :label="`Details for ${branchTitle}`"
+      >
         <template #anchor>
           <button
-            class="row-action"
+            type="button"
+            class="row-action g-hit"
             :data-cy="'auditInfoButton' + (node['list-id'] ?? '')"
-            aria-label="Requirement details"
+            :aria-label="`Details for ${branchTitle}`"
+            aria-haspopup="dialog"
+            :aria-expanded="infoOpen"
             @click.stop="infoOpen = !infoOpen"
-            @keydown.enter.stop
-            @keydown.space.stop
           >
             <g-icon name="info" :size="12" />
           </button>
@@ -91,66 +96,86 @@
     <!-- ============ leaf ============ -->
     <div
       v-if="!isBranch"
-      ref="leafEl"
-      class="leaf-row"
+      class="leaf-line"
       :class="{
         fulfilled: node.fulfilled,
         petitioned,
         ignored,
         'cross-lit': crossLit,
       }"
-      :data-cy="'auditItem' + (node['list-id'] ?? '')"
-      role="button"
-      tabindex="0"
-      @click="onLeafClick"
-      @keydown.enter.prevent="onLeafClick"
-      @keydown.space.prevent="onLeafClick"
-      @pointerdown="onLeafPointerDown"
       @mouseenter="onLeafHover"
       @mouseleave="clearAuditHighlight()"
     >
-      <span class="leaf-state" :class="{ ok: leafSatisfied }">
-        <g-icon
-          :name="
-            node['plain-string'] ? 'pencil' : leafSatisfied ? 'check' : 'dots'
-          "
-          :size="12"
-        />
-      </span>
-      <span class="leaf-label">
-        <span
-          v-if="node.req !== undefined"
-          class="leaf-req"
-          :class="{ done: leafSatisfied }"
-          >{{ node.req }}</span
-        >
-        <span v-if="node.title" class="leaf-title">{{ node.title }}</span>
-        <span v-if="node['threshold-desc']" class="leaf-threshold"
-          >({{ node["threshold-desc"] }})</span
-        >
-        <span v-if="petitioned" class="leaf-flag petition">substituted</span>
-        <span v-else-if="ignored" class="leaf-flag ignore">ignored</span>
-        <span v-if="node.max === 0" class="leaf-flag optional">optional</span>
-        <span v-if="manualValue !== undefined" class="leaf-flag manual"
-          >{{ manualValue }}/{{ manualCutoff }}</span
-        >
-      </span>
+      <button
+        ref="leafEl"
+        type="button"
+        class="leaf-row"
+        :data-cy="'auditItem' + (node['list-id'] ?? '')"
+        @click="onLeafClick"
+        @pointerdown="onLeafPointerDown"
+        @focus="onLeafHover"
+        @blur="clearAuditHighlight()"
+      >
+        <span class="leaf-state" :class="{ ok: leafSatisfied }">
+          <g-icon
+            :name="
+              node['plain-string'] ? 'pencil' : leafSatisfied ? 'check' : 'dots'
+            "
+            :size="12"
+          />
+        </span>
+        <span class="sr-only">{{ leafStateLabel }}:</span>
+        <span class="leaf-label">
+          <span
+            v-if="node.req !== undefined"
+            class="leaf-req"
+            :class="{ done: leafSatisfied }"
+            >{{ node.req }}</span
+          >
+          <span v-if="node.title" class="leaf-title">{{ node.title }}</span>
+          <span v-if="node['threshold-desc']" class="leaf-threshold"
+            >({{ node["threshold-desc"] }})</span
+          >
+          <span v-if="petitioned" class="leaf-flag petition">substituted</span>
+          <span v-else-if="ignored" class="leaf-flag ignore">ignored</span>
+          <span v-if="node.max === 0" class="leaf-flag optional">optional</span>
+          <span v-if="manualValue !== undefined" class="leaf-flag manual"
+            >{{ manualValue }}/{{ manualCutoff }}</span
+          >
+        </span>
+      </button>
 
-      <span class="leaf-actions" @keydown.stop>
+      <span class="leaf-actions">
         <button
           v-if="!leafSatisfied && !node['plain-string']"
-          class="row-action"
-          aria-label="Find classes for this requirement"
+          type="button"
+          class="row-action g-hit"
+          :aria-label="`Find classes for ${leafName}`"
           @click.stop="findClasses"
           @pointerdown.stop
         >
           <g-icon name="search" :size="12" />
         </button>
-        <g-popover v-model="petitionOpen" align="end">
+        <g-popover
+          v-model="petitionOpen"
+          align="end"
+          :label="
+            node['plain-string']
+              ? `Progress on ${leafName}`
+              : `Petition ${leafName}`
+          "
+        >
           <template #anchor>
             <button
-              class="row-action"
-              aria-label="Petition or ignore this requirement"
+              type="button"
+              class="row-action g-hit"
+              :aria-label="
+                node['plain-string']
+                  ? `Enter progress for ${leafName}`
+                  : `Petition or ignore ${leafName}`
+              "
+              aria-haspopup="dialog"
+              :aria-expanded="petitionOpen"
               :data-cy="'petitionButton' + (node['list-id'] ?? '')"
               @click.stop="petitionOpen = !petitionOpen"
               @pointerdown.stop
@@ -169,6 +194,7 @@
                 <g-number-field
                   v-model="manualDraft"
                   compact
+                  :aria-label="`Progress on ${leafName}, out of ${manualCutoff}`"
                   :min="0"
                   :max="manualCutoff"
                 />
@@ -321,6 +347,19 @@ const ignored = computed(() =>
 
 const leafSatisfied = computed(
   () => Boolean(props.node.fulfilled) || petitioned.value,
+);
+
+/** What the state icon shows, for a screen reader. */
+const leafStateLabel = computed(() => {
+  if (props.node["plain-string"]) {
+    return props.node.fulfilled ? "Satisfied" : "Enter progress by hand";
+  }
+  return leafSatisfied.value ? "Satisfied" : "Not yet satisfied";
+});
+
+/** The leaf's name for its action buttons' labels. */
+const leafName = computed(
+  () => props.node.req ?? props.node.title ?? "this requirement",
 );
 
 /* ---- manual progress (plain-string leaves) ---- */
@@ -484,18 +523,34 @@ export default { name: "ReqNode" };
 }
 
 /* ---------- branch ---------- */
-.branch-row {
+.branch-line {
   position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2);
   border-radius: var(--radius-sm);
+}
+.branch-line:hover {
+  background: var(--g-surface-2);
+}
+.branch-row {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: calc(-1 * var(--space-2)) 0 calc(-1 * var(--space-2))
+    calc(-1 * var(--space-2));
+  padding: var(--space-2) 0 var(--space-2) var(--space-2);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   user-select: none;
-}
-.branch-row:hover {
-  background: var(--g-surface-2);
 }
 .branch-row:focus-visible {
   outline: none;
@@ -572,29 +627,45 @@ export default { name: "ReqNode" };
 }
 
 /* ---------- leaf ---------- */
-.leaf-row {
+.leaf-line {
   display: flex;
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-xs);
-  cursor: pointer;
-  user-select: none;
   transition: background-color var(--motion-quick) var(--ease-out);
 }
-.leaf-row:hover {
+.leaf-line:hover {
   background: var(--g-surface-2);
+}
+.leaf-line.cross-lit {
+  background: var(--g-ok-tint);
+  box-shadow: inset 2px 0 0 var(--g-ok);
+}
+.leaf-line.ignored {
+  opacity: 0.55;
+}
+.leaf-row {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: calc(-1 * var(--space-1)) 0 calc(-1 * var(--space-1))
+    calc(-1 * var(--space-2));
+  padding: var(--space-1) 0 var(--space-1) var(--space-2);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  user-select: none;
 }
 .leaf-row:focus-visible {
   outline: none;
   box-shadow: var(--g-focus-ring);
-}
-.leaf-row.cross-lit {
-  background: var(--g-ok-tint);
-  box-shadow: inset 2px 0 0 var(--g-ok);
-}
-.leaf-row.ignored {
-  opacity: 0.55;
 }
 
 .leaf-state {
@@ -673,8 +744,8 @@ export default { name: "ReqNode" };
   pointer-events: none;
   transition: opacity var(--motion-quick) var(--ease-out);
 }
-.leaf-row:hover .leaf-actions,
-.leaf-row:focus-within .leaf-actions {
+.leaf-line:hover .leaf-actions,
+.leaf-line:focus-within .leaf-actions {
   opacity: 1;
   pointer-events: auto;
 }

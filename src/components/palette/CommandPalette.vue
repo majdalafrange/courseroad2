@@ -1,188 +1,215 @@
 <template>
-  <teleport to="body">
-    <transition name="palette">
-      <div v-if="modelValue" class="palette-scrim" @click.self="close">
-        <div
-          class="palette"
-          role="dialog"
-          aria-label="Search classes and commands"
-        >
-          <div class="palette-input-row">
-            <g-icon name="search" :size="16" style="color: var(--g-ink-3)" />
-            <div class="palette-tokens">
-              <button
-                v-for="token in activeTokens"
-                :key="token.key"
-                class="token-chip"
-                :aria-label="`Remove filter ${token.label}`"
-                @click="removeToken(token.key)"
-              >
-                {{ token.label }}
-                <g-icon name="close" :size="9" />
-              </button>
-              <input
-                ref="inputEl"
-                v-model="query"
-                class="palette-input"
-                data-cy="classSearchInput"
-                placeholder="Search classes, filters, commands..."
-                autocomplete="off"
-                spellcheck="false"
-                @keydown="onInputKeydown"
-              />
-            </div>
-            <g-kbd class="palette-kbd" :keys="['esc']" />
-          </div>
-
-          <div v-if="tokenSuggestions.length" class="token-suggest-row">
-            <span class="token-suggest-label">Filters:</span>
-            <button
-              v-for="suggestion in tokenSuggestions"
-              :key="suggestion.key"
-              class="token-suggest"
-              @click="addToken(suggestion.key)"
-            >
-              {{ suggestion.label }}
-            </button>
-          </div>
-
-          <div ref="listEl" class="palette-list">
-            <!-- requirement-aware suggestions (empty query only) -->
-            <template v-if="showAuditSuggestions">
-              <div class="palette-section">From your audit</div>
-              <button
-                v-for="(suggestion, i) in auditSuggestions"
-                :key="suggestion.label"
-                class="palette-row suggestion-row"
-                :class="{ selected: selectedIndex === i }"
-                @mouseenter="selectedIndex = i"
-                @click="applyAuditSuggestion(suggestion)"
-              >
-                <span class="row-icon ok">
-                  <g-icon name="check" :size="14" />
-                </span>
-                <span class="row-main">
-                  <span class="row-title">{{ suggestion.label }}</span>
-                  <span class="row-sub">{{ suggestion.detail }}</span>
-                </span>
-              </button>
-            </template>
-
-            <!-- classes -->
-            <template v-if="classResults.length">
-              <div class="palette-section">
-                Classes
-                <span v-if="resultOverflow > 0" class="section-note">
-                  (showing {{ classResults.length }} of
-                  {{ classResults.length + resultOverflow }}, keep typing)
-                </span>
-              </div>
-              <div
-                v-for="(subject, i) in classResults"
-                :key="subject.subject_id"
-                class="palette-row class-row"
-                :class="{ selected: selectedIndex === i + classOffset }"
-                :data-cy="
-                  'classInSearch' + subject.subject_id.replace('.', '_')
-                "
-                role="button"
-                tabindex="-1"
-                @mouseenter="selectedIndex = i + classOffset"
-                @pointerdown="rowPointerDown($event, subject)"
-                @click="placeClass(subject)"
-              >
-                <span
-                  class="row-dept"
-                  :style="{ '--dept-color': courseColor(subject) }"
-                />
-                <span class="row-id">{{ subject.subject_id }}</span>
-                <span class="row-main">
-                  <span class="row-title">{{ subject.title }}</span>
-                  <span class="row-sub">
-                    <template v-if="subject.total_units !== undefined"
-                      >{{ subject.total_units }}u</template
-                    >
-                    <template v-if="termBadges(subject)">
-                      <span class="sep spaced">·</span>{{ termBadges(subject) }}
-                    </template>
-                    <template v-if="subject.rating">
-                      <span class="sep spaced">·</span
-                      ><g-icon name="star" :size="10" class="rating-icon" />
-                      {{ subject.rating.toFixed(1) }}
-                    </template>
-                    <template v-if="subjectHoursLabel(subject)">
-                      <span class="sep spaced">·</span
-                      >{{ subjectHoursLabel(subject) }}h/wk
-                    </template>
-                  </span>
-                </span>
-                <span
-                  v-if="selectedIndex === i + classOffset"
-                  class="row-place"
-                  aria-hidden="true"
-                >
-                  <g-kbd :keys="['Enter']" /> open <span class="sep">·</span>
-                  <g-kbd :keys="['Tab']" />
-                  place
-                </span>
-              </div>
-            </template>
-
-            <!-- actions -->
-            <template v-if="actionResults.length">
-              <div class="palette-section">Actions</div>
-              <button
-                v-for="(action, i) in actionResults"
-                :key="action.label"
-                class="palette-row action-row"
-                :class="{ selected: selectedIndex === i + actionOffset }"
-                @mouseenter="selectedIndex = i + actionOffset"
-                @click="runAction(action)"
-              >
-                <span class="row-icon">
-                  <g-icon :name="action.icon" :size="14" />
-                </span>
-                <span class="row-main">
-                  <span class="row-title">{{ action.label }}</span>
-                  <span v-if="action.detail" class="row-sub">{{
-                    action.detail
-                  }}</span>
-                </span>
-              </button>
-            </template>
-
-            <div
-              v-if="
-                !classResults.length &&
-                !actionResults.length &&
-                !showAuditSuggestions
-              "
-              class="palette-empty"
-            >
-              Nothing matches.<template v-if="tokenSuggestions.length">
-                <g-kbd :keys="['Tab']" /> applies the suggested
-                filter.</template
-              >
-            </div>
-          </div>
-
-          <!-- The filter grammar's one line of documentation. A footer
-               rather than part of the empty state: with an empty query the
-               base actions always render, so an empty-state hint could
-               never appear. -->
-          <div
-            v-if="!query.length && !hasActiveFilters"
-            class="palette-hint"
-            data-cy="paletteGrammarHint"
+  <g-sheet
+    :model-value="modelValue"
+    label="Search classes and commands"
+    width="640px"
+    placement="top"
+    :close-button="false"
+    initial-focus=".palette-input"
+    class="palette"
+    @update:model-value="emit('update:modelValue', $event)"
+    @close-auto-focus="onCloseAutoFocus"
+  >
+    <g-combobox-root
+      ref="comboRoot"
+      class="palette-combobox"
+      @highlight="highlighted = $event"
+      @keydown.capture="onKeydownCapture"
+      @pointerdown.capture="lastInput = 'pointer'"
+    >
+      <div class="palette-input-row">
+        <g-icon name="search" :size="16" class="palette-search-icon" />
+        <div class="palette-tokens">
+          <button
+            v-for="token in activeTokens"
+            :key="token.key"
+            type="button"
+            class="token-chip"
+            :aria-label="`Remove filter ${token.label}`"
+            @click="removeToken(token.key)"
           >
-            Type to search {{ catalogSize }} subjects, or compose filters:
-            <code>hass-a</code> then <g-kbd :keys="['Tab']" />,
-            <code>spring</code> then <g-kbd :keys="['Tab']" />.
-          </div>
+            {{ token.label }}
+            <g-icon name="close" :size="9" />
+          </button>
+          <g-combobox-input
+            ref="inputEl"
+            v-model="query"
+            class="palette-input"
+            data-cy="classSearchInput"
+            placeholder="Search classes, filters, commands..."
+            aria-label="Search classes, filters, and commands"
+            aria-describedby="paletteHelp"
+            spellcheck="false"
+            @keydown="onInputKeydown"
+          />
         </div>
+        <g-kbd class="palette-kbd" :keys="['esc']" aria-hidden="true" />
       </div>
-    </transition>
-  </teleport>
+      <span id="paletteHelp" hidden>
+        Up and down arrows move through the results. Enter opens a class or runs
+        a command; Tab places the class on your road.
+      </span>
+      <div class="sr-only" role="status">{{ resultSummary }}</div>
+
+      <div v-if="tokenSuggestions.length" class="token-suggest-row">
+        <span class="token-suggest-label">Filters:</span>
+        <button
+          v-for="suggestion in tokenSuggestions"
+          :key="suggestion.key"
+          type="button"
+          class="token-suggest"
+          @click="addToken(suggestion.key)"
+        >
+          {{ suggestion.label }}
+        </button>
+      </div>
+
+      <g-combobox-list label="Results" class="palette-list" @escape="onEscape">
+        <!-- requirement-aware suggestions (empty query only) -->
+        <g-combobox-group
+          v-if="showAuditSuggestions"
+          label-class="palette-section"
+        >
+          <template #label>From your audit</template>
+          <g-combobox-item
+            v-for="suggestion in auditSuggestions"
+            :key="suggestion.label"
+            :value="`audit:${suggestion.label}`"
+            class="palette-row suggestion-row"
+            @select="applyAuditSuggestion(suggestion)"
+          >
+            <span class="row-icon ok">
+              <g-icon name="check" :size="14" />
+            </span>
+            <span class="row-main">
+              <span class="row-title">{{ suggestion.label }}</span>
+              <span class="row-sub">{{ suggestion.detail }}</span>
+            </span>
+          </g-combobox-item>
+        </g-combobox-group>
+
+        <!-- classes -->
+        <g-combobox-group
+          v-if="classResults.length"
+          label-class="palette-section"
+        >
+          <template #label>
+            Classes
+            <span v-if="resultOverflow > 0" class="section-note">
+              (showing {{ classResults.length }} of
+              {{ classResults.length + resultOverflow }}, keep typing)
+            </span>
+          </template>
+          <g-combobox-item
+            v-for="subject in classResults"
+            :key="subject.subject_id"
+            :value="`class:${subject.subject_id}`"
+            class="palette-row class-row"
+            :data-cy="'classInSearch' + subject.subject_id.replace('.', '_')"
+            @pointerdown="rowPointerDown($event, subject)"
+            @select="onClassSelect(subject)"
+          >
+            <span
+              class="row-dept"
+              :style="{ '--dept-color': courseColor(subject) }"
+            />
+            <span class="row-id">{{ subject.subject_id }}</span>
+            <span class="row-main">
+              <span class="row-title">{{ subject.title }}</span>
+              <span class="row-sub">
+                <template v-if="subject.total_units !== undefined"
+                  ><span aria-hidden="true">{{ subject.total_units }}u</span
+                  ><span class="sr-only"
+                    >{{ subject.total_units }} units</span
+                  ></template
+                >
+                <template v-if="termBadges(subject)">
+                  <span class="sep spaced">·</span>{{ termBadges(subject) }}
+                </template>
+                <template v-if="subject.rating">
+                  <span class="sep spaced">·</span
+                  ><g-icon name="star" :size="10" class="rating-icon" /><span
+                    class="sr-only"
+                    >rated</span
+                  >
+                  {{ subject.rating.toFixed(1) }}
+                </template>
+                <template v-if="subjectHoursLabel(subject)">
+                  <span class="sep spaced">·</span
+                  ><span aria-hidden="true"
+                    >{{ subjectHoursLabel(subject) }}h/wk</span
+                  ><span class="sr-only"
+                    >{{ subjectHoursLabel(subject) }} hours per week</span
+                  >
+                </template>
+              </span>
+            </span>
+            <span
+              v-if="highlighted === `class:${subject.subject_id}`"
+              class="row-place"
+              aria-hidden="true"
+            >
+              <g-kbd :keys="['Enter']" /> open <span class="sep">·</span>
+              <g-kbd :keys="['Tab']" />
+              place
+            </span>
+          </g-combobox-item>
+        </g-combobox-group>
+
+        <!-- actions -->
+        <g-combobox-group
+          v-if="actionResults.length"
+          label-class="palette-section"
+        >
+          <template #label>Actions</template>
+          <g-combobox-item
+            v-for="action in actionResults"
+            :key="action.label"
+            :value="`action:${action.label}`"
+            class="palette-row action-row"
+            @select="runAction(action)"
+          >
+            <span class="row-icon">
+              <g-icon :name="action.icon" :size="14" />
+            </span>
+            <span class="row-main">
+              <span class="row-title">{{ action.label }}</span>
+              <span v-if="action.detail" class="row-sub">{{
+                action.detail
+              }}</span>
+            </span>
+          </g-combobox-item>
+        </g-combobox-group>
+
+        <div
+          v-if="
+            !classResults.length &&
+            !actionResults.length &&
+            !showAuditSuggestions
+          "
+          class="palette-empty"
+        >
+          Nothing matches.<template v-if="tokenSuggestions.length">
+            <g-kbd :keys="['Tab']" /> applies the suggested filter.</template
+          >
+        </div>
+      </g-combobox-list>
+
+      <!-- The filter grammar's one line of documentation. A footer rather
+           than part of the empty state: with an empty query the base
+           actions always render, so an empty-state hint could never
+           appear. -->
+      <div
+        v-if="!query.length && !hasActiveFilters"
+        class="palette-hint"
+        data-cy="paletteGrammarHint"
+      >
+        Type to search {{ catalogSize }} subjects, or compose filters:
+        <code>hass-a</code> then <g-kbd :keys="['Tab']" />,
+        <code>spring</code> then <g-kbd :keys="['Tab']" />.
+      </div>
+    </g-combobox-root>
+  </g-sheet>
 </template>
 
 <script setup lang="ts">
@@ -190,13 +217,20 @@ import {
   computed,
   nextTick,
   onBeforeUnmount,
-  onMounted,
   ref,
   useTemplateRef,
   watch,
 } from "vue";
+import {
+  GComboboxGroup,
+  GComboboxInput,
+  GComboboxItem,
+  GComboboxList,
+  GComboboxRoot,
+} from "../../design/components/GCombobox";
 import GIcon, { type IconName } from "../../design/components/GIcon.vue";
 import GKbd from "../../design/components/GKbd.vue";
+import GSheet from "../../design/components/GSheet.vue";
 import { useIsMobile } from "../../composables/useIsMobile";
 import { courseColor } from "../../lib/colors";
 import { subjectHoursLabel } from "../../lib/hours";
@@ -228,9 +262,8 @@ const auditStore = useAuditStore();
 const isMobile = useIsMobile();
 
 const inputEl = useTemplateRef("inputEl");
-const listEl = useTemplateRef("listEl");
+const comboRoot = useTemplateRef("comboRoot");
 const query = ref("");
-const selectedIndex = ref(0);
 
 /* ------------------------------------------------------------- tokens */
 
@@ -260,7 +293,6 @@ function addToken(key: string) {
         .trimEnd();
     }
   }
-  selectedIndex.value = 0;
   inputEl.value?.focus();
 }
 
@@ -451,7 +483,7 @@ const actionResults = computed<PaletteAction[]>(() => {
 function runAction(action: PaletteAction) {
   action.run();
   if (!action.label.startsWith("Add program")) {
-    close();
+    closeAfterAction();
   }
 }
 
@@ -521,115 +553,141 @@ function applyAuditSuggestion(suggestion: AuditSuggestion) {
       activeTokenKeys.value.push(token);
     }
   }
-  selectedIndex.value = 0;
   inputEl.value?.focus();
 }
 
 /* ------------------------------------------------------- selection model */
 
-const suggestionCount = computed(() =>
-  showAuditSuggestions.value ? auditSuggestions.value.length : 0,
-);
-const classOffset = computed(() => suggestionCount.value);
-const actionOffset = computed(
-  () => suggestionCount.value + classResults.value.length,
-);
+// The highlighted item's value ("class:6.006", "action:...", "audit:..."),
+// from the combobox. It is the input's aria-activedescendant.
+const highlighted = ref<string | undefined>(undefined);
+
 const totalCount = computed(
   () =>
-    suggestionCount.value +
+    (showAuditSuggestions.value ? auditSuggestions.value.length : 0) +
     classResults.value.length +
     actionResults.value.length,
 );
 
-watch([query, activeTokenKeys], () => {
-  selectedIndex.value = 0;
-});
+// New results under the input: highlight the first again, as typing does.
+watch(
+  [query, activeTokenKeys],
+  () => {
+    void nextTick(() => comboRoot.value?.highlightFirst());
+  },
+  { deep: true },
+);
+
+function highlightedClass(): Subject | undefined {
+  const value = highlighted.value;
+  if (value?.startsWith("class:") !== true) {
+    return undefined;
+  }
+  const id = value.slice("class:".length);
+  return classResults.value.find((subject) => subject.subject_id === id);
+}
+
+/* Enter opens a class, a click places it. The combobox chooses on Enter
+   by clicking the highlighted item, so the choice itself can't say which
+   it was; the last key or pointer press does. */
+const lastInput = ref<"keyboard" | "pointer">("keyboard");
+
+function onKeydownCapture(event: KeyboardEvent) {
+  lastInput.value = "keyboard";
+  // The open shortcut closes it again (the global listener stands aside
+  // inside a dialog).
+  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+    event.preventDefault();
+    dismiss();
+  }
+}
+
+function onClassSelect(subject: Subject) {
+  if (lastInput.value === "keyboard") {
+    openClass(subject);
+  } else {
+    placeClass(subject);
+  }
+}
 
 function onInputKeydown(event: KeyboardEvent) {
   if (event.key === "Backspace" && query.value === "") {
     activeTokenKeys.value.pop();
     return;
   }
-  if (event.key === "ArrowDown") {
-    event.preventDefault();
-    selectedIndex.value = Math.min(
-      selectedIndex.value + 1,
-      totalCount.value - 1,
-    );
-    scrollSelectedIntoView();
-    return;
-  }
-  if (event.key === "ArrowUp") {
-    event.preventDefault();
-    selectedIndex.value = Math.max(selectedIndex.value - 1, 0);
-    scrollSelectedIntoView();
-    return;
-  }
-  if (event.key === "Tab" && tokenSuggestions.value.length > 0) {
-    event.preventDefault();
-    addToken(tokenSuggestions.value[0].key);
-    return;
-  }
-  if (event.key === "Tab") {
-    event.preventDefault();
-    placeSelected();
-    return;
-  }
-  if (event.key === "Enter") {
-    event.preventDefault();
-    activateSelected();
+  // Tab completes a filter or places the highlighted class. Only when
+  // there is one to act on, and never Shift+Tab: otherwise Tab moves focus
+  // as usual, to the filter chips and suggestions around the input. A
+  // consumed Tab stops here, or the dialog's focus trap would move focus
+  // on the same keypress.
+  if (event.key === "Tab" && !event.shiftKey) {
+    if (tokenSuggestions.value.length > 0) {
+      event.preventDefault();
+      event.stopPropagation();
+      addToken(tokenSuggestions.value[0].key);
+      return;
+    }
+    const subject = highlightedClass();
+    if (subject !== undefined) {
+      event.preventDefault();
+      event.stopPropagation();
+      placeClass(subject);
+    }
   }
 }
 
 /**
- * Escape closes the palette from anywhere inside it, since clicking a
- * result row moves focus off the input. Document level and marked
- * consumed, so ClassDetail's and RoadCanvas's window listeners skip the
- * same keypress: one Escape, one layer.
+ * Escape closes the palette from anywhere inside it. The result list is
+ * the top dismissable layer, so it gets the keypress; marking it consumed
+ * keeps ClassDetail's and RoadCanvas's window listeners off it: one
+ * Escape, one layer.
  */
-function onDocumentKeydown(event: KeyboardEvent) {
-  if (!props.modelValue || event.key !== "Escape" || event.defaultPrevented) {
-    return;
-  }
+function onEscape(event: KeyboardEvent) {
   event.preventDefault();
-  close();
+  dismiss();
 }
 
-onMounted(() => document.addEventListener("keydown", onDocumentKeydown));
-onBeforeUnmount(() =>
-  document.removeEventListener("keydown", onDocumentKeydown),
+/* ---- result count, spoken: settles for a beat so typing isn't read
+   letter by letter ---- */
+const resultSummary = ref("");
+let summaryTimer: ReturnType<typeof setTimeout> | undefined;
+watch(
+  [() => props.modelValue, totalCount, query, activeTokenKeys],
+  () => {
+    clearTimeout(summaryTimer);
+    if (!props.modelValue) {
+      resultSummary.value = "";
+      return;
+    }
+    summaryTimer = setTimeout(() => {
+      resultSummary.value = describeResults();
+    }, 500);
+  },
+  { deep: true },
 );
+onBeforeUnmount(() => clearTimeout(summaryTimer));
 
-function scrollSelectedIntoView() {
-  void nextTick(() => {
-    listEl.value
-      ?.querySelector(".palette-row.selected")
-      ?.scrollIntoView({ block: "nearest" });
-  });
-}
-
-function activateSelected() {
-  const index = selectedIndex.value;
-  if (showAuditSuggestions.value && index < suggestionCount.value) {
-    applyAuditSuggestion(auditSuggestions.value[index]);
-    return;
+function describeResults(): string {
+  if (showAuditSuggestions.value) {
+    return `${auditSuggestions.value.length} suggestions from your audit`;
   }
-  const classIndex = index - classOffset.value;
-  if (classIndex >= 0 && classIndex < classResults.value.length) {
-    openClass(classResults.value[classIndex]);
-    return;
+  const classes = classResults.value.length;
+  const actions = actionResults.value.length;
+  if (classes === 0 && actions === 0) {
+    return "No results";
   }
-  const actionIndex = index - actionOffset.value;
-  if (actionIndex >= 0 && actionIndex < actionResults.value.length) {
-    runAction(actionResults.value[actionIndex]);
+  const parts: string[] = [];
+  if (classes > 0) {
+    parts.push(
+      resultOverflow.value > 0
+        ? `${classes + resultOverflow.value} classes, showing ${classes}`
+        : `${classes} ${classes === 1 ? "class" : "classes"}`,
+    );
   }
-}
-
-function placeSelected() {
-  const classIndex = selectedIndex.value - classOffset.value;
-  if (classIndex >= 0 && classIndex < classResults.value.length) {
-    placeClass(classResults.value[classIndex]);
+  if (actions > 0) {
+    parts.push(`${actions} ${actions === 1 ? "command" : "commands"}`);
   }
+  return parts.join(", ");
 }
 
 /* ------------------------------------------------------------ behaviors */
@@ -640,17 +698,16 @@ function placeSelected() {
    the addFromCard here overwrites rather than double-arms. */
 
 function openClass(subject: Subject) {
-  // The palette's leave transition keeps this input in the document, and
-  // focused, while the detail opens or changes class. Letting go of it
-  // first leaves focus stranded, so the detail takes it.
+  // Let go of the input before the detail opens, so focus is stranded
+  // and the detail takes it (see ClassDetail's takeStrandedFocus).
   inputEl.value?.blur();
   store.pushClassStack(subject.subject_id);
-  close();
+  closeAfterAction();
 }
 
 function placeClass(subject: Subject) {
   store.addFromCard(subject);
-  close();
+  closeAfterAction();
 }
 
 function rowPointerDown(event: PointerEvent, subject: Subject) {
@@ -658,18 +715,37 @@ function rowPointerDown(event: PointerEvent, subject: Subject) {
   pointerDown(event, { subject, isNew: true });
 }
 
-function close() {
+/* ---- closing and focus return ----
+   The dialog puts focus back where it came from when the palette is
+   dismissed (Escape, the scrim, the shortcut). After opening a class,
+   placing one, or running a command, focus belongs to whatever that
+   opened, so the return is skipped. */
+let returnFocus = true;
+
+function dismiss() {
+  returnFocus = true;
   emit("update:modelValue", false);
+}
+
+function closeAfterAction() {
+  returnFocus = false;
+  emit("update:modelValue", false);
+}
+
+function onCloseAutoFocus(event: Event) {
+  if (!returnFocus) {
+    event.preventDefault();
+  }
 }
 
 watch(
   () => props.modelValue,
   (open) => {
     if (open) {
+      returnFocus = true;
+      lastInput.value = "keyboard";
       query.value = "";
       activeTokenKeys.value = [];
-      selectedIndex.value = 0;
-      void nextTick(() => inputEl.value?.focus());
     }
   },
 );
@@ -693,39 +769,28 @@ defineExpose({
 });
 </script>
 
-<style scoped>
-.palette-scrim {
-  position: fixed;
-  inset: 0;
-  background: var(--g-scrim);
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding-top: 11vh;
-  z-index: 120;
-}
-
-.palette {
-  width: 640px;
-  max-width: calc(100vw - 32px);
-  max-height: 64vh;
+<style>
+/* Not scoped: the panel is GSheet's, teleported by Reka, and the rows
+   are Reka's elements; every rule is under .palette (the panel's class)
+   instead. */
+.palette-combobox {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  background: var(--g-surface);
-  border: 1px solid var(--g-overlay-line);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-3);
-  overflow: hidden;
 }
 
-.palette-input-row {
+.palette .palette-input-row {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--g-line);
 }
-.palette-tokens {
+.palette .palette-search-icon {
+  color: var(--g-ink-3);
+}
+.palette .palette-tokens {
   flex: 1;
   display: flex;
   align-items: center;
@@ -733,7 +798,9 @@ defineExpose({
   flex-wrap: wrap;
   min-width: 0;
 }
-.token-chip {
+.palette .token-chip {
+  /* 24px: the minimum target size (WCAG 2.5.8) */
+  min-height: 24px;
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
@@ -746,7 +813,11 @@ defineExpose({
   padding: var(--space-05) var(--space-2);
   cursor: pointer;
 }
-.palette-input {
+.palette .token-chip:focus-visible {
+  outline: none;
+  box-shadow: var(--g-focus-ring);
+}
+.palette .palette-input {
   flex: 1;
   min-width: 140px;
   font: var(--text-body-lg);
@@ -756,11 +827,11 @@ defineExpose({
   outline: none;
   height: 30px;
 }
-.palette-input::placeholder {
+.palette .palette-input::placeholder {
   color: var(--g-ink-3);
 }
 
-.token-suggest-row {
+.palette .token-suggest-row {
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -768,11 +839,11 @@ defineExpose({
   border-bottom: 1px solid var(--g-line);
   background: var(--g-surface-2);
 }
-.token-suggest-label {
+.palette .token-suggest-label {
   font: var(--text-small);
   color: var(--g-ink-3);
 }
-.token-suggest {
+.palette .token-suggest {
   font: var(--text-small);
   color: var(--g-ink-2);
   background: var(--g-surface-sunken);
@@ -781,47 +852,50 @@ defineExpose({
   padding: var(--space-05) var(--space-2);
   cursor: pointer;
 }
-.token-suggest:hover {
+.palette .token-suggest:hover {
   background: var(--g-accent-tint);
   color: var(--g-ink);
 }
+.palette .token-suggest:focus-visible {
+  outline: none;
+  box-shadow: var(--g-focus-ring);
+}
 
-.palette-list {
+.palette .palette-list {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: var(--space-2);
 }
-.palette-section {
+.palette .palette-section {
   font: var(--text-micro);
   color: var(--g-ink-3);
   padding: var(--space-2) var(--space-3) var(--space-1);
 }
 /* The count aside is secondary; italic marks it. */
-.section-note {
+.palette .section-note {
   font-style: italic;
 }
 
-.palette-row {
+.palette .palette-row {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   width: 100%;
   padding: 6px var(--space-3);
-  border: none;
   border-radius: var(--radius-sm);
-  background: transparent;
   cursor: pointer;
-  text-align: left;
   user-select: none;
+  outline: none;
 }
-.palette-row.selected {
+.palette .palette-row[data-highlighted] {
   background: var(--g-accent-tint);
 }
-.class-row {
+.palette .class-row {
   cursor: grab;
 }
 
-.row-dept {
+.palette .row-dept {
   width: 8px;
   height: 24px;
   border-radius: var(--radius-full);
@@ -833,16 +907,16 @@ defineExpose({
   );
   transition: background-color var(--motion-quick) var(--ease-out);
 }
-.palette-row.selected .row-dept {
+.palette .palette-row[data-highlighted] .row-dept {
   background: var(--dept-color);
 }
-.row-id {
+.palette .row-id {
   font: var(--text-id);
   color: var(--g-ink);
   min-width: 72px;
   flex-shrink: 0;
 }
-.row-icon {
+.palette .row-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -853,18 +927,18 @@ defineExpose({
   color: var(--g-ink-2);
   flex-shrink: 0;
 }
-.row-icon.ok {
+.palette .row-icon.ok {
   background: var(--g-ok-tint);
   color: var(--g-ok);
 }
-.row-main {
+.palette .row-main {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
 }
 /* single nowrap lines: tight leading, the 2px margin does the separating */
-.row-title {
+.palette .row-title {
   font: var(--text-body);
   line-height: 1.3;
   color: var(--g-ink);
@@ -872,7 +946,7 @@ defineExpose({
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.row-sub {
+.palette .row-sub {
   font: var(--text-small);
   line-height: 1.3;
   color: var(--g-ink-3);
@@ -881,11 +955,11 @@ defineExpose({
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.row-sub .rating-icon {
+.palette .row-sub .rating-icon {
   display: inline-block;
   vertical-align: -1px;
 }
-.row-place {
+.palette .row-place {
   display: inline-flex;
   align-items: center;
   gap: 3px;
@@ -894,44 +968,23 @@ defineExpose({
   white-space: nowrap;
 }
 
-.palette-empty {
+.palette .palette-empty {
   padding: var(--space-6) var(--space-4);
   font: var(--text-body);
   color: var(--g-ink-3);
   text-align: center;
 }
 
-.palette-hint {
+.palette .palette-hint {
   border-top: 1px solid var(--g-line);
   padding: var(--space-2) var(--space-4);
   font: var(--text-small);
   color: var(--g-ink-3);
 }
-.palette-hint code {
+.palette .palette-hint code {
   font: var(--text-id-small);
   background: var(--g-surface-sunken);
   border-radius: var(--radius-xs);
   padding: 1px 5px;
-}
-
-.palette-enter-active {
-  transition: opacity var(--motion-quick) var(--ease-out);
-}
-.palette-enter-active .palette {
-  transition:
-    transform var(--motion-standard) var(--ease-settle),
-    opacity var(--motion-quick) var(--ease-out);
-}
-.palette-leave-active {
-  transition: opacity var(--motion-instant) var(--ease-in);
-}
-.palette-enter-from {
-  opacity: 0;
-}
-.palette-enter-from .palette {
-  transform: translateY(-8px) scale(0.99);
-}
-.palette-leave-to {
-  opacity: 0;
 }
 </style>

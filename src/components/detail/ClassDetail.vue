@@ -86,14 +86,22 @@
           class="stat"
           data-cy="cardRating"
         >
-          <a :href="evaluationsUrl" target="_blank" rel="noopener"
+          <a
+            :href="evaluationsUrl"
+            target="_blank"
+            rel="noopener"
+            :aria-label="`Rated ${subject.rating.toFixed(1)} of 7 in subject evaluations (opens in a new tab)`"
             ><g-icon name="star" :size="11" class="stat-icon" />
             {{ subject.rating.toFixed(1) }}</a
-          ><span class="stat-label">/7</span>
+          ><span class="stat-label" aria-hidden="true">/7</span>
         </span>
         <span v-if="totalHours !== null" class="stat" data-cy="cardHours">
           <span :class="hoursTone">{{ totalHours.toFixed(1) }}</span>
-          <span class="stat-label">h/wk{{ isGeneric ? "*" : "" }}</span>
+          <span class="stat-label" aria-hidden="true"
+            >h/wk{{ isGeneric ? "*" : "" }}</span
+          ><span class="sr-only"
+            >hours per week{{ isGeneric ? ", averaged (see note)" : "" }}</span
+          >
         </span>
         <span
           v-if="subject.total_units !== undefined"
@@ -118,7 +126,7 @@
         {{ hoursVerdict }}
         <g-tooltip wide placement="bottom">
           <button
-            class="verdict-why"
+            class="verdict-why g-hit"
             type="button"
             :aria-label="hoursExplainer"
             data-cy="hoursExplainer"
@@ -189,8 +197,17 @@
             :style="{ gridColumn: fit.column }"
             :disabled="fit.kind === 'unavailable'"
             :title="fit.hint"
+            :aria-label="`${fit.label}: ${fit.hint}`"
             @click="placeInTerm(fit.index)"
           >
+            <!-- The tint marks an uncertain term; the icon says it without
+                 relying on color. -->
+            <g-icon
+              v-if="fit.kind !== 'ok' && fit.kind !== 'unavailable'"
+              name="notice"
+              :size="11"
+              class="term-fit-mark"
+            />
             {{ fit.label }}
           </button>
         </div>
@@ -831,12 +848,13 @@ watch(
   color: var(--g-ink);
 }
 .trail-close {
+  /* 24px: the minimum target size (WCAG 2.5.8) */
   margin-left: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
@@ -1103,6 +1121,10 @@ watch(
 }
 .term-fit:hover:not(:disabled) {
   border-color: var(--g-ink-3);
+}
+.term-fit-mark {
+  margin-right: 3px;
+  color: var(--g-warn);
 }
 .term-fit:focus-visible {
   outline: none;

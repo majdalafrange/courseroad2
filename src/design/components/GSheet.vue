@@ -9,8 +9,10 @@
       </DialogOverlay>
       <DialogContent
         class="g-sheet-panel"
+        :class="{ top: placement === 'top' }"
         :style="{ width }"
         :aria-describedby="undefined"
+        aria-modal="true"
         v-bind="$attrs"
         tabindex="-1"
         @escape-key-down="onEscapeKeyDown"
@@ -63,6 +65,8 @@ const {
   dismissible = true,
   scrim = "default",
   autoFocus = true,
+  initialFocus = undefined,
+  placement = "center",
 } = defineProps<{
   modelValue: boolean;
   /** Accessible dialog name. */
@@ -84,6 +88,18 @@ const {
    * around its first control.
    */
   autoFocus?: boolean;
+  /**
+   * CSS selector, inside the panel, for the control that takes focus on
+   * open instead of the first tabbable (which is the close button). A
+   * text field in it also has its text selected, ready to retype.
+   */
+  initialFocus?: string;
+  /**
+   * "top" anchors the panel high on the screen and drops it in from
+   * above, for a search surface whose results grow downward (the command
+   * palette); "center" for everything else.
+   */
+  placement?: "center" | "top";
 }>();
 
 const emit = defineEmits<{
@@ -128,6 +144,19 @@ function onInteractOutside(event: PointerDownOutsideEvent | FocusOutsideEvent) {
 // then focuses nothing; the panel takes focus itself so the trap has an
 // anchor.
 function onOpenAutoFocus(event: Event) {
+  const panel = event.target as HTMLElement | null;
+  const target =
+    initialFocus !== undefined
+      ? panel?.querySelector<HTMLElement>(initialFocus)
+      : null;
+  if (target) {
+    event.preventDefault();
+    target.focus();
+    if (target instanceof HTMLInputElement) {
+      target.select();
+    }
+    return;
+  }
   if (!autoFocus) {
     event.preventDefault();
     (event.target as HTMLElement | null)?.focus();
@@ -181,6 +210,24 @@ function onOpenAutoFocus(event: Event) {
 }
 .g-sheet-panel[data-state="closed"] {
   animation: g-sheet-fade-out var(--motion-quick) var(--ease-in);
+}
+/* Top placement: high on the screen, so a result list growing under the
+   input never pushes the input itself around. Edged like the other
+   floating surfaces. */
+.g-sheet-panel.top {
+  top: 11vh;
+  transform: translateX(-50%);
+  max-height: 64vh;
+  border: 1px solid var(--g-overlay-line);
+}
+.g-sheet-panel.top[data-state="open"] {
+  animation: g-sheet-drop-in var(--motion-standard) var(--ease-settle);
+}
+@keyframes g-sheet-drop-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px) scale(0.99);
+  }
 }
 @keyframes g-sheet-fade-in {
   from {

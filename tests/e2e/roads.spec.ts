@@ -113,10 +113,13 @@ test("import via paste round-trips into a new road", async ({ page }) => {
   await cy(page, "importRoadSubmitButton").click();
   await expect(cy(page, "roadSwitcher")).toContainText("Imported plan");
   await expect(
-    page.locator(".term-cell").getByText("8.01").first(),
+    page.locator(".term-cell").locator(".card-id", { hasText: "8.01" }).first(),
   ).toBeVisible();
   await expect(
-    page.locator(".term-cell").getByText("UROP1").first(),
+    page
+      .locator(".term-cell")
+      .locator(".card-id", { hasText: "UROP1" })
+      .first(),
   ).toBeVisible();
 });
 
@@ -138,7 +141,7 @@ test("pasting a road imports it without naming it first", async ({ page }) => {
   await expect(cy(page, "roadSwitcher")).toContainText("Imported road");
   await expect(cy(page, "importRoadText")).toBeHidden();
   await expect(
-    page.locator(".term-cell").getByText("8.01").first(),
+    page.locator(".term-cell").locator(".card-id", { hasText: "8.01" }).first(),
   ).toBeVisible();
 });
 

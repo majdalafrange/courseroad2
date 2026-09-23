@@ -140,11 +140,12 @@ import { toast } from "../toast";
   box-shadow: var(--g-focus-ring);
 }
 .g-toast-dismiss {
+  /* 24px: the minimum target size (WCAG 2.5.8) */
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border: none;
   border-radius: var(--radius-full);
   background: transparent;

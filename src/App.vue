@@ -10,6 +10,9 @@
     </div>
     <router-view v-else-if="isStyleguide" />
     <template v-else>
+      <a class="skip-link" :href="`#${mainId}`" @click.prevent="skipToMain">
+        Skip to main content
+      </a>
       <div
         class="shell"
         :class="{
@@ -20,6 +23,7 @@
       >
         <mobile-notice v-if="isMobile" />
         <shell-header
+          :page-heading="pageHeading"
           @open-search="paletteOpen = true"
           @undo="doUndo"
           @redo="doRedo"
@@ -126,7 +130,9 @@ const ShareSheet = defineAsyncComponent(
 );
 
 import { fatalError } from "./lib/errorBoundary";
+import { announce } from "./design/announce";
 import { toast } from "./design/toast";
+import { shortcutLabel } from "./lib/platform";
 import { STORAGE_KEYS, writeValue } from "./lib/appStorage";
 import { DEMO_ROAD, DEMO_ROAD_NAME } from "./lib/demoRoad";
 import { savePersistedStore } from "./lib/persistedStore";
@@ -194,6 +200,39 @@ const isExplore = computed(() => route.name === "/explore/[[road]]");
 // The styleguide is a self-contained reference page (its own header, its
 // own GToastHost) rather than part of the app.
 const isStyleguide = computed(() => route.name === "/styleguide");
+
+/* ---- page identity: title, heading, skip link ---- */
+const activeRoadName = computed(() => store.roads[store.activeRoad]?.name);
+const modeName = computed(() => (isExplore.value ? "Explore" : "Plan"));
+const pageHeading = computed(() =>
+  activeRoadName.value !== undefined
+    ? `${modeName.value}: ${activeRoadName.value}`
+    : modeName.value,
+);
+watch(
+  pageHeading,
+  (heading) => {
+    document.title = isStyleguide.value
+      ? "Styleguide | CourseRoad"
+      : `${heading} | CourseRoad`;
+  },
+  { immediate: true },
+);
+// A mode switch swaps the whole page without a load, so nothing tells a
+// screen reader it happened; the title change alone isn't read out.
+watch(modeName, (mode, previous) => {
+  if (previous !== undefined) {
+    announce(`${mode} view`);
+  }
+});
+
+/** The skip link's target is each page's own <main>. */
+const mainId = computed(() =>
+  isExplore.value ? "exploreMain" : "canvasScroll",
+);
+function skipToMain() {
+  document.getElementById(mainId.value)?.focus();
+}
 
 /* ---- theme: keep the applied attribute in sync with "system" ---- */
 useSystemThemeSync();
@@ -376,7 +415,7 @@ function seedFromOnboarding(payload: {
     payload.year === 0 ? "Starting plan added" : "Road set up",
     payload.year === 0
       ? "First-year GIRs are in place. Move or swap them as you like."
-      : "Terms start empty. Press / to add classes.",
+      : `Terms start empty. Press ${shortcutLabel("K")} to add classes.`,
   );
 }
 

@@ -30,13 +30,21 @@
     />
 
     <div class="row-actions">
-      <g-button size="sm" variant="ghost" @click="emit('preview')">
+      <g-button
+        size="sm"
+        variant="ghost"
+        :aria-label="`What if: preview ${fit.title}`"
+        @click="emit('preview')"
+      >
         What if?
       </g-button>
       <g-button
         :disabled="fit.onRoad"
         size="sm"
         variant="primary"
+        :aria-label="
+          fit.onRoad ? `${fit.title} is on your road` : `Add ${fit.title}`
+        "
         @click="emit('add')"
       >
         Add

@@ -5,7 +5,11 @@
       CourseRoad works best on a laptop or desktop. Some features are hidden on
       small screens.
     </span>
-    <button class="notice-dismiss" aria-label="Dismiss" @click="dismiss">
+    <button
+      class="notice-dismiss"
+      aria-label="Dismiss this notice"
+      @click="dismiss"
+    >
       <g-icon name="close" :size="12" />
     </button>
   </div>

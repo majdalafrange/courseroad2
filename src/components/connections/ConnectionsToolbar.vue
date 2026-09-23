@@ -26,7 +26,7 @@
         variant="ghost"
         class="legend-item"
         :class="{ off: !store.showRowLabels }"
-        :aria-pressed="!store.showRowLabels"
+        :aria-pressed="store.showRowLabels"
         :title="`${store.showRowLabels ? 'Hide' : 'Show'} row labels`"
         @click="store.toggleRowLabels()"
       >

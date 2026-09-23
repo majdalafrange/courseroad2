@@ -6,74 +6,68 @@
       'just-completed': celebrating,
     }"
   >
-    <header
-      class="program-head"
-      role="button"
-      tabindex="0"
-      :aria-expanded="open"
-      @click="toggleOpen"
-      @keydown.enter.prevent="toggleOpen"
-      @keydown.space.prevent="toggleOpen"
-    >
-      <svg
-        class="program-ring"
-        :class="{ celebrate: celebrating }"
-        viewBox="0 0 36 36"
-        aria-hidden="true"
-      >
-        <circle class="ring-track" cx="18" cy="18" r="15.5" />
-        <circle
-          class="ring-fill"
-          :class="ringTone"
-          cx="18"
-          cy="18"
-          r="15.5"
-          :stroke-dasharray="`${ringLength} ${circumference}`"
-        />
-      </svg>
-      <div class="program-title-block">
-        <span class="program-title">{{ title }}</span>
-        <span class="program-sub">
-          <template v-if="preview">What if? (not saved)</template>
-          <template v-else-if="tree?.fulfilled">Complete</template>
-          <template v-else-if="percent !== null"
-            >{{ percent }}% complete</template
+    <header class="program-head" @click="toggleOpen">
+      <h2 class="program-heading">
+        <button
+          type="button"
+          class="program-toggle"
+          :aria-expanded="open"
+          @click.stop="toggleOpen"
+        >
+          <svg
+            class="program-ring"
+            :class="{ celebrate: celebrating }"
+            viewBox="0 0 36 36"
+            aria-hidden="true"
           >
-          <template v-else-if="failed">
-            Progress didn't load
-            <button
-              class="program-retry"
-              data-cy="programRetryButton"
-              :aria-label="`Retry computing ${title}`"
-              @click.stop="retry"
-              @keydown.enter.stop
-              @keydown.space.stop
-            >
-              Retry
-            </button>
-          </template>
-          <template v-else-if="tree === null">Computing...</template>
-        </span>
-      </div>
+            <circle class="ring-track" cx="18" cy="18" r="15.5" />
+            <circle
+              class="ring-fill"
+              :class="ringTone"
+              cx="18"
+              cy="18"
+              r="15.5"
+              :stroke-dasharray="`${ringLength} ${circumference}`"
+            />
+          </svg>
+          <span class="program-title-block">
+            <span class="program-title">{{ title }}</span>
+            <span class="program-sub">
+              <template v-if="preview">What if? (not saved)</template>
+              <template v-else-if="tree?.fulfilled">Complete</template>
+              <template v-else-if="percent !== null"
+                >{{ percent }}% complete</template
+              >
+              <template v-else-if="failed">Progress didn't load</template>
+              <template v-else-if="tree === null">Computing...</template>
+            </span>
+          </span>
+        </button>
+      </h2>
+      <button
+        v-if="failed"
+        type="button"
+        class="program-retry"
+        data-cy="programRetryButton"
+        :aria-label="`Retry computing ${title}`"
+        @click.stop="retry"
+      >
+        Retry
+      </button>
       <button
         v-if="!preview && tree"
+        type="button"
         class="program-expandall"
         :aria-label="`${anyCollapsed ? 'Expand' : 'Collapse'} all of ${title}`"
         @click.stop="toggleAll"
-        @keydown.enter.stop
-        @keydown.space.stop
       >
         {{ anyCollapsed ? "Expand all" : "Collapse all" }}
       </button>
-      <span
-        v-if="preview"
-        class="preview-actions"
-        @keydown.enter.stop
-        @keydown.space.stop
-      >
+      <span v-if="preview" class="preview-actions">
         <g-button
           size="sm"
           variant="primary"
+          :aria-label="`Keep ${title}`"
           @click.stop="auditStore.keepPreview()"
         >
           Keep
@@ -81,6 +75,7 @@
         <g-button
           size="sm"
           variant="ghost"
+          :aria-label="`Discard ${title}`"
           @click.stop="auditStore.clearPreview()"
         >
           Discard
@@ -88,12 +83,11 @@
       </span>
       <button
         v-else
+        type="button"
         class="program-remove"
         :aria-label="`Remove ${title}`"
         data-cy="removeProgramButton"
         @click.stop="emit('remove')"
-        @keydown.enter.stop
-        @keydown.space.stop
       >
         <g-icon name="close" :size="12" />
       </button>
@@ -314,10 +308,29 @@ watch(
   user-select: none;
 }
 
-.program-head:focus-visible {
+.program-heading {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font: inherit;
+}
+.program-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.program-toggle:focus-visible {
   outline: none;
   box-shadow: var(--g-focus-ring);
-  border-radius: var(--radius-md);
 }
 
 .program-ring {
@@ -374,12 +387,12 @@ watch(
   min-height: 1lh;
 }
 .program-retry {
+  flex-shrink: 0;
   font: var(--text-small);
   color: var(--g-ink-2);
   background: transparent;
   border: none;
   padding: 0;
-  margin-left: var(--space-1);
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -414,7 +427,7 @@ watch(
   transition: opacity var(--motion-quick) var(--ease-out);
 }
 .program-head:hover .program-expandall,
-.program-expandall:focus-visible {
+.program-head:focus-within .program-expandall {
   opacity: 1;
 }
 .program-expandall:hover {
@@ -427,11 +440,12 @@ watch(
 }
 
 .program-remove {
+  /* 24px: the minimum target size (WCAG 2.5.8) */
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border: none;
   border-radius: var(--radius-full);
   background: transparent;
@@ -441,7 +455,7 @@ watch(
   transition: opacity var(--motion-quick) var(--ease-out);
 }
 .program-head:hover .program-remove,
-.program-remove:focus-visible {
+.program-head:focus-within .program-remove {
   opacity: 1;
 }
 .program-remove:hover {

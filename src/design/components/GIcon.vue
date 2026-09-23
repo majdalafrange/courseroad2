@@ -1,10 +1,25 @@
 <template>
+  <!-- The external-link mark only ever sits in a link that opens a new
+       tab, so it says so for a screen reader too. One root either way, so
+       as-child callers (Reka slots) still get a single element. -->
+  <span v-if="name === 'external'" class="g-icon-external" v-bind="$attrs">
+    <Icon
+      class="g-icon"
+      :icon="data"
+      :width="size"
+      :height="size"
+      :aria-hidden="true"
+    />
+    <span class="sr-only">(opens in a new tab)</span>
+  </span>
   <Icon
+    v-else
     class="g-icon"
     :icon="data"
     :width="size"
     :height="size"
     :aria-hidden="true"
+    v-bind="$attrs"
   />
 </template>
 
@@ -112,6 +127,10 @@ const NAME_TO_LUCIDE = {
 
 export type IconName = keyof typeof NAME_TO_LUCIDE;
 
+// The external mark wraps its icon, so attrs (a class, a style) are bound
+// to whichever root renders, by hand.
+defineOptions({ inheritAttrs: false });
+
 const { name, size = 16 } = defineProps<{
   name: IconName;
   size?: number;
@@ -124,5 +143,10 @@ const data = computed(() => NAME_TO_LUCIDE[name]);
 .g-icon {
   flex-shrink: 0;
   display: block;
+}
+/* The external mark sits inline in link text, as the bare icon did. */
+.g-icon-external {
+  display: inline-flex;
+  flex-shrink: 0;
 }
 </style>

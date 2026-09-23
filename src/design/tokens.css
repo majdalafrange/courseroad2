@@ -34,8 +34,10 @@
  *               reduced motion swaps rotation for an opacity pulse.
  *
  *   Inputs (the GInput shell; ad-hoc inputs must adopt it, not re-derive)
- *     rest      inset 0 0 0 1px var(--g-line-strong), or --g-line-control
- *               on a field-shaped trigger in the header (a button)
+ *     rest      inset 0 0 0 1px var(--g-line-control): a text field's
+ *               edge is how it reads as a field, so it needs 3:1
+ *               (--g-line-strong is a hairline, ~1.6:1). Field-shaped
+ *               triggers in the header use the same ring
  *     hover     inset ring → var(--g-ink-3); a trigger holds it while its
  *               menu is open
  *     focus     inset 0 0 0 1.5px var(--g-accent), 0 0 0 3px
@@ -79,9 +81,9 @@
  *       paints on top by document order)
  *   60  GTooltip, DetailSheet
  *   90  CookieConsent (below every sheet; a modal always wins)
- *  100  GSheet, GDrawer
+ *  100  GSheet, GDrawer, and the CommandPalette (a GSheet: opened over
+ *       another sheet, it is later in <body>, so it paints on top)
  *  105  GSelect content (must clear a GSheet it can be nested inside)
- *  120  CommandPalette (a global overlay, above sheets/selects)
  *  150  the drag ghost (must clear everything it can be dragged over,
  *       short of a toast reporting a drag failure)
  *  200  GToastHost (always on top, including over an active drag)
@@ -191,8 +193,9 @@
   --g-ink: #191c20;
   --g-ink-2: #484d54;
   /* hints, captions; toward MIT silver. Dark enough to clear 4.5:1 at
-     12.5px on every light surface (5.02 on white, 4.6 on --g-bg). */
-  --g-ink-3: #676c74;
+     12.5px on every light surface, the sunken wells included (5.69 on
+     white, 5.02 on --g-bg, 4.66 on --g-surface-sunken). */
+  --g-ink-3: #62676f;
   --g-ink-disabled: #adb2b8;
 
   --g-line: #dde2e5; /* hairlines */

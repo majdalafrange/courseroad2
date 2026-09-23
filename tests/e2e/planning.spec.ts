@@ -14,10 +14,12 @@ test("palette search places a class; undo takes it back", async ({ page }) => {
   await expect(fall.getByText("Choose a term below")).toHaveCount(0);
   await fall.click();
 
-  await expect(fall.getByText("8.01").first()).toBeVisible();
+  await expect(
+    fall.locator(".card-id", { hasText: "8.01" }).first(),
+  ).toBeVisible();
 
   await page.getByRole("button", { name: "Undo" }).click();
-  await expect(fall.getByText("8.01")).toHaveCount(0);
+  await expect(fall.locator(".card-id", { hasText: "8.01" })).toHaveCount(0);
 });
 
 test("the empty-term add control opens the palette scoped to it", async ({
@@ -33,7 +35,9 @@ test("the empty-term add control opens the palette scoped to it", async ({
   await page.getByText("Calculus", { exact: true }).first().click();
   const spring = page.locator('[data-cy$="__semester_3"]');
   await spring.click();
-  await expect(spring.getByText("18.01").first()).toBeVisible();
+  await expect(
+    spring.locator(".card-id", { hasText: "18.01" }).first(),
+  ).toBeVisible();
 });
 
 /* Each season name has to survive the trip to a token key, and IAP is the
@@ -59,11 +63,13 @@ test("the detail card names a repeat before adding one", async ({ page }) => {
   await page.getByText("Classical Mechanics").first().click();
   const fall = page.locator('[data-cy$="__semester_1"]');
   await fall.click();
-  await expect(fall.getByText("8.01").first()).toBeVisible();
+  await expect(
+    fall.locator(".card-id", { hasText: "8.01" }).first(),
+  ).toBeVisible();
 
   // Open the placed class's detail. Its term buttons add a repeat, and
   // the card says so the way the Connections term picker does.
-  await fall.getByText("8.01").first().click();
+  await fall.locator(".card-id", { hasText: "8.01" }).first().click();
   await expect(cy(page, "cardRepeatNote")).toContainText("This adds a repeat");
 });
 
@@ -80,17 +86,21 @@ test.describe("the click after a drag", () => {
     await page.getByText("Classical Mechanics").first().click();
     const fall = page.locator('[data-cy$="__semester_1"]');
     await fall.click();
-    await expect(fall.getByText("8.01").first()).toBeVisible();
+    await expect(
+      fall.locator(".card-id", { hasText: "8.01" }).first(),
+    ).toBeVisible();
 
     const spring = page.locator('[data-cy$="__semester_3"]');
-    await fall.getByText("8.01").first().hover();
+    await fall.locator(".card-id", { hasText: "8.01" }).first().hover();
     await page.mouse.down();
     const box = await spring.boundingBox();
     await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2, {
       steps: 20,
     });
     await page.mouse.up();
-    await expect(spring.getByText("8.01").first()).toBeVisible();
+    await expect(
+      spring.locator(".card-id", { hasText: "8.01" }).first(),
+    ).toBeVisible();
     return spring;
   }
 
@@ -116,6 +126,8 @@ test("a placed class updates the term units", async ({ page }) => {
   await page.getByText("Calculus", { exact: true }).first().click();
   const fall = page.locator('[data-cy$="__semester_1"]');
   await fall.click();
-  await expect(fall.getByText("18.01").first()).toBeVisible();
+  await expect(
+    fall.locator(".card-id", { hasText: "18.01" }).first(),
+  ).toBeVisible();
   await expect(cy(page, "semesterUnits").first()).toContainText("12");
 });

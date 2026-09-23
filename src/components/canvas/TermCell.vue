@@ -15,7 +15,7 @@
       },
     ]"
     :data-cy="'road_' + roadID + '__semester_' + index"
-    :aria-label="termLabel"
+    :aria-label="isCurrentTerm ? `${termLabel}, current term` : termLabel"
   >
     <!-- Pinned flag, cardinal's only other job besides the wordmark and the
          primary action: mark the one term that's happening right now, the
@@ -40,35 +40,49 @@
 
     <header v-if="!collapsedPrior" class="term-head">
       <div class="term-title-row">
-        <h3 class="term-name" :class="{ 'is-prior': index === 0 }">
+        <!-- Prior credit sits above every year, so it is a year-level
+             heading itself; the terms are h3 under their year's h2. -->
+        <component
+          :is="index === 0 ? 'h2' : 'h3'"
+          class="term-name"
+          :class="{ 'is-prior': index === 0 }"
+        >
           <template v-if="index === 0">Prior credit</template>
           <template v-else>
             {{ termSeason }}<span class="term-year">’{{ termYearShort }}</span>
           </template>
-        </h3>
-        <a
+        </component>
+        <g-tooltip
           v-if="subjects.length && index !== 0"
-          class="term-hydrant"
-          :href="hydrantLink"
-          target="_blank"
-          rel="noopener"
-          aria-label="Open this term in Hydrant"
-          @pointerdown.stop
-          @click.stop
+          text="Build this term's schedule in Hydrant"
         >
-          <g-tooltip text="Build this term's schedule in Hydrant">
+          <a
+            class="term-hydrant"
+            :href="hydrantLink"
+            target="_blank"
+            rel="noopener"
+            :aria-label="`Open ${termLabel} in Hydrant (opens in a new tab)`"
+            @pointerdown.stop
+            @click.stop
+          >
             <!-- if lucide ever adds a fire hydrant icon, replace this -->
             <span class="hydrant-mark">Hydrant</span>
-          </g-tooltip>
-        </a>
+          </a>
+        </g-tooltip>
       </div>
       <div v-if="subjects.length" class="term-stats">
         <span class="term-units" data-cy="semesterUnits"
-          >{{ info.totalUnits }}u</span
+          ><span aria-hidden="true">{{ info.totalUnits }}u</span
+          ><span class="sr-only">{{ info.totalUnits }} units</span></span
         >
         <g-tooltip placement="bottom">
-          <span class="term-hours" :class="loadTone"
-            >{{ info.totalExpectedHours.toFixed(0) }}h</span
+          <span class="term-hours" :class="loadTone" tabindex="0"
+            ><span aria-hidden="true"
+              >{{ info.totalExpectedHours.toFixed(0) }}h</span
+            ><span class="sr-only"
+              >{{ info.totalExpectedHours.toFixed(0) }} expected hours per
+              week{{ loadToneLabel }}</span
+            ></span
           >
           <template #content>
             <div class="hours-detail">
@@ -110,6 +124,9 @@
                 </span>
                 <em>expected hours per week</em>
               </template>
+              <em v-if="index !== 0">
+                48 units is the typical load per semester.
+              </em>
             </div>
           </template>
         </g-tooltip>
@@ -296,6 +313,14 @@ const loadTone = computed(() => {
   }
   return "load-ok";
 });
+/** The load tone in words: the color alone does not say it. */
+const loadToneLabel = computed(() =>
+  loadTone.value === "load-danger"
+    ? ", a heavy load"
+    : loadTone.value === "load-warn"
+      ? ", above a typical load"
+      : "",
+);
 
 const warnings = computed(() =>
   semesterWarnings({
@@ -497,14 +522,20 @@ const placementAriaLabel = computed(() => {
 .is-current .term-name {
   color: var(--g-accent);
 }
+/* --g-ink-3 at full strength: it is tuned to clear 4.5:1 at this size,
+   and any opacity on top takes it under. */
 .term-year {
   margin-left: 3px;
   color: var(--g-ink-3);
-  opacity: 0.8;
 }
 .term-hydrant {
   text-decoration: none;
   line-height: 1;
+  border-radius: var(--radius-xs);
+}
+.term-hydrant:focus-visible {
+  outline: none;
+  box-shadow: var(--g-focus-ring);
 }
 .hydrant-mark {
   font: var(--text-micro);
@@ -534,6 +565,11 @@ const placementAriaLabel = computed(() => {
 }
 .term-hours {
   cursor: default;
+  border-radius: var(--radius-xs);
+}
+.term-hours:focus-visible {
+  outline: none;
+  box-shadow: var(--g-focus-ring);
 }
 .term-hours.load-warn {
   color: var(--g-warn);

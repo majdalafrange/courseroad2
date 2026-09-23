@@ -1,5 +1,9 @@
 <template>
   <header class="shell-header">
+    <!-- The page's one h1, for screen readers: the visible identity is the
+         wordmark and the road switcher. Inside the banner landmark, so
+         nothing on the page sits outside one. -->
+    <h1 class="sr-only">{{ pageHeading }}</h1>
     <div class="header-left">
       <router-link to="/road" class="header-brand" aria-label="CourseRoad home">
         <g-wordmark size="sm" />
@@ -22,7 +26,9 @@
           >·</span
         >
         <g-tooltip :text="saveState.detail" placement="bottom" :delay="200">
-          <span class="save-state" :class="saveState.tone">
+          <!-- Focusable so its tooltip (the detail) is reachable by
+               keyboard, not only by hover. -->
+          <span class="save-state" :class="saveState.tone" tabindex="0">
             <g-icon class="save-icon" :name="saveState.icon" :size="12" />
             <span class="save-label">{{ saveState.label }}</span>
           </span>
@@ -65,11 +71,16 @@
         class="search-trigger"
         data-cy="classSearchInput"
         aria-label="Add classes"
+        :aria-keyshortcuts="isMac() ? 'Meta+K' : 'Control+K'"
         @click.stop="emit('open-search')"
       >
         <g-icon name="search" :size="14" />
         <span class="search-trigger-text">Add classes</span>
-        <g-kbd class="search-trigger-kbd" :keys="['/']" />
+        <g-kbd
+          class="search-trigger-kbd"
+          :keys="paletteKeys.keys"
+          :joiner="paletteKeys.joiner"
+        />
       </button>
 
       <nav class="mode-switch" aria-label="Mode">
@@ -102,7 +113,7 @@
           :href="feedbackFormUrl"
           target="_blank"
           rel="noopener"
-          aria-label="Send feedback"
+          aria-label="Send feedback (opens in a new tab)"
           data-cy="feedbackButton"
         >
           <g-icon name="message" :size="15" />
@@ -118,63 +129,47 @@
         Log in
       </button>
 
-      <g-popover v-model="moreOpen" align="end" menu>
-        <template #anchor>
-          <button
-            class="header-icon-btn"
-            aria-label="More"
-            aria-haspopup="menu"
-            :aria-expanded="moreOpen"
-            @click="moreOpen = !moreOpen"
-          >
+      <g-menu v-model="moreOpen" align="end">
+        <template #trigger>
+          <button class="header-icon-btn" aria-label="More">
             <g-icon name="dots" :size="16" />
           </button>
         </template>
-        <div class="more-menu" @click.stop>
-          <button class="more-item" @click="closeAnd('open-about')">
+        <div class="more-menu">
+          <g-menu-item @select="emit('open-about')">
             <g-icon name="info" :size="14" /> About CourseRoad
-          </button>
-          <button
-            class="more-item"
-            data-cy="settingsButton"
-            @click="closeAnd('open-settings')"
-          >
+          </g-menu-item>
+          <g-menu-item data-cy="settingsButton" @select="emit('open-settings')">
             <g-icon name="settings" :size="14" /> Settings
-          </button>
-          <a
+          </g-menu-item>
+          <g-menu-item v-if="auth.loggedIn" as-child>
+            <a
+              class="mobile-only"
+              :href="feedbackFormUrl"
+              target="_blank"
+              rel="noopener"
+            >
+              <g-icon name="message" :size="14" /> Send feedback
+              <span class="sr-only">(opens in a new tab)</span>
+            </a>
+          </g-menu-item>
+          <g-menu-separator v-if="auth.loggedIn" />
+          <g-menu-item
             v-if="auth.loggedIn"
-            class="more-item mobile-only"
-            :href="feedbackFormUrl"
-            target="_blank"
-            rel="noopener"
-            @click="moreOpen = false"
-          >
-            <g-icon name="message" :size="14" /> Send feedback
-          </a>
-          <div v-if="auth.loggedIn" class="more-divider" />
-          <button
-            v-if="auth.loggedIn"
-            class="more-item"
             data-cy="logoutButton"
-            @click="
-              moreOpen = false;
-              auth.logoutUser();
-            "
+            @select="auth.logoutUser()"
           >
             <g-icon name="logout" :size="14" /> Log out
-          </button>
-          <button
+          </g-menu-item>
+          <g-menu-item
             v-else
-            class="more-item mobile-only login"
-            @click="
-              moreOpen = false;
-              auth.loginUser();
-            "
+            class="mobile-only login"
+            @select="auth.loginUser()"
           >
             <g-icon name="login" :size="14" /> Log in
-          </button>
+          </g-menu-item>
         </div>
-      </g-popover>
+      </g-menu>
     </div>
   </header>
 </template>
@@ -184,14 +179,24 @@ import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import GIcon, { type IconName } from "../../design/components/GIcon.vue";
 import GKbd from "../../design/components/GKbd.vue";
-import GPopover from "../../design/components/GPopover.vue";
+import {
+  GMenu,
+  GMenuItem,
+  GMenuSeparator,
+} from "../../design/components/GMenu";
 import GTooltip from "../../design/components/GTooltip.vue";
 import GWordmark from "../../design/components/GWordmark.vue";
 import RoadSwitcher from "./RoadSwitcher.vue";
 import { semesterInformation } from "../../lib/hours";
+import { isMac, shortcutKeys } from "../../lib/platform";
 import { history } from "../../stores/history";
 import { useAuthStore } from "../../stores/auth";
 import { useCourseDataStore } from "../../stores/courseData";
+
+defineProps<{
+  /** "Plan: <road name>" or "Explore: <road name>". */
+  pageHeading: string;
+}>();
 
 const emit = defineEmits<{
   (e: "open-search"): void;
@@ -219,14 +224,7 @@ const moreOpen = ref(false);
 /* Feedback and issue-report form. */
 const feedbackFormUrl = "https://forms.gle/VAY3E7RbjmUrw3ww5";
 
-function closeAnd(event: "open-about" | "open-settings") {
-  moreOpen.value = false;
-  if (event === "open-about") {
-    emit("open-about");
-  } else {
-    emit("open-settings");
-  }
-}
+const paletteKeys = shortcutKeys("K");
 
 const totalUnits = computed(() => {
   const road = store.roads[store.activeRoad];
@@ -356,6 +354,11 @@ const saveState = computed<SaveState>(() => {
   align-items: center;
   gap: 6px;
   cursor: default;
+  border-radius: var(--radius-xs);
+}
+.save-state:focus-visible {
+  outline: none;
+  box-shadow: var(--g-focus-ring);
 }
 .save-state.ok .save-icon {
   color: var(--g-ok);
@@ -508,37 +511,13 @@ const saveState = computed<SaveState>(() => {
   gap: var(--space-05);
   min-width: 190px;
 }
-.more-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font: var(--text-body);
+.more-menu .g-menu-item {
   color: var(--g-ink);
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-xs);
-  padding: var(--space-2) var(--space-3);
-  cursor: pointer;
-  text-align: left;
-  text-decoration: none;
-  transition: background-color var(--motion-quick) var(--ease-out);
 }
-.more-item:hover {
-  background: var(--g-accent-tint);
-}
-.more-item:focus-visible {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
-}
-.more-divider {
-  height: 1px;
-  background: var(--g-line);
-  margin: var(--space-1) var(--space-2);
-}
-.more-item.mobile-only {
+.more-menu .mobile-only {
   display: none;
 }
-.more-item.login {
+.more-menu .login {
   color: var(--g-brand);
   font-weight: 600;
 }
@@ -598,7 +577,7 @@ const saveState = computed<SaveState>(() => {
   .header-login {
     display: none;
   }
-  .more-item.mobile-only {
+  .more-menu .mobile-only {
     display: flex;
   }
 }

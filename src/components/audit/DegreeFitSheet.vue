@@ -44,7 +44,7 @@
           </g-button>
         </template>
         <template v-else-if="fit.status === 'error'">
-          <span class="scan-note scan-error">{{ fit.error }}</span>
+          <span class="scan-note scan-error" role="alert">{{ fit.error }}</span>
           <g-button size="sm" variant="primary" @click="fit.scan(true)">
             Try again
           </g-button>
@@ -162,6 +162,7 @@ import {
   GTabsRoot,
   GTabsTrigger,
 } from "../../design/components/GTabs";
+import { announce } from "../../design/announce";
 import GButton from "../../design/components/GButton.vue";
 import GProgress from "../../design/components/GProgress.vue";
 import GSheet from "../../design/components/GSheet.vue";
@@ -219,6 +220,20 @@ const summary = computed(() => {
   }
   return `${ranked} of ${ranked + missed} ranked. ${missed} could not be checked.`;
 });
+
+// The scan runs for seconds behind a progress bar; say when it lands.
+watch(
+  () => fit.status,
+  (status, previous) => {
+    if (status === previous) {
+      return;
+    }
+    // An error is read out by its own role="alert" line.
+    if (status === "ready") {
+      announce(`Check finished. ${summary.value}`);
+    }
+  },
+);
 
 function visible(rows: ProgramFit[], group: Tab): ProgramFit[] {
   return rows.slice(0, shown[group]);

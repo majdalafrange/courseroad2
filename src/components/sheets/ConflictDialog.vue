@@ -37,11 +37,19 @@
               class="col-subject"
               :class="{ changed: isChanged(index, side) }"
             >
-              {{ course.subject_id }}
+              {{ course.subject_id
+              }}<span v-if="isChanged(index, side)" class="sr-only">
+                (differs)</span
+              >
             </span>
           </div>
           <g-button
             variant="primary"
+            :aria-label="
+              side === 'remote'
+                ? 'Keep the version from the cloud'
+                : 'Keep the version in this tab'
+            "
             @click="
               side === 'remote'
                 ? auth.updateLocal(conflictInfo.id)

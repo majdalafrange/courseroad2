@@ -2,6 +2,7 @@
   <TooltipProvider :delay-duration="delay">
     <TooltipRoot v-model:open="open">
       <TooltipTrigger
+        ref="trigger"
         as="span"
         class="g-tooltip-anchor"
         v-bind="$attrs"
@@ -9,6 +10,13 @@
         @focusout="open = false"
       >
         <slot />
+        <!-- Reka points aria-describedby at the content only while open, and
+             from this wrapping span rather than the control inside it. This
+             copy stays in the DOM (hidden elements still work as a
+             description) and describes the wrapped control directly. -->
+        <span :id="descriptionId" hidden>
+          <slot name="content">{{ text }}</slot>
+        </span>
       </TooltipTrigger>
       <TooltipPortal>
         <TooltipContent
@@ -30,7 +38,7 @@
  * TooltipRoot; this is the visual skin. TooltipContent's Popper escapes
  * overflow:hidden ancestors.
  */
-import { ref } from "vue";
+import { onMounted, onUpdated, ref, useId, useTemplateRef } from "vue";
 import {
   TooltipContent,
   TooltipPortal,
@@ -69,6 +77,33 @@ function onFocusin(event: FocusEvent) {
     open.value = true;
   }
 }
+
+/* The wrapped control is the caller's markup, so the description is
+   attached by hand to the first focusable element inside the trigger.
+   Skipped when the tooltip only repeats the control's own name. */
+const descriptionId = `g-tooltip-desc-${useId()}`;
+const triggerRef = useTemplateRef("trigger");
+const FOCUSABLE = "button, a[href], input, select, textarea, [tabindex]";
+
+function describeControl() {
+  const root = triggerRef.value?.$el;
+  if (!(root instanceof HTMLElement)) {
+    return;
+  }
+  const control = root.querySelector<HTMLElement>(FOCUSABLE);
+  if (control === null) {
+    return;
+  }
+  const description = document.getElementById(descriptionId)?.textContent;
+  const name = control.getAttribute("aria-label") ?? control.textContent;
+  if (description?.trim() === name?.trim()) {
+    control.removeAttribute("aria-describedby");
+  } else {
+    control.setAttribute("aria-describedby", descriptionId);
+  }
+}
+onMounted(describeControl);
+onUpdated(describeControl);
 </script>
 
 <style>

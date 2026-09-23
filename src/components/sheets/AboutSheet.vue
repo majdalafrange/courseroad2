@@ -150,10 +150,11 @@ const emit = defineEmits<{
 }
 .about a {
   color: var(--g-accent);
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 .about a:hover {
-  text-decoration: underline;
+  text-decoration-thickness: 2px;
 }
 .about-credits {
   font: var(--text-small);

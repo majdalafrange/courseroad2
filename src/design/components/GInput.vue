@@ -1,31 +1,44 @@
 <template>
-  <label class="g-input" :class="{ invalid, disabled }">
-    <span v-if="label" class="g-input-label">{{ label }}</span>
-    <span class="g-input-shell">
-      <slot name="leading" />
-      <input
-        ref="inputEl"
-        class="g-input-field"
-        :value="modelValue"
-        :placeholder="placeholder"
-        :disabled="disabled"
-        :type="type"
-        :autocomplete="autocomplete"
-        v-bind="$attrs"
-        @input="
-          emit('update:modelValue', ($event.target as HTMLInputElement).value)
-        "
-      />
-      <slot name="trailing" />
-    </span>
-    <span v-if="hint || error" class="g-input-hint" :class="{ invalid }">
+  <div class="g-input" :class="{ invalid, disabled }">
+    <!-- The label wraps the caption and the field only: a hint inside it
+         would be read as part of the field's name. display: contents keeps
+         the layout the root's. -->
+    <label class="g-input-labelled">
+      <span v-if="label" class="g-input-label">{{ label }}</span>
+      <span class="g-input-shell">
+        <slot name="leading" />
+        <input
+          ref="inputEl"
+          class="g-input-field"
+          :value="modelValue"
+          :placeholder="placeholder"
+          :disabled="disabled"
+          :type="type"
+          :autocomplete="autocomplete"
+          :aria-invalid="invalid || undefined"
+          :aria-describedby="hint || error ? hintId : undefined"
+          v-bind="$attrs"
+          @input="
+            emit('update:modelValue', ($event.target as HTMLInputElement).value)
+          "
+        />
+        <slot name="trailing" />
+      </span>
+    </label>
+    <span
+      v-if="hint || error"
+      :id="hintId"
+      class="g-input-hint"
+      :class="{ invalid }"
+      :role="invalid && error ? 'alert' : undefined"
+    >
       {{ invalid && error ? error : hint }}
     </span>
-  </label>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { useTemplateRef } from "vue";
+import { useId, useTemplateRef } from "vue";
 
 defineOptions({ inheritAttrs: false });
 
@@ -54,6 +67,7 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: string): void;
 }>();
 
+const hintId = `g-input-hint-${useId()}`;
 const inputEl = useTemplateRef("inputEl");
 defineExpose({
   focus: () => inputEl.value?.focus(),
@@ -68,6 +82,9 @@ defineExpose({
   gap: var(--space-1);
   min-width: 0;
 }
+.g-input-labelled {
+  display: contents;
+}
 .g-input-label {
   font: var(--text-small);
   color: var(--g-ink-3);
@@ -78,7 +95,7 @@ defineExpose({
   gap: var(--space-2);
   background: var(--g-surface);
   border-radius: var(--radius-sm);
-  box-shadow: inset 0 0 0 1px var(--g-line-strong);
+  box-shadow: inset 0 0 0 1px var(--g-line-control);
   padding: 0 var(--space-3);
   height: 34px;
   transition: box-shadow var(--motion-quick) var(--ease-out);

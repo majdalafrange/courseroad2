@@ -3,6 +3,7 @@
     <button
       class="mobile-tab"
       :class="{ active: active === 'plan' }"
+      :aria-current="active === 'plan' ? 'page' : undefined"
       @click="emit('navigate', 'plan')"
     >
       <g-icon name="map" :size="18" />
@@ -11,6 +12,7 @@
     <button
       class="mobile-tab"
       :class="{ active: active === 'progress' }"
+      :aria-current="active === 'progress' ? 'page' : undefined"
       @click="emit('navigate', 'progress')"
     >
       <g-icon name="check" :size="18" />
@@ -18,7 +20,7 @@
     </button>
     <button class="mobile-tab search-tab" @click="emit('search')">
       <g-icon name="plus" :size="18" />
-      <span>Add</span>
+      <span>Add<span class="sr-only"> classes</span></span>
     </button>
   </nav>
 </template>

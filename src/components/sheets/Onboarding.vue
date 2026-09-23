@@ -59,6 +59,7 @@
             v-model="programQuery"
             class="program-input"
             placeholder="Search majors and minors..."
+            aria-label="Search majors and minors"
           />
         </div>
         <div v-if="chosenPrograms.length" class="chosen-programs">
@@ -66,6 +67,7 @@
             v-for="key in chosenPrograms"
             :key="key"
             class="chosen-chip"
+            :aria-label="`Remove ${titleFor(key)}`"
             @click="toggleProgram(key)"
           >
             {{ titleFor(key) }}
@@ -78,6 +80,7 @@
             :key="entry.key"
             class="program-result"
             :class="{ chosen: chosenPrograms.includes(entry.key) }"
+            :aria-pressed="chosenPrograms.includes(entry.key)"
             @click="toggleProgram(entry.key)"
           >
             <span>{{ entry["medium-title"] }}</span>
@@ -150,10 +153,20 @@ const years = [
   { value: 4, label: "Fifth year" },
 ];
 
+// Each step replaces the other, and the control that changed it goes
+// with it; focus moves to the new step instead of falling to the panel.
 watch(step, (s) => {
-  if (s === 1) {
-    void nextTick(() => programInput.value?.focus());
-  }
+  void nextTick(() => {
+    if (s === 1) {
+      programInput.value?.focus();
+    } else {
+      (
+        document.querySelector<HTMLElement>(
+          '.year-option[data-state="checked"]',
+        ) ?? document.querySelector<HTMLElement>(".year-option")
+      )?.focus();
+    }
+  });
 });
 
 const programResults = computed(() => {
@@ -279,7 +292,7 @@ function close() {
   gap: var(--space-2);
   background: var(--g-surface);
   border-radius: var(--radius-sm);
-  box-shadow: inset 0 0 0 1px var(--g-line-strong);
+  box-shadow: inset 0 0 0 1px var(--g-line-control);
   padding: 0 var(--space-3);
   height: 38px;
 }
@@ -297,6 +310,8 @@ function close() {
   gap: var(--space-2);
 }
 .chosen-chip {
+  /* 24px: the minimum target size (WCAG 2.5.8) */
+  min-height: 24px;
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);

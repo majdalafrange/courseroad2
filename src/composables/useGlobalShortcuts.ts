@@ -1,6 +1,8 @@
 /**
- * Window-level keyboard shortcuts: "/" opens the palette; Cmd/Ctrl+Z and
- * Shift+Z run the history service, Cmd/Ctrl+Y is redo on Windows.
+ * Window-level keyboard shortcuts: Cmd/Ctrl+K opens the palette; Cmd/Ctrl+Z
+ * and Shift+Z run the history service, Cmd/Ctrl+Y is redo on Windows.
+ * Every one is a chord: a bare character key would fire from speech input
+ * and stray keypresses, with no way to turn it off (WCAG 2.1.4).
  * Listeners attach on mount and detach on unmount.
  */
 
@@ -26,12 +28,13 @@ function isEditableTarget(event: KeyboardEvent): boolean {
   );
 }
 
-// Focus inside a sheet, drawer or popover: the shortcuts would change
-// what the student cannot see.
+// Focus inside a sheet, drawer, popover or menu: the shortcuts would
+// change what the student cannot see.
 function isInsideOverlay(event: KeyboardEvent): boolean {
   const target = event.target;
   return (
-    target instanceof HTMLElement && target.closest('[role="dialog"]') !== null
+    target instanceof HTMLElement &&
+    target.closest('[role="dialog"], [role="menu"]') !== null
   );
 }
 
@@ -40,13 +43,14 @@ export function useGlobalShortcuts(handlers: GlobalShortcutHandlers): void {
     if (isInsideOverlay(event)) {
       return;
     }
-    if (event.key.toLowerCase() === "/" && !isEditableTarget(event)) {
-      event.preventDefault();
-      handlers.togglePalette();
-      return;
-    }
     const mod = event.metaKey || event.ctrlKey;
     if (!mod) {
+      return;
+    }
+    // Works from a text field too: it is a chord, so it can't be typing.
+    if (event.key.toLowerCase() === "k" && !event.shiftKey && !event.altKey) {
+      event.preventDefault();
+      handlers.togglePalette();
       return;
     }
     if (event.key.toLowerCase() === "z" && !isEditableTarget(event)) {

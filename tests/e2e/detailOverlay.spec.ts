@@ -76,12 +76,18 @@ async function scrolledRow(page: Page): Promise<Locator> {
   const hook = await audit.evaluate((el) => {
     const view = el.getBoundingClientRect();
     const middle = view.top + view.height / 2;
-    const rows = [...el.querySelectorAll(".leaf-row")];
-    const row = rows.find((candidate) => {
+    // The leaf row nearest the middle: the middle itself can fall on a
+    // branch row between blocks.
+    const distance = (candidate: Element) => {
       const box = candidate.getBoundingClientRect();
-      return box.top <= middle && box.bottom >= middle;
+      return Math.abs((box.top + box.bottom) / 2 - middle);
+    };
+    const rows = [...el.querySelectorAll(".leaf-row")].filter((candidate) => {
+      const box = candidate.getBoundingClientRect();
+      return box.top >= view.top && box.bottom <= view.bottom;
     });
-    return row?.getAttribute("data-cy") ?? "";
+    rows.sort((a, b) => distance(a) - distance(b));
+    return rows[0]?.getAttribute("data-cy") ?? "";
   });
   expect(hook).not.toBe("");
   return cy(page, hook);
@@ -176,7 +182,8 @@ test.describe("the detail over the audit", () => {
   test("opened from a canvas card, leaves focus on the card", async ({
     page,
   }) => {
-    const card = cy(page, "classInSemester1_8_01");
+    // The card's focusable part is its main button.
+    const card = cy(page, "classInSemester1_8_01").locator(".card-body");
     await card.click();
     await expect(cy(page, "classInfoCard")).toBeVisible();
     await expect(card).toBeFocused();
@@ -256,7 +263,7 @@ test.describe("the detail over the audit", () => {
     page,
   }) => {
     await cy(page, "classInSemester1_8_01").click();
-    const next = cy(page, "classInSemester1_18_01");
+    const next = cy(page, "classInSemester1_18_01").locator(".card-body");
     await next.click();
     await expect(page.locator(".trail-crumb.current")).toHaveText("18.01");
     await expect(next).toBeFocused();

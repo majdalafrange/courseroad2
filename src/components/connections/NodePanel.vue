@@ -190,10 +190,20 @@
                       v-if="n.onCanvas"
                       class="oncanvas-flag"
                       title="On the graph"
-                    />
+                      ><span class="sr-only">, on the graph</span></span
+                    >
                   </span>
                   <span class="neighbor-title">{{ n.subject.title }}</span>
                   <span class="neighbor-reason">{{ n.reason }}</span>
+                  <span v-if="n.reasons.length > 1" class="sr-only">
+                    Also:
+                    {{
+                      n.reasons
+                        .slice(1)
+                        .map((r) => r.label)
+                        .join("; ")
+                    }}.</span
+                  >
                   <span class="neighbor-meta">
                     <template v-if="n.rating">
                       <g-icon name="star" :size="10" class="rating-icon" />
@@ -225,6 +235,7 @@
                 <button
                   class="mini"
                   title="Add to a term"
+                  :aria-label="`Add ${n.id} to a term`"
                   @click="emit('add', n.id)"
                 >
                   <g-icon name="plus" :size="13" />

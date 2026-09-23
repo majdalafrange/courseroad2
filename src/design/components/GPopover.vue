@@ -20,6 +20,7 @@
         :side-offset="6"
         :collision-padding="8"
         role="dialog"
+        :aria-label="label"
         @escape-key-down="onEscapeKeyDown"
         @interact-outside="onInteractOutside"
       >
@@ -58,6 +59,8 @@ const {
   menu = false,
 } = defineProps<{
   modelValue: boolean;
+  /** Accessible name of the popover (it is a role="dialog"). */
+  label: string;
   placement?: "top" | "bottom";
   align?: "start" | "end";
   /** Menu density: tight padding so rows own the edge. */

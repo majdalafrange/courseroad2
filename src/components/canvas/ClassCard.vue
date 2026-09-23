@@ -17,18 +17,22 @@
       '_' +
       subject.subject_id.replace('.', '_')
     "
-    tabindex="0"
-    role="button"
-    :aria-label="cardAriaLabel"
     @pointerdown="onPointerDown"
     @click.stop="onClick"
-    @keydown.enter.prevent.stop="emit('keyboard-move')"
-    @keydown.space.prevent.stop="emit('keyboard-move')"
-    @keydown.delete="removeSelf"
     @mouseenter="onHoverStart"
     @mouseleave="onHoverEnd"
   >
-    <div class="card-body">
+    <button
+      type="button"
+      class="card-body"
+      :aria-label="cardAriaLabel"
+      :aria-describedby="hintId"
+      aria-keyshortcuts="M Delete"
+      @keydown.m.exact.prevent="emit('keyboard-move')"
+      @keydown.delete.prevent="removeSelf"
+      @focus="onHoverStart"
+      @blur="onHoverEnd"
+    >
       <span class="card-id">
         {{ subject.subject_id
         }}<sub v-if="oldID !== undefined" class="card-old-id"
@@ -36,11 +40,15 @@
         >
       </span>
       <span class="card-title">{{ subject.title }}</span>
-    </div>
+    </button>
+    <span :id="hintId" hidden>
+      Press M to move it to another term, Delete to remove it.
+    </span>
 
     <button
+      type="button"
       class="card-remove"
-      aria-label="Remove class"
+      :aria-label="`Remove ${subject.subject_id}`"
       tabindex="-1"
       @pointerdown.stop
       @click.stop="removeSelf"
@@ -53,17 +61,20 @@
       v-model="warningsOpen"
       align="end"
       placement="bottom"
+      :label="`Warnings for ${subject.subject_id}`"
     >
       <template #anchor>
         <button
+          type="button"
           class="card-warning"
           :class="{
             'is-quiet': subject.overrideWarnings && !hovering && !warningsOpen,
           }"
           :aria-label="`${warnings.length} ${
             warnings.length === 1 ? 'warning' : 'warnings'
-          }`"
-          tabindex="-1"
+          } for ${subject.subject_id}`"
+          aria-haspopup="dialog"
+          :aria-expanded="warningsOpen"
           @pointerdown.stop
           @click.stop="warningsOpen = !warningsOpen"
         >
@@ -93,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from "vue";
+import { computed, onBeforeUnmount, ref, useId } from "vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GPopover from "../../design/components/GPopover.vue";
 import { courseColor } from "../../lib/colors";
@@ -126,6 +137,7 @@ const store = useCourseDataStore();
 // window must not fire it after unmount. Scoped to this subject.
 onBeforeUnmount(() => clearHighlightIfOwnedBy(props.subject.subject_id));
 
+const hintId = `card-hint-${useId()}`;
 const warningsOpen = ref(false);
 const hovering = ref(false);
 
@@ -180,7 +192,7 @@ const cardAriaLabel = computed(() => {
           props.warnings.length === 1 ? "warning" : "warnings"
         }`
       : "";
-  return `${props.subject.subject_id} ${props.subject.title}${warningNote}. Press Enter to move.`;
+  return `${props.subject.subject_id} ${props.subject.title}${warningNote}`;
 });
 
 const fullSubject = computed<Subject>(() => {
@@ -275,9 +287,11 @@ function onHoverEnd() {
   box-shadow: var(--shadow-15);
   transform: translateY(-1px);
 }
-.class-card:focus-visible {
-  outline: none;
+.class-card:has(.card-body:focus-visible) {
   box-shadow: var(--g-focus-ring);
+}
+.card-body:focus-visible {
+  outline: none;
 }
 .class-card.is-dragging {
   opacity: 0.35;
@@ -314,6 +328,13 @@ function onHoverEnd() {
   justify-content: center;
   gap: 1px;
   padding: var(--space-1) var(--space-4);
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  background: none;
+  border: none;
+  border-radius: inherit;
+  cursor: inherit;
 }
 .card-id {
   font: var(--text-id-small);
@@ -335,28 +356,51 @@ function onHoverEnd() {
   text-overflow: ellipsis;
 }
 
-.card-remove {
+/* The card's corner badges. Each button is a 24px target (WCAG 2.5.8);
+   the disc drawn in it (::after) stays 20px, and the offsets keep the
+   disc where it sat when the button was the disc. */
+.card-remove,
+.card-warning {
   position: absolute;
-  top: -7px;
-  left: -7px;
-  width: 20px;
-  height: 20px;
+  top: -9px;
+  width: 24px;
+  height: 24px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: none;
   border-radius: var(--radius-full);
-  background: var(--g-ink);
-  color: var(--g-bg);
+  padding: 0;
+  background: transparent;
   cursor: pointer;
   z-index: 3;
+}
+.card-remove::after,
+.card-warning::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: var(--radius-full);
+  background: var(--badge-fill);
   box-shadow: var(--shadow-1);
+  transition: background-color var(--motion-quick) var(--ease-out);
+}
+/* the icon paints over the disc */
+.card-remove > *,
+.card-warning > * {
+  position: relative;
+  z-index: 1;
+}
+.card-remove {
+  left: -9px;
+  --badge-fill: var(--g-ink);
+  color: var(--g-bg);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--motion-quick) var(--ease-out);
 }
 .class-card:hover .card-remove,
-.class-card:focus-visible .card-remove {
+.class-card:has(.card-body:focus-visible) .card-remove {
   opacity: 1;
   pointer-events: auto;
 }
@@ -369,33 +413,25 @@ function onHoverEnd() {
   }
 }
 .card-remove:hover {
-  background: var(--g-danger);
+  --badge-fill: var(--g-danger);
   /* --g-surface, not #fff: dark-theme danger needs the near-black
      on-color (5.6:1); white on it is 1.9:1 */
   color: var(--g-surface);
 }
 
 .card-warning {
-  position: absolute;
-  top: -7px;
-  right: -7px;
-  width: 20px;
-  height: 20px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: var(--radius-full);
-  background: var(--g-warn);
+  right: -9px;
+  --badge-fill: var(--g-warn);
   color: var(--g-surface); /* see .card-remove:hover; themed on-color */
-  cursor: pointer;
-  z-index: 3;
-  box-shadow: var(--shadow-1);
   transition: opacity var(--motion-quick) var(--ease-out);
 }
-.card-warning.is-quiet {
+.card-warning.is-quiet:not(:focus-visible) {
   opacity: 0;
   pointer-events: none;
+}
+.card-warning:focus-visible {
+  outline: none;
+  box-shadow: var(--g-focus-ring);
 }
 
 .warning-pop {

@@ -70,6 +70,11 @@
       </g>
     </svg>
 
+    <span id="graphNodeKeys" hidden>
+      Enter expands. O opens the class, A adds it to a term, P pins it, C
+      collapses what it revealed, Delete removes it from the graph.
+    </span>
+
     <!-- edge hover card: every reason for the connection -->
     <div
       v-if="edgeCard"

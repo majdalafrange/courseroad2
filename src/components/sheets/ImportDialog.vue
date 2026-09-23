@@ -45,7 +45,7 @@
         />
       </label>
 
-      <p v-if="badinput" class="import-error">
+      <p v-if="badinput" class="import-error" role="alert">
         That isn't a valid <code>.road</code> file. Only files exported from
         CourseRoad can be imported.
       </p>
@@ -264,10 +264,14 @@ function flagBadInput() {
   background: var(--g-surface);
   border: none;
   border-radius: var(--radius-sm);
-  box-shadow: inset 0 0 0 1px var(--g-line-strong);
+  box-shadow: inset 0 0 0 1px var(--g-line-control);
   padding: var(--space-2) var(--space-3);
   resize: vertical;
   outline: none;
+}
+/* The file input itself is invisible; its label is what shows focus. */
+.import-file:focus-within .import-file-label {
+  box-shadow: var(--g-focus-ring);
 }
 .import-textarea:focus {
   box-shadow:

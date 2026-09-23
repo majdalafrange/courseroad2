@@ -4,11 +4,13 @@
 
     <!-- program picker -->
     <div class="picker">
-      <g-popover v-model="pickerOpen">
+      <g-popover v-model="pickerOpen" label="Add a major or minor">
         <template #anchor>
           <button
             class="picker-trigger"
             data-cy="auditMajorChips"
+            aria-haspopup="dialog"
+            :aria-expanded="pickerOpen"
             @click="openPicker"
           >
             <g-icon name="plus" :size="13" />
@@ -24,6 +26,7 @@
             ref="pickerInput"
             v-model="pickerQuery"
             placeholder="Majors, minors, GIRs..."
+            aria-label="Search majors, minors, and GIRs"
             @keydown.esc.stop="pickerOpen = false"
           />
           <div class="picker-list">
@@ -36,6 +39,7 @@
               <g-button
                 size="sm"
                 variant="ghost"
+                :aria-label="`What if: preview ${entry['medium-title']}`"
                 @click="previewProgram(entry.key)"
               >
                 What if?
@@ -44,12 +48,17 @@
                 size="sm"
                 variant="primary"
                 :data-cy="'addProgram' + entry.key"
+                :aria-label="`Add ${entry['medium-title']}`"
                 @click="addProgram(entry.key)"
               >
                 Add
               </g-button>
             </div>
-            <span v-if="!pickerResults.length" class="picker-empty">
+            <span
+              v-if="!pickerResults.length"
+              class="picker-empty"
+              role="status"
+            >
               Nothing matches.
             </span>
           </div>
@@ -295,14 +304,15 @@ const previewTreeWithIds = computed(() => {
 .audit-links {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
   margin-top: var(--space-4);
   padding-top: var(--space-3);
   border-top: 1px solid var(--g-line);
 }
+/* Each link is a 24px row (WCAG 2.5.8 target size) */
 .audit-link {
   display: inline-flex;
   align-items: center;
+  min-height: 24px;
   gap: 3px;
   font: var(--text-small);
   color: var(--g-ink-3);

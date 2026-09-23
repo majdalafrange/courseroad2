@@ -27,11 +27,13 @@
     </transition>
 
     <div class="canvas-toolbar">
-      <g-popover v-model="settingsOpen" align="start">
+      <g-popover v-model="settingsOpen" align="start" label="Class year">
         <template #anchor>
           <button
             class="year-pill"
             data-cy="semester_title"
+            aria-haspopup="dialog"
+            :aria-expanded="settingsOpen"
             @click="settingsOpen = !settingsOpen"
           >
             <g-icon name="map" :size="14" class="year-pill-icon" />
@@ -97,10 +99,11 @@
       class="year-row"
       :class="{ 'no-iap': store.hideIAP }"
     >
-      <div class="year-label">
+      <!-- Each year heads its terms (h3) in the outline. -->
+      <h2 class="year-label">
         <span class="year-name">{{ yearNames[year] }}</span>
         <span class="year-span">’{{ yearSpan(year) }}</span>
-      </div>
+      </h2>
       <term-cell
         v-for="termIndex in yearBuckets(year)"
         :key="termIndex"
@@ -125,7 +128,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import TermCell from "./TermCell.vue";
 import GButton from "../../design/components/GButton.vue";
 import GIcon from "../../design/components/GIcon.vue";
@@ -295,7 +298,30 @@ function beginKeyboardMove(semester: number, index: number) {
   moveSourceSubjectId.value =
     props.selectedSubjects[semester][index]?.subject_id;
   const targets = eligibleMoveTargets.value;
-  moveTarget.value = targets.find((t) => t > semester) ?? targets[0] ?? null;
+  const first = targets.find((t) => t > semester) ?? targets[0] ?? null;
+  moveTarget.value = first;
+  // The banner is visual; this is the same instruction, spoken.
+  announce(
+    first === null
+      ? `${moveSourceSubjectId.value} has no other term it can go in.`
+      : `Moving ${moveSourceSubjectId.value}. ${bucketLabel(first)}. Arrow keys choose a term, Enter places it, Escape cancels.`,
+  );
+}
+
+function endKeyboardMove() {
+  moveSource.value = null;
+  moveTarget.value = null;
+  moveSourceSubjectId.value = undefined;
+}
+
+/** A moved card remounts in its new term; focus follows it there. */
+function focusMovedCard(subjectId: string, term: number) {
+  void nextTick(() => {
+    const cards = document.querySelectorAll<HTMLElement>(
+      `[data-cy="classInSemester${term}_${subjectId.replace(".", "_")}"] .card-body`,
+    );
+    cards[cards.length - 1]?.focus();
+  });
 }
 
 function onCanvasKeydown(event: KeyboardEvent) {
@@ -310,9 +336,8 @@ function onCanvasKeydown(event: KeyboardEvent) {
       return;
     }
     if (moveSource.value !== null) {
-      moveSource.value = null;
-      moveTarget.value = null;
-      moveSourceSubjectId.value = undefined;
+      announce(`Move cancelled. ${moveSourceSubjectId.value} stays put.`);
+      endKeyboardMove();
       return;
     }
   }
@@ -328,10 +353,15 @@ function onCanvasKeydown(event: KeyboardEvent) {
   if (event.key === "ArrowRight" || event.key === "ArrowDown") {
     event.preventDefault();
     moveTarget.value = targets[(position + 1) % targets.length];
+    announce(bucketLabel(moveTarget.value));
   } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
     event.preventDefault();
     moveTarget.value =
       targets[(position - 1 + targets.length) % targets.length];
+    announce(bucketLabel(moveTarget.value));
+  } else if (event.key === " ") {
+    // Focus is still on the card being moved; Space would open it.
+    event.preventDefault();
   } else if (event.key === "Enter") {
     event.preventDefault();
     const source = moveSource.value;
@@ -354,10 +384,9 @@ function onCanvasKeydown(event: KeyboardEvent) {
         semester: target,
       });
       announce(`Moved ${currentClass.subject_id} to ${bucketLabel(target)}`);
+      focusMovedCard(currentClass.subject_id, target);
     }
-    moveSource.value = null;
-    moveTarget.value = null;
-    moveSourceSubjectId.value = undefined;
+    endKeyboardMove();
   }
 }
 
@@ -600,6 +629,8 @@ void dragState;
   flex-direction: column;
   gap: var(--space-05);
   padding-top: var(--space-2);
+  margin: 0;
+  font: inherit;
 }
 .year-name {
   font: var(--text-heading);
