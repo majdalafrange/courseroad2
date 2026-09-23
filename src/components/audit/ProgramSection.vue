@@ -53,7 +53,7 @@
               Retry
             </button>
           </template>
-          <template v-else>Computing...</template>
+          <template v-else-if="tree === null">Computing...</template>
         </span>
       </div>
       <button
@@ -211,12 +211,15 @@ function toggleAll() {
   );
 }
 
+/* null when there is no percent to state: FireRoad's "N/A", or a value
+   Number() cannot read, which would otherwise print "NaN%". */
 const percent = computed(() => {
   const value = props.tree?.percent_fulfilled;
   if (value === undefined || value === "N/A") {
     return null;
   }
-  return Math.round(Number(value));
+  const rounded = Math.round(Number(value));
+  return Number.isFinite(rounded) ? rounded : null;
 });
 
 /* A program whose progress request failed and has no tree to show: a
@@ -392,6 +395,11 @@ watch(
 .program-sub {
   font: var(--text-small);
   color: var(--g-ink-3);
+  /* One line even with nothing to state (an N/A percent), so the header
+     keeps its height as the tree arrives. The em value is --text-small's
+     line-height, for browsers without lh. */
+  min-height: 1.45em;
+  min-height: 1lh;
 }
 .program-retry {
   font: var(--text-small);
