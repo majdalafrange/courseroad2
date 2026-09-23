@@ -66,6 +66,8 @@
           including:
         </p>
         <ul>
+          <li>Danny Ben-David (dannybd)</li>
+          <li>Sophie Mori (ksmori)</li>
           <li>Nate Foss (npfoss)</li>
           <li>Alice Nguyen (mwnguyen)</li>
           <li>Miriam Rittenberg (mrittenb)</li>
@@ -73,8 +75,6 @@
           <li>Maximo Machado (maximo)</li>
           <li>Georgia Shay (gshay)</li>
           <li>Amani Toussaint (amanit)</li>
-          <li>Sophie Mori (ksmori)</li>
-          <li>Danny Ben-David (dannybd)</li>
           <li>Diego Temkin (dtemkin)</li>
           <li>Pratyush Venkatakrishnan (psvenk)</li>
           <li>Majd Alafrange (majd)</li>
