@@ -63,7 +63,6 @@ const markSize = computed(() => ({ sm: 18, md: 22, lg: 30 })[size]);
   font-family: var(--font-display);
   font-weight: 600;
   color: var(--g-ink);
-  letter-spacing: -0.015em;
 }
 /* Echoes Hydrant's two-tone wordmark: --g-brand, not --g-accent, since
    accent goes silver in dark mode. */
@@ -80,5 +79,6 @@ const markSize = computed(() => ({ sm: 18, md: 22, lg: 30 })[size]);
 }
 .g-wordmark.lg .g-name {
   font-size: 1.75rem;
+  letter-spacing: var(--tracking-tight);
 }
 </style>
