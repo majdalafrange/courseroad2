@@ -72,13 +72,13 @@ export default defineConfig(({ mode }) => ({
     coverage: {
       provider: "v8",
       include: ["src/lib/**", "src/stores/**"],
-      // Floors sit five points under the 2026-08-15 baseline: a ratchet
+      // Floors sit five points under the 2026-09-23 baseline: a ratchet
       // against regression, not a target.
       thresholds: {
-        statements: 67,
-        branches: 61,
-        functions: 66,
-        lines: 67,
+        statements: 70,
+        branches: 63,
+        functions: 69,
+        lines: 70,
       },
     },
   },
