@@ -91,6 +91,7 @@
     <!-- ============ leaf ============ -->
     <div
       v-if="!isBranch"
+      ref="leafEl"
       class="leaf-row"
       :class="{
         fulfilled: node.fulfilled,
@@ -235,7 +236,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref, useTemplateRef, watch } from "vue";
 import GButton from "../../design/components/GButton.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GNumberField from "../../design/components/GNumberField.vue";
@@ -246,6 +247,7 @@ import { safeHref } from "../../lib/courseLinks";
 import type { RequirementNode } from "../../lib/types";
 import { getSubject } from "../../lib/types";
 import { useAuditStore } from "../../stores/audit";
+import { rememberAuditOrigin } from "../../stores/auditFocus";
 import { useCourseDataStore } from "../../stores/courseData";
 import { pointerDown } from "../../stores/dragdrop";
 import {
@@ -263,10 +265,12 @@ const props = defineProps<{
 
 const store = useCourseDataStore();
 const auditStore = useAuditStore();
+const leafEl = useTemplateRef("leafEl");
 
 /* Expansion lives in the audit store, keyed programKey + "/" + list-id,
-   so it survives the panel swapping between audit and class detail.
-   list-id is stable within a program; uniqueKey renumbers on removal. */
+   so it survives the row unmounting when a branch above it closes or the
+   road switches. list-id is stable within a program; uniqueKey renumbers
+   on removal. */
 const nodeKey = computed(
   () => props.programKey + "/" + (props.node["list-id"] ?? ""),
 );
@@ -408,6 +412,8 @@ function onLeafClick() {
     usedReq = usedReq.substring(4);
   }
   if (getSubject(store.catalog, usedReq) !== undefined) {
+    // closing the detail puts focus back on this row
+    rememberAuditOrigin(leafEl.value);
     store.pushClassStack(usedReq);
   } else {
     // course ranges like "6.00x": scope the palette to them

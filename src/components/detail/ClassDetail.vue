@@ -33,13 +33,20 @@
       </button>
     </div>
 
-    <div ref="bodyEl" class="detail-body">
+    <div
+      ref="bodyEl"
+      class="detail-body"
+      tabindex="-1"
+      role="group"
+      aria-labelledby="classInfoTitle"
+      data-cy="classInfoBody"
+    >
       <!-- identity -->
       <div
         class="detail-ident"
         :style="{ '--dept-color': courseColor(subject) }"
       >
-        <h2 class="detail-id">
+        <h2 id="classInfoTitle" class="detail-id">
           {{ subject.subject_id
           }}<sub v-if="subject.old_id" class="detail-old-id"
             >[{{ subject.old_id }}]</sub
@@ -736,11 +743,37 @@ function onKeydown(event: KeyboardEvent) {
 
 onMounted(() => window.addEventListener("keydown", onKeydown));
 onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
+
+/* The panel covers the audit, so focus has to come with it: without this
+   the click leaves focus on a row that is now inert. A new class also
+   replaces the shown one without a remount, and the control that chose
+   it may leave with the old class, such as a prerequisite chip. Focus
+   that is still live, such as a canvas card the student clicked, stays
+   where it is, and below 860px the sheet's own focus trap moves focus in
+   and back out. Focus lands on the scrolling body, not the panel root,
+   so Space, PageDown and the arrows still scroll it. */
+function takeStrandedFocus() {
+  const active = document.activeElement;
+  const stranded =
+    active === null ||
+    active === document.body ||
+    active.closest("[inert]") !== null;
+  if (stranded && !isMobile.value) {
+    bodyEl.value?.focus({ preventScroll: true });
+  }
+}
+onMounted(takeStrandedFocus);
+// Keyed on the shown id, not the subject object, so a catalog refetch
+// that swaps the object leaves focus alone.
+watch(
+  () => store.classInfoStack[store.activeClassIndex],
+  () => void nextTick(takeStrandedFocus),
+);
 </script>
 
 <style scoped>
-/* Sized by its flex parent (the aside stack or the mobile sheet), not by
-   height, so both containers can hand it their remaining space. */
+/* Sized by its container, not by height: the aside's stack insets it
+   over the audit, and the mobile sheet hands it its remaining space. */
 .class-detail {
   display: flex;
   flex-direction: column;
@@ -822,6 +855,16 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
   overflow-y: auto;
   padding: 0 var(--space-4) var(--space-8);
   min-height: 0;
+}
+/* The body takes focus on open, and a click inside it lands here too, so
+   the keyboard scrolls what it should. A keyboard open shows where focus
+   landed, with the ring drawn inside because the panel is flush with the
+   aside's clipped edges; a click shows no ring. */
+.detail-body:focus {
+  outline: none;
+}
+.detail-body:focus-visible {
+  box-shadow: var(--g-focus-ring-inset);
 }
 
 /* Solid department color header bar. */

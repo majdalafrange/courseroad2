@@ -3,15 +3,23 @@
     class="progress-panel"
     :class="{ 'panel-right': store.panelSide === 'right' }"
   >
-    <audit-panel
-      v-if="activeRoad !== '' && activeRoad in roads"
-      :ledger="detailOpen && !isMobile"
-      data-cy="audit"
-    />
-    <!-- One mount at a time (aside or sheet) so ClassDetail's window
-         keydown listener never registers twice. Crossing 860px remounts
-         the detail and loses its scroll position. -->
-    <class-detail v-if="detailOpen && !isMobile" class="panel-detail" />
+    <!-- The stack holds the audit and the detail that covers it; the
+         footer stays outside so it is never covered. -->
+    <div class="panel-stack">
+      <!-- inert needs Chrome 102, Safari 15.5, Firefox 112. Older browsers
+           ignore it: the covered rows stay reachable by Tab, and nothing
+           changes visually. Below 860px the detail is a sheet, so the
+           audit is never inert there. -->
+      <audit-panel
+        v-if="activeRoad !== '' && activeRoad in roads"
+        :inert="detailOpen && !isMobile"
+        data-cy="audit"
+      />
+      <!-- One mount at a time (aside or sheet) so ClassDetail's window
+           keydown listener never registers twice. Crossing 860px remounts
+           the detail and loses its scroll position. -->
+      <class-detail v-if="detailOpen && !isMobile" class="panel-detail" />
+    </div>
     <div class="progress-foot" data-cy="unofficialWarning">
       <span class="foot-line">
         Unofficial tool. Confirm with the
@@ -113,7 +121,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from "vue";
 
 import AuditPanel from "../../components/audit/AuditPanel.vue";
 import ClassDetail from "../../components/detail/ClassDetail.vue";
@@ -126,6 +141,7 @@ import { useIsMobile } from "../../composables/useIsMobile";
 import { useAppBootLoader } from "../../loaders/appBoot";
 import { useSubjectsLoader } from "../../loaders/courseData";
 import { flatten } from "../../lib/types";
+import { clearAuditOrigin, returnToAuditOrigin } from "../../stores/auditFocus";
 import { requestPalette } from "../../stores/palette";
 import { useAuthStore } from "../../stores/auth";
 import { useCourseDataStore } from "../../stores/courseData";
@@ -156,6 +172,28 @@ const showEmptyState = computed(() => {
   }
   return flatten(road.contents.selectedSubjects).length === 0;
 });
+
+/* ---- detail over the audit ---- */
+watch(detailOpen, (open) => {
+  if (!open) {
+    // after the patch that clears inert, or the row cannot take focus
+    void nextTick(returnToAuditOrigin);
+  }
+});
+// Arming placement closes the detail: the student is headed for the
+// canvas, not back to the audit. Keyed on the arming itself, so a detail
+// opened while placement waits still returns focus when it closes.
+watch(
+  () => store.addingFromCard,
+  (adding) => {
+    if (adding) {
+      clearAuditOrigin();
+    }
+  },
+);
+// Leaving the page unmounts the audit; drop the row rather than hold it
+// detached.
+onBeforeUnmount(clearAuditOrigin);
 
 /* ---- network ---- */
 const offline = ref(!navigator.onLine);
@@ -199,12 +237,22 @@ function focusSearch() {
   border-left: 1px solid var(--g-line);
 }
 
-/* With a detail open the audit above it compresses to a ledger, and the
-   detail takes the remaining height with its own scroll. */
-.progress-panel .panel-detail {
+.panel-stack {
+  position: relative;
   flex: 1;
   min-height: 0;
-  border-top: 1px solid var(--g-line);
+  display: flex;
+  flex-direction: column;
+}
+
+/* The detail covers the audit rather than displacing it, so the tree
+   keeps its scroll, its expanded branches and the row that was clicked.
+   inert takes the covered rows out of the tab order. */
+.progress-panel .panel-detail {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: var(--g-surface);
   animation: detail-enter var(--motion-standard) var(--ease-out);
 }
 @keyframes detail-enter {

@@ -35,10 +35,11 @@ export const useAuditStore = defineStore("audit", {
     previewTree: null as RequirementNode | null,
     previewLoading: false,
     /**
-     * Expansion state for the audit tree, kept here so it survives the
-     * detail panel swapping in and out. Branch rows are keyed
-     * programKey + "/" + list-id, program headers by programKey. An absent
-     * key means the render default applies. In memory only.
+     * Expansion state for the audit tree, kept here so it survives a
+     * section or row unmounting (a closed branch, a road switch and back).
+     * Branch rows are keyed programKey + "/" + list-id, program headers by
+     * programKey. An absent key means the render default applies. In
+     * memory only.
      */
     expanded: {} as Record<string, boolean>,
   }),

@@ -150,9 +150,9 @@ const emit = defineEmits<{
 
 const auditStore = useAuditStore();
 
-/* Expansion lives in the audit store so it survives the panel swapping
-   between audit and class detail. A what-if preview gets its own suffix
-   so it does not share the committed section's entry. */
+/* Expansion lives in the audit store so it survives the section
+   unmounting, as on a road switch and back. A what-if preview gets its
+   own suffix so it does not share the committed section's entry. */
 const storeKey = computed(
   () => props.programKey + (props.preview === true ? "/preview" : ""),
 );
