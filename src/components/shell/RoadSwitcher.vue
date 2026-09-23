@@ -255,26 +255,30 @@ function cancelRename() {
 </script>
 
 <style scoped>
-/* the bare name read as a page title, so the ring and the road count say
-   this opens a list. the notice hue keeps it clear of the header's cardinal */
+/* The bare name read as a page title, so the switcher takes the search
+   field's shell (fill and --g-line-control ring), and the chevron says
+   it opens a list. */
 .switch-trigger {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
   min-width: 0;
   max-width: 340px;
-  font: var(--text-heading);
+  height: 34px;
+  font: var(--text-body-strong);
   color: var(--g-ink);
-  background: transparent;
+  background: var(--g-surface);
   border: none;
   border-radius: var(--radius-sm);
-  box-shadow: inset 0 0 0 1px var(--g-info);
-  padding: var(--space-1) var(--space-2);
+  box-shadow: inset 0 0 0 1px var(--g-line-control);
+  padding: 0 var(--space-3);
   cursor: pointer;
-  transition: background-color var(--motion-quick) var(--ease-out);
+  transition: box-shadow var(--motion-quick) var(--ease-out);
 }
-.switch-trigger:hover {
-  background: var(--g-accent-tint);
+/* The open menu keeps the hover ring, so the trigger reads as its owner. */
+.switch-trigger:hover,
+.switch-trigger[aria-expanded="true"] {
+  box-shadow: inset 0 0 0 1px var(--g-ink-3);
 }
 .switch-trigger:focus-visible {
   outline: none;

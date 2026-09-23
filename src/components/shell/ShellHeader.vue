@@ -425,7 +425,7 @@ const saveState = computed<SaveState>(() => {
   background: var(--g-surface);
   border: none;
   border-radius: var(--radius-sm);
-  box-shadow: inset 0 0 0 1px var(--g-line-strong);
+  box-shadow: inset 0 0 0 1px var(--g-line-control);
   cursor: pointer;
   transition: box-shadow var(--motion-quick) var(--ease-out);
 }
@@ -566,6 +566,8 @@ const saveState = computed<SaveState>(() => {
     /* Caps well under the desktop width so it ellipses instead of
        crowding the touch targets on the other side of the row. */
     max-width: 40vw;
+    /* level with the search field beside it */
+    height: 40px;
   }
   .search-trigger {
     width: auto;

@@ -34,10 +34,12 @@
  *               reduced motion swaps rotation for an opacity pulse.
  *
  *   Inputs (the GInput shell; ad-hoc inputs must adopt it, not re-derive)
- *     rest      inset 0 0 0 1px var(--g-line-strong)
- *     hover     inset ring → var(--g-ink-3)
+ *     rest      inset 0 0 0 1px var(--g-line-strong), or --g-line-control
+ *               on a field-shaped trigger in the header (a button)
+ *     hover     inset ring → var(--g-ink-3); a trigger holds it while its
+ *               menu is open
  *     focus     inset 0 0 0 1.5px var(--g-accent), 0 0 0 3px
- *               var(--g-accent-tint)
+ *               var(--g-accent-tint); a trigger takes the Buttons ring
  *     invalid   same recipe with --g-danger / --g-danger-tint
  *     disabled  sunken bg + line ring
  *
@@ -203,6 +205,15 @@
     var(--g-accent) 50%,
     var(--g-line-strong)
   );
+  /* ring for a field-shaped control that has to read as one at rest (the
+     road switcher, the search field): ink-3 stepped toward the hairline,
+     just past 3:1 against the header and against the field's own fill.
+     dark takes less ink, since the grey carries further on blue-black */
+  --g-line-control: color-mix(
+    in srgb,
+    var(--g-ink-3) 70%,
+    var(--g-line-strong)
+  );
 
   /* Plan canvas material (after the Alchemist character lattice on the
      Stratton lawn), drawn by CanvasGlyphs.vue as an SVG pattern. Hairline
@@ -311,6 +322,11 @@
   --g-line-accent: color-mix(
     in srgb,
     var(--g-accent) 75%,
+    var(--g-line-strong)
+  );
+  --g-line-control: color-mix(
+    in srgb,
+    var(--g-ink-3) 55%,
     var(--g-line-strong)
   );
 
