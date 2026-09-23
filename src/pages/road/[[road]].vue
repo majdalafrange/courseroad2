@@ -176,7 +176,7 @@ const showEmptyState = computed(() => {
 /* ---- detail over the audit ---- */
 watch(detailOpen, (open) => {
   if (!open) {
-    // after the patch that clears inert, or the row cannot take focus
+    // after the patch that clears inert, or the control cannot take focus
     void nextTick(returnToAuditOrigin);
   }
 });
@@ -191,8 +191,8 @@ watch(
     }
   },
 );
-// Leaving the page unmounts the audit; drop the row rather than hold it
-// detached.
+// Leaving the page unmounts the audit; drop the control rather than hold
+// it detached.
 onBeforeUnmount(clearAuditOrigin);
 
 /* ---- network ---- */

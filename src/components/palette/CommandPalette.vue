@@ -640,6 +640,10 @@ function placeSelected() {
    the addFromCard here overwrites rather than double-arms. */
 
 function openClass(subject: Subject) {
+  // The palette's leave transition keeps this input in the document, and
+  // focused, while the detail opens or changes class. Letting go of it
+  // first leaves focus stranded, so the detail takes it.
+  inputEl.value?.blur();
   store.pushClassStack(subject.subject_id);
   close();
 }

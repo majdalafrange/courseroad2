@@ -46,10 +46,13 @@
           v-for="candidate in suggestion.classes.slice(0, 3)"
           :key="candidate.subject.subject_id"
           class="suggestion-class"
+          :data-cy="
+            'suggestionClass_' + candidate.subject.subject_id.replace('.', '_')
+          "
           :style="{ '--dept-color': courseColor(candidate.subject) }"
           :title="candidate.subject.title"
           @pointerdown="dragClass($event, candidate.subject)"
-          @click="openClass(candidate.subject)"
+          @click="openClass(candidate.subject, $event)"
         >
           <span class="sc-id">{{ candidate.subject.subject_id }}</span>
           <span v-if="candidate.rating" class="sc-rating"
@@ -77,6 +80,7 @@ import { courseColor } from "../../lib/colors";
 import { buildSuggestions } from "../../lib/suggestions";
 import type { Subject } from "../../lib/types";
 import { useAuditStore } from "../../stores/audit";
+import { rememberAuditOrigin } from "../../stores/auditFocus";
 import { useCourseDataStore } from "../../stores/courseData";
 import { pointerDown } from "../../stores/dragdrop";
 
@@ -104,7 +108,11 @@ const suggestions = computed(() => {
   });
 });
 
-function openClass(subject: Subject) {
+function openClass(subject: Subject, event: MouseEvent) {
+  // closing the detail puts focus back on this suggestion
+  rememberAuditOrigin(
+    event.currentTarget instanceof HTMLElement ? event.currentTarget : null,
+  );
   store.pushClassStack(subject.subject_id);
 }
 
@@ -217,6 +225,11 @@ function dismiss() {
 }
 .suggestion-class:hover {
   box-shadow: 0 0 0 1.5px var(--g-accent);
+}
+/* focus comes back here when a detail opened from the chip closes */
+.suggestion-class:focus-visible {
+  outline: none;
+  box-shadow: var(--g-focus-ring);
 }
 .sc-rating {
   display: inline-flex;

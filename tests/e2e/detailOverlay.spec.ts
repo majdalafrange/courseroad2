@@ -385,3 +385,93 @@ test.describe("crossing 860px with the detail open", () => {
     await expect(row).toBeFocused();
   });
 });
+
+/**
+ * The detail's other openers. The palette closes as it opens a class, and
+ * a suggestion sits in the audit under the cover, so focus has to be
+ * handed to the detail and, from a suggestion, handed back.
+ */
+test.describe("focus from the palette and from a suggestion", () => {
+  async function openFromPalette(page: Page, id: string) {
+    await page.locator("#searchInputTF").click();
+    await page.locator(".palette-input").fill(id);
+    // Enter opens the detail; a click would arm placement instead.
+    await page.keyboard.press("Enter");
+  }
+
+  test("a class opened from the palette takes focus", async ({
+    context,
+    page,
+  }) => {
+    await openTallRoad(context, page);
+    await openFromPalette(page, "8.01");
+    await expect(detailFocus(page)).toBeFocused();
+  });
+
+  test("a class opened from the palette over an open detail takes focus", async ({
+    context,
+    page,
+  }) => {
+    await openTallRoad(context, page);
+    await (await scrolledRow(page)).click();
+    await openFromPalette(page, "6.0002");
+    await expect(page.locator(".trail-crumb.current")).toHaveText("6.0002");
+    await expect(detailFocus(page)).toBeFocused();
+  });
+
+  test("a class opened from a suggestion returns focus to it", async ({
+    context,
+    page,
+  }) => {
+    await mockFireroad(context);
+    // One open HASS-A requirement: the strip suggests 21M.301 for it.
+    await context.route(
+      "https://fireroad.mit.edu/requirements/progress/**",
+      (route) =>
+        route.fulfill({
+          json: {
+            percent_fulfilled: 0,
+            fulfilled: false,
+            reqs: [
+              {
+                req: "HASS-A",
+                fulfilled: false,
+                percent_fulfilled: 0,
+                progress: 0,
+                max: 1,
+              },
+            ],
+          },
+        }),
+    );
+    await seedReturningVisitor(context);
+    // The strip only shows on a road that carries the GIRs.
+    await seedLocalRoads(context, {
+      $0$: {
+        name: "Course 6-3",
+        coursesOfStudy: ["girs", "major6-3"],
+        subjects: [],
+      },
+    });
+    // The strip suggests for the next term, and 21M.301 is not offered in
+    // every one (in May the next term is IAP), so the date is a fall one.
+    await page.clock.setFixedTime(new Date("2026-10-01T12:00:00"));
+    await page.goto("/");
+
+    const chip = cy(page, "suggestionClass_21M_301");
+    await chip.click();
+    await expect(detailFocus(page)).toBeFocused();
+    await expect(cy(page, "audit")).toHaveAttribute("inert");
+
+    await page.keyboard.press("Escape");
+    await expect(cy(page, "classInfoCard")).toBeHidden();
+    await expect(chip).toBeFocused();
+    // Focus came back from the keyboard, so the chip shows the focus ring
+    // (its outer band is 4px; the hover ring is 1.5px). The pointer moves
+    // off first, since hover draws a ring of its own.
+    await page.mouse.move(0, 0);
+    await expect
+      .poll(() => chip.evaluate((el) => getComputedStyle(el).boxShadow))
+      .toContain("0px 0px 0px 4px");
+  });
+});
