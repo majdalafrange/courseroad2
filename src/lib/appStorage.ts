@@ -29,6 +29,8 @@ export const STORAGE_KEYS = {
   dismissedMobileNotice: "dismissedMobileNotice",
   hideIAP: "hideIAP",
   showFifthYear: "showFifthYear",
+  /** Subject notes taken while logged out; merged into FireRoad on login. */
+  notes: "subjectNotes",
   /** Set once the legacy cookie migration has run; see legacyStorage.ts. */
   migrated: "storageMigrated",
 } as const;

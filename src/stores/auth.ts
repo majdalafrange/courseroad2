@@ -34,6 +34,7 @@ import { NoAuthError } from "../lib/fireroad";
 import { fireroad, setFireroadToken } from "./fireroadClient";
 import { useAuditStore } from "./audit";
 import { useCourseDataStore } from "./courseData";
+import { useNotesStore } from "./notes";
 
 const SAVE_DEBOUNCE_MS = 600;
 
@@ -188,6 +189,7 @@ export const useAuthStore = defineStore("auth", {
     async getUserData(routeRoadID?: string) {
       const store = useCourseDataStore();
       this.gettingUserData = true;
+      void useNotesStore().loadFromCloud();
       try {
         const response = await fireroad.getRoads();
         if (!(response.status === 200 && response.data.success)) {

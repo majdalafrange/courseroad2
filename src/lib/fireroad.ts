@@ -118,6 +118,16 @@ export interface RoadToSend extends Omit<Road, "contents"> {
   id?: string;
 }
 
+/** The student's notes, keyed by subject id (/prefs/notes/). */
+export type SubjectNotes = Record<string, string>;
+
+export interface NotesResponse {
+  success: boolean;
+  /** Present when success is true. */
+  notes?: SubjectNotes;
+  error?: string;
+}
+
 export class NoAuthError extends Error {
   constructor() {
     super("No auth information");
@@ -224,5 +234,19 @@ export class FireRoadClient {
 
   setSemester(semester: number): Promise<HttpResponse<{ success: boolean }>> {
     return this.postSecure("/set_semester/", { semester });
+  }
+
+  getNotes(): Promise<HttpResponse<NotesResponse>> {
+    return this.getSecure<NotesResponse>("/prefs/notes/");
+  }
+
+  /**
+   * Replaces every stored note: the body is the whole map, not a change
+   * to one subject (the server stores the JSON as given).
+   */
+  setNotes(
+    notes: SubjectNotes,
+  ): Promise<HttpResponse<{ success: boolean; error?: string }>> {
+    return this.postSecure("/prefs/set_notes/", notes);
   }
 }

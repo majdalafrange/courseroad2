@@ -22,27 +22,74 @@
     @mouseenter="onHoverStart"
     @mouseleave="onHoverEnd"
   >
-    <button
-      type="button"
-      class="card-body"
-      :aria-label="cardAriaLabel"
-      :aria-describedby="hintId"
-      aria-keyshortcuts="M Delete"
-      @keydown.m.exact.prevent="emit('keyboard-move')"
-      @keydown.delete.prevent="removeSelf"
-      @focus="onHoverStart"
-      @blur="onHoverEnd"
+    <!-- The note popover anchors to the card's main button: a
+         double-click (or N) opens it, a single click opens the class. -->
+    <g-popover
+      v-model="noteOpen"
+      class="card-note-anchor"
+      align="start"
+      placement="bottom"
+      :label="`Note for ${subject.subject_id}`"
+      @close-auto-focus="onNoteCloseFocus"
     >
-      <span class="card-id">
-        {{ subject.subject_id
-        }}<sub v-if="oldID !== undefined" class="card-old-id"
-          >[{{ oldID }}]</sub
+      <template #anchor>
+        <button
+          ref="bodyEl"
+          type="button"
+          class="card-body"
+          :aria-label="cardAriaLabel"
+          :aria-describedby="hintId"
+          aria-keyshortcuts="M N Delete"
+          @keydown.m.exact.prevent="emit('keyboard-move')"
+          @keydown.n.exact.prevent="noteOpen = true"
+          @keydown.delete.prevent="removeSelf"
+          @focus="onHoverStart"
+          @blur="onHoverEnd"
         >
-      </span>
-      <span class="card-title">{{ subject.title }}</span>
-    </button>
+          <span class="card-id">
+            {{ subject.subject_id
+            }}<sub v-if="oldID !== undefined" class="card-old-id"
+              >[{{ oldID }}]</sub
+            >
+          </span>
+          <span class="card-title">{{ subject.title }}</span>
+          <g-icon
+            v-if="note !== undefined"
+            name="message"
+            :size="11"
+            class="card-note-mark"
+          />
+        </button>
+      </template>
+      <div class="note-pop" @pointerdown.stop @click.stop>
+        <g-textarea
+          v-model="noteDraft"
+          :label="`Note on ${subject.subject_id}`"
+          placeholder="Check prereqs with the professor..."
+          :rows="3"
+          :maxlength="NOTE_MAX_LENGTH"
+          hint="Only you see this. Shared across all roads."
+          @keydown.enter.exact.prevent="noteOpen = false"
+        />
+        <div class="note-actions">
+          <g-button
+            v-if="note !== undefined"
+            size="sm"
+            variant="ghost"
+            @click="clearNote"
+          >
+            Remove note
+          </g-button>
+          <g-button size="sm" variant="primary" @click="noteOpen = false">
+            Done
+          </g-button>
+        </div>
+      </div>
+    </g-popover>
     <span :id="hintId" hidden>
-      Press M to move it to another term, Delete to remove it.
+      Press M to move it to another term, N to
+      {{ note !== undefined ? "edit its note" : "add a note" }}, Delete to
+      remove it.
     </span>
 
     <button
@@ -104,9 +151,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, useId } from "vue";
+import {
+  computed,
+  onBeforeUnmount,
+  ref,
+  useId,
+  useTemplateRef,
+  watch,
+} from "vue";
+import GButton from "../../design/components/GButton.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GPopover from "../../design/components/GPopover.vue";
+import GTextarea from "../../design/components/GTextarea.vue";
 import { courseColor } from "../../lib/colors";
 import { placedKey } from "../../lib/consequences";
 import type { SelectedSubject, Subject } from "../../lib/types";
@@ -118,6 +174,7 @@ import {
   highlightSubject,
 } from "../../stores/highlight";
 import { useCourseDataStore } from "../../stores/courseData";
+import { NOTE_MAX_LENGTH, useNotesStore } from "../../stores/notes";
 
 const props = defineProps<{
   subject: SelectedSubject;
@@ -192,7 +249,8 @@ const cardAriaLabel = computed(() => {
           props.warnings.length === 1 ? "warning" : "warnings"
         }`
       : "";
-  return `${props.subject.subject_id} ${props.subject.title}${warningNote}`;
+  const noteText = note.value !== undefined ? `, note: ${note.value}` : "";
+  return `${props.subject.subject_id} ${props.subject.title}${warningNote}${noteText}`;
 });
 
 const fullSubject = computed<Subject>(() => {
@@ -214,12 +272,75 @@ function onPointerDown(event: PointerEvent) {
   });
 }
 
-function onClick() {
+function openClass() {
   if (props.subject.public === false) {
     store.editCustomClass(props.subject);
   } else {
     store.pushClassStack(props.subject.subject_id);
   }
+}
+
+/* ---- click vs double-click ----
+   A double-click opens the note, but its first click arrives as a plain
+   click. A pointer click therefore waits out the double-click window
+   before opening the class; a second click inside it opens the note
+   instead. A keyboard click (Enter, Space: detail 0) can't be the start
+   of a double-click, so it opens the class at once. */
+const DOUBLE_CLICK_MS = 250;
+let clickTimer: ReturnType<typeof setTimeout> | undefined;
+
+function onClick(event: MouseEvent) {
+  clearTimeout(clickTimer);
+  clickTimer = undefined;
+  if (event.detail === 0) {
+    openClass();
+  } else if (event.detail >= 2) {
+    noteOpen.value = true;
+  } else {
+    clickTimer = setTimeout(() => {
+      clickTimer = undefined;
+      openClass();
+    }, DOUBLE_CLICK_MS);
+  }
+}
+onBeforeUnmount(() => clearTimeout(clickTimer));
+
+/* ---- the note: a draft while open, saved when it closes (Done, Enter,
+   Escape, or a click away), since it is a jotting, not a form ---- */
+const notesStore = useNotesStore();
+// One note per subject (FireRoad keeps them by subject id), so every card
+// for this subject shows the same one.
+const note = computed(() => notesStore.noteFor(props.subject.subject_id));
+const noteOpen = ref(false);
+const noteDraft = ref("");
+const bodyEl = useTemplateRef("bodyEl");
+
+watch(noteOpen, (open) => {
+  if (open) {
+    noteDraft.value = note.value ?? "";
+    return;
+  }
+  notesStore.setNote(props.subject.subject_id, noteDraft.value);
+});
+
+/* The popover is anchored, not triggered, so Reka has nowhere to send
+   focus on close. It goes back to the card, unless the close came from
+   the student moving on to something else. */
+function onNoteCloseFocus(event: Event) {
+  event.preventDefault();
+  const active = document.activeElement;
+  const stranded =
+    active === null ||
+    active === document.body ||
+    active.closest(".note-pop") !== null;
+  if (stranded) {
+    bodyEl.value?.focus();
+  }
+}
+
+function clearNote() {
+  noteDraft.value = "";
+  noteOpen.value = false;
 }
 
 function removeSelf() {
@@ -320,7 +441,15 @@ function onHoverEnd() {
     0 0 0 5px var(--g-ok-tint);
 }
 
+/* The note popover's anchor wraps the card body; it takes the body's
+   place in the card's row. */
+.class-card > :deep(.card-note-anchor) {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
 .card-body {
+  position: relative;
   flex: 1;
   min-width: 0;
   display: flex;
@@ -432,6 +561,27 @@ function onHoverEnd() {
 .card-warning:focus-visible {
   outline: none;
   box-shadow: var(--g-focus-ring);
+}
+
+/* A note is on this placement: a small mark at the card's right edge;
+   the text itself is in the card's accessible name and the popover. */
+.card-note-mark {
+  position: absolute;
+  right: var(--space-2);
+  bottom: var(--space-1);
+  color: var(--dept-on-2);
+}
+
+.note-pop {
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.note-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
 }
 
 .warning-pop {

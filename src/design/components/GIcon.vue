@@ -61,6 +61,7 @@ import panelRight from "@iconify-icons/lucide/panel-right";
 import externalLink from "@iconify-icons/lucide/external-link";
 import star from "@iconify-icons/lucide/star";
 import arrowLeft from "@iconify-icons/lucide/arrow-left";
+import arrowRight from "@iconify-icons/lucide/arrow-right";
 import arrowLeftRight from "@iconify-icons/lucide/arrow-left-right";
 import cloudDownload from "@iconify-icons/lucide/cloud-download";
 import cloudSync from "@iconify-icons/lucide/cloud-sync";
@@ -112,6 +113,7 @@ const NAME_TO_LUCIDE = {
   external: externalLink,
   star,
   back: arrowLeft,
+  forward: arrowRight,
   swap: arrowLeftRight,
   cloudDownload,
   cloudSync,

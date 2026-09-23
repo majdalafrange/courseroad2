@@ -23,6 +23,7 @@
         :aria-label="label"
         @escape-key-down="onEscapeKeyDown"
         @interact-outside="onInteractOutside"
+        @close-auto-focus="emit('closeAutoFocus', $event)"
       >
         <slot :close="close" />
       </PopoverContent>
@@ -69,6 +70,12 @@ const {
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: boolean): void;
+  /**
+   * The popover closed and Reka is about to move focus (to nowhere in
+   * particular: the anchor is not a trigger). preventDefault() and focus
+   * something yourself to send it elsewhere.
+   */
+  (e: "closeAutoFocus", event: Event): void;
 }>();
 const anchorEl = useTemplateRef("anchorEl");
 

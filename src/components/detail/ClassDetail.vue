@@ -7,6 +7,32 @@
   >
     <!-- viewed-class trail -->
     <div class="detail-trail">
+      <g-button
+        :disabled="activeIndex <= 0"
+        variant="ghost"
+        class="trail-button"
+        data-cy="classInfoBackButton"
+        :aria-label="
+          activeIndex > 0 ? `Back to ${trail[activeIndex - 1]}` : 'Back'
+        "
+        @click="store.setActiveClass(activeIndex - 1)"
+      >
+        <g-icon name="back" :size="14" />
+      </g-button>
+      <g-button
+        :disabled="activeIndex >= trail.length - 1"
+        variant="ghost"
+        class="trail-button"
+        data-cy="classInfoForwardButton"
+        :aria-label="
+          activeIndex < trail.length - 1
+            ? `Forward to ${trail[activeIndex + 1]}`
+            : 'Forward'
+        "
+        @click="store.setActiveClass(activeIndex + 1)"
+      >
+        <g-icon name="forward" :size="14" />
+      </g-button>
       <div ref="trailPathEl" class="trail-path">
         <button
           v-for="(id, index) in trail"
@@ -78,6 +104,10 @@
         </button>
         <button class="onroad-action" @click="moveIt">Move it</button>
       </div>
+      <p v-if="subjectNote !== undefined" class="detail-own-note">
+        <g-icon name="message" :size="12" class="detail-own-note-icon" />
+        <span><span class="sr-only">Your note: </span>{{ subjectNote }}</span>
+      </p>
 
       <!-- stats -->
       <p class="detail-stats">
@@ -366,6 +396,7 @@ import {
 import type { Subject } from "../../lib/types";
 import { getSubject } from "../../lib/types";
 import { useCourseDataStore } from "../../stores/courseData";
+import { useNotesStore } from "../../stores/notes";
 import { pointerDown } from "../../stores/dragdrop";
 
 const store = useCourseDataStore();
@@ -420,6 +451,14 @@ const onRoadBucket = computed(() =>
   subject.value === undefined
     ? -1
     : firstAppearance(selectedSubjects.value, subject.value.subject_id),
+);
+
+/** The student's own note on this subject (FireRoad keeps one per id). */
+const notesStore = useNotesStore();
+const subjectNote = computed(() =>
+  subject.value === undefined
+    ? undefined
+    : notesStore.noteFor(subject.value.subject_id),
 );
 
 function jumpToBucket(index: number) {
@@ -862,6 +901,16 @@ watch(
   cursor: pointer;
   flex-shrink: 0;
 }
+/* 24px square like the close button: the minimum target size (WCAG
+   2.5.8). GButton's own size rules set a 34px height and 16px side
+   padding at the same specificity, so this is written one level up to
+   win regardless of stylesheet order. */
+.detail-trail .trail-button {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  flex-shrink: 0;
+}
 .trail-close:hover {
   background: var(--g-surface-sunken);
   color: var(--g-ink);
@@ -929,6 +978,24 @@ watch(
   padding: var(--space-2) var(--space-3);
   margin-top: var(--space-3);
   flex-wrap: wrap;
+}
+.detail-own-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font: var(--text-small);
+  color: var(--g-ink);
+  background: var(--g-surface-2);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  margin: var(--space-3) 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.detail-own-note-icon {
+  color: var(--g-ink-3);
+  margin-top: 2px;
+  flex-shrink: 0;
 }
 .onroad-action {
   font: var(--text-small);
