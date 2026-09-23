@@ -18,7 +18,10 @@
       <line x1="12" y1="12" x2="12" y2="9" class="mark-dash mark-dash-mid" />
       <line x1="12" y1="5" x2="12" y2="3" class="mark-dash mark-dash-sm" />
     </svg>
-    <span class="g-name">Course<span class="name-road">Road</span></span>
+    <span class="g-name">
+      Course<span class="name-road">Road</span>
+      <span v-if="dev" class="name-version"> (dev) </span>
+    </span>
   </span>
 </template>
 
@@ -30,6 +33,7 @@ const { size = "md" } = defineProps<{
 }>();
 
 const markSize = computed(() => ({ sm: 18, md: 22, lg: 30 })[size]);
+const dev = import.meta.env.DEV;
 </script>
 
 <style scoped>
@@ -68,6 +72,10 @@ const markSize = computed(() => ({ sm: 18, md: 22, lg: 30 })[size]);
    accent goes silver in dark mode. */
 .name-road {
   color: var(--g-brand);
+}
+.name-version {
+  font-weight: 400;
+  color: var(--g-ink-2);
 }
 .g-wordmark.sm .g-name {
   font: var(--text-body-lg);

@@ -50,13 +50,13 @@
           Generative AI has been used in the development of the user interface,
           but it has not been used for any of the logic or data processing. All
           course and requirement data is sourced from MIT's official resources.
+        </p>
+        <!-- TODO: change url before launch -->
+        <p>
           If you would like to access the old version of CourseRoad, you can
           find it at
-          <a
-            href="https://courseroad.mit.edu/legacy"
-            target="_blank"
-            rel="noopener"
-            >courseroad.mit.edu/legacy</a
+          <a href="https://courseroad.mit.edu/" target="_blank" rel="noopener"
+            >courseroad.mit.edu</a
           >.
         </p>
 
