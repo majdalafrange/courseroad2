@@ -582,7 +582,7 @@ void dragState;
   font: var(--text-body);
 }
 .placement-keys {
-  color: var(--text-body) !important;
+  color: var(--text-body);
 }
 .placement-id {
   /* inherits the banner's inverted ink; the accent on this near-black bar
@@ -592,7 +592,7 @@ void dragState;
   color: inherit;
 }
 .placement-banner :deep(.g-button) {
-  color: var(--g-bg);
+  color: var(--g-bg) !important;
 }
 
 .banner-enter-active {
