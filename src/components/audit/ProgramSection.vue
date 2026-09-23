@@ -4,14 +4,13 @@
     :class="{
       'is-preview': preview,
       'just-completed': celebrating,
-      'is-ledger': collapsed,
     }"
   >
     <header
       class="program-head"
-      :role="collapsed ? undefined : 'button'"
-      :tabindex="collapsed ? undefined : 0"
-      :aria-expanded="collapsed ? undefined : open"
+      role="button"
+      tabindex="0"
+      :aria-expanded="open"
       @click="toggleOpen"
       @keydown.enter.prevent="toggleOpen"
       @keydown.space.prevent="toggleOpen"
@@ -57,7 +56,7 @@
         </span>
       </div>
       <button
-        v-if="!preview && !collapsed && tree"
+        v-if="!preview && tree"
         class="program-expandall"
         :aria-label="`${anyCollapsed ? 'Expand' : 'Collapse'} all of ${title}`"
         @click.stop="toggleAll"
@@ -100,7 +99,7 @@
       </button>
     </header>
 
-    <div v-if="open && !collapsed && tree" class="program-body">
+    <div v-if="open && tree" class="program-body">
       <req-node
         v-for="(child, index) in tree.reqs ?? []"
         :key="child.uniqueKey ?? index"
@@ -137,11 +136,6 @@ const props = defineProps<{
   title: string;
   preview?: boolean;
   startOpen?: boolean;
-  /**
-   * Ledger mode: hide the body without writing to `open`, so the
-   * student's expansion state survives the detail closing again.
-   */
-  collapsed?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -161,12 +155,7 @@ const open = computed({
   set: (value) => auditStore.setNode(storeKey.value, value),
 });
 
-/* In ledger mode the header is a passive summary row; a click must not
-   rewrite the stored expansion state. */
 function toggleOpen() {
-  if (props.collapsed) {
-    return;
-  }
   open.value = !open.value;
 }
 
@@ -325,23 +314,6 @@ watch(
   user-select: none;
 }
 
-/* Ledger density: ring 24px, tighter padding, about 50px a row. */
-.program.is-ledger {
-  margin-bottom: var(--space-2);
-}
-.program.is-ledger .program-head {
-  padding: var(--space-2);
-  cursor: default;
-}
-.program.is-ledger .program-ring {
-  width: 24px;
-  height: 24px;
-}
-.program.is-ledger .program-title {
-  font: var(--text-body-strong);
-  -webkit-line-clamp: 1;
-  line-clamp: 1;
-}
 .program-head:focus-visible {
   outline: none;
   box-shadow: var(--g-focus-ring);

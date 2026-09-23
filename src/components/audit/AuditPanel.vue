@@ -1,9 +1,9 @@
 <template>
-  <div class="audit-panel" :class="{ 'is-ledger': ledger }" data-cy="auditBox">
-    <suggestion-strip v-if="!ledger" @see-all="onSeeAll" />
+  <div class="audit-panel" data-cy="auditBox">
+    <suggestion-strip @see-all="onSeeAll" />
 
     <!-- program picker -->
-    <div v-if="!ledger" class="picker">
+    <div class="picker">
       <g-popover v-model="pickerOpen">
         <template #anchor>
           <button
@@ -75,7 +75,6 @@
       :tree="previewTreeWithIds"
       :title="titleFor(auditStore.previewProgram)"
       preview
-      :collapsed="ledger"
     />
 
     <!-- committed programs -->
@@ -86,7 +85,6 @@
       :tree="treeFor(req, index)"
       :title="titleFor(req)"
       :start-open="index === 0"
-      :collapsed="ledger"
       @remove="removeProgram(req)"
     />
 
@@ -94,7 +92,7 @@
       Add a major or minor to see what's left.
     </div>
 
-    <div v-if="!ledger" class="audit-links">
+    <div class="audit-links">
       <a
         v-for="courseLink in courseLinks"
         :key="courseLink.link"
@@ -131,16 +129,6 @@ import type { RequirementNode } from "../../lib/types";
 import { useAuditStore } from "../../stores/audit";
 import { useCourseDataStore } from "../../stores/courseData";
 import { requestPalette } from "../../stores/palette";
-
-/**
- * ledger: the compact mode used while a class detail is stacked below.
- * Each program keeps its ring, title, and percent; the strip, picker,
- * degree-fit trigger, links, and program bodies are hidden. The student's
- * expansion state is untouched (see ProgramSection's collapsed prop).
- */
-defineProps<{
-  ledger?: boolean;
-}>();
 
 const store = useCourseDataStore();
 const auditStore = useAuditStore();
@@ -231,15 +219,6 @@ const previewTreeWithIds = computed(() => {
   flex: 1;
   overflow-y: auto;
   padding: var(--space-4);
-}
-/* Ledger: hold only the program rows, capped so many programs still
-   leave the detail its height. */
-.audit-panel.is-ledger {
-  flex: none;
-  flex-shrink: 0;
-  max-height: 30vh;
-  overflow-y: auto;
-  padding: var(--space-2) var(--space-4);
 }
 
 .picker {
