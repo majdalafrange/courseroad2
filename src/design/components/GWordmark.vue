@@ -33,7 +33,7 @@ const { size = "md" } = defineProps<{
 }>();
 
 const markSize = computed(() => ({ sm: 18, md: 22, lg: 30 })[size]);
-const dev = import.meta.env.DEV;
+const dev = import.meta.env.MODE !== "production";
 </script>
 
 <style scoped>
