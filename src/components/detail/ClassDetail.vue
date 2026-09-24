@@ -81,6 +81,21 @@
         <p class="detail-title" data-cy="cardSubjectTitle">
           {{ subject.title }}
         </p>
+        <g-tooltip
+          class="favorite-toggle-wrap"
+          :text="isFavorite ? 'Remove from favorites' : 'Add to favorites'"
+        >
+          <g-button
+            variant="ghost"
+            class="favorite-toggle"
+            data-cy="favoriteToggle"
+            :aria-label="`Favorite ${subject.subject_id}`"
+            :aria-pressed="isFavorite"
+            @click="favorites.toggleFavorite(subject.subject_id)"
+          >
+            <g-icon name="star" :size="16" />
+          </g-button>
+        </g-tooltip>
       </div>
 
       <!-- alerts -->
@@ -396,6 +411,7 @@ import {
 import type { Subject } from "../../lib/types";
 import { getSubject } from "../../lib/types";
 import { useCourseDataStore } from "../../stores/courseData";
+import { useFavoritesStore } from "../../stores/favorites";
 import { useNotesStore } from "../../stores/notes";
 import { pointerDown } from "../../stores/dragdrop";
 
@@ -451,6 +467,14 @@ const onRoadBucket = computed(() =>
   subject.value === undefined
     ? -1
     : firstAppearance(selectedSubjects.value, subject.value.subject_id),
+);
+
+/** Favorites: listed first in the command palette. */
+const favorites = useFavoritesStore();
+const isFavorite = computed(
+  () =>
+    subject.value !== undefined &&
+    favorites.isFavorite(subject.value.subject_id),
 );
 
 /** The student's own note on this subject (FireRoad keeps one per id). */
@@ -936,10 +960,33 @@ watch(
 
 /* Solid department color header bar. */
 .detail-ident {
+  position: relative;
   background: var(--dept-color);
   border-radius: var(--radius-md);
-  padding: var(--space-2) var(--space-3);
+  /* room on the right for the favorite star */
+  padding: var(--space-2) var(--space-10) var(--space-2) var(--space-3);
   margin: var(--space-2) 0;
+}
+.detail-ident :deep(.favorite-toggle-wrap) {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+}
+.detail-ident .favorite-toggle {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: var(--dept-on);
+}
+.detail-ident .favorite-toggle:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--dept-on) 16%, transparent);
+  color: var(--dept-on);
+}
+.detail-ident .favorite-toggle:active:not(:disabled) {
+  background: color-mix(in srgb, var(--dept-on) 24%, transparent);
+}
+.favorite-toggle[aria-pressed="true"] :deep(path) {
+  fill: currentColor;
 }
 .detail-id {
   font: var(--text-id-lg);

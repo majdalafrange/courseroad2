@@ -31,6 +31,8 @@ export const STORAGE_KEYS = {
   showFifthYear: "showFifthYear",
   /** Subject notes taken while logged out; merged into FireRoad on login. */
   notes: "subjectNotes",
+  /** Favorite subjects saved while logged out; merged into FireRoad on login. */
+  favorites: "favoriteSubjects",
   /** Set once the legacy cookie migration has run; see legacyStorage.ts. */
   migrated: "storageMigrated",
 } as const;

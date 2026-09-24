@@ -128,6 +128,13 @@ export interface NotesResponse {
   error?: string;
 }
 
+export interface FavoritesResponse {
+  success: boolean;
+  /** Subject ids, in the order the student added them. Present on success. */
+  favorites?: string[];
+  error?: string;
+}
+
 export class NoAuthError extends Error {
   constructor() {
     super("No auth information");
@@ -240,13 +247,19 @@ export class FireRoadClient {
     return this.getSecure<NotesResponse>("/prefs/notes/");
   }
 
-  /**
-   * Replaces every stored note: the body is the whole map, not a change
-   * to one subject (the server stores the JSON as given).
-   */
   setNotes(
     notes: SubjectNotes,
   ): Promise<HttpResponse<{ success: boolean; error?: string }>> {
     return this.postSecure("/prefs/set_notes/", notes);
+  }
+
+  getFavorites(): Promise<HttpResponse<FavoritesResponse>> {
+    return this.getSecure<FavoritesResponse>("/prefs/favorites/");
+  }
+
+  setFavorites(
+    favorites: string[],
+  ): Promise<HttpResponse<{ success: boolean; error?: string }>> {
+    return this.postSecure("/prefs/set_favorites/", favorites);
   }
 }

@@ -65,6 +65,24 @@
       </div>
 
       <g-combobox-list label="Results" class="palette-list" @escape="onEscape">
+        <!-- favorites, first, before any search (empty query, no filter) -->
+        <g-combobox-group
+          v-if="favoriteSubjects.length"
+          label-class="palette-section"
+        >
+          <template #label>Favorites</template>
+          <palette-class-row
+            v-for="subject in favoriteSubjects"
+            :key="subject.subject_id"
+            :subject="subject"
+            :value="`favorite:${subject.subject_id}`"
+            :highlighted="highlighted === `favorite:${subject.subject_id}`"
+            :data-cy="'favoriteInSearch' + subject.subject_id.replace('.', '_')"
+            @pointerdown="rowPointerDown($event, subject)"
+            @select="onClassSelect(subject)"
+          />
+        </g-combobox-group>
+
         <!-- requirement-aware suggestions (empty query only) -->
         <g-combobox-group
           v-if="showAuditSuggestions"
@@ -100,60 +118,16 @@
               {{ classResults.length + resultOverflow }}, keep typing)
             </span>
           </template>
-          <g-combobox-item
+          <palette-class-row
             v-for="subject in classResults"
             :key="subject.subject_id"
+            :subject="subject"
             :value="`class:${subject.subject_id}`"
-            class="palette-row class-row"
+            :highlighted="highlighted === `class:${subject.subject_id}`"
             :data-cy="'classInSearch' + subject.subject_id.replace('.', '_')"
             @pointerdown="rowPointerDown($event, subject)"
             @select="onClassSelect(subject)"
-          >
-            <span
-              class="row-dept"
-              :style="{ '--dept-color': courseColor(subject) }"
-            />
-            <span class="row-id">{{ subject.subject_id }}</span>
-            <span class="row-main">
-              <span class="row-title">{{ subject.title }}</span>
-              <span class="row-sub">
-                <template v-if="subject.total_units !== undefined"
-                  ><span aria-hidden="true">{{ subject.total_units }}u</span
-                  ><span class="sr-only"
-                    >{{ subject.total_units }} units</span
-                  ></template
-                >
-                <template v-if="termBadges(subject)">
-                  <span class="sep spaced">·</span>{{ termBadges(subject) }}
-                </template>
-                <template v-if="subject.rating">
-                  <span class="sep spaced">·</span
-                  ><g-icon name="star" :size="10" class="rating-icon" /><span
-                    class="sr-only"
-                    >rated</span
-                  >
-                  {{ subject.rating.toFixed(1) }}
-                </template>
-                <template v-if="subjectHoursLabel(subject)">
-                  <span class="sep spaced">·</span
-                  ><span aria-hidden="true"
-                    >{{ subjectHoursLabel(subject) }}h/wk</span
-                  ><span class="sr-only"
-                    >{{ subjectHoursLabel(subject) }} hours per week</span
-                  >
-                </template>
-              </span>
-            </span>
-            <span
-              v-if="highlighted === `class:${subject.subject_id}`"
-              class="row-place"
-              aria-hidden="true"
-            >
-              <g-kbd :keys="['Enter']" /> open <span class="sep">·</span>
-              <g-kbd :keys="['Tab']" />
-              place
-            </span>
-          </g-combobox-item>
+          />
         </g-combobox-group>
 
         <!-- actions -->
@@ -232,8 +206,6 @@ import GIcon, { type IconName } from "../../design/components/GIcon.vue";
 import GKbd from "../../design/components/GKbd.vue";
 import GSheet from "../../design/components/GSheet.vue";
 import { useIsMobile } from "../../composables/useIsMobile";
-import { courseColor } from "../../lib/colors";
-import { subjectHoursLabel } from "../../lib/hours";
 import {
   chosenFiltersFor,
   TOKEN_DEFS,
@@ -242,9 +214,11 @@ import {
 import { SearchIndex } from "../../lib/search";
 import { sortCoursesList } from "../../lib/audit";
 import type { RequirementNode, Subject } from "../../lib/types";
-import { offeredSeasonLetters } from "../../lib/offering";
 import { useAuditStore } from "../../stores/audit";
 import { useCourseDataStore } from "../../stores/courseData";
+import { useFavoritesStore } from "../../stores/favorites";
+import PaletteClassRow from "./PaletteClassRow.vue";
+import { getSubject } from "../../lib/types";
 import { pointerDown } from "../../stores/dragdrop";
 import { history } from "../../stores/history";
 
@@ -343,11 +317,6 @@ const classResults = computed(() => fullResults.value.slice(0, MAX_RESULTS));
 const resultOverflow = computed(() =>
   Math.max(0, fullResults.value.length - MAX_RESULTS),
 );
-
-function termBadges(subject: Subject): string {
-  const letters = offeredSeasonLetters(subject);
-  return letters.join("/");
-}
 
 /* ------------------------------------------------------------- actions */
 
@@ -564,6 +533,7 @@ const highlighted = ref<string | undefined>(undefined);
 
 const totalCount = computed(
   () =>
+    favoriteSubjects.value.length +
     (showAuditSuggestions.value ? auditSuggestions.value.length : 0) +
     classResults.value.length +
     actionResults.value.length,
@@ -578,13 +548,31 @@ watch(
   { deep: true },
 );
 
-function highlightedClass(): Subject | undefined {
-  const value = highlighted.value;
-  if (value?.startsWith("class:") !== true) {
-    return undefined;
+/* ---- favorites: the student's list, before any search ---- */
+const favoritesStore = useFavoritesStore();
+const favoriteSubjects = computed<Subject[]>(() => {
+  if (query.value.length > 0 || hasActiveFilters.value) {
+    return [];
   }
-  const id = value.slice("class:".length);
-  return classResults.value.find((subject) => subject.subject_id === id);
+  // A favorite the catalog no longer has (or hasn't loaded yet) is skipped.
+  return favoritesStore.ids
+    .map((id) => getSubject(store.catalog, id))
+    .filter((subject): subject is Subject => subject !== undefined);
+});
+
+function highlightedClass(): Subject | undefined {
+  const value = highlighted.value ?? "";
+  const [kind, id] = [
+    value.slice(0, value.indexOf(":")),
+    value.slice(value.indexOf(":") + 1),
+  ];
+  const list =
+    kind === "class"
+      ? classResults.value
+      : kind === "favorite"
+        ? favoriteSubjects.value
+        : [];
+  return list.find((subject) => subject.subject_id === id);
 }
 
 /* Enter opens a class, a click places it. The combobox chooses on Enter
@@ -668,8 +656,18 @@ watch(
 onBeforeUnmount(() => clearTimeout(summaryTimer));
 
 function describeResults(): string {
-  if (showAuditSuggestions.value) {
-    return `${auditSuggestions.value.length} suggestions from your audit`;
+  const favorites = favoriteSubjects.value.length;
+  if (favorites > 0 || showAuditSuggestions.value) {
+    const parts: string[] = [];
+    if (favorites > 0) {
+      parts.push(`${favorites} ${favorites === 1 ? "favorite" : "favorites"}`);
+    }
+    if (showAuditSuggestions.value) {
+      parts.push(
+        `${auditSuggestions.value.length} suggestions from your audit`,
+      );
+    }
+    return parts.join(", ");
   }
   const classes = classResults.value.length;
   const actions = actionResults.value.length;
