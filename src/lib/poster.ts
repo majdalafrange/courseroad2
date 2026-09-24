@@ -104,7 +104,7 @@ const DARK_THEME: PosterTheme = {
   line: "#262b35",
   ink: "#ececee",
   ink2: "#b6b7bc",
-  ink3: "#8f9197",
+  ink3: "#999ba1",
   accent: "#a6b2bb",
   brand: "#d4586c",
   brandFlag: "#c04057",

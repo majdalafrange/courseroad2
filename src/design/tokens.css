@@ -156,6 +156,13 @@
   --radius-lg: 10px;
   --radius-full: 999px;
 
+  /* The phone bottom nav's height, not counting the home-indicator inset
+     (env(safe-area-inset-bottom)) it adds below. Everything that has to
+     clear the nav (panel and canvas padding, toasts, floating controls)
+     reserves this plus that inset, so nothing hides under it or leaves
+     a gap above it. */
+  --mobile-nav-height: 56px;
+
   /* ---------- motion ---------- */
   /* Choreography rules:
      1. Things come from where they were and go where they're going;
@@ -317,7 +324,7 @@
 
   --g-ink: #ececee;
   --g-ink-2: #b6b7bc;
-  --g-ink-3: #8f9197; /* 5.4:1 on --g-surface; clears AA at caption sizes */
+  --g-ink-3: #999ba1;
   --g-ink-disabled: #565a61;
 
   --g-line: #262b35;

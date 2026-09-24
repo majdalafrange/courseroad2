@@ -5,19 +5,23 @@
       CourseRoad works best on a laptop or desktop. Some features are hidden on
       small screens.
     </span>
-    <button
+    <g-button
+      variant="ghost"
+      size="xs"
+      icon-only
       class="notice-dismiss"
       aria-label="Dismiss this notice"
       @click="dismiss"
     >
       <g-icon name="close" :size="12" />
-    </button>
+    </g-button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import GIcon from "../../design/components/GIcon.vue";
+import GButton from "../../design/components/GButton.vue";
 import { STORAGE_KEYS, readValue, writeValue } from "../../lib/appStorage";
 
 const dismissed = ref(
@@ -48,24 +52,14 @@ function dismiss() {
   flex: 1;
   min-width: 0;
 }
-.notice-dismiss {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
+/* Takes the notice's own color. Parent-prefixed to outrank GButton's
+   ghost colors. */
+.mobile-notice .notice-dismiss {
   flex-shrink: 0;
-  border: none;
-  border-radius: var(--radius-xs);
-  background: transparent;
   color: inherit;
-  cursor: pointer;
 }
-.notice-dismiss:hover {
+.mobile-notice .notice-dismiss:hover:not(:disabled) {
   background: color-mix(in srgb, currentColor 18%, transparent);
-}
-.notice-dismiss:focus-visible {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
+  color: inherit;
 }
 </style>

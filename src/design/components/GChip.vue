@@ -39,7 +39,7 @@ const {
   dept = undefined,
   closable = false,
   interactive = false,
-  selected = false,
+  selected = undefined,
   removeLabel = "Remove",
 } = defineProps<{
   /** Department color key, e.g. "course-6"; colors the chip. */
@@ -48,6 +48,8 @@ const {
   /** The close button's name; name the thing, e.g. "Remove 6-3 Major". */
   removeLabel?: string;
   interactive?: boolean;
+  /** Set (true or false) only on a toggle chip: it adds aria-pressed.
+   *  Left unset, an interactive chip is a plain action button. */
   selected?: boolean;
 }>();
 

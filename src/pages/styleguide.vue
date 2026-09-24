@@ -226,6 +226,37 @@
           <g-button variant="subtle" disabled>Disabled</g-button>
           <g-button variant="primary" loading>Importing...</g-button>
           <g-button variant="subtle" size="sm">Small</g-button>
+          <g-button variant="ghost" size="xs" icon-only aria-label="Close">
+            <g-icon name="close" :size="13" />
+          </g-button>
+          <g-button variant="link" size="sm">Retry</g-button>
+          <g-button size="sm" href="https://catalog.mit.edu/" external>
+            Catalog <g-icon name="external" :size="12" />
+          </g-button>
+        </div>
+      </g-card>
+
+      <g-card class="sg-component-block">
+        <h3 class="sg-h3">Links</h3>
+        <p class="sg-body sg-note">
+          Inline, in a sentence: confirm with the
+          <g-link href="https://student.mit.edu/" external
+            >official audit</g-link
+          >.
+        </p>
+        <p class="sg-body sg-note">
+          Quiet, standing alone:
+          <g-link href="https://catalog.mit.edu/" tone="quiet" external
+            >Degree charts</g-link
+          >
+        </p>
+      </g-card>
+
+      <g-card class="sg-component-block">
+        <h3 class="sg-h3">Checkbox</h3>
+        <div class="sg-row-wrap">
+          <g-checkbox v-model="demoCheck">Show a fifth year</g-checkbox>
+          <g-checkbox :model-value="false" disabled>Disabled</g-checkbox>
         </div>
       </g-card>
 
@@ -376,10 +407,12 @@
 import { computed, ref } from "vue";
 import GButton from "../design/components/GButton.vue";
 import GCard from "../design/components/GCard.vue";
+import GCheckbox from "../design/components/GCheckbox.vue";
 import GChip from "../design/components/GChip.vue";
 import GDrawer from "../design/components/GDrawer.vue";
 import GIcon from "../design/components/GIcon.vue";
 import GInput from "../design/components/GInput.vue";
+import GLink from "../design/components/GLink.vue";
 import GNumberField from "../design/components/GNumberField.vue";
 import GPopover from "../design/components/GPopover.vue";
 import GProgress from "../design/components/GProgress.vue";
@@ -398,6 +431,7 @@ const isDark = computed(() => Boolean(store.isDarkMode));
 const { toggleTheme } = useTheme();
 
 const demoInput = ref("");
+const demoCheck = ref(true);
 const demoInputInvalid = ref("Junior year");
 const demoNumber = ref(12);
 const demoSelect = ref("fall");

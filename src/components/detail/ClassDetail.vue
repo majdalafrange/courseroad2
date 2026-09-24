@@ -10,7 +10,8 @@
       <g-button
         :disabled="activeIndex <= 0"
         variant="ghost"
-        class="trail-button"
+        size="xs"
+        icon-only
         data-cy="classInfoBackButton"
         :aria-label="
           activeIndex > 0 ? `Back to ${trail[activeIndex - 1]}` : 'Back'
@@ -22,7 +23,8 @@
       <g-button
         :disabled="activeIndex >= trail.length - 1"
         variant="ghost"
-        class="trail-button"
+        size="xs"
+        icon-only
         data-cy="classInfoForwardButton"
         :aria-label="
           activeIndex < trail.length - 1
@@ -49,14 +51,17 @@
           {{ id }}
         </button>
       </div>
-      <button
+      <g-button
+        variant="ghost"
+        size="xs"
+        icon-only
         class="trail-close"
         aria-label="Close panel"
         data-cy="closeClassInfoButton"
         @click="store.clearClassInfoStack()"
       >
         <g-icon name="close" :size="13" />
-      </button>
+      </g-button>
     </div>
 
     <div
@@ -87,6 +92,8 @@
         >
           <g-button
             variant="ghost"
+            size="sm"
+            icon-only
             class="favorite-toggle"
             data-cy="favoriteToggle"
             :aria-label="`Favorite ${subject.subject_id}`"
@@ -114,10 +121,10 @@
         <span>
           On your road: <strong>{{ bucketName(onRoadBucket) }}</strong>
         </span>
-        <button class="onroad-action" @click="jumpToBucket(onRoadBucket)">
+        <g-button variant="link" size="sm" @click="jumpToBucket(onRoadBucket)">
           Go to it
-        </button>
-        <button class="onroad-action" @click="moveIt">Move it</button>
+        </g-button>
+        <g-button variant="link" size="sm" @click="moveIt">Move it</g-button>
       </div>
       <p v-if="subjectNote !== undefined" class="detail-own-note">
         <g-icon name="message" :size="12" class="detail-own-note-icon" />
@@ -131,13 +138,14 @@
           class="stat"
           data-cy="cardRating"
         >
-          <a
+          <g-link
             :href="evaluationsUrl"
-            target="_blank"
-            rel="noopener"
+            tone="quiet"
+            external
+            hide-external-mark
             :aria-label="`Rated ${subject.rating.toFixed(1)} of 7 in subject evaluations (opens in a new tab)`"
             ><g-icon name="star" :size="11" class="stat-icon" />
-            {{ subject.rating.toFixed(1) }}</a
+            {{ subject.rating.toFixed(1) }}</g-link
           ><span class="stat-label" aria-hidden="true">/7</span>
         </span>
         <span v-if="totalHours !== null" class="stat" data-cy="cardHours">
@@ -186,33 +194,31 @@
       </p>
 
       <!-- explore connections: not offered on mobile -->
-      <button
+      <g-button
         v-if="inCatalog && !isMobile"
+        variant="quiet"
         class="explore-link"
         data-cy="exploreFromDetail"
         @click="exploreFromHere"
       >
         <g-icon name="graph" :size="14" />
         Show in Connections
-      </button>
+      </g-button>
       <div class="external-links">
-        <a
+        <g-button
           v-if="subject.url"
+          size="sm"
           :href="safeHref(subject.url)"
-          target="_blank"
-          rel="noopener"
-          >Catalog <g-icon name="external" :size="12" class="link-out"
-        /></a>
-        <a
-          v-if="inCatalog"
-          :href="evaluationsUrl"
-          target="_blank"
-          rel="noopener"
-          >Evaluations <g-icon name="external" :size="12" class="link-out"
-        /></a>
-        <a v-if="inCatalog" :href="openGradesUrl" target="_blank" rel="noopener"
-          >OpenGrades <g-icon name="external" :size="12" class="link-out"
-        /></a>
+          external
+        >
+          Catalog <g-icon name="external" :size="12" class="link-out" />
+        </g-button>
+        <g-button v-if="inCatalog" size="sm" :href="evaluationsUrl" external>
+          Evaluations <g-icon name="external" :size="12" class="link-out" />
+        </g-button>
+        <g-button v-if="inCatalog" size="sm" :href="openGradesUrl" external>
+          OpenGrades <g-icon name="external" :size="12" class="link-out" />
+        </g-button>
       </div>
 
       <!-- add to a term -->
@@ -256,13 +262,15 @@
             {{ fit.label }}
           </button>
         </div>
-        <button
+        <g-button
+          variant="quiet"
+          size="sm"
           class="inline-place"
           data-cy="addClassFromCardButton"
           @click="store.addFromCard(subject)"
         >
           Or place it on your road
-        </button>
+        </g-button>
       </section>
       <section v-else class="detail-section">
         <g-button variant="ghost" size="sm" @click="store.cancelAddFromCard()">
@@ -390,6 +398,7 @@ import {
 } from "vue";
 import { useRouter } from "vue-router";
 import GButton from "../../design/components/GButton.vue";
+import GLink from "../../design/components/GLink.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GTooltip from "../../design/components/GTooltip.vue";
 import PrereqTree from "./PrereqTree.vue";
@@ -910,34 +919,10 @@ watch(
   background: transparent;
   color: var(--g-ink);
 }
+
 .trail-close {
-  /* 24px: the minimum target size (WCAG 2.5.8) */
   margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--g-ink-3);
-  cursor: pointer;
   flex-shrink: 0;
-}
-/* 24px square like the close button: the minimum target size (WCAG
-   2.5.8). GButton's own size rules set a 34px height and 16px side
-   padding at the same specificity, so this is written one level up to
-   win regardless of stylesheet order. */
-.detail-trail .trail-button {
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  flex-shrink: 0;
-}
-.trail-close:hover {
-  background: var(--g-surface-sunken);
-  color: var(--g-ink);
 }
 
 /* ---------- body ---------- */
@@ -973,9 +958,6 @@ watch(
   right: var(--space-2);
 }
 .detail-ident .favorite-toggle {
-  width: 28px;
-  height: 28px;
-  padding: 0;
   color: var(--dept-on);
 }
 .detail-ident .favorite-toggle:hover:not(:disabled) {
@@ -1017,7 +999,7 @@ watch(
 .detail-onroad {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-2) var(--space-3);
   font: var(--text-small);
   color: var(--g-ink-2);
   background: var(--g-surface-2);
@@ -1044,19 +1026,6 @@ watch(
   margin-top: 2px;
   flex-shrink: 0;
 }
-.onroad-action {
-  font: var(--text-small);
-  font-weight: 600;
-  color: var(--g-accent);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: var(--space-05) var(--space-1);
-  border-radius: var(--radius-xs);
-}
-.onroad-action:hover {
-  background: var(--g-accent-tint);
-}
 
 /* ---------- stats ---------- */
 /* One line of facts. Space separates the pairs rather than a glyph, so a
@@ -1079,20 +1048,8 @@ watch(
 }
 /* the number gives the link its baseline, so it lines up with "/7"; the
    star just rides centered beside it */
-.stat a {
-  display: inline-flex;
-  align-items: baseline;
-  gap: var(--space-05);
-  color: inherit;
-  text-decoration: none;
-}
 .stat-icon {
   align-self: center;
-}
-.stat a:hover {
-  color: var(--g-accent);
-  text-decoration: underline;
-  text-underline-offset: 2px;
 }
 .stat .tone-heavy {
   color: var(--g-danger);
@@ -1148,27 +1105,9 @@ watch(
 }
 
 /* ---------- sections ---------- */
-/* A link to another surface, not a call to action. */
-.explore-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
+.explore-link,
+.inline-place {
   margin-top: var(--space-3);
-  font: var(--text-body);
-  color: var(--g-ink-2);
-  background: none;
-  border: none;
-  border-radius: var(--radius-xs);
-  padding: var(--space-1) 0;
-  cursor: pointer;
-  transition: color var(--motion-quick) var(--ease-out);
-}
-.explore-link:hover {
-  color: var(--g-accent);
-}
-.explore-link:focus-visible {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
 }
 
 .detail-section {
@@ -1182,22 +1121,6 @@ watch(
 .head-ok {
   font: var(--text-small);
   color: var(--g-ok);
-}
-.inline-place {
-  font: var(--text-small);
-  color: var(--g-ink-3);
-  background: none;
-  border: none;
-  padding: 0;
-  margin-top: var(--space-3);
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  text-decoration-color: var(--g-line-strong);
-}
-.inline-place:hover {
-  color: var(--g-accent);
-  text-decoration-color: var(--g-accent);
 }
 .either-note {
   font: var(--text-small);
@@ -1324,30 +1247,6 @@ watch(
   gap: var(--space-2);
   flex-wrap: wrap;
   margin-top: var(--space-3);
-}
-/* accent text alone read as a note, so each link is ringed like a button */
-.external-links a {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font: var(--text-small);
-  font-weight: 500;
-  color: var(--g-ink-2);
-  text-decoration: none;
-  border-radius: var(--radius-full);
-  box-shadow: inset 0 0 0 1px var(--g-line-accent);
-  padding: 6px var(--space-3);
-  transition:
-    background-color var(--motion-quick) var(--ease-out),
-    color var(--motion-quick) var(--ease-out);
-}
-.external-links a:hover {
-  background: var(--g-accent-tint);
-  color: var(--g-ink);
-}
-.external-links a:focus-visible {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
 }
 /* the one glyph that says "leaves the app" carries the notice hue */
 .link-out {

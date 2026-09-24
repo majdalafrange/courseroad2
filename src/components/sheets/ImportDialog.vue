@@ -29,21 +29,19 @@
           @input="onFileChange"
         />
         <span class="import-file-label">
-          <g-icon name="upload" :size="14" />
+          <g-icon name="file" :size="14" />
           {{ fileName ?? "Choose a .road file" }}
         </span>
       </label>
 
-      <label class="import-paste">
-        <span class="import-paste-label">...or paste a road here</span>
-        <textarea
-          v-model="inputtext"
-          class="import-textarea"
-          data-cy="importRoadText"
-          rows="5"
-          spellcheck="false"
-        />
-      </label>
+      <g-textarea
+        v-model="inputtext"
+        label="...or paste a road here"
+        monospace
+        :rows="5"
+        data-cy="importRoadText"
+        spellcheck="false"
+      />
 
       <p v-if="badinput" class="import-error" role="alert">
         That isn't a valid <code>.road</code> file. Only files exported from
@@ -68,6 +66,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import GButton from "../../design/components/GButton.vue";
+import GTextarea from "../../design/components/GTextarea.vue";
 import GSheet from "../../design/components/GSheet.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GInput from "../../design/components/GInput.vue";
@@ -249,34 +248,9 @@ function flagBadInput() {
   color: var(--g-ink);
 }
 
-.import-paste {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-.import-paste-label {
-  font: var(--text-small);
-  color: var(--g-ink-3);
-}
-.import-textarea {
-  font: var(--text-id-small);
-  color: var(--g-ink);
-  background: var(--g-surface);
-  border: none;
-  border-radius: var(--radius-sm);
-  box-shadow: inset 0 0 0 1px var(--g-line-control);
-  padding: var(--space-2) var(--space-3);
-  resize: vertical;
-  outline: none;
-}
 /* The file input itself is invisible; its label is what shows focus. */
 .import-file:focus-within .import-file-label {
   box-shadow: var(--g-focus-ring);
-}
-.import-textarea:focus {
-  box-shadow:
-    inset 0 0 0 1.5px var(--g-accent),
-    0 0 0 3px var(--g-accent-tint);
 }
 
 .import-error {

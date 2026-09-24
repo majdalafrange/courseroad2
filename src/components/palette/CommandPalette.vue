@@ -53,15 +53,14 @@
 
       <div v-if="tokenSuggestions.length" class="token-suggest-row">
         <span class="token-suggest-label">Filters:</span>
-        <button
+        <g-chip
           v-for="suggestion in tokenSuggestions"
           :key="suggestion.key"
-          type="button"
-          class="token-suggest"
+          interactive
           @click="addToken(suggestion.key)"
         >
           {{ suggestion.label }}
-        </button>
+        </g-chip>
       </div>
 
       <g-combobox-list label="Results" class="palette-list" @escape="onEscape">
@@ -202,6 +201,7 @@ import {
   GComboboxList,
   GComboboxRoot,
 } from "../../design/components/GCombobox";
+import GChip from "../../design/components/GChip.vue";
 import GIcon, { type IconName } from "../../design/components/GIcon.vue";
 import GKbd from "../../design/components/GKbd.vue";
 import GSheet from "../../design/components/GSheet.vue";
@@ -352,7 +352,7 @@ const baseActions = computed<PaletteAction[]>(() => {
     },
     {
       label: "Import a road",
-      icon: "upload",
+      icon: "import",
       keywords: "import road file upload",
       run: () => emit("action", "open-import"),
     },
@@ -840,23 +840,6 @@ defineExpose({
 .palette .token-suggest-label {
   font: var(--text-small);
   color: var(--g-ink-3);
-}
-.palette .token-suggest {
-  font: var(--text-small);
-  color: var(--g-ink-2);
-  background: var(--g-surface-sunken);
-  border: none;
-  border-radius: var(--radius-full);
-  padding: var(--space-05) var(--space-2);
-  cursor: pointer;
-}
-.palette .token-suggest:hover {
-  background: var(--g-accent-tint);
-  color: var(--g-ink);
-}
-.palette .token-suggest:focus-visible {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
 }
 
 .palette .palette-list {

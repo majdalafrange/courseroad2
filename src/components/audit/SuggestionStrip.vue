@@ -8,15 +8,17 @@
         <span class="strip-label">Suggestions</span>
         <g-popover v-model="infoOpen" label="How suggestions are produced">
           <template #anchor="{ toggle }">
-            <button
-              class="strip-info g-hit"
+            <g-button
+              variant="ghost"
+              size="xs"
+              icon-only
               data-cy="suggestionsInfo"
               aria-label="How suggestions are produced"
               :aria-expanded="infoOpen"
               @click="toggle"
             >
               <g-icon name="notice" :size="13" />
-            </button>
+            </g-button>
           </template>
           <p class="strip-explain">
             These are the subjects with the best course evaluations that satisfy
@@ -24,13 +26,15 @@
           </p>
         </g-popover>
       </div>
-      <button
-        class="strip-dismiss"
+      <g-button
+        variant="ghost"
+        size="xs"
+        icon-only
         aria-label="Dismiss suggestions"
         @click="dismiss"
       >
         <g-icon name="close" :size="12" />
-      </button>
+      </g-button>
     </div>
     <div
       v-for="suggestion in suggestions.slice(0, 2)"
@@ -62,13 +66,14 @@
             }}</span
           >
         </button>
-        <button
-          class="suggestion-more"
+        <g-button
+          variant="link"
+          size="sm"
           :aria-label="`See all classes for: ${suggestion.headline}`"
           @click="emit('see-all', suggestion.tokens)"
         >
           See all
-        </button>
+        </g-button>
       </div>
     </div>
   </div>
@@ -77,6 +82,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import GIcon from "../../design/components/GIcon.vue";
+import GButton from "../../design/components/GButton.vue";
 import GPopover from "../../design/components/GPopover.vue";
 import { courseColor } from "../../lib/colors";
 import { buildSuggestions } from "../../lib/suggestions";
@@ -164,48 +170,11 @@ function dismiss() {
   font: var(--text-small);
   color: var(--g-ink-3);
 }
-.strip-info {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border: none;
-  border-radius: var(--radius-xs);
-  background: transparent;
-  color: var(--g-ink-3);
-  cursor: pointer;
-}
-.strip-info:hover {
-  background: var(--g-surface-sunken);
-  color: var(--g-ink);
-}
-.strip-info:focus-visible {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
-}
 .strip-explain {
   max-width: 320px;
   font: var(--text-small);
   color: var(--g-ink-2);
   margin: 0;
-}
-.strip-dismiss {
-  /* 24px: the minimum target size (WCAG 2.5.8) */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border: none;
-  border-radius: var(--radius-xs);
-  background: transparent;
-  color: var(--g-ink-3);
-  cursor: pointer;
-}
-.strip-dismiss:hover {
-  background: var(--g-surface-sunken);
-  color: var(--g-ink);
 }
 
 .suggestion {
@@ -253,16 +222,5 @@ function dismiss() {
   gap: var(--space-05);
   font: var(--text-micro);
   color: var(--dept-on-2);
-}
-.suggestion-more {
-  font: var(--text-id-small);
-  color: var(--g-accent);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: var(--space-05) var(--space-2);
-}
-.suggestion-more:hover {
-  text-decoration: underline;
 }
 </style>

@@ -52,16 +52,16 @@
         <p class="onboard-copy">
           Add a major, a minor, or both. Skip it for now if you're not sure.
         </p>
-        <div class="program-search">
-          <g-icon name="search" :size="15" style="color: var(--g-ink-3)" />
-          <input
-            ref="programInput"
-            v-model="programQuery"
-            class="program-input"
-            placeholder="Search majors and minors..."
-            aria-label="Search majors and minors"
-          />
-        </div>
+        <g-input
+          ref="programInput"
+          v-model="programQuery"
+          placeholder="Search majors and minors..."
+          aria-label="Search majors and minors"
+        >
+          <template #leading>
+            <g-icon name="search" :size="15" style="color: var(--g-ink-3)" />
+          </template>
+        </g-input>
         <div v-if="chosenPrograms.length" class="chosen-programs">
           <button
             v-for="key in chosenPrograms"
@@ -101,7 +101,9 @@
 
       <!-- Last in DOM order (absolutely positioned top-right), so Tab
            reaches the step's own controls before the way out. -->
-      <button class="onboard-skip" @click="skip">Skip</button>
+      <g-button variant="ghost" size="sm" class="onboard-skip" @click="skip"
+        >Skip</g-button
+      >
     </div>
   </g-sheet>
 </template>
@@ -110,6 +112,7 @@
 import { computed, nextTick, ref, useTemplateRef, watch } from "vue";
 import CanvasGlyphs from "../canvas/CanvasGlyphs.vue";
 import GButton from "../../design/components/GButton.vue";
+import GInput from "../../design/components/GInput.vue";
 import { GRadioGroup, GRadioGroupItem } from "../../design/components/GRadio";
 import GSheet from "../../design/components/GSheet.vue";
 import GIcon from "../../design/components/GIcon.vue";
@@ -218,17 +221,6 @@ function close() {
   position: absolute;
   top: var(--space-4);
   right: var(--space-4);
-  font: var(--text-small);
-  color: var(--g-ink-3);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-xs);
-}
-.onboard-skip:hover {
-  color: var(--g-ink);
-  background: var(--g-surface-sunken);
 }
 
 .onboard-step {
@@ -286,24 +278,6 @@ function close() {
   font-weight: 600;
 }
 
-.program-search {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  background: var(--g-surface);
-  border-radius: var(--radius-sm);
-  box-shadow: inset 0 0 0 1px var(--g-line-control);
-  padding: 0 var(--space-3);
-  height: 38px;
-}
-.program-input {
-  flex: 1;
-  font: var(--text-body);
-  color: var(--g-ink);
-  background: transparent;
-  border: none;
-  outline: none;
-}
 .chosen-programs {
   display: flex;
   flex-wrap: wrap;

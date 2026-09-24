@@ -56,11 +56,13 @@
           v-if="subjects.length && index !== 0"
           text="Build this term's schedule in Hydrant"
         >
-          <a
+          <g-button
+            variant="ghost"
+            size="xs"
+            icon-only
             class="term-hydrant"
             :href="hydrantLink"
-            target="_blank"
-            rel="noopener"
+            external
             :aria-label="`Open ${termLabel} in Hydrant (opens in a new tab)`"
             @pointerdown.stop
             @click.stop
@@ -73,7 +75,7 @@
               height="16"
               draggable="false"
             />
-          </a>
+          </g-button>
         </g-tooltip>
       </div>
       <div v-if="subjects.length" class="term-stats">
@@ -207,6 +209,7 @@
 import { computed, onBeforeUnmount } from "vue";
 import ClassCard from "./ClassCard.vue";
 import GIcon from "../../design/components/GIcon.vue";
+import GButton from "../../design/components/GButton.vue";
 import GProgress from "../../design/components/GProgress.vue";
 import GTooltip from "../../design/components/GTooltip.vue";
 import { semesterInformation } from "../../lib/hours";
@@ -535,22 +538,9 @@ const placementAriaLabel = computed(() => {
   margin-left: 3px;
   color: var(--g-ink-3);
 }
+/* Keeps the title row as tall as the text beside it. */
 .term-hydrant {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
   margin: -4px -4px -4px 0;
-  border-radius: var(--radius-xs);
-  transition: background-color var(--motion-quick) var(--ease-out);
-}
-.term-hydrant:hover {
-  background: var(--g-accent-tint-strong);
-}
-.term-hydrant:focus-visible {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
 }
 .hydrant-icon {
   display: block;

@@ -53,20 +53,18 @@
             :options="yearOptions"
             @update:model-value="changeYear"
           />
-          <label class="settings-check">
-            <input
-              type="checkbox"
-              :checked="showFifthYear"
-              @change="
-                setShowFifthYear(($event.target as HTMLInputElement).checked)
-              "
-            />
+          <g-checkbox
+            class="settings-check"
+            :model-value="showFifthYear"
+            @update:model-value="setShowFifthYear"
+          >
             Show a fifth year
-          </label>
+          </g-checkbox>
         </div>
       </g-popover>
-      <button
-        class="iap-toggle"
+      <g-button
+        variant="ghost"
+        size="sm"
         data-cy="hideIapToggle"
         :title="
           store.hideIAP
@@ -76,7 +74,7 @@
         @click="store.setHideIAP(!store.hideIAP)"
       >
         {{ store.hideIAP ? "Show IAP" : "Hide IAP" }}
-      </button>
+      </g-button>
     </div>
 
     <term-cell
@@ -131,6 +129,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import TermCell from "./TermCell.vue";
 import GButton from "../../design/components/GButton.vue";
+import GCheckbox from "../../design/components/GCheckbox.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GPopover from "../../design/components/GPopover.vue";
 import GSelect from "../../design/components/GSelect.vue";
@@ -520,29 +519,6 @@ void dragState;
   border-radius: var(--radius-full);
   padding: 1px var(--space-2);
 }
-.iap-toggle {
-  display: inline-flex;
-  align-items: center;
-  font: var(--text-small);
-  font-weight: 500;
-  color: var(--g-ink-3);
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-full);
-  padding: var(--space-1) var(--space-3);
-  cursor: pointer;
-  transition:
-    background-color var(--motion-quick) var(--ease-out),
-    color var(--motion-quick) var(--ease-out);
-}
-.iap-toggle:hover {
-  background: var(--g-accent-tint);
-  color: var(--g-ink);
-}
-.iap-toggle:focus-visible {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
-}
 
 .settings-pop {
   display: flex;
@@ -551,17 +527,8 @@ void dragState;
   min-width: 220px;
 }
 .settings-check {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
   font: var(--text-body);
   color: var(--g-ink-2);
-  cursor: pointer;
-}
-.settings-check input {
-  width: 14px;
-  height: 14px;
-  accent-color: var(--g-accent);
 }
 
 .placement-banner {

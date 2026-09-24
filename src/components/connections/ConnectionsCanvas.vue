@@ -109,19 +109,39 @@
 
     <div v-if="store.overBudget" class="budget-note" role="status">
       {{ store.nodeCount }} subjects shown.
-      <button class="link-btn" @click="store.reset()">Reset</button>
+      <g-button variant="link" size="sm" @click="store.reset()">
+        Reset
+      </g-button>
     </div>
 
     <div class="zoom-controls" role="group" aria-label="Zoom">
-      <button aria-label="Zoom in" @click="zoomBy(1.2)">
+      <g-button
+        variant="ghost"
+        size="md"
+        icon-only
+        aria-label="Zoom in"
+        @click="zoomBy(1.2)"
+      >
         <g-icon name="plus" :size="15" />
-      </button>
-      <button aria-label="Zoom out" @click="zoomBy(1 / 1.2)">
+      </g-button>
+      <g-button
+        variant="ghost"
+        size="md"
+        icon-only
+        aria-label="Zoom out"
+        @click="zoomBy(1 / 1.2)"
+      >
         <g-icon name="minus" :size="15" />
-      </button>
-      <button aria-label="Fit graph to view" @click="fit">
+      </g-button>
+      <g-button
+        variant="ghost"
+        size="md"
+        icon-only
+        aria-label="Fit graph to view"
+        @click="fit"
+      >
         <g-icon name="map" :size="15" />
-      </button>
+      </g-button>
     </div>
   </div>
 </template>
@@ -139,6 +159,7 @@ import {
 import GraphEdge from "./GraphEdge.vue";
 import GraphNode from "./GraphNode.vue";
 import GIcon from "../../design/components/GIcon.vue";
+import GButton from "../../design/components/GButton.vue";
 import { computeBounds, fitViewport } from "../../lib/connections/layout";
 import type { Viewport } from "../../lib/connections/types";
 import {
@@ -780,22 +801,11 @@ onBeforeUnmount(() => {
   box-shadow: var(--shadow-2);
   overflow: hidden;
 }
-.zoom-controls button {
-  width: 32px;
-  height: 32px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: transparent;
-  color: var(--g-ink-2);
-  cursor: pointer;
+/* Square inside the group's rounded box, divided by a rule. */
+.zoom-controls .g-button {
+  border-radius: 0;
 }
-.zoom-controls button:hover {
-  background: var(--g-accent-tint);
-  color: var(--g-ink);
-}
-.zoom-controls button + button {
+.zoom-controls .g-button + .g-button {
   border-top: 1px solid var(--g-line);
 }
 .edge-card {
@@ -869,20 +879,14 @@ onBeforeUnmount(() => {
   white-space: nowrap;
   max-width: calc(100% - var(--space-6));
 }
-.link-btn {
-  font: var(--text-small);
-  font-weight: 600;
-  color: var(--g-accent);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0 2px;
-}
 
 /* clear the fixed bottom navigation on small screens */
 @media (max-width: 859px) {
   .zoom-controls {
-    bottom: calc(var(--space-4) + 56px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(
+      var(--space-4) + var(--mobile-nav-height) +
+        env(safe-area-inset-bottom, 0px)
+    );
   }
 }
 </style>

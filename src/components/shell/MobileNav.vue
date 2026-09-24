@@ -48,7 +48,10 @@ const emit = defineEmits<{
   display: flex;
   background: var(--g-surface);
   border-top: 1px solid var(--g-line);
-  padding-bottom: env(safe-area-inset-bottom, 0);
+  /* A fixed height (border included), so what reserves room for the nav
+     reserves exactly this much. */
+  height: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 .mobile-tab {
   flex: 1;
@@ -60,7 +63,8 @@ const emit = defineEmits<{
   color: var(--g-ink-3);
   background: transparent;
   border: none;
-  padding: var(--space-2) 0;
+  justify-content: center;
+  padding: 0;
   cursor: pointer;
 }
 .mobile-tab.active {

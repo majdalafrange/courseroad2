@@ -24,13 +24,9 @@
     <div class="progress-foot" data-cy="unofficialWarning">
       <span class="foot-line">
         Unofficial tool. Confirm with the
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://student.mit.edu/cgi-bin/shrwsdau.sh"
+        <g-link href="https://student.mit.edu/cgi-bin/shrwsdau.sh" external
+          >official audit</g-link
         >
-          official audit <g-icon name="external" :size="11" />
-        </a>
       </span>
       <g-popover
         v-model="footLinksOpen"
@@ -39,38 +35,37 @@
         label="More links"
       >
         <template #anchor>
-          <button
-            class="foot-more"
+          <g-button
+            variant="quiet"
+            size="sm"
             :aria-expanded="footLinksOpen"
             @click="footLinksOpen = !footLinksOpen"
           >
             More links
-          </button>
+          </g-button>
         </template>
         <div class="foot-links" @click.stop>
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
+          <g-link
             href="https://student.mit.edu/catalog/index.cgi"
+            tone="quiet"
+            external
+            >Subject listing</g-link
           >
-            Subject listing <g-icon name="external" :size="11" />
-          </a>
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
+          <g-link
             href="https://catalog.mit.edu/degree-charts/"
+            tone="quiet"
+            external
+            >Degree charts</g-link
           >
-            Degree charts <g-icon name="external" :size="11" />
-          </a>
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
+          <g-link
             href="https://fireroad.mit.edu/requirements/"
+            tone="quiet"
+            external
+            >Requirement wrong? Request an edit</g-link
           >
-            Requirement wrong? Request an edit
-            <g-icon name="external" :size="11" />
-          </a>
-          <a href="mailto:courseroad@mit.edu">courseroad@mit.edu</a>
+          <g-link href="mailto:courseroad@mit.edu" tone="quiet"
+            >courseroad@mit.edu</g-link
+          >
         </div>
       </g-popover>
     </div>
@@ -141,6 +136,7 @@ import ClassDetail from "../../components/detail/ClassDetail.vue";
 import CanvasGlyphs from "../../components/canvas/CanvasGlyphs.vue";
 import RoadCanvas from "../../components/canvas/RoadCanvas.vue";
 import GButton from "../../design/components/GButton.vue";
+import GLink from "../../design/components/GLink.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GPopover from "../../design/components/GPopover.vue";
 import { useIsMobile } from "../../composables/useIsMobile";
@@ -284,53 +280,18 @@ function focusSearch() {
   padding: var(--space-2) var(--space-4);
   border-top: 1px solid var(--g-line);
 }
-.progress-foot a {
-  color: var(--g-ink-2);
-}
 .foot-line {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.foot-line a {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-}
-.foot-more {
-  font: var(--text-small);
-  color: var(--g-ink-3);
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-.foot-more:hover {
-  color: var(--g-ink);
-}
-.foot-more:focus-visible {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
-  border-radius: var(--radius-xs);
-}
 .foot-links {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
   font: var(--text-small);
-}
-.foot-links a {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
   color: var(--g-ink-2);
-  text-decoration: none;
-}
-.foot-links a:hover {
-  color: var(--g-accent);
 }
 
 .shell-main {
@@ -469,11 +430,16 @@ function focusSearch() {
   .shell.is-mobile .canvas {
     --canvas-pad-top: var(--space-3);
     --canvas-pad-x: var(--space-3);
-    --canvas-pad-bottom: calc(64px + var(--space-4));
+    --canvas-pad-bottom: calc(
+      var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px) +
+        var(--space-4)
+    );
     padding: var(--canvas-pad-top) var(--canvas-pad-x) var(--canvas-pad-bottom);
   }
   .shell.is-mobile .progress-panel {
-    padding-bottom: 64px;
+    padding-bottom: calc(
+      var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px)
+    );
   }
   /* Show one pane at a time; MobileNav switches. The class detail is not
      part of this trade: below 860px it renders in DetailSheet, over the

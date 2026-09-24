@@ -14,13 +14,16 @@
           <h2 class="head-id" data-cy="connectionSelectedId">
             {{ subject.subject_id }}
           </h2>
-          <button
+          <g-button
+            variant="ghost"
+            size="xs"
+            icon-only
             class="head-close"
             aria-label="Clear selection"
             @click="store.select(undefined)"
           >
             <g-icon name="close" :size="13" />
-          </button>
+          </g-button>
         </div>
         <p class="head-title">{{ subject.title }}</p>
       </div>
@@ -34,15 +37,15 @@
       </p>
       <div v-if="headMissing.length" class="head-missing">
         <span class="missing-label">Needs</span>
-        <button
+        <g-chip
           v-for="id in headMissing"
           :key="id"
-          class="missing-chip"
+          interactive
           :title="`Show ${id} on the graph`"
           @click="store.revealMissingPrereq(subject.subject_id, id)"
         >
           {{ id }}
-        </button>
+        </g-chip>
         <span v-if="headMissingApproximate" class="missing-more">+ more</span>
       </div>
       <p v-if="subject.description" class="head-desc">
@@ -81,31 +84,32 @@
             Open
           </g-button>
         </template>
-        <button class="icon-action" :title="expandTitle" @click="toggleExpand">
+        <g-button size="sm" :title="expandTitle" @click="toggleExpand">
           {{ expandLabel }}
-        </button>
-        <button
+        </g-button>
+        <g-button
           v-if="isExpanded && hasMore"
-          class="icon-action"
+          size="sm"
           title="Hide the connections this node revealed"
           @click="store.collapse(store.selectedId!)"
         >
           Collapse
-        </button>
-        <button
-          class="icon-action"
+        </g-button>
+        <g-button
+          size="sm"
           :title="pinTitle"
           @click="store.togglePin(subject.subject_id)"
         >
           {{ isPinned ? "Unpin" : "Pin" }}
-        </button>
-        <button
-          class="icon-action danger"
+        </g-button>
+        <g-button
+          size="sm"
+          variant="danger"
           title="Remove from graph"
           @click="store.remove(subject.subject_id)"
         >
           Remove
-        </button>
+        </g-button>
       </div>
     </div>
 
@@ -232,14 +236,16 @@
                 </span>
               </button>
               <div class="neighbor-actions">
-                <button
-                  class="mini"
+                <g-button
+                  variant="ghost"
+                  size="xs"
+                  icon-only
                   title="Add to a term"
                   :aria-label="`Add ${n.id} to a term`"
                   @click="emit('add', n.id)"
                 >
                   <g-icon name="plus" :size="13" />
-                </button>
+                </g-button>
               </div>
             </div>
             <div
@@ -247,15 +253,15 @@
               class="neighbor-missing"
             >
               <span class="missing-label">Needs</span>
-              <button
+              <g-chip
                 v-for="id in n.readiness.missing.slice(0, 4)"
                 :key="id"
-                class="missing-chip"
+                interactive
                 :title="`Show ${id} on the graph`"
                 @click="store.revealMissingPrereq(n.id, id)"
               >
                 {{ id }}
-              </button>
+              </g-chip>
               <span
                 v-if="n.readiness.missing.length > 4 || n.readiness.approximate"
                 class="missing-more"
@@ -272,6 +278,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import GButton from "../../design/components/GButton.vue";
+import GChip from "../../design/components/GChip.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import TermPicker from "./TermPicker.vue";
 import { courseColor } from "../../lib/colors";
@@ -451,7 +458,7 @@ function toggleExpand() {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px));
     top: auto;
     width: 100%;
     height: auto;
@@ -476,6 +483,14 @@ function toggleExpand() {
   padding: var(--space-3) var(--space-4);
   margin: var(--space-4) 0 var(--space-3);
 }
+/* On the department color: parent-prefixed to outrank GButton's ghost. */
+.head-id-row .head-close {
+  color: var(--dept-on-2);
+}
+.head-id-row .head-close:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--dept-on) 16%, transparent);
+  color: var(--dept-on);
+}
 .head-id-row {
   display: flex;
   align-items: center;
@@ -484,22 +499,6 @@ function toggleExpand() {
 .head-id {
   font: var(--text-title);
   margin: 0;
-  color: var(--dept-on);
-}
-.head-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--dept-on-2);
-  cursor: pointer;
-}
-.head-close:hover {
-  background: color-mix(in srgb, var(--dept-on) 16%, transparent);
   color: var(--dept-on);
 }
 .head-title {
@@ -543,21 +542,6 @@ function toggleExpand() {
   font: var(--text-micro);
   color: var(--g-ink-3);
 }
-.missing-chip {
-  font: var(--text-micro);
-  font-weight: 600;
-  color: var(--g-accent);
-  background: var(--g-accent-tint);
-  border: none;
-  border-radius: var(--radius-full);
-  padding: 1px 7px;
-  cursor: pointer;
-  transition: background-color var(--motion-quick) var(--ease-out);
-}
-.missing-chip:hover {
-  background: var(--g-accent);
-  color: var(--g-surface);
-}
 .missing-more {
   font: var(--text-micro);
   color: var(--g-ink-3);
@@ -568,26 +552,6 @@ function toggleExpand() {
   align-items: center;
   gap: var(--space-2);
   margin-top: var(--space-3);
-}
-.icon-action {
-  font: var(--text-small);
-  color: var(--g-ink-2);
-  background: transparent;
-  border: 1px solid var(--g-line-strong);
-  border-radius: var(--radius-sm);
-  padding: var(--space-1) var(--space-2);
-  cursor: pointer;
-}
-.icon-action:hover {
-  background: var(--g-accent-tint);
-  color: var(--g-ink);
-}
-.icon-action.danger {
-  color: var(--g-danger);
-  border-color: transparent;
-}
-.icon-action.danger:hover {
-  background: var(--g-danger-tint);
 }
 
 .panel-empty-head {
@@ -763,21 +727,5 @@ function toggleExpand() {
   justify-content: center;
   gap: var(--space-05);
   padding-right: var(--space-1);
-}
-.mini {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border: none;
-  border-radius: var(--radius-xs);
-  background: transparent;
-  color: var(--g-ink-3);
-  cursor: pointer;
-}
-.mini:hover {
-  background: var(--g-accent-tint);
-  color: var(--g-accent);
 }
 </style>

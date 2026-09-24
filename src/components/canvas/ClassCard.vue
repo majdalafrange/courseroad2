@@ -132,19 +132,16 @@
         <!-- warning strings embed only FireRoad catalog data -->
         <!-- eslint-disable-next-line vue/no-v-html -->
         <p v-for="warning in warnings" :key="warning" v-html="warning" />
-        <label class="warning-mute">
-          <input
-            type="checkbox"
-            :checked="subject.overrideWarnings"
-            @change="
-              store.overrideWarnings({
-                override: ($event.target as HTMLInputElement).checked,
-                classInfo: subject,
-              })
-            "
-          />
+        <g-checkbox
+          class="warning-mute"
+          :model-value="subject.overrideWarnings"
+          @update:model-value="
+            (override: boolean) =>
+              store.overrideWarnings({ override, classInfo: subject })
+          "
+        >
           Hide warnings for this class
-        </label>
+        </g-checkbox>
       </div>
     </g-popover>
   </div>
@@ -160,6 +157,7 @@ import {
   watch,
 } from "vue";
 import GButton from "../../design/components/GButton.vue";
+import GCheckbox from "../../design/components/GCheckbox.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GPopover from "../../design/components/GPopover.vue";
 import GTextarea from "../../design/components/GTextarea.vue";
@@ -596,16 +594,9 @@ function onHoverEnd() {
   margin: 0;
 }
 .warning-mute {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
   font: var(--text-small);
   color: var(--g-ink-2);
-  cursor: pointer;
   border-top: 1px solid var(--g-line);
   padding-top: var(--space-2);
-}
-.warning-mute input {
-  accent-color: var(--g-accent);
 }
 </style>

@@ -35,9 +35,10 @@
         :label="`Details for ${branchTitle}`"
       >
         <template #anchor>
-          <button
-            type="button"
-            class="row-action g-hit"
+          <g-button
+            variant="ghost"
+            size="xs"
+            icon-only
             :data-cy="'auditInfoButton' + (node['list-id'] ?? '')"
             :aria-label="`Details for ${branchTitle}`"
             aria-haspopup="dialog"
@@ -45,7 +46,7 @@
             @click.stop="infoOpen = !infoOpen"
           >
             <g-icon name="info" :size="12" />
-          </button>
+          </g-button>
         </template>
         <div class="info-pop" @click.stop>
           <strong class="info-title">{{ branchTitle }}</strong>
@@ -63,14 +64,13 @@
             <span class="info-label">Satisfied by</span>
             <span class="info-courses">{{ node.sat_courses.join(", ") }}</span>
           </div>
-          <a
+          <g-link
             v-if="node.url"
             class="info-link"
             :href="safeHref(node.url)"
-            target="_blank"
-            rel="noopener"
-            >Official requirements <g-icon name="external" :size="11"
-          /></a>
+            external
+            >Official requirements</g-link
+          >
         </div>
       </g-popover>
       <span v-if="showPercent" class="branch-bar" aria-hidden="true">
@@ -146,16 +146,17 @@
       </button>
 
       <span class="leaf-actions">
-        <button
+        <g-button
           v-if="!leafSatisfied && !node['plain-string']"
-          type="button"
-          class="row-action g-hit"
+          variant="ghost"
+          size="xs"
+          icon-only
           :aria-label="`Find classes for ${leafName}`"
           @click.stop="findClasses"
           @pointerdown.stop
         >
           <g-icon name="search" :size="12" />
-        </button>
+        </g-button>
         <g-popover
           v-model="petitionOpen"
           align="end"
@@ -166,9 +167,10 @@
           "
         >
           <template #anchor>
-            <button
-              type="button"
-              class="row-action g-hit"
+            <g-button
+              variant="ghost"
+              size="xs"
+              icon-only
               :aria-label="
                 node['plain-string']
                   ? `Enter progress for ${leafName}`
@@ -181,7 +183,7 @@
               @pointerdown.stop
             >
               <g-icon name="pencil" :size="12" />
-            </button>
+            </g-button>
           </template>
           <div class="petition-pop" @click.stop @pointerdown.stop>
             <template v-if="node['plain-string']">
@@ -211,31 +213,27 @@
                 entirely.
               </p>
               <div class="petition-courses">
-                <label
+                <g-checkbox
                   v-for="id in planSubjectIds"
                   :key="id"
                   class="petition-course"
+                  :model-value="petitionDraft.includes(id)"
+                  @update:model-value="togglePetitionCourse(id)"
                 >
-                  <input
-                    type="checkbox"
-                    :checked="petitionDraft.includes(id)"
-                    @change="togglePetitionCourse(id)"
-                  />
                   <span class="leaf-req">{{ id }}</span>
-                </label>
+                </g-checkbox>
                 <span v-if="!planSubjectIds.length" class="info-desc"
                   >No classes on the road yet.</span
                 >
               </div>
               <div class="petition-actions">
-                <label class="petition-ignore">
-                  <input
-                    type="checkbox"
-                    :checked="ignored"
-                    @change="toggleIgnore"
-                  />
+                <g-checkbox
+                  class="petition-ignore"
+                  :model-value="ignored"
+                  @update:model-value="toggleIgnore"
+                >
                   Ignore entirely
-                </label>
+                </g-checkbox>
                 <g-button
                   size="sm"
                   variant="primary"
@@ -264,6 +262,8 @@
 <script setup lang="ts">
 import { computed, ref, useTemplateRef, watch } from "vue";
 import GButton from "../../design/components/GButton.vue";
+import GLink from "../../design/components/GLink.vue";
+import GCheckbox from "../../design/components/GCheckbox.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GNumberField from "../../design/components/GNumberField.vue";
 import GProgress from "../../design/components/GProgress.vue";
@@ -732,14 +732,17 @@ export default { name: "ReqNode" };
   color: var(--g-info);
 }
 
-/* Reserved width (2 × 22 + 2 gap) so the row never reflows on reveal. */
+/* Reserved width (2 × 24 + 2 gap) so the row never reflows on reveal.
+   The negative margin lets the 24px buttons overhang the row's padding
+   instead of making every leaf row taller. */
 .leaf-actions {
+  margin: -1px 0;
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
   gap: var(--space-05);
   flex-shrink: 0;
-  min-width: 46px;
+  min-width: 50px;
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--motion-quick) var(--ease-out);
@@ -756,27 +759,6 @@ export default { name: "ReqNode" };
     opacity: 1;
     pointer-events: auto;
   }
-}
-
-.row-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border: none;
-  border-radius: var(--radius-xs);
-  background: transparent;
-  color: var(--g-ink-3);
-  cursor: pointer;
-}
-.row-action:hover {
-  background: var(--g-accent-tint);
-  color: var(--g-ink);
-}
-.row-action:focus-visible {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
 }
 
 /* ---------- popovers ---------- */
@@ -830,12 +812,7 @@ export default { name: "ReqNode" };
   gap: var(--space-05);
 }
 .info-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
   font: var(--text-small);
-  color: var(--g-accent);
-  text-decoration: none;
 }
 
 .manual-row {
@@ -860,20 +837,12 @@ export default { name: "ReqNode" };
   overflow-y: auto;
 }
 .petition-course {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
   font: var(--text-small);
-  cursor: pointer;
-  padding: var(--space-05) var(--space-1);
+  padding: 0 var(--space-1);
   border-radius: var(--radius-xs);
 }
 .petition-course:hover {
   background: var(--g-surface-2);
-}
-.petition-course input,
-.petition-ignore input {
-  accent-color: var(--g-accent);
 }
 .petition-actions {
   display: flex;
@@ -883,12 +852,8 @@ export default { name: "ReqNode" };
   padding-top: var(--space-2);
 }
 .petition-ignore {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
   font: var(--text-small);
   color: var(--g-ink-2);
-  cursor: pointer;
   flex: 1;
 }
 </style>

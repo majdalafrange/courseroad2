@@ -107,13 +107,14 @@
               <p v-if="!groups[option].length" class="fit-section-note">
                 No {{ option }} were ranked.
               </p>
-              <button
+              <g-button
                 v-if="groups[option].length > shown[option]"
+                size="sm"
                 class="fit-more"
                 @click="shown[option] += PAGE"
               >
                 Show {{ remainingCount(groups[option], option) }} more
-              </button>
+              </g-button>
             </g-tabs-content>
           </g-tabs-root>
 
@@ -418,21 +419,6 @@ function close() {
   color: var(--g-ink-3);
   margin: 0 0 var(--space-2);
 }
-.fit-more {
-  width: 100%;
-  margin-top: var(--space-2);
-  padding: var(--space-2);
-  font: var(--text-small);
-  color: var(--g-ink-2);
-  background: transparent;
-  box-shadow: inset 0 0 0 1px var(--g-line-strong);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-}
-.fit-more:hover {
-  background: var(--g-surface-sunken);
-  color: var(--g-ink);
-}
 
 .fit-plain {
   display: flex;
@@ -455,5 +441,8 @@ function close() {
   color: var(--g-ink-3);
 }
 
-/* Durations come from the tokens, which reduced-motion already zeroes. */
+.fit-more {
+  width: 100%;
+  margin-top: var(--space-2);
+}
 </style>

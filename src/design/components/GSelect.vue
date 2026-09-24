@@ -3,8 +3,9 @@
     <g-label v-if="label" :for-id="fieldId" class="g-select-label">{{
       label
     }}</g-label>
-    <SelectRoot :id="fieldId" v-model="model" :disabled="disabled">
+    <SelectRoot v-model="model" :disabled="disabled">
       <SelectTrigger
+        :id="fieldId"
         class="g-select-trigger"
         :data-cy="dataCy"
         :aria-label="label ? undefined : ariaLabel"

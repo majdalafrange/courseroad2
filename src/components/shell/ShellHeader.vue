@@ -42,28 +42,34 @@
           history.canUndo ? `Undo: ${history.undoLabel}` : 'Nothing to undo'
         "
       >
-        <button
+        <g-button
+          variant="ghost"
+          size="sm"
+          icon-only
           class="header-icon-btn"
           :disabled="!history.canUndo"
           aria-label="Undo"
           @click="emit('undo')"
         >
           <g-icon name="undo" :size="15" />
-        </button>
+        </g-button>
       </g-tooltip>
       <g-tooltip
         :text="
           history.canRedo ? `Redo: ${history.redoLabel}` : 'Nothing to redo'
         "
       >
-        <button
+        <g-button
+          variant="ghost"
+          size="sm"
+          icon-only
           class="header-icon-btn"
           :disabled="!history.canRedo"
           aria-label="Redo"
           @click="emit('redo')"
         >
           <g-icon name="redo" :size="15" />
-        </button>
+        </g-button>
       </g-tooltip>
 
       <button
@@ -108,32 +114,42 @@
         class="header-feedback"
         text="Send feedback"
       >
-        <a
+        <g-button
+          variant="ghost"
+          size="sm"
+          icon-only
           class="header-icon-btn"
           :href="feedbackFormUrl"
-          target="_blank"
-          rel="noopener"
+          external
           aria-label="Send feedback (opens in a new tab)"
           data-cy="feedbackButton"
         >
           <g-icon name="message" :size="15" />
-        </a>
+        </g-button>
       </g-tooltip>
 
-      <button
+      <g-button
         v-if="!auth.loggedIn"
+        variant="ghost"
+        size="sm"
         class="header-login"
         data-cy="loginButton"
         @click="auth.loginUser()"
       >
         Log in
-      </button>
+      </g-button>
 
       <g-menu v-model="moreOpen" align="end">
         <template #trigger>
-          <button class="header-icon-btn" aria-label="More">
+          <g-button
+            variant="ghost"
+            size="sm"
+            icon-only
+            class="header-icon-btn"
+            aria-label="More"
+          >
             <g-icon name="dots" :size="16" />
-          </button>
+          </g-button>
         </template>
         <div class="more-menu">
           <g-menu-item @select="emit('open-about')">
@@ -177,6 +193,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
+import GButton from "../../design/components/GButton.vue";
 import GIcon, { type IconName } from "../../design/components/GIcon.vue";
 import GKbd from "../../design/components/GKbd.vue";
 import {
@@ -389,33 +406,6 @@ const saveState = computed<SaveState>(() => {
   flex-shrink: 0;
 }
 
-.header-icon-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--g-ink-2);
-  cursor: pointer;
-  text-decoration: none;
-  transition: background-color var(--motion-quick) var(--ease-out);
-}
-.header-icon-btn:hover:not(:disabled) {
-  background: var(--g-accent-tint);
-  color: var(--g-ink);
-}
-.header-icon-btn:disabled {
-  color: var(--g-ink-disabled);
-  cursor: default;
-}
-.header-icon-btn:focus-visible {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
-}
-
 .search-trigger {
   display: inline-flex;
   align-items: center;
@@ -483,28 +473,6 @@ const saveState = computed<SaveState>(() => {
   box-shadow: var(--g-focus-ring);
 }
 
-.header-login {
-  font: var(--text-small);
-  font-weight: 600;
-  color: var(--g-ink-2);
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-sm);
-  height: 28px;
-  padding: 0 var(--space-2);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background-color var(--motion-quick) var(--ease-out);
-}
-.header-login:hover {
-  color: var(--g-ink);
-  background: var(--g-accent-tint);
-}
-.header-login:focus-visible {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
-}
-
 .more-menu {
   display: flex;
   flex-direction: column;
@@ -518,7 +486,7 @@ const saveState = computed<SaveState>(() => {
   display: none;
 }
 .more-menu .login {
-  color: var(--g-brand);
+  color: var(--g-accent);
   font-weight: 600;
 }
 
@@ -561,7 +529,8 @@ const saveState = computed<SaveState>(() => {
   }
   /* Undo/redo/feedback/more: same reasoning as .search-trigger. (Theme
      toggle is sized in its own component, ThemeToggle.vue.) */
-  .header-icon-btn {
+  /* Parent-prefixed to outrank GButton's own size rules. */
+  .header-right .g-button.header-icon-btn {
     width: 40px;
     height: 40px;
   }
@@ -574,7 +543,7 @@ const saveState = computed<SaveState>(() => {
   .header-right :global(.header-feedback) {
     display: none;
   }
-  .header-login {
+  .header-right .header-login {
     display: none;
   }
   .more-menu .mobile-only {

@@ -12,13 +12,15 @@
       <span class="picker-title">
         Add <span class="picker-id">{{ subject.subject_id }}</span> to...
       </span>
-      <button
-        class="picker-close"
+      <g-button
+        variant="ghost"
+        size="xs"
+        icon-only
         aria-label="Cancel adding"
         @click="store.cancelPlacement()"
       >
         <g-icon name="close" :size="13" />
-      </button>
+      </g-button>
     </div>
 
     <div class="picker-grid">
@@ -44,6 +46,7 @@
 <script setup lang="ts">
 import { computed, onMounted, useTemplateRef } from "vue";
 import GIcon from "../../design/components/GIcon.vue";
+import GButton from "../../design/components/GButton.vue";
 import {
   NUM_SEMESTERS,
   baseYear,
@@ -177,22 +180,6 @@ onMounted(() => {
 }
 .picker-id {
   font-weight: 600;
-  color: var(--g-ink);
-}
-.picker-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--g-ink-3);
-  cursor: pointer;
-}
-.picker-close:hover {
-  background: var(--g-surface-sunken);
   color: var(--g-ink);
 }
 

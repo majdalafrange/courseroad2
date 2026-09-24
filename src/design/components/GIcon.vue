@@ -40,7 +40,9 @@ import moon from "@iconify-icons/lucide/moon";
 import info from "@iconify-icons/lucide/info";
 import alertCircle from "@iconify-icons/lucide/alert-circle";
 import download from "@iconify-icons/lucide/download";
-import upload from "@iconify-icons/lucide/upload";
+import importIcon from "@iconify-icons/lucide/import";
+import file from "@iconify-icons/lucide/file";
+import share from "@iconify-icons/lucide/share";
 import search from "@iconify-icons/lucide/search";
 import undo2 from "@iconify-icons/lucide/undo-2";
 import redo2 from "@iconify-icons/lucide/redo-2";
@@ -92,7 +94,9 @@ const NAME_TO_LUCIDE = {
   info,
   notice: alertCircle,
   download,
-  upload,
+  import: importIcon,
+  file,
+  share,
   search,
   undo: undo2,
   redo: redo2,

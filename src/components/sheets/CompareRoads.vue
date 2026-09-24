@@ -27,17 +27,14 @@
       </div>
 
       <div v-if="roadA !== roadB" class="compare-options">
-        <label class="iap-check">
-          <input
-            type="checkbox"
-            data-cy="compareHideIapToggle"
-            :checked="store.hideIAP"
-            @change="
-              store.setHideIAP(($event.target as HTMLInputElement).checked)
-            "
-          />
+        <g-checkbox
+          class="iap-check"
+          data-cy="compareHideIapToggle"
+          :model-value="store.hideIAP"
+          @update:model-value="store.setHideIAP"
+        >
           Hide IAP
-        </label>
+        </g-checkbox>
       </div>
 
       <div v-if="roadA !== roadB" class="compare-body">
@@ -174,6 +171,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import GSelect from "../../design/components/GSelect.vue";
+import GCheckbox from "../../design/components/GCheckbox.vue";
 import GSheet from "../../design/components/GSheet.vue";
 import { courseColor } from "../../lib/colors";
 import {
@@ -354,17 +352,8 @@ function titleFor(key: string): string {
   padding: 0 var(--space-5) var(--space-3);
 }
 .iap-check {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
   font: var(--text-small);
   color: var(--g-ink-3);
-  cursor: pointer;
-}
-.iap-check input {
-  width: 14px;
-  height: 14px;
-  accent-color: var(--g-accent);
 }
 .diff-cols {
   display: grid;

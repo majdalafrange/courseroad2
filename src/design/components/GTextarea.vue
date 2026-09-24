@@ -1,5 +1,5 @@
 <template>
-  <div class="g-textarea" :class="{ disabled }">
+  <div class="g-textarea" :class="{ disabled, monospace }">
     <!-- As in GInput: the label wraps the caption and the field only, so
          the hint is not read as part of the field's name. -->
     <label class="g-textarea-labelled">
@@ -43,6 +43,7 @@ const {
   rows = 3,
   maxlength = undefined,
   disabled = false,
+  monospace = false,
 } = defineProps<{
   modelValue: string;
   label?: string;
@@ -51,6 +52,8 @@ const {
   rows?: number;
   maxlength?: number;
   disabled?: boolean;
+  /** Set in the identifier face: pasted data or code, not prose. */
+  monospace?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -104,6 +107,9 @@ defineExpose({
 .g-textarea.disabled .g-textarea-field {
   background: var(--g-surface-sunken);
   box-shadow: inset 0 0 0 1px var(--g-line);
+}
+.g-textarea.monospace .g-textarea-field {
+  font: var(--text-id-small);
 }
 .g-textarea-hint {
   font: var(--text-small);

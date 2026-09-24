@@ -92,11 +92,11 @@
       <g-menu-separator />
 
       <g-menu-item data-cy="shareRoadButton" @select="emit('open-share')">
-        <g-icon name="upload" :size="14" />
+        <g-icon name="share" :size="14" />
         Share this road...
       </g-menu-item>
       <g-menu-item data-cy="importRoadButton" @select="emit('open-import')">
-        <g-icon name="download" :size="14" />
+        <g-icon name="import" :size="14" />
         Import a road...
       </g-menu-item>
       <g-menu-item

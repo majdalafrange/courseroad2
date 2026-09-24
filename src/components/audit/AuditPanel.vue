@@ -102,22 +102,22 @@
     </div>
 
     <div class="audit-links">
-      <a
+      <g-link
         v-for="courseLink in courseLinks"
         :key="courseLink.link"
         :href="courseLink.link"
-        target="_blank"
-        rel="noopener"
+        tone="quiet"
+        external
         class="audit-link"
-        >{{ courseLink.text }} <g-icon name="external" :size="11"
-      /></a>
-      <a
+        >{{ courseLink.text }}</g-link
+      >
+      <g-link
         href="https://mit.turbovote.org/"
-        target="_blank"
-        rel="noopener"
+        tone="quiet"
+        external
         class="audit-link"
-        >Register to vote <g-icon name="external" :size="11"
-      /></a>
+        >Register to vote</g-link
+      >
     </div>
   </div>
 </template>
@@ -125,6 +125,7 @@
 <script setup lang="ts">
 import { computed, ref, toRaw, useTemplateRef } from "vue";
 import GButton from "../../design/components/GButton.vue";
+import GLink from "../../design/components/GLink.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GInput from "../../design/components/GInput.vue";
 import GPopover from "../../design/components/GPopover.vue";
@@ -301,24 +302,17 @@ const previewTreeWithIds = computed(() => {
   padding: var(--space-4) var(--space-2);
 }
 
+/* 24px rows: the minimum target size (WCAG 2.5.8). */
+.audit-link {
+  min-height: 24px;
+}
 .audit-links {
+  font: var(--text-small);
+  color: var(--g-ink-3);
   display: flex;
   flex-direction: column;
   margin-top: var(--space-4);
   padding-top: var(--space-3);
   border-top: 1px solid var(--g-line);
-}
-/* Each link is a 24px row (WCAG 2.5.8 target size) */
-.audit-link {
-  display: inline-flex;
-  align-items: center;
-  min-height: 24px;
-  gap: 3px;
-  font: var(--text-small);
-  color: var(--g-ink-3);
-  text-decoration: none;
-}
-.audit-link:hover {
-  color: var(--g-accent);
 }
 </style>

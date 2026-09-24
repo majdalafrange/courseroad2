@@ -44,25 +44,27 @@
           </span>
         </button>
       </h2>
-      <button
+      <g-button
         v-if="failed"
-        type="button"
+        variant="quiet"
+        size="sm"
         class="program-retry"
         data-cy="programRetryButton"
         :aria-label="`Retry computing ${title}`"
         @click.stop="retry"
       >
         Retry
-      </button>
-      <button
+      </g-button>
+      <g-button
         v-if="!preview && tree"
-        type="button"
+        variant="ghost"
+        size="sm"
         class="program-expandall"
         :aria-label="`${anyCollapsed ? 'Expand' : 'Collapse'} all of ${title}`"
         @click.stop="toggleAll"
       >
         {{ anyCollapsed ? "Expand all" : "Collapse all" }}
-      </button>
+      </g-button>
       <span v-if="preview" class="preview-actions">
         <g-button
           size="sm"
@@ -81,16 +83,18 @@
           Discard
         </g-button>
       </span>
-      <button
+      <g-button
         v-else
-        type="button"
+        variant="ghost"
+        size="xs"
+        icon-only
         class="program-remove"
         :aria-label="`Remove ${title}`"
         data-cy="removeProgramButton"
         @click.stop="emit('remove')"
       >
         <g-icon name="close" :size="12" />
-      </button>
+      </g-button>
     </header>
 
     <div v-if="open && tree" class="program-body">
@@ -101,14 +105,14 @@
         :depth="0"
         :program-key="programKey"
       />
-      <a
+      <g-link
         v-if="tree.url"
         class="program-link"
+        tone="quiet"
         :href="safeHref(tree.url)"
-        target="_blank"
-        rel="noopener"
-        >Official {{ title }} requirements <g-icon name="external" :size="11"
-      /></a>
+        external
+        >Official {{ title }} requirements</g-link
+      >
     </div>
   </section>
 </template>
@@ -116,6 +120,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import GButton from "../../design/components/GButton.vue";
+import GLink from "../../design/components/GLink.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import ReqNode from "./ReqNode.vue";
 import type { RequirementNode } from "../../lib/types";
@@ -386,24 +391,32 @@ watch(
   min-height: 1.45em;
   min-height: 1lh;
 }
+
 .program-retry {
   flex-shrink: 0;
-  font: var(--text-small);
-  color: var(--g-ink-2);
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
 }
-.program-retry:hover {
-  color: var(--g-ink);
+
+/* Revealed on header hover or focus. Parent-prefixed to outrank
+   GButton's own transition. */
+.program-head .program-expandall,
+.program-head .program-remove {
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity var(--motion-quick) var(--ease-out);
 }
-.program-retry:focus-visible {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
-  border-radius: var(--radius-xs);
+.program-head:hover .program-expandall,
+.program-head:focus-within .program-expandall,
+.program-head:hover .program-remove,
+.program-head:focus-within .program-remove {
+  opacity: 1;
+}
+/* Touch: hiding these left a live hit target with nothing drawn in it.
+   Show what is already tappable. */
+@media (hover: none) {
+  .program-head .program-expandall,
+  .program-head .program-remove {
+    opacity: 1;
+  }
 }
 
 .preview-actions {
@@ -412,78 +425,12 @@ watch(
   flex-shrink: 0;
 }
 
-/* Revealed on header hover or focus, like the remove control. */
-.program-expandall {
-  font: var(--text-small);
-  color: var(--g-ink-3);
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-xs);
-  padding: var(--space-05) var(--space-2);
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-  opacity: 0;
-  transition: opacity var(--motion-quick) var(--ease-out);
-}
-.program-head:hover .program-expandall,
-.program-head:focus-within .program-expandall {
-  opacity: 1;
-}
-.program-expandall:hover {
-  background: var(--g-accent-tint);
-  color: var(--g-ink);
-}
-.program-expandall:focus-visible {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
-}
-
-.program-remove {
-  /* 24px: the minimum target size (WCAG 2.5.8) */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border: none;
-  border-radius: var(--radius-full);
-  background: transparent;
-  color: var(--g-ink-3);
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity var(--motion-quick) var(--ease-out);
-}
-.program-head:hover .program-remove,
-.program-head:focus-within .program-remove {
-  opacity: 1;
-}
-.program-remove:hover {
-  background: var(--g-danger-tint);
-  color: var(--g-danger);
-}
-/* Touch: hiding these left a live hit target with nothing drawn in it.
-   Show what is already tappable. */
-@media (hover: none) {
-  .program-expandall,
-  .program-remove {
-    opacity: 1;
-  }
-}
-
 .program-body {
   padding: 0 var(--space-2) var(--space-3);
 }
 .program-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
   font: var(--text-small);
   color: var(--g-ink-3);
-  text-decoration: none;
   padding: var(--space-2);
-}
-.program-link:hover {
-  color: var(--g-accent);
 }
 </style>

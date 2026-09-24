@@ -13,16 +13,15 @@
           allows students to plan out their degrees, test out paths for
           different majors, and view class information. CourseRoad is maintained
           by the
-          <a href="https://sipb.mit.edu" target="_blank" rel="noopener"
-            >Student Information Processing Board</a
+          <g-link href="https://sipb.mit.edu" external
+            >Student Information Processing Board</g-link
           >.
         </p>
         <p>
           It utilizes
-          <a href="https://fireroad.mit.edu" target="_blank" rel="noopener"
-            >FireRoad</a
-          >, which provides the subject catalog, the requirements engine, and
-          cloud sync.
+          <g-link href="https://fireroad.mit.edu" external>FireRoad</g-link>,
+          which provides the subject catalog, the requirements engine, and cloud
+          sync.
         </p>
 
         <h2>Disclaimer</h2>
@@ -31,17 +30,11 @@
           never going to be perfect, because the audit is presented in English,
           which allows unlimited flexibility and annoying edge cases. Always
           double-check with the
-          <a
-            href="https://student.mit.edu/cgi-bin/shrwsdau.sh"
-            target="_blank"
-            rel="noopener"
-            >official audit</a
+          <g-link href="https://student.mit.edu/cgi-bin/shrwsdau.sh" external
+            >official audit</g-link
           >, the
-          <a
-            href="https://catalog.mit.edu/degree-charts/"
-            target="_blank"
-            rel="noopener"
-            >degree charts</a
+          <g-link href="https://catalog.mit.edu/degree-charts/" external
+            >degree charts</g-link
           >, and your department advisor.
         </p>
         <p>
@@ -55,8 +48,8 @@
         <p>
           If you would like to access the old version of CourseRoad, you can
           find it at
-          <a href="https://courseroad.mit.edu/" target="_blank" rel="noopener"
-            >courseroad.mit.edu</a
+          <g-link href="https://courseroad.mit.edu/" external
+            >courseroad.mit.edu</g-link
           >.
         </p>
 
@@ -81,20 +74,14 @@
         </ul>
         <p>
           CourseRoad is fully open source on
-          <a
-            href="https://github.com/sipb/courseroad2"
-            target="_blank"
-            rel="noopener"
-            >GitHub</a
+          <g-link href="https://github.com/sipb/courseroad2" external
+            >GitHub</g-link
           >, and we gladly accept contributions. If you have any questions,
           comments, or just want to say hi, feel free to email us at
-          <a href="mailto:courseroad@mit.edu">courseroad@mit.edu</a>. If you
-          spot a requirement that's wrong, you can fix it by going to the
-          <a
-            href="https://fireroad.mit.edu/requirements/"
-            target="_blank"
-            rel="noopener"
-            >requirements editor</a
+          <g-link href="mailto:courseroad@mit.edu">courseroad@mit.edu</g-link>.
+          If you spot a requirement that's wrong, you can fix it by going to the
+          <g-link href="https://fireroad.mit.edu/requirements/" external
+            >requirements editor</g-link
           >.
         </p>
       </div>
@@ -104,6 +91,7 @@
 
 <script setup lang="ts">
 import GSheet from "../../design/components/GSheet.vue";
+import GLink from "../../design/components/GLink.vue";
 import GWordmark from "../../design/components/GWordmark.vue";
 
 defineProps<{
@@ -147,14 +135,6 @@ const emit = defineEmits<{
 }
 .about li {
   margin: 0 0 var(--space-05);
-}
-.about a {
-  color: var(--g-accent);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-.about a:hover {
-  text-decoration-thickness: 2px;
 }
 .about-credits {
   font: var(--text-small);
