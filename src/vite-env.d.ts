@@ -13,3 +13,9 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+// vite-imagetools inline query type declaration
+declare module "*&inline" {
+  const src: string;
+  export default src;
+}

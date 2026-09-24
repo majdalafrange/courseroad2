@@ -65,8 +65,14 @@
             @pointerdown.stop
             @click.stop
           >
-            <!-- if lucide ever adds a fire hydrant icon, replace this -->
-            <span class="hydrant-mark">Hydrant</span>
+            <img
+              class="hydrant-icon"
+              :src="hydrantIcon"
+              alt=""
+              width="16"
+              height="16"
+              draggable="false"
+            />
           </a>
         </g-tooltip>
       </div>
@@ -205,6 +211,7 @@ import GProgress from "../../design/components/GProgress.vue";
 import GTooltip from "../../design/components/GTooltip.vue";
 import { semesterInformation } from "../../lib/hours";
 import { hydrantURL } from "../../lib/hydrant";
+import hydrantIcon from "../../assets/hydrant.png?w=48&format=webp&inline";
 import {
   isSameYear,
   scheduledSemester,
@@ -529,28 +536,27 @@ const placementAriaLabel = computed(() => {
   color: var(--g-ink-3);
 }
 .term-hydrant {
-  text-decoration: none;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin: -4px -4px -4px 0;
   border-radius: var(--radius-xs);
+  transition: background-color var(--motion-quick) var(--ease-out);
+}
+.term-hydrant:hover {
+  background: var(--g-accent-tint-strong);
 }
 .term-hydrant:focus-visible {
   outline: none;
   box-shadow: var(--g-focus-ring);
 }
-.hydrant-mark {
-  font: var(--text-micro);
-  font-weight: 600;
-  color: var(--g-ink-3);
-  border: 1px solid var(--g-line-strong);
-  border-radius: var(--radius-xs);
-  padding: 0 4px;
-  transition:
-    color var(--motion-quick) var(--ease-out),
-    border-color var(--motion-quick) var(--ease-out);
-}
-.term-hydrant:hover .hydrant-mark {
-  color: var(--g-accent);
-  border-color: var(--g-accent);
+.hydrant-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
 }
 
 .term-stats {

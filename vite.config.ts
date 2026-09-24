@@ -2,6 +2,7 @@
 import { defineConfig, loadEnv, type PluginOption } from "vite";
 import vue from "@vitejs/plugin-vue";
 import VueRouter from "vue-router/vite";
+import { imagetools } from "vite-imagetools";
 
 /**
  * Build-only CSP meta tag. The authoritative policy is the
@@ -52,6 +53,7 @@ export default defineConfig(({ mode }) => ({
     }),
     vue(),
     cspMeta(mode),
+    imagetools(),
   ],
   test: {
     // Lib tests are pure TS and run in node; jsdom is opt-in, for the
