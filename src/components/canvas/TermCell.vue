@@ -122,7 +122,7 @@
                   {{ subj.subject_id }} <span class="sep">·</span>
                   {{ subj.hours.toFixed(1) }}h
                 </span>
-                <em>expected hours per week</em>
+                <em>{{ info.totalExpectedHours.toFixed(1) }}h total</em>
               </template>
               <em v-if="index !== 0">
                 48 units is the typical load per semester.
