@@ -30,6 +30,9 @@
  */
 import { useTemplateRef } from "vue";
 import { ComboboxRoot } from "reka-ui";
+import { provideListId } from "./context";
+
+provideListId();
 
 const emit = defineEmits<{
   /** The highlighted item's value, or undefined when nothing is. */

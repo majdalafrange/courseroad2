@@ -1,6 +1,7 @@
 <template>
   <ComboboxInput
     ref="input"
+    :aria-controls="listId"
     :model-value="modelValue"
     @update:model-value="(v) => emit('update:modelValue', String(v ?? ''))"
   />
@@ -16,6 +17,9 @@
  */
 import { useTemplateRef } from "vue";
 import { ComboboxInput } from "reka-ui";
+import { injectListId } from "./context";
+
+const listId = injectListId();
 
 defineProps<{
   modelValue: string;
