@@ -16,7 +16,7 @@ import { flatten } from "./types";
 import { STORAGE_KEYS } from "./appStorage";
 import { isCustomColor } from "./colors";
 import { formatFireroadDate } from "./dates";
-import { getSimpleSelectedSubjects } from "./roads";
+import { getSimpleSelectedSubjects, reconcileManualProgress } from "./roads";
 
 // Imported, not copied: clearAppStorage iterates STORAGE_KEYS, and a
 // hard-coded duplicate could drift.
@@ -95,7 +95,8 @@ function cleanPrimitiveRecord<T extends number | string | boolean>(
   return out;
 }
 
-function cleanProgressAssertions(
+/** Rebuild untrusted progress assertions from their well-typed fields. */
+export function cleanProgressAssertions(
   value: unknown,
 ): Record<string, ProgressAssertion> {
   const out: Record<string, ProgressAssertion> = {};
@@ -115,6 +116,9 @@ function cleanProgressAssertions(
     }
     if (typeof entry.ignore === "boolean") {
       assertion.ignore = entry.ignore;
+    }
+    if (typeof entry.override === "number" && Number.isFinite(entry.override)) {
+      assertion.override = entry.override;
     }
     out[key] = assertion;
   }
@@ -211,6 +215,7 @@ export function sanitizeRoadMap(
   for (const key of safeKeys(value)) {
     const road = cleanStoredRoad(value[key]);
     if (road !== undefined) {
+      reconcileManualProgress(road.contents);
       roads[key] = road;
     }
   }

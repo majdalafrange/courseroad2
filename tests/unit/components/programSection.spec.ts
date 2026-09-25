@@ -2,7 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mount, type VueWrapper } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
-import type { RequirementNode } from "../../../src/lib/types";
+import { reqTree, type PartialReqNode } from "../lib/fixtures";
 
 const mocks = vi.hoisted(() => ({
   getProgress: vi.fn(),
@@ -67,9 +67,13 @@ describe("ProgramSection failure state", () => {
  * and the ring draws no arc for it.
  */
 describe("ProgramSection sub-label", () => {
-  function subLabel(tree: RequirementNode | null) {
+  function subLabel(tree: PartialReqNode | null) {
     wrapper = mount(ProgramSection, {
-      props: { programKey: "major6-2", tree, title: "6-2 Major" },
+      props: {
+        programKey: "major6-2",
+        tree: tree === null ? null : reqTree(tree),
+        title: "6-2 Major",
+      },
     });
     return wrapper.find(".program-sub").text();
   }
@@ -101,5 +105,24 @@ describe("ProgramSection sub-label", () => {
       ?.find(".program-ring circle[stroke-dasharray]")
       .attributes("stroke-dasharray");
     expect(Number(dash?.split(" ")[0])).toBe(0);
+  });
+});
+
+describe("ProgramSection official link", () => {
+  it("links the program's official page from its definition", () => {
+    useAuditStore().programUrls = {
+      minor6: "https://www.eecs.mit.edu/csminor",
+    };
+    wrapper = mount(ProgramSection, {
+      props: {
+        programKey: "minor6",
+        tree: reqTree({ reqs: [] }),
+        title: "6 Minor",
+        startOpen: true,
+      },
+    });
+    const link = wrapper.find('a[href="https://www.eecs.mit.edu/csminor"]');
+    expect(link.exists()).toBe(true);
+    expect(link.text()).toContain("Official 6 Minor requirements");
   });
 });

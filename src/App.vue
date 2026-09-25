@@ -454,6 +454,7 @@ function seedDemoRoad() {
         parsed.coursesOfStudy,
         parsed.selectedSubjects,
         parsed.progressOverrides,
+        parsed.progressAssertions,
       );
       store.setActiveRoad(id);
     });

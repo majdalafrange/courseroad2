@@ -6,5 +6,5 @@
     // tsconfig has no node types, so an fs import in src fails there).
     "types": ["node", "vite/client"]
   },
-  "include": ["tests/**/*"]
+  "include": ["tests/**/*", "src/vite-env.d.ts"]
 }

@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   baseYear,
   defaultCurrentSemester,
-  dropAllowed,
   isSameYear,
   lateSchedule,
   noLongerOffered,
@@ -141,18 +140,6 @@ describe("offering rules", () => {
     expect(placementStatus(historical, 10, 1, 2024).kind).toBe(
       "no-longer-offered",
     );
-  });
-
-  it("allows drops everywhere except red buckets", () => {
-    const fallOnly = makeSubject({
-      offered_fall: true,
-      offered_IAP: false,
-      offered_spring: false,
-    });
-    expect(dropAllowed(fallOnly, 1, 1, 2026)).toBe(true);
-    expect(dropAllowed(fallOnly, 3, 1, 2026)).toBe(false);
-    expect(dropAllowed(fallOnly, 6, 1, 2026)).toBe(true);
-    expect(dropAllowed(fallOnly, 0, 1, 2026)).toBe(true);
   });
 
   it("computes late-schedule warnings around cutoffs", () => {

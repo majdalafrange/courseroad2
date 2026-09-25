@@ -23,6 +23,8 @@ export const useAuditStore = defineStore("audit", {
       },
     ] as ReqListEntry[],
     reqTrees: {} as Record<string, RequirementNode>,
+    /** Each program's official page; null if none or still loading. */
+    programUrls: {} as Record<string, string | null>,
     updatingFulfillment: false,
     /** A recompute that arrived before the roads were hydrated; flushPendingFulfillment replays it. */
     pendingFulfillment: null as string | null,
@@ -49,6 +51,23 @@ export const useAuditStore = defineStore("audit", {
       this.expanded[key] = open;
     },
 
+    /** Fetch a program's official page once; a failure retries on the
+     *  next recompute. */
+    loadProgramUrl(key: string) {
+      if (key in this.programUrls) {
+        return;
+      }
+      this.programUrls[key] = null;
+      void Promise.resolve()
+        .then(() => fireroad.getRequirementDefinition(key))
+        .then((response) => {
+          this.programUrls[key] = response.data.url ?? null;
+        })
+        .catch(() => {
+          delete this.programUrls[key];
+        });
+    },
+
     /** Bulk set, for expand all and collapse all. */
     setNodes(keys: string[], open: boolean) {
       for (const key of keys) {
@@ -64,6 +83,7 @@ export const useAuditStore = defineStore("audit", {
         return;
       }
       this.previewProgram = programKey;
+      this.loadProgramUrl(programKey);
       this.previewTree = null;
       this.previewLoading = true;
       try {
@@ -136,6 +156,7 @@ export const useAuditStore = defineStore("audit", {
           ? activeRoad.contents.coursesOfStudy
           : [fulfillmentNeeded];
       for (const req of fulfillments) {
+        this.loadProgramUrl(req);
         const alteredRoadContents = formatRoadContents(activeRoad.contents);
         delete this.failedPrograms[req];
         const generation = (this.fulfillmentGeneration[req] ?? 0) + 1;

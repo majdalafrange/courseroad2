@@ -4,10 +4,11 @@
  * not a Pinia store: each function resolves its stores at call time.
  */
 
+import { toRaw } from "vue";
 import { toast } from "../design/toast";
 import { downloadRoadFile } from "../lib/download";
 import { emptySelectedSubjects, newRoad, renumberName } from "../lib/roads";
-import type { Road, SelectedSubject } from "../lib/types";
+import type { ProgressAssertion, Road, SelectedSubject } from "../lib/types";
 import { useAuthStore } from "./auth";
 import { useCourseDataStore } from "./courseData";
 import { history } from "./history";
@@ -22,6 +23,7 @@ export function addRoad(
   cos: string[] = ["girs"],
   ss: SelectedSubject[][] = emptySelectedSubjects(),
   overrides: Record<string, number> = {},
+  assertions: Record<string, ProgressAssertion> = {},
 ): string {
   const store = useCourseDataStore();
   const auth = useAuthStore();
@@ -35,7 +37,7 @@ export function addRoad(
     tempNumber++;
   }
   const tempRoadID = "$" + tempNumber + "$";
-  const road = newRoad(roadName, cos, ss, overrides);
+  const road = newRoad(roadName, cos, ss, overrides, assertions);
   store.setRoad({ id: tempRoadID, road, ignoreSet: false });
   store.fulfillmentNeeded = "all";
   store.setActiveRoad(tempRoadID);
@@ -80,6 +82,7 @@ export function duplicateRoad(sourceID: string): void {
       src.contents.coursesOfStudy.slice(0),
       JSON.parse(JSON.stringify(src.contents.selectedSubjects)),
       Object.assign({}, src.contents.progressOverrides),
+      structuredClone(toRaw(src.contents.progressAssertions)),
     );
     history.record(
       `Duplicated “${src.name}”`,
@@ -92,6 +95,7 @@ export function duplicateRoad(sourceID: string): void {
             src.contents.coursesOfStudy.slice(0),
             JSON.parse(JSON.stringify(src.contents.selectedSubjects)),
             Object.assign({}, src.contents.progressOverrides),
+            structuredClone(toRaw(src.contents.progressAssertions)),
           ),
           ignoreSet: false,
         });

@@ -151,6 +151,27 @@ describe("sanitizeRoadMap", () => {
     });
   });
 
+  it("keeps a progress assertion's override count", () => {
+    // Another FireRoad client may have saved an override.
+    const road = sanitizeRoadMap({
+      r: roadBlob({
+        contents: {
+          coursesOfStudy: ["girs"],
+          selectedSubjects: [],
+          progressOverrides: {},
+          progressAssertions: {
+            a: { override: 4 },
+            b: { override: "4" },
+          },
+        },
+      }),
+    })?.r;
+    expect(road?.contents.progressAssertions).toEqual({
+      a: { override: 4 },
+      b: {},
+    });
+  });
+
   it("drops a custom_color that names no palette entry", () => {
     const road = sanitizeRoadMap({
       r: roadBlob({

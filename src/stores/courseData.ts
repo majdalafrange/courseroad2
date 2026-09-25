@@ -1,6 +1,6 @@
 /**
  * Central app store. The state shape is serialized to localStorage
- * ("courseRoadStore") on unload, so existing snapshots must keep loading.
+ * (STORAGE_KEYS.store) on unload, so existing snapshots must keep loading.
  * Mutating actions call `notifyRoadChange` explicitly (autosave and audit
  * recompute) instead of relying on a deep watcher on `roads`.
  */
@@ -886,23 +886,69 @@ export const useCourseDataStore = defineStore("courseData", {
       });
     },
 
-    updateProgress(progress: { listID: string; progress: number }) {
+    /**
+     * A typed count, written to both the assertion's override and the
+     * deprecated progressOverrides (which the old CourseRoad reads; see
+     * lib/roads.ts reconcileManualProgress). Replaces chosen subjects; 0
+     * (ignored by the server) clears.
+     */
+    updateProgress({ listID, progress }: { listID: string; progress: number }) {
+      this.replaceRequirementAssertion(
+        listID,
+        progress > 0 ? { override: progress } : undefined,
+        progress > 0 ? progress : undefined,
+        "Set manual progress",
+      );
+    },
+
+    /** Subjects counted toward a plain-string requirement, as a
+     *  substitution. Replaces a typed count; none clears (an empty
+     *  substitution would mark it fulfilled). */
+    chooseRequirementSubjects({
+      listID,
+      subjects,
+    }: {
+      listID: string;
+      subjects: string[];
+    }) {
+      this.replaceRequirementAssertion(
+        listID,
+        subjects.length > 0 ? { substitutions: [...subjects] } : undefined,
+        undefined,
+        "Chose subjects for a requirement",
+      );
+    },
+
+    /** Set a requirement's assertion and progressOverrides entry, as one
+     *  undo step. */
+    replaceRequirementAssertion(
+      listID: string,
+      next: ProgressAssertion | undefined,
+      nextCount: number | undefined,
+      label: string,
+    ) {
       const roadID = this.activeRoad;
       const road = this.roads[roadID];
       if (road === undefined) {
         return;
       }
-      const before = road.contents.progressOverrides[progress.listID];
-      this.setProgressOverrideRaw(roadID, progress.listID, progress.progress);
+      const prior = road.contents.progressAssertions[listID];
+      const priorSnapshot = prior === undefined ? undefined : clone(prior);
+      const priorCount = road.contents.progressOverrides[listID];
+      const set = (
+        assertion: ProgressAssertion | undefined,
+        count: number | undefined,
+      ) => {
+        if (road.contents.progressOverrides[listID] !== count) {
+          this.setProgressOverrideRaw(roadID, listID, count);
+        }
+        this.setProgressAssertionRaw(roadID, listID, assertion);
+      };
+      set(next, nextCount);
       history.record(
-        "Set manual progress",
-        () => this.setProgressOverrideRaw(roadID, progress.listID, before),
-        () =>
-          this.setProgressOverrideRaw(
-            roadID,
-            progress.listID,
-            progress.progress,
-          ),
+        label,
+        () => set(priorSnapshot, priorCount),
+        () => set(next, nextCount),
         roadID,
       );
     },

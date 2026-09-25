@@ -79,16 +79,23 @@ export interface SelectedSubject {
   index?: number;
 }
 
-/** Progress assertion on an audit requirement: substitution or ignore. */
+/**
+ * An assertion about one requirement, keyed by list-id. The server
+ * applies override, then ignore, then substitutions.
+ */
 export interface ProgressAssertion {
   substitutions?: string[];
   ignore?: boolean;
+  /** Progress on a plain-string requirement, in its criterion's unit. */
+  override?: number;
 }
 
 export interface RoadContents {
   coursesOfStudy: string[];
   /** 16 semester buckets of selected subjects. */
   selectedSubjects: SelectedSubject[][];
+  /** Deprecated in favor of an assertion's override, but still written
+   *  alongside it for the old CourseRoad (see reconcileManualProgress). */
   progressOverrides: Record<string, number>;
   progressAssertions: Record<string, ProgressAssertion>;
 }
@@ -110,53 +117,75 @@ export interface FlatRoadContents {
   progressAssertions: Record<string, ProgressAssertion>;
 }
 
-/** Entry in FireRoad's `/requirements/list_reqs/` response (plus its key). */
+/**
+ * Entry in FireRoad's `/requirements/list_reqs/` response, plus its key.
+ * Every title is sent, "" when the list has none.
+ */
 export interface ReqListEntry {
   key: string;
-  "list-id": string;
   "short-title": string;
   "medium-title": string;
-  title?: string;
-  "title-no-degree"?: string;
+  title: string;
+  "title-no-degree": string;
 }
 
 /** Threshold on a requirement (e.g. "complete 2 subjects"). */
 export interface ReqThreshold {
   type: "GTE" | "GT" | "LTE" | "LT";
   cutoff: number;
-  criterion: "subjects" | "units" | string;
+  criterion: "subjects" | "units";
 }
 
 /**
  * A node of FireRoad's `/requirements/progress/` response tree.
- * Leaves carry `req`; branches carry `reqs`.
+ * Leaves carry `req`; branches carry `reqs`, never both.
  */
 export interface RequirementNode {
   req?: string;
   reqs?: RequirementNode[];
+  /** Sent for the root only; assignListIDs sets the rest. */
   "list-id"?: string;
   /** Assigned client-side; see lib/audit.ts assignListIDs. */
   uniqueKey?: string;
   title?: string;
+  /** Root only. */
   "short-title"?: string;
+  /** Root only. */
   "medium-title"?: string;
+  /** Root only. */
   "title-no-degree"?: string;
+  desc?: string;
   "threshold-desc"?: string;
   threshold?: ReqThreshold;
+  /** "select any 2 from at least 1 category": the category minimum. */
+  "distinct-threshold"?: ReqThreshold;
+  /** A leaf FireRoad cannot evaluate; it counts only an override or
+   *  substituted subjects. */
   "plain-string"?: boolean;
-  fulfilled?: boolean;
-  percent_fulfilled?: number | "N/A";
-  sat_courses?: string[];
+  fulfilled: boolean;
+  /** "N/A" when max is 0: nothing to measure, or ignored. */
+  percent_fulfilled: number | "N/A";
+  sat_courses: string[];
   /**
    * Requirements satisfied out of `max`, on this node's own normalized
    * scale. A units-criterion child is folded into the parent's count rather
    * than contributing its raw unit total, so these are comparable only
    * within one program, never between two.
    */
-  progress?: number;
-  max?: number;
-  distinct?: number;
+  progress: number;
+  max: number;
+  /** The assertion applied to this node, when one was. */
+  assertion?: ProgressAssertion;
+  /** Under a node whose assertion applied. Sent only when true. */
+  is_bypassed?: true;
+}
+
+/** Root of FireRoad's `/requirements/get_json/`, trimmed to what we read. */
+export interface RequirementDefinition {
+  "list-id": string;
+  title: string;
   desc?: string;
+  /** Official requirements page; progress responses omit it. */
   url?: string;
 }
 

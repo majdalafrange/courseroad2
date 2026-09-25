@@ -194,12 +194,15 @@ export function lateSchedule(
   return false;
 }
 
-/** Placement eligibility classes used while adding/dragging a subject. */
+/**
+ * Placement eligibility per term. Every kind can be placed; anything but
+ * "ok" is a warning.
+ */
 export type PlacementStatus =
   | { kind: "ok" } // green: offered here (or Prior Credit)
   | { kind: "no-longer-offered" } // yellow
   | { kind: "not-this-year" } // yellow
-  | { kind: "unavailable" } // red: same year, definitely not offered
+  | { kind: "unavailable" } // red: same year, not offered this term
   | { kind: "maybe" }; // yellow: other year, may not be offered
 
 /** Classify how safely `course` can be placed into bucket `index`. */
@@ -253,20 +256,4 @@ export function placementStatus(
     return { kind: "unavailable" };
   }
   return { kind: "maybe" };
-}
-
-/**
- * Whether a drop into bucket `index` is accepted (anything except a
- * definite "unavailable" in the current academic year).
- */
-export function dropAllowed(
-  course: Subject,
-  index: number,
-  currentSemester: number,
-  baseYearValue: number,
-): boolean {
-  return (
-    placementStatus(course, index, currentSemester, baseYearValue).kind !==
-    "unavailable"
-  );
 }

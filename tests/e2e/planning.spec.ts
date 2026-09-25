@@ -131,3 +131,55 @@ test("a placed class updates the term units", async ({ page }) => {
   ).toBeVisible();
   await expect(cy(page, "semesterUnits").first()).toContainText("12");
 });
+
+/** No fixture subject is offered in IAP, so IAP (semester_2) tests this. */
+test.describe("a term the class is not offered in", () => {
+  async function pickFromPalette(page: import("@playwright/test").Page) {
+    await page.locator("#searchInputTF").click();
+    await page.locator(".palette-input").fill("8.01");
+    await page.getByText("Classical Mechanics").first().click();
+  }
+
+  test("takes a click-to-place, with a warning", async ({ page }) => {
+    await pickFromPalette(page);
+    const iap = page.locator('[data-cy$="__semester_2"]');
+    await expect(
+      iap.getByRole("button", { name: /Not offered/ }),
+    ).toBeVisible();
+    await iap.getByRole("button", { name: /Not offered/ }).click();
+
+    const card = cy(page, "classInSemester2_8_01").locator(".card-body");
+    await expect(card).toBeVisible();
+    await expect(card).toHaveAccessibleName(/1 warning/);
+  });
+
+  test("takes a drop", async ({ page }) => {
+    await pickFromPalette(page);
+    const fall = page.locator('[data-cy$="__semester_1"]');
+    await fall.click();
+    await fall.locator(".card-id", { hasText: "8.01" }).first().hover();
+    await page.mouse.down();
+    const box = await page.locator('[data-cy$="__semester_2"]').boundingBox();
+    await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2, {
+      steps: 20,
+    });
+    await page.mouse.up();
+
+    await expect(cy(page, "classInSemester2_8_01")).toBeVisible();
+  });
+
+  test("can be chosen from the class detail", async ({ page }) => {
+    await pickFromPalette(page);
+    await page.keyboard.press("Escape");
+    await page.locator("#searchInputTF").click();
+    await page.locator(".palette-input").fill("8.01");
+    await page.keyboard.press("Enter");
+    const iapFit = cy(page, "cardOffered")
+      .getByRole("button", { name: /^IAP/ })
+      .first();
+    await expect(iapFit).toBeEnabled();
+    await iapFit.click();
+
+    await expect(cy(page, "classInSemester2_8_01")).toBeVisible();
+  });
+});

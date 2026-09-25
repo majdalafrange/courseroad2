@@ -28,12 +28,17 @@ import {
   isChunkLoadError,
   recoverFromChunkLoadError,
 } from "./lib/errorBoundary";
-import { migrateLegacyCookies } from "./lib/legacyStorage";
+import {
+  migrateLegacyCookies,
+  separateStoreSnapshot,
+} from "./lib/legacyStorage";
 import { persistedThemeMode } from "./lib/persistedStore";
 
 // Move any legacy cookie state into origin-isolated storage before
 // anything reads it. After this the app never reads document.cookie.
 migrateLegacyCookies();
+// Off the old app's snapshot key, before the theme reads it.
+separateStoreSnapshot();
 
 // Apply the persisted theme before first paint to avoid a flash.
 applyThemeAttribute(resolveTheme(persistedThemeMode(), systemPrefersDark()));

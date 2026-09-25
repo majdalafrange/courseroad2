@@ -7,12 +7,14 @@ import {
   newRoad,
   otherRoadHasName,
   parseRoadFile,
+  reconcileManualProgress,
   renumberName,
   sanitizeRoad,
   uniqueRoadName,
 } from "../../../src/lib/roads";
 import { RoadImportError } from "../../../src/lib/roads";
 import type {
+  ProgressAssertion,
   Road,
   RoadContents,
   SelectedSubject,
@@ -189,6 +191,25 @@ describe("the .road byte format (golden)", () => {
       "6.006",
     ]);
     expect(parsed.progressOverrides).toEqual({});
+  });
+
+  it("keeps progress assertions, dropping malformed ones", () => {
+    // Petitions, chosen subjects and typed counts all live here.
+    const road = newRoad("Mine");
+    const text = JSON.stringify({
+      ...formatRoadContents(road.contents),
+      progressAssertions: {
+        "major18gm.1.1": { substitutions: ["18.300", 7] },
+        "major18gm.1.2": { override: 3 },
+        "girs.0": { ignore: true },
+        bad: "x",
+      },
+    });
+    expect(parseRoadFile(text, catalog).progressAssertions).toEqual({
+      "major18gm.1.1": { substitutions: ["18.300"] },
+      "major18gm.1.2": { override: 3 },
+      "girs.0": { ignore: true },
+    });
   });
 });
 
@@ -377,5 +398,57 @@ describe("newRoad", () => {
     expect(road.contents.selectedSubjects).toHaveLength(16);
     expect(road.contents.coursesOfStudy).toEqual(["girs"]);
     expect(emptySelectedSubjects().every((b) => b.length === 0)).toBe(true);
+  });
+});
+
+/**
+ * The old CourseRoad writes typed counts only to progressOverrides, while
+ * FireRoad applies an assertion's override first. This app keeps the two
+ * equal, so a mismatch is an old-app edit.
+ */
+describe("reconcileManualProgress", () => {
+  function contents(
+    progressOverrides: Record<string, number>,
+    progressAssertions: Record<string, ProgressAssertion>,
+  ) {
+    return { progressOverrides, progressAssertions };
+  }
+
+  it("adopts an old-app edit into the override", () => {
+    const c = contents({ a: 6 }, { a: { override: 4 } });
+    expect(reconcileManualProgress(c)).toBe(true);
+    expect(c).toEqual(contents({ a: 6 }, { a: { override: 6 } }));
+  });
+
+  it("adopts an old-app count over chosen subjects", () => {
+    const c = contents({ a: 3 }, { a: { substitutions: ["18.300"] } });
+    expect(reconcileManualProgress(c)).toBe(true);
+    expect(c).toEqual(contents({ a: 3 }, { a: { override: 3 } }));
+  });
+
+  it("clears both when the old app set the count to 0", () => {
+    const c = contents({ a: 0 }, { a: { override: 4 } });
+    expect(reconcileManualProgress(c)).toBe(true);
+    expect(c).toEqual(contents({}, {}));
+  });
+
+  it("copies another client's override into progressOverrides", () => {
+    const c = contents({}, { a: { override: 4 } });
+    expect(reconcileManualProgress(c)).toBe(true);
+    expect(c).toEqual(contents({ a: 4 }, { a: { override: 4 } }));
+  });
+
+  it("leaves agreeing, legacy-only and ignored entries alone", () => {
+    const c = contents(
+      { a: 4, b: 2, c: 5 },
+      { a: { override: 4 }, c: { ignore: true } },
+    );
+    expect(reconcileManualProgress(c)).toBe(false);
+    expect(c).toEqual(
+      contents(
+        { a: 4, b: 2, c: 5 },
+        { a: { override: 4 }, c: { ignore: true } },
+      ),
+    );
   });
 });

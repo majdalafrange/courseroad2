@@ -6,7 +6,11 @@ import {
   readValue,
 } from "../../../src/lib/appStorage";
 import { cookies } from "../../../src/lib/cookies";
-import { migrateLegacyCookies } from "../../../src/lib/legacyStorage";
+import {
+  LEGACY_STORE_KEY,
+  migrateLegacyCookies,
+  separateStoreSnapshot,
+} from "../../../src/lib/legacyStorage";
 
 function clearCookies() {
   for (const key of cookies.keys()) {
@@ -81,14 +85,17 @@ describe("migrateLegacyCookies", () => {
     expect(readValue(STORAGE_KEYS.consent)).toBeUndefined();
   });
 
-  it("drops legacy cookies once migrated", () => {
-    cookies.set("hasLoggedIn", "true");
+  it("leaves legacy cookies in place for the old app on the same origin", () => {
+    // The old app at courseroad.mit.edu/ shares these path=/ cookies.
+    cookies.set("newRoads", { $0$: road });
+    cookies.set("accessInfo", { access_token: "t" });
     cookies.set("versionNumber", "1.0.0");
 
     migrateLegacyCookies();
 
-    expect(cookies.isKey("hasLoggedIn")).toBe(false);
-    expect(cookies.isKey("versionNumber")).toBe(false);
+    expect(cookies.isKey("newRoads")).toBe(true);
+    expect(cookies.isKey("accessInfo")).toBe(true);
+    expect(cookies.isKey("versionNumber")).toBe(true);
   });
 
   it("runs once: a cookie planted afterwards is never imported", () => {
@@ -111,5 +118,65 @@ describe("migrateLegacyCookies", () => {
     expect(() => migrateLegacyCookies()).not.toThrow();
 
     expect(readValue(STORAGE_KEYS.newRoads)).toBeUndefined();
+  });
+});
+
+describe("separateStoreSnapshot", () => {
+  const oldAppSnapshot = {
+    loggedIn: true,
+    cookiesAllowed: true,
+    roads: { abc: road },
+    subjectsInfo: [],
+  };
+
+  it("adopts the old app's snapshot without touching it", () => {
+    const raw = JSON.stringify(oldAppSnapshot);
+    localStorage.setItem(LEGACY_STORE_KEY, raw);
+
+    separateStoreSnapshot();
+
+    expect(localStorage.getItem(STORAGE_KEYS.store)).toBe(raw);
+    expect(localStorage.getItem(LEGACY_STORE_KEY)).toBe(raw);
+  });
+
+  it("moves a snapshot this app wrote out of the old app's key", () => {
+    // A partial settings write the old app would load as its whole state.
+    const raw = JSON.stringify({ currentSemester: 1, themeMode: "dark" });
+    localStorage.setItem(LEGACY_STORE_KEY, raw);
+
+    separateStoreSnapshot();
+
+    expect(localStorage.getItem(STORAGE_KEYS.store)).toBe(raw);
+    expect(localStorage.getItem(LEGACY_STORE_KEY)).toBeNull();
+  });
+
+  it("never overwrites this app's own snapshot", () => {
+    localStorage.setItem(
+      STORAGE_KEYS.store,
+      JSON.stringify({ themeMode: "light" }),
+    );
+    localStorage.setItem(LEGACY_STORE_KEY, JSON.stringify(oldAppSnapshot));
+
+    separateStoreSnapshot();
+
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEYS.store)!)).toEqual({
+      themeMode: "light",
+    });
+    expect(localStorage.getItem(LEGACY_STORE_KEY)).not.toBeNull();
+  });
+
+  it("ignores an unparseable legacy value", () => {
+    localStorage.setItem(LEGACY_STORE_KEY, "{not json");
+
+    expect(() => separateStoreSnapshot()).not.toThrow();
+
+    expect(localStorage.getItem(STORAGE_KEYS.store)).toBeNull();
+    expect(localStorage.getItem(LEGACY_STORE_KEY)).toBe("{not json");
+  });
+});
+
+describe("storage keys", () => {
+  it("keeps this app's snapshot off the key the old app reads", () => {
+    expect(STORAGE_KEYS.store).not.toBe(LEGACY_STORE_KEY);
   });
 });

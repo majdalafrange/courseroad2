@@ -6,6 +6,7 @@
  */
 
 import type {
+  ProgressAssertion,
   CatalogView,
   FlatRoadContents,
   Road,
@@ -16,6 +17,7 @@ import { flatten } from "./types";
 import { isCustomColor } from "./colors";
 import { formatFireroadDate } from "./dates";
 import { NUM_SEMESTERS } from "./offering";
+import { cleanProgressAssertions } from "./persistedStore";
 
 export const DEFAULT_ROAD_ID = "$defaultroad$";
 export const DEFAULT_ROAD_NAME = "My First Road";
@@ -31,6 +33,7 @@ export function newRoad(
   coursesOfStudy: string[] = ["girs"],
   selectedSubjects: SelectedSubject[][] = emptySelectedSubjects(),
   progressOverrides: Record<string, number> = {},
+  progressAssertions: Record<string, ProgressAssertion> = {},
 ): Road {
   return {
     downloaded: formatFireroadDate(),
@@ -41,7 +44,7 @@ export function newRoad(
       coursesOfStudy,
       selectedSubjects,
       progressOverrides,
-      progressAssertions: {},
+      progressAssertions,
     },
   };
 }
@@ -84,6 +87,48 @@ function normalizeIncomingSubject(s: SelectedSubject): SelectedSubject {
     delete s.custom_color;
   }
   return s;
+}
+
+/**
+ * Bring a road's typed counts back in step. This app writes each count to
+ * both an assertion's override and progressOverrides; the old CourseRoad
+ * writes only progressOverrides, and FireRoad applies the override first.
+ * So a progressOverrides value that disagrees with its assertion is an
+ * old-app edit, and wins (0 clears). An override with no progressOverrides
+ * entry (another FireRoad client) is copied across. Ignored requirements
+ * are left alone. Mutates; returns whether anything changed.
+ */
+export function reconcileManualProgress(contents: {
+  progressOverrides: Record<string, number>;
+  progressAssertions: Record<string, ProgressAssertion>;
+}): boolean {
+  let changed = false;
+  const overrides = contents.progressOverrides;
+  const assertions = contents.progressAssertions;
+  for (const [id, count] of Object.entries(overrides)) {
+    const assertion = assertions[id];
+    if (
+      assertion === undefined ||
+      assertion.ignore === true ||
+      assertion.override === count
+    ) {
+      continue;
+    }
+    if (count > 0) {
+      assertions[id] = { override: count };
+    } else {
+      delete assertions[id];
+      delete overrides[id];
+    }
+    changed = true;
+  }
+  for (const [id, assertion] of Object.entries(assertions)) {
+    if (assertion.override !== undefined && !(id in overrides)) {
+      overrides[id] = assertion.override;
+      changed = true;
+    }
+  }
+  return changed;
 }
 
 /**
@@ -181,6 +226,8 @@ export function parseRoadFile(
   coursesOfStudy: string[];
   selectedSubjects: SelectedSubject[][];
   progressOverrides: Record<string, number>;
+  /** Petitions, chosen subjects and typed counts. */
+  progressAssertions: Record<string, ProgressAssertion>;
   /** subject_ids that resolved nowhere and were left out of the road. */
   droppedSubjects: string[];
 } {
@@ -258,6 +305,7 @@ export function parseRoadFile(
     coursesOfStudy: obj.coursesOfStudy ?? ["girs"],
     selectedSubjects: getSimpleSelectedSubjects(ss),
     progressOverrides: obj.progressOverrides as Record<string, number>,
+    progressAssertions: cleanProgressAssertions(obj.progressAssertions),
     droppedSubjects,
   };
 }

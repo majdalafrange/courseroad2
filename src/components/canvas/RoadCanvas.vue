@@ -274,9 +274,6 @@ const eligibleMoveTargets = computed<number[]>(() => {
   ) {
     return [];
   }
-  const subject =
-    store.subjectsInfo[store.subjectsIndex[placedSubject.subject_id]] ??
-    store.genericCourses[store.genericIndex[placedSubject.subject_id]];
   const buckets: number[] = [];
   for (let i = 0; i < 16; i++) {
     if (i === moveSource.value.semester) {
@@ -285,9 +282,7 @@ const eligibleMoveTargets = computed<number[]>(() => {
     if (store.hideIAP && i !== 0 && (i - 1) % 3 === 1) {
       continue;
     }
-    if (subject === undefined || statusFor(subject, i) !== "unavailable") {
-      buckets.push(i);
-    }
+    buckets.push(i);
   }
   return buckets;
 });

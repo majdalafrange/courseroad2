@@ -25,6 +25,7 @@ import {
   DEFAULT_ROAD_ID,
   emptySelectedSubjects,
   formatRoadContents,
+  reconcileManualProgress,
   renumberName,
   sanitizeRoad,
 } from "../lib/roads";
@@ -161,12 +162,18 @@ export const useAuthStore = defineStore("auth", {
           roadData.data.file.downloaded = formatFireroadDate();
           roadData.data.file.changed = formatFireroadDate();
           sanitizeRoad(roadData.data.file);
+          // An old-CourseRoad count edit: fix it here and push it back, so
+          // FireRoad (which applies the stale override first) counts it.
+          const repaired = reconcileManualProgress(roadData.data.file.contents);
           store.setRoad({
             id: roadID,
             road: roadData.data.file,
             ignoreSet: true,
           });
           store.setRetrieved(roadID);
+          if (repaired) {
+            store.notifyRoadChange({ fulfillment: "all", save: true, roadID });
+          }
           store.waitAndMigrateOldSubjects(roadID);
           return roadData;
         } catch (err) {
@@ -445,6 +452,7 @@ export const useAuthStore = defineStore("auth", {
             contents: response.data.contents!,
           } as unknown as Road;
           sanitizeRoad(updatedRoad);
+          reconcileManualProgress(updatedRoad.contents);
           store.setRoad({ id: oldid, road: updatedRoad, ignoreSet: false });
           return Promise.resolve({
             oldid,
@@ -567,6 +575,7 @@ export const useAuthStore = defineStore("auth", {
         downloaded: formatFireroadDate(),
       } as unknown as Road;
       sanitizeRoad(remoteRoad);
+      reconcileManualProgress(remoteRoad.contents);
       useCourseDataStore().setRoad({
         id: roadID,
         road: remoteRoad,

@@ -3,6 +3,8 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import CommandPalette from "../../../src/components/palette/CommandPalette.vue";
+import { useAuditStore } from "../../../src/stores/audit";
+import { reqTree } from "../lib/fixtures";
 
 /**
  * The palette's Escape contract: closes it wherever focus is (clicking a
@@ -142,5 +144,31 @@ describe("CommandPalette filter-grammar hint", () => {
     expect(document.querySelector(".palette-empty")?.textContent).not.toContain(
       "Tab",
     );
+  });
+});
+
+describe("CommandPalette audit suggestions", () => {
+  it("skips an attribute whose requirement group is already met", async () => {
+    // Two CI-Hs meet "2 of [CI-H, CI-HW]"; the CI-HW leaf stays unmet.
+    useAuditStore().reqTrees = {
+      girs: reqTree({
+        reqs: [
+          { req: "HASS-A", fulfilled: false },
+          {
+            threshold: { cutoff: 2, criterion: "subjects", type: "GTE" },
+            fulfilled: true,
+            reqs: [
+              { req: "CI-H", fulfilled: true },
+              { req: "CI-HW", fulfilled: false },
+            ],
+          },
+        ],
+      }),
+    };
+    await mountPalette();
+
+    const text = document.body.textContent ?? "";
+    expect(text).toContain("HASS-A still needed");
+    expect(text).not.toContain("CI-HW still needed");
   });
 });

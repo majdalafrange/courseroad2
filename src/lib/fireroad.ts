@@ -194,6 +194,18 @@ export class FireRoadClient {
     return httpGet(this.baseUrl + "/requirements/list_reqs/");
   }
 
+  /** A requirements list's definition, including its official page. */
+  getRequirementDefinition(
+    reqKey: string,
+  ): Promise<HttpResponse<import("./types").RequirementDefinition>> {
+    return httpGet(
+      this.baseUrl +
+        "/requirements/get_json/" +
+        encodeURIComponent(reqKey) +
+        "/",
+    );
+  }
+
   getProgress(
     reqKey: string,
     roadContents: FlatRoadContents,

@@ -29,7 +29,6 @@
         :key="term.index"
         class="term-chip"
         :class="[`k-${term.kind}`, { early: term.early }]"
-        :disabled="term.kind === 'unavailable'"
         :title="term.title"
         :data-cy="`connectionTerm_${term.index}`"
         @click="store.confirmPlacement(term.index)"
@@ -66,7 +65,7 @@ const KIND_TITLE: Record<PlacementStatus["kind"], string> = {
   ok: "Offered in this term",
   "no-longer-offered": "No longer offered",
   "not-this-year": "Not offered that school year",
-  unavailable: "Not offered in this term",
+  unavailable: "Not offered in this term. Add anyway",
   maybe: "Schedule not published, so it may not be offered",
 };
 
@@ -206,22 +205,22 @@ onMounted(() => {
    hover. */
 .term-chip.k-maybe,
 .term-chip.k-not-this-year,
-.term-chip.k-no-longer-offered {
+.term-chip.k-no-longer-offered,
+.term-chip.k-unavailable {
   border-style: dashed;
   color: var(--g-ink-3);
+}
+.term-chip.k-unavailable {
+  border-color: var(--g-danger);
 }
 .term-chip.k-ok:hover,
 .term-chip.k-maybe:hover,
 .term-chip.k-not-this-year:hover,
-.term-chip.k-no-longer-offered:hover {
+.term-chip.k-no-longer-offered:hover,
+.term-chip.k-unavailable:hover {
   background: var(--g-accent-tint);
   border-color: var(--g-accent);
   color: var(--g-ink);
-}
-.term-chip.k-unavailable {
-  opacity: 0.35;
-  cursor: not-allowed;
-  text-decoration: line-through;
 }
 .early-dot {
   display: inline-block;

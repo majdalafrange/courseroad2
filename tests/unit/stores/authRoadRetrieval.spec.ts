@@ -131,4 +131,39 @@ describe("auth.getUserData: background prefetch", () => {
     expect(store.unretrieved).toEqual([]);
     expect(store.roads["200"].contents.selectedSubjects).toBeDefined();
   });
+
+  it("repairs an old-CourseRoad count edit and saves it back", async () => {
+    // The old app changed progressOverrides only; FireRoad would keep
+    // applying the stale override until the road is saved again.
+    const store = useCourseDataStore();
+    const auth = useAuthStore();
+    store.setUnretrieved(["100", "200"]);
+    const file = (count: number) => {
+      const f = cloudFile("Cloud road");
+      f.contents.progressOverrides = { "major18gm.1.1": count };
+      f.contents.progressAssertions = { "major18gm.1.1": { override: 4 } };
+      return f;
+    };
+    mocks.getRoad.mockImplementation((id: string) =>
+      Promise.resolve({
+        status: 200,
+        data: { success: true, file: file(id === "100" ? 6 : 4) },
+      }),
+    );
+    const saves: string[] = [];
+    store.$onAction(({ name, args }) => {
+      if (name === "notifyRoadChange" && args[0].save) {
+        saves.push(args[0].roadID as string);
+      }
+    });
+
+    await auth.retrieveRoad("100");
+    await auth.retrieveRoad("200");
+
+    expect(store.roads["100"].contents.progressAssertions).toEqual({
+      "major18gm.1.1": { override: 6 },
+    });
+    // Only the road that needed a repair is saved.
+    expect(saves).toEqual(["100"]);
+  });
 });

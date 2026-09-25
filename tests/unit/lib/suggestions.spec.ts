@@ -1,7 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { buildSuggestions } from "../../../src/lib/suggestions";
+import {
+  buildSuggestions,
+  openAttributeGaps,
+} from "../../../src/lib/suggestions";
 import type { RequirementNode } from "../../../src/lib/types";
-import { makeCatalog, makeSubject, emptyBuckets, placed } from "./fixtures";
+import {
+  makeCatalog,
+  makeSubject,
+  emptyBuckets,
+  placed,
+  reqTree,
+  type PartialReqNode,
+} from "./fixtures";
 
 /** A catalog with several HASS-A options at different ratings. */
 const catalog = makeCatalog([
@@ -44,14 +54,14 @@ const catalog = makeCatalog([
 ]);
 
 function girsTree(): RequirementNode {
-  return {
+  return reqTree({
     "list-id": "girs",
     reqs: [
       { req: "HASS-A", fulfilled: false },
       { req: "HASS-S", fulfilled: false },
       { req: "GIR:CAL1", fulfilled: true },
     ],
-  };
+  });
 }
 
 describe("buildSuggestions", () => {
@@ -92,9 +102,9 @@ describe("buildSuggestions", () => {
   });
 
   it("returns nothing when there are no attribute gaps", () => {
-    const tree: RequirementNode = {
+    const tree = reqTree({
       reqs: [{ req: "HASS-A", fulfilled: true }],
-    };
+    });
     expect(
       buildSuggestions({
         catalog,
@@ -108,12 +118,12 @@ describe("buildSuggestions", () => {
   });
 
   it("counts how many of an attribute remain", () => {
-    const tree: RequirementNode = {
+    const tree = reqTree({
       reqs: [
         { req: "HASS-A", fulfilled: false },
         { req: "HASS-A", fulfilled: false },
       ],
-    };
+    });
     const suggestions = buildSuggestions({
       catalog,
       reqTrees: { girs: tree },
@@ -123,5 +133,70 @@ describe("buildSuggestions", () => {
       now: new Date(2026, 1, 1),
     });
     expect(suggestions[0].headline).toContain("2 more");
+  });
+
+  it("skips a gap whose parent requirement is already met", () => {
+    // FireRoad's GIR CI branch: two CI-Hs meet it, the CI-HW leaf stays unmet.
+    const ciCatalog = makeCatalog([
+      makeSubject({
+        subject_id: "21W.041",
+        title: "Writing and Experience",
+        communication_requirement: "CI-HW",
+        offered_spring: true,
+        rating: 6.5,
+      }),
+    ]);
+    const tree = reqTree({
+      reqs: [
+        {
+          threshold: { cutoff: 2, criterion: "subjects", type: "GTE" },
+          fulfilled: true,
+          reqs: [
+            { req: "CI-H", fulfilled: true },
+            { req: "CI-HW", fulfilled: false },
+          ],
+        },
+      ],
+    });
+    const suggestions = buildSuggestions({
+      catalog: ciCatalog,
+      reqTrees: { girs: tree },
+      selectedSubjects: emptyBuckets(),
+      currentSemester: 3,
+      hideIAP: true,
+      now: new Date(2026, 1, 1),
+    });
+    expect(suggestions.map((s) => s.attribute)).not.toContain("CI-HW");
+  });
+});
+
+describe("openAttributeGaps", () => {
+  // FireRoad's GIR CI branch: 2 subjects from [CI-H, CI-HW].
+  const ciBranch = (fulfilled: boolean, ciH: boolean): PartialReqNode => ({
+    threshold: { cutoff: 2, criterion: "subjects", type: "GTE" },
+    fulfilled,
+    reqs: [
+      { req: "CI-H", fulfilled: ciH },
+      { req: "CI-HW", fulfilled: false },
+    ],
+  });
+
+  it("skips the leaves of a met branch", () => {
+    const gaps = openAttributeGaps([reqTree({ reqs: [ciBranch(true, true)] })]);
+    expect([...gaps.keys()]).toEqual([]);
+  });
+
+  it("counts open leaves across programs, in tree order", () => {
+    const gaps = openAttributeGaps(
+      [
+        { reqs: [{ req: "HASS-A", fulfilled: false }, ciBranch(false, false)] },
+        { reqs: [{ req: "HASS-A", fulfilled: false }] },
+      ].map(reqTree),
+    );
+    expect([...gaps.entries()]).toEqual([
+      ["HASS-A", 2],
+      ["CI-H", 1],
+      ["CI-HW", 1],
+    ]);
   });
 });

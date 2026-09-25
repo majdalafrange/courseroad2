@@ -106,10 +106,10 @@
         :program-key="programKey"
       />
       <g-link
-        v-if="tree.url"
+        v-if="officialUrl"
         class="program-link"
         tone="quiet"
-        :href="safeHref(tree.url)"
+        :href="safeHref(officialUrl)"
         external
         >Official {{ title }} requirements</g-link
       >
@@ -142,6 +142,11 @@ const emit = defineEmits<{
 }>();
 
 const auditStore = useAuditStore();
+
+/** The program's official page: on its definition, not its progress tree. */
+const officialUrl = computed(
+  () => auditStore.programUrls[props.programKey] ?? undefined,
+);
 
 /* Expansion lives in the audit store so it survives the section
    unmounting, as on a road switch and back. A what-if preview gets its

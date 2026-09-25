@@ -1,6 +1,7 @@
 /** Synthetic catalog fixtures for logic-SDK tests. */
 
 import type {
+  RequirementNode,
   CatalogView,
   Subject,
   SelectedSubject,
@@ -181,4 +182,23 @@ export function placed(
 
 export function emptyBuckets(): SelectedSubject[][] {
   return emptySelectedSubjects();
+}
+
+/** A requirement node with only the fields a test cares about. */
+export type PartialReqNode = Partial<Omit<RequirementNode, "reqs">> & {
+  reqs?: PartialReqNode[];
+};
+
+/** A requirement tree with FireRoad's always-sent fields defaulted. */
+export function reqTree(node: PartialReqNode): RequirementNode {
+  const { reqs, ...rest } = node;
+  return {
+    fulfilled: false,
+    progress: 0,
+    max: 1,
+    percent_fulfilled: 0,
+    sat_courses: [],
+    ...rest,
+    ...(reqs === undefined ? {} : { reqs: reqs.map(reqTree) }),
+  };
 }

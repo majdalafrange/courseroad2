@@ -246,7 +246,6 @@
             class="term-fit"
             :class="fit.kind"
             :style="{ gridColumn: fit.column }"
-            :disabled="fit.kind === 'unavailable'"
             :title="fit.hint"
             :aria-label="`${fit.label}: ${fit.hint}`"
             @click="placeInTerm(fit.index)"
@@ -254,7 +253,7 @@
             <!-- The tint marks an uncertain term; the icon says it without
                  relying on color. -->
             <g-icon
-              v-if="fit.kind !== 'ok' && fit.kind !== 'unavailable'"
+              v-if="fit.kind !== 'ok'"
               name="notice"
               :size="11"
               class="term-fit-mark"
@@ -554,7 +553,7 @@ const termFits = computed<TermFit[]>(() => {
         kind === "ok"
           ? `Offered. Add to ${bucketName(i)}`
           : kind === "unavailable"
-            ? "Not offered this term"
+            ? "Not offered this term. Add anyway"
             : "May not be offered. Add anyway",
     });
   }
@@ -1156,7 +1155,7 @@ watch(
     background-color var(--motion-quick) var(--ease-out),
     border-color var(--motion-quick) var(--ease-out);
 }
-.term-fit:hover:not(:disabled) {
+.term-fit:hover {
   border-color: var(--g-ink-3);
 }
 .term-fit-mark {
@@ -1181,10 +1180,14 @@ watch(
   border-color: var(--g-warn);
 }
 .term-fit.unavailable {
-  background: var(--g-surface-sunken);
+  background: var(--g-danger-tint);
   border-color: transparent;
-  color: var(--g-ink-disabled);
-  cursor: default;
+}
+.term-fit.unavailable .term-fit-mark {
+  color: var(--g-danger);
+}
+.term-fit.unavailable:hover {
+  border-color: var(--g-danger);
 }
 
 /* ---------- chips ---------- */

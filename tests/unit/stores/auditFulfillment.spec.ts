@@ -4,12 +4,14 @@ import { createPinia, setActivePinia } from "pinia";
 // Mock the FireRoad client singleton before the audit store imports it.
 const mocks = vi.hoisted(() => ({
   getProgress: vi.fn(),
+  getRequirementDefinition: vi.fn(),
 }));
 
 vi.mock("../../../src/stores/fireroadClient", () => ({
   setFireroadToken: vi.fn(),
   fireroad: {
     getProgress: mocks.getProgress,
+    getRequirementDefinition: mocks.getRequirementDefinition,
   },
 }));
 
@@ -26,6 +28,7 @@ describe("audit fulfillment", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     mocks.getProgress.mockReset();
+    mocks.getRequirementDefinition.mockReset();
   });
 
   it("holds a recompute that arrives before the roads are hydrated and replays it on flush", () => {
@@ -147,5 +150,62 @@ describe("audit fulfillment", () => {
     resolveFirst({ data: { fulfilled: false, tag: "stale" } });
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(audit.reqTrees["girs"]).toEqual({ fulfilled: true, tag: "fresh" });
+  });
+});
+
+/** A program's official page comes from its definition, not its progress. */
+describe("program official URLs", () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+    mocks.getProgress.mockReset().mockResolvedValue({ data: {} });
+    mocks.getRequirementDefinition.mockReset();
+  });
+
+  function roadWith(programs: string[]) {
+    const store = useCourseDataStore();
+    store.roads = { $0$: newRoad("Mine", programs) };
+    store.activeRoad = "$0$";
+  }
+
+  it("fetches each program's definition once and keeps its url", async () => {
+    mocks.getRequirementDefinition.mockImplementation((key: string) =>
+      Promise.resolve({
+        data:
+          key === "minor6" ? { url: "https://www.eecs.mit.edu/csminor" } : {},
+      }),
+    );
+    roadWith(["girs", "minor6"]);
+    const audit = useAuditStore();
+    audit.updateFulfillment("all");
+    await Promise.resolve();
+    audit.updateFulfillment("all");
+
+    await vi.waitFor(() => {
+      expect(audit.programUrls).toEqual({
+        girs: null,
+        minor6: "https://www.eecs.mit.edu/csminor",
+      });
+    });
+    const keys = mocks.getRequirementDefinition.mock.calls.map((c) => c[0]);
+    expect(keys).toEqual(["girs", "minor6"]);
+  });
+
+  it("forgets a failed fetch so a later recompute retries it", async () => {
+    mocks.getRequirementDefinition
+      .mockRejectedValueOnce(new Error("offline"))
+      .mockResolvedValueOnce({ data: { url: "https://example.edu/girs" } });
+    roadWith(["girs"]);
+    const audit = useAuditStore();
+    audit.updateFulfillment("all");
+    await vi.waitFor(() => {
+      expect(mocks.getRequirementDefinition).toHaveBeenCalledTimes(1);
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect("girs" in audit.programUrls).toBe(false);
+
+    audit.updateFulfillment("all");
+    await vi.waitFor(() => {
+      expect(audit.programUrls.girs).toBe("https://example.edu/girs");
+    });
   });
 });

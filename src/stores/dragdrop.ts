@@ -216,10 +216,9 @@ function updateAutoScroll(pointerY: number): void {
 
 function onPointerUp(event: PointerEvent): void {
   if (dragState.active && dragState.source !== null) {
+    // Any term takes a drop; an unoffered one warns on the card.
     const target = hitTest(event.clientX, event.clientY);
-    const eligible =
-      target !== null && dragState.eligibility[target] !== "unavailable";
-    if (target !== null && eligible && dropHandler !== null) {
+    if (target !== null && dropHandler !== null) {
       dropHandler(target, dragState.source);
     }
   }

@@ -13,9 +13,10 @@ import type { ReqListEntry, RequirementNode } from "../../../src/lib/types";
 function entry(key: string, mediumTitle = key): ReqListEntry {
   return {
     key,
-    "list-id": `${key}.reql`,
     "short-title": key,
     "medium-title": mediumTitle,
+    title: mediumTitle,
+    "title-no-degree": mediumTitle,
   };
 }
 

@@ -69,10 +69,15 @@ describe("courseData store: undo/redo + guards", () => {
     const store = useCourseDataStore();
     store.addClass(placed("6.006", 1)); // unrelated earlier action
     store.updateProgress({ listID: "req-x", progress: 50 });
+    expect(contentsOf(DEFAULT).progressAssertions["req-x"]).toEqual({
+      override: 50,
+    });
+    // Also in progressOverrides, which the old CourseRoad reads.
     expect(contentsOf(DEFAULT).progressOverrides["req-x"]).toBe(50);
 
     // ⌘Z must undo the progress edit and leave the class in place.
     history.undo();
+    expect(contentsOf(DEFAULT).progressAssertions["req-x"]).toBeUndefined();
     expect(contentsOf(DEFAULT).progressOverrides["req-x"]).toBeUndefined();
     expect(contentsOf(DEFAULT).selectedSubjects[1]).toHaveLength(1);
   });
@@ -92,6 +97,66 @@ describe("courseData store: undo/redo + guards", () => {
 
     history.undo(); // undo the substitution
     expect(pa()["k"]).toBeUndefined();
+  });
+
+  it("choosing a requirement's subjects replaces a typed count, in one undo step", () => {
+    const store = useCourseDataStore();
+    const pa = () => contentsOf(DEFAULT).progressAssertions;
+    store.updateProgress({ listID: "m.1.1", progress: 3 });
+
+    store.chooseRequirementSubjects({
+      listID: "m.1.1",
+      subjects: ["18.300", "18.404"],
+    });
+    expect(pa()["m.1.1"]).toEqual({ substitutions: ["18.300", "18.404"] });
+
+    history.undo();
+    expect(pa()["m.1.1"]).toEqual({ override: 3 });
+    history.redo();
+    expect(pa()["m.1.1"]).toEqual({ substitutions: ["18.300", "18.404"] });
+  });
+
+  it("a count writes both keys; a choice clears the count from both", () => {
+    const store = useCourseDataStore();
+    const po = () => contentsOf(DEFAULT).progressOverrides;
+    contentsOf(DEFAULT).progressOverrides["a"] = 2;
+    contentsOf(DEFAULT).progressOverrides["b"] = 2;
+
+    store.updateProgress({ listID: "a", progress: 5 });
+    store.chooseRequirementSubjects({ listID: "b", subjects: ["18.300"] });
+    expect(po()).toEqual({ a: 5 });
+
+    history.undo();
+    history.undo();
+    expect(po()).toEqual({ a: 2, b: 2 });
+  });
+
+  it("a count of zero clears the requirement's assertion", () => {
+    // The server ignores an override of 0, so none is stored.
+    const store = useCourseDataStore();
+    store.updateProgress({ listID: "m.1.1", progress: 4 });
+    store.updateProgress({ listID: "m.1.1", progress: 0 });
+    expect(contentsOf(DEFAULT).progressAssertions["m.1.1"]).toBeUndefined();
+    expect(contentsOf(DEFAULT).progressOverrides["m.1.1"]).toBeUndefined();
+  });
+
+  it("choosing no subjects clears the requirement's choice", () => {
+    const store = useCourseDataStore();
+    store.chooseRequirementSubjects({ listID: "m.1.1", subjects: ["18.300"] });
+    store.chooseRequirementSubjects({ listID: "m.1.1", subjects: [] });
+    expect(contentsOf(DEFAULT).progressAssertions["m.1.1"]).toBeUndefined();
+  });
+
+  it("a typed count replaces chosen subjects, in one undo step", () => {
+    const store = useCourseDataStore();
+    const pa = () => contentsOf(DEFAULT).progressAssertions;
+    store.chooseRequirementSubjects({ listID: "m.1.1", subjects: ["18.300"] });
+
+    store.updateProgress({ listID: "m.1.1", progress: 4 });
+    expect(pa()["m.1.1"]).toEqual({ override: 4 });
+
+    history.undo();
+    expect(pa()["m.1.1"]).toEqual({ substitutions: ["18.300"] });
   });
 
   it("overrideWarnings round-trips and only records real changes (C5)", () => {
@@ -137,8 +202,10 @@ describe("courseData store: undo/redo + guards", () => {
 
     // A plain edit on #2 must not leak into #55 via a stale alias (probe 1).
     store.updateProgress({ listID: "req-x", progress: 42 });
-    expect(contentsOf(DEFAULT).progressOverrides["req-x"]).toBe(42);
-    expect(contentsOf("55").progressOverrides["req-x"]).toBeUndefined();
+    expect(contentsOf(DEFAULT).progressAssertions["req-x"]).toEqual({
+      override: 42,
+    });
+    expect(contentsOf("55").progressAssertions["req-x"]).toBeUndefined();
 
     // Adding to #2 and undoing must affect #2, never #55 (probe 2).
     store.addClass(placed("6.006", 2));

@@ -8,8 +8,8 @@
 
 /** Every key this app owns. Used to clear storage on opt-out and logout. */
 export const STORAGE_KEYS = {
-  /** Full courseData snapshot (see lib/persistedStore.ts). */
-  store: "courseRoadStore",
+  /** Full courseData snapshot. "courseRoadStore" is the old app's key. */
+  store: "courseRoadState",
   /** FireRoad OAuth payload, including the bearer token. */
   accessInfo: "accessInfo",
   /** Roads created while logged out, awaiting a cloud id. */

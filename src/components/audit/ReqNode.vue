@@ -64,13 +64,6 @@
             <span class="info-label">Satisfied by</span>
             <span class="info-courses">{{ node.sat_courses.join(", ") }}</span>
           </div>
-          <g-link
-            v-if="node.url"
-            class="info-link"
-            :href="safeHref(node.url)"
-            external
-            >Official requirements</g-link
-          >
         </div>
       </g-popover>
       <span v-if="showPercent" class="branch-bar" aria-hidden="true">
@@ -136,10 +129,17 @@
           <span v-if="node['threshold-desc']" class="leaf-threshold"
             >({{ node["threshold-desc"] }})</span
           >
-          <span v-if="petitioned" class="leaf-flag petition">substituted</span>
+          <span v-if="chosenSubjects !== undefined" class="leaf-flag manual"
+            >{{ chosenSubjects.length }}/{{ manualCutoff }}</span
+          >
+          <span v-else-if="petitioned" class="leaf-flag petition"
+            >substituted</span
+          >
           <span v-else-if="ignored" class="leaf-flag ignore">ignored</span>
           <span v-if="node.max === 0" class="leaf-flag optional">optional</span>
-          <span v-if="manualValue !== undefined" class="leaf-flag manual"
+          <span
+            v-if="chosenSubjects === undefined && manualValue !== undefined"
+            class="leaf-flag manual"
             >{{ manualValue }}/{{ manualCutoff }}</span
           >
         </span>
@@ -172,9 +172,11 @@
               size="xs"
               icon-only
               :aria-label="
-                node['plain-string']
-                  ? `Enter progress for ${leafName}`
-                  : `Petition or ignore ${leafName}`
+                choosable
+                  ? `Choose what counts for ${leafName}`
+                  : node['plain-string']
+                    ? `Enter progress for ${leafName}`
+                    : `Petition or ignore ${leafName}`
               "
               aria-haspopup="dialog"
               :aria-expanded="petitionOpen"
@@ -187,11 +189,64 @@
           </template>
           <div class="petition-pop" @click.stop @pointerdown.stop>
             <template v-if="node['plain-string']">
-              <strong class="info-title">Manual progress</strong>
-              <p class="info-desc">
-                No subjects are listed for this requirement. Enter how much you
-                have completed.
-              </p>
+              <strong class="info-title"
+                >Manual Progress: {{ branchTitle }}</strong
+              >
+              <template v-if="choosable">
+                <p class="info-desc">
+                  Because this requirement is custom to the individual, select
+                  what subjects fulfill this requirement.
+                </p>
+                <div class="petition-courses" data-cy="chooseSubjects">
+                  <g-checkbox
+                    v-for="id in planSubjectIds"
+                    :key="id"
+                    class="petition-course"
+                    :model-value="petitionDraft.includes(id)"
+                    @update:model-value="togglePetitionCourse(id)"
+                  >
+                    <span class="leaf-req">{{ id }}</span>
+                    <span v-if="usedElsewhere.has(id)" class="choose-use">
+                      also {{ usedElsewhere.get(id)!.join(", ") }}
+                    </span>
+                  </g-checkbox>
+                  <span v-if="!planSubjectIds.length" class="info-desc"
+                    >No classes on the road yet.</span
+                  >
+                </div>
+                <div class="petition-actions">
+                  <span class="manual-of" role="status"
+                    >{{ petitionDraft.length }} of
+                    {{ manualCutoff }} chosen</span
+                  >
+                  <g-button
+                    v-if="chosenSubjects !== undefined"
+                    size="sm"
+                    variant="ghost"
+                    @click="saveChosen([])"
+                  >
+                    Clear
+                  </g-button>
+                  <g-button
+                    size="sm"
+                    variant="primary"
+                    @click="saveChosen(petitionDraft)"
+                  >
+                    Save
+                  </g-button>
+                </div>
+                <p class="info-desc">
+                  Alternatively, manually enter how many subjects from this
+                  requirement you have completed for your degree.
+                </p>
+              </template>
+              <template v-else>
+                <p class="info-desc">
+                  Because this requirement is custom to the individual, you have
+                  to manually enter how many units of this requirement you have
+                  completed for your degree.
+                </p>
+              </template>
               <div class="manual-row">
                 <g-number-field
                   v-model="manualDraft"
@@ -262,14 +317,17 @@
 <script setup lang="ts">
 import { computed, ref, useTemplateRef, watch } from "vue";
 import GButton from "../../design/components/GButton.vue";
-import GLink from "../../design/components/GLink.vue";
 import GCheckbox from "../../design/components/GCheckbox.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GNumberField from "../../design/components/GNumberField.vue";
 import GProgress from "../../design/components/GProgress.vue";
 import GPopover from "../../design/components/GPopover.vue";
-import { isIgnored, isPetitioned } from "../../lib/audit";
-import { safeHref } from "../../lib/courseLinks";
+import {
+  isIgnored,
+  isPetitioned,
+  manualProgress,
+  subjectUses,
+} from "../../lib/audit";
 import type { RequirementNode } from "../../lib/types";
 import { getSubject } from "../../lib/types";
 import { useAuditStore } from "../../stores/audit";
@@ -345,8 +403,12 @@ const ignored = computed(() =>
   isIgnored(assertions.value, props.node["list-id"]),
 );
 
+/* A plain-string leaf's substitution is only a count toward its
+   threshold, so FireRoad's verdict decides. */
 const leafSatisfied = computed(
-  () => Boolean(props.node.fulfilled) || petitioned.value,
+  () =>
+    Boolean(props.node.fulfilled) ||
+    (petitioned.value && !props.node["plain-string"]),
 );
 
 /** What the state icon shows, for a screen reader. */
@@ -369,7 +431,8 @@ const manualValue = computed(() => {
   if (!props.node["plain-string"] || listID === undefined) {
     return undefined;
   }
-  return store.roads[store.activeRoad]?.contents.progressOverrides[listID];
+  const contents = store.roads[store.activeRoad]?.contents;
+  return contents === undefined ? undefined : manualProgress(contents, listID);
 });
 const manualDraft = ref(0);
 watch(petitionOpen, (openNow) => {
@@ -380,6 +443,34 @@ watch(petitionOpen, (openNow) => {
     ];
   }
 });
+
+/* ---- chosen subjects (plain-string leaves counted in subjects) ---- */
+/** Counted in subjects, so they can be picked from the road. */
+const choosable = computed(
+  () =>
+    Boolean(props.node["plain-string"]) &&
+    (props.node.threshold?.criterion ?? "subjects") === "subjects",
+);
+const chosenSubjects = computed(() => {
+  const listID = props.node["list-id"];
+  if (!props.node["plain-string"] || listID === undefined) {
+    return undefined;
+  }
+  return assertions.value[listID]?.substitutions;
+});
+/** What each road subject already counts for elsewhere in this program. */
+const usedElsewhere = computed(() => {
+  const tree = auditStore.reqTrees[props.programKey];
+  return tree === undefined ? new Map<string, string[]>() : subjectUses(tree);
+});
+
+function saveChosen(subjects: string[]) {
+  const listID = props.node["list-id"];
+  if (listID !== undefined) {
+    store.chooseRequirementSubjects({ listID, subjects: [...subjects] });
+  }
+  petitionOpen.value = false;
+}
 
 function saveManual() {
   const listID = props.node["list-id"];
@@ -811,9 +902,6 @@ export default { name: "ReqNode" };
   flex-direction: column;
   gap: var(--space-05);
 }
-.info-link {
-  font: var(--text-small);
-}
 
 .manual-row {
   display: flex;
@@ -829,6 +917,11 @@ export default { name: "ReqNode" };
   flex: 1;
 }
 
+.choose-use {
+  font: var(--text-micro);
+  color: var(--g-ink-3);
+  margin-left: var(--space-1);
+}
 .petition-courses {
   display: flex;
   flex-direction: column;

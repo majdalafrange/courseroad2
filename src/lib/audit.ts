@@ -86,15 +86,64 @@ export function assignListIDs(
   return req;
 }
 
+/**
+ * Each subject a program counts, mapped to the sections that count it.
+ * Plain-string leaves are skipped: their subjects are only a choice.
+ */
+export function subjectUses(tree: RequirementNode): Map<string, string[]> {
+  const uses = new Map<string, string[]>();
+  const walk = (node: RequirementNode, group: string | undefined) => {
+    if (node.reqs !== undefined) {
+      for (const child of node.reqs) {
+        walk(child, child.reqs !== undefined ? (child.title ?? group) : group);
+      }
+      return;
+    }
+    if (node["plain-string"]) {
+      return;
+    }
+    const name = group ?? node.req ?? node.title;
+    if (name === undefined) {
+      return;
+    }
+    for (const subject of node.sat_courses ?? []) {
+      const names = uses.get(subject) ?? [];
+      if (!names.includes(name)) {
+        names.push(name);
+      }
+      uses.set(subject, names);
+    }
+  };
+  // The root's title is the program itself, not a section of it.
+  walk(tree, undefined);
+  return uses;
+}
+
 /** Whether a requirement is petitioned (has a substitution, not ignored). */
 export function isPetitioned(
   progressAssertions: Record<string, ProgressAssertion>,
   listID: string | undefined,
 ): boolean {
   if (listID !== undefined && listID in progressAssertions) {
-    return progressAssertions[listID].ignore !== true;
+    const assertion = progressAssertions[listID];
+    return assertion.substitutions !== undefined && assertion.ignore !== true;
   }
   return false;
+}
+
+/** A typed count: the assertion's override, else a deprecated
+ *  progressOverrides value. */
+export function manualProgress(
+  contents: {
+    progressAssertions: Record<string, ProgressAssertion>;
+    progressOverrides: Record<string, number>;
+  },
+  listID: string,
+): number | undefined {
+  return (
+    contents.progressAssertions[listID]?.override ??
+    contents.progressOverrides[listID]
+  );
 }
 
 /** Whether a requirement is ignored via a progress assertion. */

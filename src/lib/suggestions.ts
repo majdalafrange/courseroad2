@@ -91,20 +91,37 @@ export interface Suggestion {
   tokens: string[];
 }
 
-/** Walk a requirement tree collecting unfulfilled attribute leaves. */
+/**
+ * Collect unfulfilled attribute leaves, skipping fulfilled branches: two
+ * CI-Hs meet "2 of [CI-H, CI-HW]" and leave the CI-HW leaf unmet.
+ */
 function collectGaps(node: RequirementNode, out: Map<string, number>): void {
+  if (node.fulfilled) {
+    return;
+  }
   if (node.reqs !== undefined) {
     for (const child of node.reqs) {
       collectGaps(child, out);
     }
     return;
   }
-  if (node.fulfilled || node.req === undefined) {
+  if (node.req === undefined) {
     return;
   }
   if (node.req in ATTRIBUTE_GAPS) {
     out.set(node.req, (out.get(node.req) ?? 0) + 1);
   }
+}
+
+/** Open attribute requirements across programs, with counts, in tree order. */
+export function openAttributeGaps(
+  trees: Iterable<RequirementNode>,
+): Map<string, number> {
+  const gaps = new Map<string, number>();
+  for (const tree of trees) {
+    collectGaps(tree, gaps);
+  }
+  return gaps;
 }
 
 /** Whether a subject is offered in a given season ("Fall"/"IAP"/"Spring"). */
@@ -158,10 +175,7 @@ export function buildSuggestions(ctx: SuggestionContext): Suggestion[] {
   const season = semesterType(targetIndex);
 
   // Gather unfulfilled attribute gaps across every program.
-  const gaps = new Map<string, number>();
-  for (const tree of Object.values(ctx.reqTrees)) {
-    collectGaps(tree, gaps);
-  }
+  const gaps = openAttributeGaps(Object.values(ctx.reqTrees));
   if (gaps.size === 0) {
     return [];
   }

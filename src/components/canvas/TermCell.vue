@@ -172,9 +172,7 @@
       />
 
       <button
-        v-if="
-          placementStatusKind !== null && placementStatusKind !== 'unavailable'
-        "
+        v-if="placementStatusKind !== null"
         class="place-slot"
         :class="placementStatusKind"
         :data-cy="'road_' + roadID + '__semester_' + index + '_dropZone'"
@@ -360,7 +358,7 @@ const dragClass = computed(() => {
     return "drag-ok" + hover;
   }
   if (kind === "unavailable") {
-    return "drag-blocked" + hover;
+    return "drag-unavailable" + hover;
   }
   return "drag-maybe" + hover;
 });
@@ -371,7 +369,7 @@ const dropHint = computed(() => {
     return "Drop to place";
   }
   if (kind === "unavailable") {
-    return "Not offered this term";
+    return "Not offered this term. Drop anyway";
   }
   if (kind === "no-longer-offered") {
     return "No longer offered";
@@ -392,6 +390,8 @@ const placementMessage = computed(() => {
       return "Not offered this year. Add anyway";
     case "maybe":
       return "May not be offered. Add anyway";
+    case "unavailable":
+      return "Not offered this term. Add anyway";
     default:
       return "";
   }
@@ -408,6 +408,8 @@ const placementAriaLabel = computed(() => {
       return `Not offered this year. Add to ${termLabel.value} anyway`;
     case "maybe":
       return `May not be offered. Add to ${termLabel.value} anyway`;
+    case "unavailable":
+      return `Not offered this term. Add to ${termLabel.value} anyway`;
     default:
       return "";
   }
@@ -718,6 +720,9 @@ const placementAriaLabel = computed(() => {
 .place-slot.not-this-year {
   color: var(--g-warn);
 }
+.place-slot.unavailable {
+  color: var(--g-danger);
+}
 
 /* drag eligibility veil */
 .drop-veil {
@@ -738,10 +743,9 @@ const placementAriaLabel = computed(() => {
   box-shadow: inset 0 0 0 1.5px var(--g-warn);
   background: var(--g-warn-tint);
 }
-.drop-veil.drag-blocked {
+.drop-veil.drag-unavailable {
   box-shadow: inset 0 0 0 1.5px var(--g-danger);
   background: var(--g-danger-tint);
-  opacity: 0.7;
 }
 .drop-veil.is-hover.drag-ok {
   box-shadow: inset 0 0 0 2.5px var(--g-ok);
@@ -749,7 +753,7 @@ const placementAriaLabel = computed(() => {
 .drop-veil.is-hover.drag-maybe {
   box-shadow: inset 0 0 0 2.5px var(--g-warn);
 }
-.drop-veil.is-hover.drag-blocked {
+.drop-veil.is-hover.drag-unavailable {
   box-shadow: inset 0 0 0 2.5px var(--g-danger);
 }
 .drop-hint {

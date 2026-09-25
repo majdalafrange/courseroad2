@@ -213,7 +213,8 @@ import {
 } from "../../lib/paletteTokens";
 import { SearchIndex } from "../../lib/search";
 import { sortCoursesList } from "../../lib/audit";
-import type { RequirementNode, Subject } from "../../lib/types";
+import { openAttributeGaps } from "../../lib/suggestions";
+import type { Subject } from "../../lib/types";
 import { useAuditStore } from "../../stores/audit";
 import { useCourseDataStore } from "../../stores/courseData";
 import { useFavoritesStore } from "../../stores/favorites";
@@ -473,7 +474,6 @@ const auditSuggestions = computed<AuditSuggestion[]>(() => {
     return [];
   }
   const suggestions: AuditSuggestion[] = [];
-  const seen = new Set<string>();
   const nextSeason = store.currentSemester % 3 === 1 ? "spring" : "fall";
   const tokenFor: Record<string, string> = {
     "HASS-A": "hass-a",
@@ -483,31 +483,21 @@ const auditSuggestions = computed<AuditSuggestion[]>(() => {
     "CI-H": "ci-h",
     "CI-HW": "ci-hw",
   };
-  const visit = (node: RequirementNode) => {
+  for (const req of openAttributeGaps(
+    Object.values(auditStore.reqTrees),
+  ).keys()) {
+    const token = tokenFor[req];
+    if (token === undefined) {
+      continue;
+    }
+    suggestions.push({
+      label: `${req} still needed`,
+      detail: `Show ${req} subjects offered in the ${nextSeason}`,
+      tokens: [token, nextSeason],
+    });
     if (suggestions.length >= 3) {
-      return;
+      break;
     }
-    if (node.reqs !== undefined) {
-      for (const child of node.reqs) {
-        visit(child);
-      }
-      return;
-    }
-    if (node.fulfilled || node.req === undefined) {
-      return;
-    }
-    const token = tokenFor[node.req];
-    if (token !== undefined && !seen.has(token)) {
-      seen.add(token);
-      suggestions.push({
-        label: `${node.req} still needed`,
-        detail: `Show ${node.req} subjects offered in the ${nextSeason}`,
-        tokens: [token, nextSeason],
-      });
-    }
-  };
-  for (const tree of Object.values(auditStore.reqTrees)) {
-    visit(tree as RequirementNode);
   }
   return suggestions;
 });

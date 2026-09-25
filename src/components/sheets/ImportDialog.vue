@@ -72,7 +72,7 @@ import GIcon from "../../design/components/GIcon.vue";
 import GInput from "../../design/components/GInput.vue";
 import { toast } from "../../design/toast";
 import { parseRoadFile, uniqueRoadName } from "../../lib/roads";
-import type { SelectedSubject } from "../../lib/types";
+import type { ProgressAssertion, SelectedSubject } from "../../lib/types";
 import { useCourseDataStore } from "../../stores/courseData";
 
 const props = defineProps<{
@@ -87,6 +87,7 @@ const emit = defineEmits<{
     coursesOfStudy: string[],
     selectedSubjects: SelectedSubject[][],
     progressOverrides: Record<string, number>,
+    progressAssertions: Record<string, ProgressAssertion>,
   ): void;
 }>();
 
@@ -177,6 +178,7 @@ function importRoad() {
       parsed.coursesOfStudy,
       parsed.selectedSubjects,
       parsed.progressOverrides,
+      parsed.progressAssertions,
     );
     if (parsed.droppedSubjects.length > 0) {
       const listed = parsed.droppedSubjects.slice(0, 4).join(", ");
