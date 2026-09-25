@@ -32,6 +32,7 @@
           </svg>
           <span class="program-title-block">
             <span class="program-title">{{ title }}</span>
+            <span v-if="subtitle" class="program-name">{{ subtitle }}</span>
             <span class="program-sub">
               <template v-if="preview">What if? (not saved)</template>
               <template v-else-if="tree?.fulfilled">Complete</template>
@@ -124,6 +125,7 @@ import GLink from "../../design/components/GLink.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import ReqNode from "./ReqNode.vue";
 import type { RequirementNode } from "../../lib/types";
+import { programSubtitle, programTitle } from "../../lib/audit";
 import { safeHref } from "../../lib/courseLinks";
 import { announce } from "../../design/announce";
 import { prefersReducedMotion } from "../../design/tokens";
@@ -132,7 +134,6 @@ import { useAuditStore } from "../../stores/audit";
 const props = defineProps<{
   programKey: string;
   tree: RequirementNode | null;
-  title: string;
   preview?: boolean;
   startOpen?: boolean;
 }>();
@@ -142,6 +143,14 @@ const emit = defineEmits<{
 }>();
 
 const auditStore = useAuditStore();
+
+const title = computed(() =>
+  programTitle(auditStore.reqList, props.programKey),
+);
+
+const subtitle = computed(() =>
+  programSubtitle(auditStore.reqList, props.programKey),
+);
 
 /** The program's official page: on its definition, not its progress tree. */
 const officialUrl = computed(
@@ -164,25 +173,21 @@ function toggleOpen() {
 }
 
 /* ---- expand all / collapse all ---- */
-/* Every branch under this program with its current open state. Children
-   of the tree root render at depth 0, so their default is open. Leaves
+/* Every branch under this program with its current open state. Leaves
    carry no expansion state and are skipped. */
 const branchStates = computed<{ key: string; open: boolean }[]>(() => {
   const list: { key: string; open: boolean }[] = [];
-  const walk = (node: RequirementNode, childDepth: number) => {
+  const walk = (node: RequirementNode) => {
     for (const child of node.reqs ?? []) {
       if (child.reqs !== undefined) {
         const key = props.programKey + "/" + (child["list-id"] ?? "");
-        list.push({
-          key,
-          open: auditStore.expanded[key] ?? childDepth < 1,
-        });
-        walk(child, childDepth + 1);
+        list.push({ key, open: auditStore.isNodeOpen(key) });
+        walk(child);
       }
     }
   };
   if (props.tree !== null) {
-    walk(props.tree, 0);
+    walk(props.tree);
   }
   return list;
 });
@@ -248,7 +253,7 @@ watch(
   () => props.tree?.fulfilled,
   (nowDone, wasDone) => {
     if (nowDone && wasDone === false && !props.preview) {
-      announce(`${props.title} requirements complete`);
+      announce(`${title.value} requirements complete`);
       if (!prefersReducedMotion()) {
         celebrating.value = true;
         setTimeout(() => {
@@ -386,6 +391,13 @@ watch(
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;
+}
+.program-name {
+  font: var(--text-small);
+  color: var(--g-ink-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .program-sub {
   font: var(--text-small);

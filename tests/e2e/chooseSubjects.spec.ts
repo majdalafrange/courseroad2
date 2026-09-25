@@ -66,6 +66,7 @@ test("a choose-n requirement counts the subjects picked for it", async ({
   });
   await page.goto("/road/$0$");
 
+  await cy(page, "auditItemmajor18gm.1").click();
   await cy(page, "auditItemmajor18gm.1.0").click();
   const chooser = cy(page, "chooseSubjects");
   await expect(chooser).toBeVisible();

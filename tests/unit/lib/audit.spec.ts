@@ -5,6 +5,7 @@ import {
   isIgnored,
   isPetitioned,
   manualProgress,
+  programSubtitle,
   sortCoursesList,
 } from "../../../src/lib/audit";
 import type { ReqListEntry } from "../../../src/lib/types";
@@ -170,5 +171,31 @@ describe("subjectUses", () => {
 
   it("ignores plain-string leaves, whose subjects are only a choice", () => {
     expect(subjectUses(tree).has("18.300")).toBe(false);
+  });
+});
+
+describe("programSubtitle", () => {
+  const list = [
+    {
+      ...entry("major6-3", "6-3 Major"),
+      "title-no-degree": "Computer Science",
+    },
+    { ...entry("girs", "GIRs"), "title-no-degree": "" },
+    { ...entry("x", "Same"), "title-no-degree": " Same " },
+    {
+      ...entry("minor15F", "15 Minor (Finance)"),
+      "title-no-degree": "Finance",
+    },
+  ];
+
+  it("gives the program's title without the degree", () => {
+    expect(programSubtitle(list, "major6-3")).toBe("Computer Science");
+  });
+
+  it("gives nothing when it is empty, in the title already, or unknown", () => {
+    expect(programSubtitle(list, "girs")).toBeUndefined();
+    expect(programSubtitle(list, "x")).toBeUndefined();
+    expect(programSubtitle(list, "minor15F")).toBeUndefined();
+    expect(programSubtitle(list, "nope")).toBeUndefined();
   });
 });

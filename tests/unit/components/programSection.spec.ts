@@ -2,6 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mount, type VueWrapper } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
+import type { ReqListEntry } from "../../../src/lib/types";
 import { reqTree, type PartialReqNode } from "../lib/fixtures";
 
 const mocks = vi.hoisted(() => ({
@@ -32,6 +33,20 @@ afterEach(() => {
   wrapper = undefined;
 });
 
+function listEntry(
+  key: string,
+  mediumTitle: string,
+  titleNoDegree: string,
+): ReqListEntry {
+  return {
+    key,
+    "short-title": key,
+    "medium-title": mediumTitle,
+    title: mediumTitle,
+    "title-no-degree": titleNoDegree,
+  };
+}
+
 describe("ProgramSection failure state", () => {
   it("shows the failed state and retries the one program", async () => {
     const audit = useAuditStore();
@@ -39,7 +54,7 @@ describe("ProgramSection failure state", () => {
     mocks.getProgress.mockResolvedValue({ data: { fulfilled: false } });
 
     wrapper = mount(ProgramSection, {
-      props: { programKey: "major18", tree: null, title: "18 Major" },
+      props: { programKey: "major18", tree: null },
     });
     expect(wrapper.text()).toContain("Progress didn't load");
     expect(wrapper.text()).not.toContain("Computing...");
@@ -53,7 +68,7 @@ describe("ProgramSection failure state", () => {
 
   it("keeps 'computing...' for a program still in flight", () => {
     wrapper = mount(ProgramSection, {
-      props: { programKey: "major6-3", tree: null, title: "6-3 Major" },
+      props: { programKey: "major6-3", tree: null },
     });
     expect(wrapper.text()).toContain("Computing...");
     expect(wrapper.text()).not.toContain("Progress didn't load");
@@ -72,7 +87,6 @@ describe("ProgramSection sub-label", () => {
       props: {
         programKey: "major6-2",
         tree: tree === null ? null : reqTree(tree),
-        title: "6-2 Major",
       },
     });
     return wrapper.find(".program-sub").text();
@@ -110,19 +124,70 @@ describe("ProgramSection sub-label", () => {
 
 describe("ProgramSection official link", () => {
   it("links the program's official page from its definition", () => {
-    useAuditStore().programUrls = {
-      minor6: "https://www.eecs.mit.edu/csminor",
-    };
+    const audit = useAuditStore();
+    audit.reqList = [listEntry("minor6", "6 Minor", "Computer Science")];
+    audit.programUrls = { minor6: "https://www.eecs.mit.edu/csminor" };
     wrapper = mount(ProgramSection, {
       props: {
         programKey: "minor6",
         tree: reqTree({ reqs: [] }),
-        title: "6 Minor",
         startOpen: true,
       },
     });
     const link = wrapper.find('a[href="https://www.eecs.mit.edu/csminor"]');
     expect(link.exists()).toBe(true);
     expect(link.text()).toContain("Official 6 Minor requirements");
+  });
+});
+
+describe("ProgramSection titles", () => {
+  it("names the program from the requirements list, with its subtitle", () => {
+    useAuditStore().reqList = [
+      listEntry("major6-3", "6-3 Major", "Computer Science"),
+    ];
+    wrapper = mount(ProgramSection, {
+      props: { programKey: "major6-3", tree: null },
+    });
+    expect(wrapper.find(".program-title").text()).toBe("6-3 Major");
+    expect(wrapper.find(".program-name").text()).toBe("Computer Science");
+  });
+
+  it("falls back to the key, with no subtitle, before the list loads", () => {
+    wrapper = mount(ProgramSection, {
+      props: { programKey: "major6-3", tree: null },
+    });
+    expect(wrapper.find(".program-title").text()).toBe("major6-3");
+    expect(wrapper.find(".program-name").exists()).toBe(false);
+  });
+
+  it("shows no subtitle for a program without one", () => {
+    useAuditStore().reqList = [listEntry("girs", "GIRs", "")];
+    wrapper = mount(ProgramSection, {
+      props: { programKey: "girs", tree: null },
+    });
+    expect(wrapper.find(".program-name").exists()).toBe(false);
+  });
+});
+
+describe("ProgramSection expand all", () => {
+  it("offers Expand all while its groups start closed, then Collapse all", async () => {
+    const tree = reqTree({
+      "list-id": "major6-3",
+      reqs: [
+        { "list-id": "major6-3.0", reqs: [{ req: "6.1010" }] },
+        { "list-id": "major6-3.1", reqs: [{ req: "6.1200" }] },
+      ],
+    });
+    wrapper = mount(ProgramSection, {
+      props: { programKey: "major6-3", tree, startOpen: true },
+    });
+    const toggle = () => wrapper!.find(".program-expandall");
+    expect(toggle().text()).toBe("Expand all");
+    expect(wrapper.findAll(".branch-row .branch-chevron")).toHaveLength(2);
+    expect(wrapper.text()).not.toContain("6.1010");
+
+    await toggle().trigger("click");
+    expect(toggle().text()).toBe("Collapse all");
+    expect(wrapper.text()).toContain("6.1010");
   });
 });

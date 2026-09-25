@@ -82,7 +82,6 @@
       v-if="auditStore.previewProgram !== null"
       :program-key="auditStore.previewProgram"
       :tree="previewTreeWithIds"
-      :title="titleFor(auditStore.previewProgram)"
       preview
     />
 
@@ -92,7 +91,6 @@
       :key="req"
       :program-key="req"
       :tree="treeFor(req, index)"
-      :title="titleFor(req)"
       :start-open="index === 0"
       @remove="removeProgram(req)"
     />
@@ -190,13 +188,9 @@ function previewProgram(key: string) {
 
 function removeProgram(key: string) {
   store.removeReq(key);
-  toast.undoable(`Removed ${titleFor(key)}`, () => {
+  toast.undoable(`Removed ${programTitle(auditStore.reqList, key)}`, () => {
     store.addReq(key);
   });
-}
-
-function titleFor(key: string): string {
-  return programTitle(auditStore.reqList, key);
 }
 
 function treeFor(req: string, index: number): RequirementNode | null {

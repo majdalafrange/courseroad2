@@ -161,3 +161,17 @@ export function isIgnored(
 export function programTitle(reqList: ReqListEntry[], key: string): string {
   return reqList.find((e) => e.key === key)?.["medium-title"] ?? key;
 }
+
+/** A program's title without the degree ("Computer Science" for 6-3),
+ *  unless it is empty or the medium title already says it ("Finance"
+ *  under "15 Minor (Finance)"). */
+export function programSubtitle(
+  reqList: ReqListEntry[],
+  key: string,
+): string | undefined {
+  const entry = reqList.find((e) => e.key === key);
+  const name = entry?.["title-no-degree"].trim();
+  return name && !entry?.["medium-title"].trim().includes(name)
+    ? name
+    : undefined;
+}

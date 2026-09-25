@@ -64,6 +64,7 @@ async function openTallRoad(context: BrowserContext, page: Page) {
   });
   await page.goto("/");
   await cy(page, "roadSwitcher").waitFor();
+  await page.getByRole("button", { name: /^Expand all of/ }).click();
   await expect(page.locator(".leaf-row")).toHaveCount(48);
 }
 

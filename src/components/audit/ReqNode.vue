@@ -359,7 +359,7 @@ const nodeKey = computed(
   () => props.programKey + "/" + (props.node["list-id"] ?? ""),
 );
 const open = computed({
-  get: () => auditStore.expanded[nodeKey.value] ?? props.depth < 1,
+  get: () => auditStore.isNodeOpen(nodeKey.value),
   set: (value) => auditStore.setNode(nodeKey.value, value),
 });
 const infoOpen = ref(false);

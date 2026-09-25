@@ -11,7 +11,9 @@ test("adding a program shows its audit progress", async ({ page }) => {
     .click();
   await page.locator('[data-cy="addProgrammajor6-3"]').click();
   await expect(
-    page.getByRole("button", { name: /6-3 Major 50% complete/ }),
+    page.getByRole("button", {
+      name: "6-3 Major Computer Science and Engineering 50% complete",
+    }),
   ).toBeVisible();
 });
 

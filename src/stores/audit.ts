@@ -45,6 +45,14 @@ export const useAuditStore = defineStore("audit", {
      */
     expanded: {} as Record<string, boolean>,
   }),
+  getters: {
+    /** Whether a requirement group is open. Groups start closed until
+     *  opened. Key: programKey + "/" + list-id. */
+    isNodeOpen:
+      (state) =>
+      (key: string): boolean =>
+        state.expanded[key] ?? false,
+  },
   actions: {
     /** Record one expansion entry. Key: programKey + "/" + list-id. */
     setNode(key: string, open: boolean) {
