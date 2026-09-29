@@ -534,5 +534,19 @@ test.describe("Go to it", () => {
 
       await expect(cy(page, "classInfoCard")).toBeVisible();
     });
+
+    test("does not animate the scroll under reduced motion", async ({
+      page,
+    }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await openFromPalette(page, "8.01");
+      await page.getByRole("button", { name: "Go to it" }).click();
+
+      // A smooth scroll would still be moving at this first read.
+      const canvas = page.locator("#canvasScroll");
+      const scrollTop = await canvas.evaluate((el) => el.scrollTop);
+      await expect(page.locator('[data-cy$="__semester_10"]')).toBeInViewport();
+      expect(await canvas.evaluate((el) => el.scrollTop)).toBe(scrollTop);
+    });
   });
 });

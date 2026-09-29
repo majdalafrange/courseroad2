@@ -398,6 +398,7 @@ import GButton from "../../design/components/GButton.vue";
 import GLink from "../../design/components/GLink.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GTooltip from "../../design/components/GTooltip.vue";
+import { prefersReducedMotion } from "../../design/tokens";
 import PrereqTree from "./PrereqTree.vue";
 import { useIsMobile } from "../../composables/useIsMobile";
 import { courseColor } from "../../lib/colors";
@@ -499,7 +500,10 @@ function jumpToBucket(index: number) {
   const cell = document.querySelector(
     `[data-cy="road_${store.activeRoad.replace(/\$/g, "\\$")}__semester_${index}"]`,
   );
-  cell?.scrollIntoView({ behavior: "smooth", block: "center" });
+  cell?.scrollIntoView({
+    behavior: prefersReducedMotion() ? "auto" : "smooth",
+    block: "center",
+  });
   cell?.classList.add("jump-flash");
   setTimeout(() => cell?.classList.remove("jump-flash"), 1200);
 }
