@@ -107,6 +107,13 @@ function detailFocus(page: Page): Locator {
   return cy(page, "classInfoBody");
 }
 
+async function openFromPalette(page: Page, id: string) {
+  await page.locator("#searchInputTF").click();
+  await page.locator(".palette-input").fill(id);
+  // Enter opens the detail; a click would arm placement instead.
+  await page.keyboard.press("Enter");
+}
+
 test.describe("the detail over the audit", () => {
   test.beforeEach(async ({ context, page }) => {
     await openTallRoad(context, page);
@@ -400,13 +407,6 @@ test.describe("crossing 860px with the detail open", () => {
  * handed to the detail and, from a suggestion, handed back.
  */
 test.describe("focus from the palette and from a suggestion", () => {
-  async function openFromPalette(page: Page, id: string) {
-    await page.locator("#searchInputTF").click();
-    await page.locator(".palette-input").fill(id);
-    // Enter opens the detail; a click would arm placement instead.
-    await page.keyboard.press("Enter");
-  }
-
   test("a class opened from the palette takes focus", async ({
     context,
     page,
@@ -481,5 +481,58 @@ test.describe("focus from the palette and from a suggestion", () => {
     await expect
       .poll(() => chip.evaluate((el) => getComputedStyle(el).boxShadow))
       .toContain("0px 0px 0px 4px");
+  });
+});
+
+/**
+ * 8.01 is in senior fall (semester_10), below the fold on a phone, and
+ * 18.01 is in IAP (semester_2).
+ */
+test.describe("Go to it", () => {
+  test.beforeEach(async ({ context, page }) => {
+    await mockFireroad(context);
+    await seedReturningVisitor(context);
+    await seedLocalRoads(context, {
+      $0$: {
+        name: "Course 6-3",
+        coursesOfStudy: ["girs"],
+        subjects: [
+          { subject_id: "8.01", semester: 10 },
+          { subject_id: "18.01", semester: 2 },
+        ],
+      },
+    });
+    await page.goto("/road/$0$");
+    await page.locator("#canvasScroll").waitFor();
+  });
+
+  test("leaves the detail open on a desktop", async ({ page }) => {
+    await openFromPalette(page, "8.01");
+    await page.getByRole("button", { name: "Go to it" }).click();
+
+    await expect(cy(page, "classInfoCard")).toBeVisible();
+  });
+
+  test.describe("on a phone", () => {
+    test.use({ viewport: { width: 375, height: 812 } });
+
+    test("switches from Progress to Plan and scrolls to the term", async ({
+      page,
+    }) => {
+      await page.getByRole("button", { name: "Progress" }).click();
+      await openFromPalette(page, "8.01");
+      await page.getByRole("button", { name: "Go to it" }).click();
+
+      await expect(cy(page, "classInfoCard")).toBeHidden();
+      await expect(page.locator('[data-cy$="__semester_10"]')).toBeInViewport();
+    });
+
+    test("keeps the sheet open when IAP is hidden", async ({ page }) => {
+      await cy(page, "hideIapToggle").click();
+      await openFromPalette(page, "18.01");
+      await page.getByRole("button", { name: "Go to it" }).click();
+
+      await expect(cy(page, "classInfoCard")).toBeVisible();
+    });
   });
 });

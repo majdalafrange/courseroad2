@@ -121,9 +121,7 @@
         <span>
           On your road: <strong>{{ bucketName(onRoadBucket) }}</strong>
         </span>
-        <g-button variant="link" size="sm" @click="jumpToBucket(onRoadBucket)">
-          Go to it
-        </g-button>
+        <g-button variant="link" size="sm" @click="goToIt">Go to it</g-button>
         <g-button variant="link" size="sm" @click="moveIt">Move it</g-button>
       </div>
       <p v-if="subjectNote !== undefined" class="detail-own-note">
@@ -428,6 +426,10 @@ const router = useRouter();
 const bodyEl = useTemplateRef("bodyEl");
 const isMobile = useIsMobile();
 
+const emit = defineEmits<{
+  (e: "show-plan"): void;
+}>();
+
 /** Seed Connections from this subject (the highest-intent entry point). */
 function exploreFromHere() {
   if (subject.value !== undefined) {
@@ -500,6 +502,18 @@ function jumpToBucket(index: number) {
   cell?.scrollIntoView({ behavior: "smooth", block: "center" });
   cell?.classList.add("jump-flash");
   setTimeout(() => cell?.classList.remove("jump-flash"), 1200);
+}
+
+function goToIt() {
+  const index = onRoadBucket.value;
+  if (!isMobile.value) {
+    jumpToBucket(index);
+  } else if (!(store.hideIAP && semesterType(index) === "IAP")) {
+    emit("show-plan");
+    store.clearClassInfoStack();
+    // Under Progress the plan stays hidden until the next render.
+    void nextTick(() => jumpToBucket(index));
+  }
 }
 
 function moveIt() {

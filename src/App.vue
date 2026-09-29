@@ -47,7 +47,7 @@
           v-if="!isExplore && isMobile && detailOpen"
           @close="store.clearClassInfoStack()"
         >
-          <class-detail />
+          <class-detail @show-plan="mobileView = 'plan'" />
         </detail-sheet>
 
         <command-palette
