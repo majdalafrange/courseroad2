@@ -7,7 +7,6 @@
     <!-- inline "add to a term"; discovery never leaves the graph -->
     <term-picker v-if="store.placementRequest" />
 
-    <!-- selected node header -->
     <div v-if="subject" class="panel-head">
       <div class="panel-ident" :style="{ '--dept-color': color }">
         <div class="head-id-row">
@@ -113,7 +112,6 @@
       </div>
     </div>
 
-    <!-- no selection -->
     <div v-else class="panel-empty-head">
       <h2 class="panel-empty-title">Connections</h2>
       <p class="panel-empty-copy">
@@ -429,7 +427,7 @@ function toggleExpand() {
 
 <style scoped>
 .node-panel {
-  /* DOM order is canvas-then-panel (see ConnectionsPage.vue); this puts
+  /* DOM order is canvas-then-panel (see pages/explore); this puts
      it first visually. */
   order: -1;
   width: 384px;
@@ -471,7 +469,6 @@ function toggleExpand() {
   }
 }
 
-/* ---------- header ---------- */
 .panel-head {
   padding: 0 var(--space-4) var(--space-3);
   border-bottom: 1px solid var(--g-line);
@@ -567,7 +564,6 @@ function toggleExpand() {
   margin: 0;
 }
 
-/* ---------- body ---------- */
 .panel-body {
   flex: 1;
   overflow-y: auto;
@@ -690,7 +686,7 @@ function toggleExpand() {
   width: 6px;
   height: 6px;
   border-radius: var(--radius-full);
-  background: var(--g-accent);
+  background: var(--g-ink-3);
   flex-shrink: 0;
 }
 .neighbor-title {
@@ -702,7 +698,7 @@ function toggleExpand() {
 }
 .neighbor-reason {
   font: var(--text-micro);
-  color: var(--g-accent);
+  color: var(--g-ink-2);
   margin-top: 1px;
 }
 .neighbor-meta {

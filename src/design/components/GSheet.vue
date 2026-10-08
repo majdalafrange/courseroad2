@@ -165,9 +165,7 @@ function onOpenAutoFocus(event: Event) {
 </script>
 
 <style>
-/* Not scoped: see GPopover.vue's note. DialogContent/DialogOverlay are
-   teleported through several layers of Reka's own components, and Vue's
-   scoped-CSS attribute doesn't reliably survive that chain. */
+/* Not scoped: DialogContent/DialogOverlay are teleported (see GPopover.vue). */
 .g-sheet-scrim {
   position: fixed;
   inset: 0;

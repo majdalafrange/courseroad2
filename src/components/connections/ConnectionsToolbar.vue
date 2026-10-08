@@ -19,7 +19,7 @@
         @click="store.toggleType('prereq')"
       >
         <span class="swatch" aria-hidden="true" />
-        Prerequisite
+        <span class="legend-text">Prerequisite</span>
       </g-button>
       <g-button
         size="sm"
@@ -30,7 +30,7 @@
         :title="`${store.showRowLabels ? 'Hide' : 'Show'} row labels`"
         @click="store.toggleRowLabels()"
       >
-        Labels
+        <span class="legend-text">Labels</span>
       </g-button>
     </div>
 
@@ -38,15 +38,19 @@
       <g-button size="sm" variant="ghost" @click="store.tidy()">
         Auto-arrange
       </g-button>
+      <!-- One keeps the starting subjects, the other replaces them; the
+           names say which. -->
+      <g-button size="sm" variant="ghost" @click="store.reset()">
+        Back to start
+      </g-button>
       <g-button
         size="sm"
         variant="ghost"
         data-cy="connectionsReseed"
         @click="store.reseedFromRoad()"
       >
-        Restart from road
+        Start from my road
       </g-button>
-      <g-button size="sm" @click="store.reset()">Reset</g-button>
     </div>
   </div>
 </template>
@@ -123,11 +127,22 @@ const seedParts = computed((): string[] => {
   outline: none;
   box-shadow: var(--g-focus-ring);
 }
-/* switched off: recede the chip, keep the outline so it still reads as
-   pressable */
+/* On is filled, off is an empty outline: the two states have to differ
+   by more than a shade of grey. */
+.legend-item:not(.off) {
+  color: var(--g-ink);
+  background: var(--g-surface-sunken);
+}
+.legend-item:not(.off):hover:not(:disabled) {
+  background: var(--g-line);
+}
 .legend-item.off {
   color: var(--g-ink-3);
   border-color: var(--g-line);
+}
+.legend-item.off .legend-text {
+  text-decoration: line-through;
+  text-decoration-color: var(--g-ink-3);
 }
 .legend-item.off .swatch {
   filter: grayscale(1);
@@ -141,7 +156,7 @@ const seedParts = computed((): string[] => {
   border-color: var(--swatch-color, var(--g-ink-3));
 }
 .t-prereq {
-  --swatch-color: var(--g-accent);
+  --swatch-color: var(--g-ink-2); /* matches GraphEdge's prereq color */
 }
 
 .toolbar-right {

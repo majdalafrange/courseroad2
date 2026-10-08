@@ -62,6 +62,20 @@ function isAuthFailure(err: unknown): boolean {
   return status === 401 || status === 403;
 }
 
+/** The save-failure toast on screen, so a run of failed saves shows one. */
+let saveIssueToast: number | undefined;
+
+/** Toasts a failed sync; on a phone the header shows only an icon. */
+function announceSaveIssue(detail: string): void {
+  if (
+    saveIssueToast !== undefined &&
+    toast.state.toasts.some((t) => t.id === saveIssueToast)
+  ) {
+    return;
+  }
+  saveIssueToast = toast.warn("Couldn't save to FireRoad", detail);
+}
+
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     accessInfo: undefined as AccessInfo | undefined,
@@ -415,11 +429,13 @@ export const useAuthStore = defineStore("auth", {
         }
         const newid = response.data.id !== undefined ? response.data.id : oldid;
         if (response.data.success === false) {
-          this.saveWarnings.push({
+          const warning = {
             id: String(newid),
             error: response.data.error_msg ?? "Unknown error",
             name: store.roads[oldid].name,
-          });
+          };
+          this.saveWarnings.push(warning);
+          announceSaveIssue(`${warning.name}: ${warning.error}`);
         }
         if (response.data.result === "conflict") {
           const conflictInfo: ConflictInfo = {
@@ -495,6 +511,15 @@ export const useAuthStore = defineStore("auth", {
         .catch((err) => {
           if (!(err instanceof NoAuthError)) {
             console.error(err);
+            // Without a warning the header would go back to "Saved".
+            this.saveWarnings.push({
+              id: roadID,
+              error: "FireRoad couldn't be reached",
+              name: store.roads[roadID]?.name ?? "This road",
+            });
+            announceSaveIssue(
+              "Your changes are still in this tab. CourseRoad tries again on your next edit.",
+            );
           }
           this.currentlySaving = false;
         });

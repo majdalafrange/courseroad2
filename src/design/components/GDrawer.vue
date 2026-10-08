@@ -57,9 +57,7 @@ function onEscapeKeyDown(event: KeyboardEvent) {
 </script>
 
 <style>
-/* Not scoped: see GPopover.vue's note. DrawerContent/DrawerOverlay are
-   teleported through several layers of Reka's own components, and Vue's
-   scoped-CSS attribute doesn't reliably survive that chain. */
+/* Not scoped: DrawerContent/DrawerOverlay are teleported (see GPopover.vue). */
 .g-drawer-scrim {
   position: fixed;
   inset: 0;

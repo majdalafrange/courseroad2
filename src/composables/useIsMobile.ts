@@ -27,7 +27,6 @@ export function useIsMobile() {
 }
 
 export function useTouchDevice() {
-  // same as above, but for touch-pointer media query
   if (typeof window.matchMedia !== "function") {
     return ref(false);
   }

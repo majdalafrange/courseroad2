@@ -205,7 +205,6 @@ export type PlacementStatus =
   | { kind: "unavailable" } // red: same year, not offered this term
   | { kind: "maybe" }; // yellow: other year, may not be offered
 
-/** Classify how safely `course` can be placed into bucket `index`. */
 /**
  * Placement eligibility across every bucket, for the drag layer and
  * click-to-place: one status kind per bucket index.
@@ -231,6 +230,7 @@ export function offeredSeasonLetters(course: Subject): string[] {
   ].filter((letter): letter is string => letter !== null);
 }
 
+/** Classify how safely `course` can be placed into bucket `index`. */
 export function placementStatus(
   course: Subject,
   index: number,

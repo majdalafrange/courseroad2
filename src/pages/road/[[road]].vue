@@ -98,9 +98,11 @@
 
         <div v-if="showEmptyState && !subjectsError" class="empty-state">
           <h2 class="empty-title">Search for a class</h2>
+          <!-- On a phone the panel is the Progress tab, not a side. -->
           <p class="empty-copy">
-            Place it in a term, or add a major or minor on the
-            {{ store.panelSide }} to see what's left.
+            Place it in a term, or add a major or minor
+            {{ isMobile ? "under Progress" : `on the ${store.panelSide}` }}
+            to see what's left.
           </p>
           <div class="empty-actions">
             <g-button variant="primary" @click.stop="focusSearch">
@@ -214,7 +216,6 @@ onBeforeUnmount(() => {
   window.removeEventListener("offline", onOffline);
 });
 
-/* ---- search ---- */
 function focusSearch() {
   requestPalette({});
 }
@@ -412,8 +413,7 @@ function focusSearch() {
   }
 }
 
-/* ---------- responsive ----------
-   The ancestor classes below (.shell, .is-mobile, .show-plan,
+/* The ancestor classes below (.shell, .is-mobile, .show-plan,
    .show-progress) live on App.vue's shell wrapper; only the rightmost
    class in each selector needs to belong to this component for scoped
    CSS to still match it there. */

@@ -16,7 +16,7 @@
       </div>
     </header>
 
-    <!-- ============ principles ============ -->
+    <!-- principles -->
     <section class="sg-section">
       <h2 class="sg-h2">Principles</h2>
       <dl class="sg-principles">
@@ -27,7 +27,7 @@
       </dl>
     </section>
 
-    <!-- ============ color ============ -->
+    <!-- color -->
     <section class="sg-section">
       <h2 class="sg-h2">Color</h2>
       <p class="sg-body sg-note">
@@ -75,7 +75,7 @@
       </div>
     </section>
 
-    <!-- ============ type ============ -->
+    <!-- type -->
     <section class="sg-section">
       <h2 class="sg-h2">Type</h2>
       <p class="sg-body sg-note">
@@ -131,7 +131,7 @@
       </g-card>
     </section>
 
-    <!-- ============ space & shape ============ -->
+    <!-- space & shape -->
     <section class="sg-section">
       <h2 class="sg-h2">Space &amp; shape</h2>
       <div class="sg-row">
@@ -177,7 +177,7 @@
       </div>
     </section>
 
-    <!-- ============ motion ============ -->
+    <!-- motion -->
     <section class="sg-section">
       <h2 class="sg-h2">Motion</h2>
       <p class="sg-body sg-note">
@@ -211,7 +211,7 @@
       </g-card>
     </section>
 
-    <!-- ============ components ============ -->
+    <!-- components -->
     <section class="sg-section">
       <h2 class="sg-h2">Components</h2>
 

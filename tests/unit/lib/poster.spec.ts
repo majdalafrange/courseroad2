@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { readFileSync } from "fs";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   MARK_TILE,
   POSTER_THEMES,
@@ -150,6 +150,52 @@ describe("buildRoadPoster escaping", () => {
   });
 });
 
+describe("the current term matches TermCell", () => {
+  // TermCell marks the current term with the Now flag alone: a neutral
+  // --g-line-strong border, ink season label, ink-3 year at full strength.
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it.each(["light", "dark"] as const)(
+    "%s: flag only, no cardinal ring",
+    (mode) => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(2026, 9, 8)); // October: Fall is current
+      const theme = POSTER_THEMES[mode];
+      const buckets = Array.from(
+        Array(16),
+        () => [] as Road["contents"]["selectedSubjects"][number],
+      );
+      buckets[1] = [placed("8.01", 1)];
+      const svg = buildRoadPoster(
+        {
+          downloaded: "",
+          changed: "",
+          name: "Road",
+          agent: "",
+          contents: {
+            coursesOfStudy: ["girs"],
+            selectedSubjects: buckets,
+            progressOverrides: {},
+            progressAssertions: {},
+          },
+        },
+        makeCatalog(),
+        { userYear: 0, dark: mode === "dark", hideIAP: false },
+      );
+
+      expect(svg).toContain(">Now</text>");
+      expect(svg).toContain(`stroke="${theme.lineStrong}" stroke-width="1"`);
+      expect(svg).not.toMatch(/stroke-width="1\.5"/);
+      expect(svg).toContain(
+        `font-weight="500" fill="${theme.ink}"><tspan>Fall</tspan>`,
+      );
+      expect(svg).not.toContain('fill-opacity="0.8"');
+    },
+  );
+});
+
 describe("theme mirrors of tokens.css", () => {
   // The poster renders outside the app's stylesheet, so it mirrors the
   // token colors as literals. This test is the sync mechanism: retune a
@@ -172,8 +218,7 @@ describe("theme mirrors of tokens.css", () => {
     ink: "--g-ink",
     ink2: "--g-ink-2",
     ink3: "--g-ink-3",
-    accent: "--g-accent",
-    brand: "--g-brand",
+    lineStrong: "--g-line-strong",
     brandFlag: "--g-brand-flag",
   };
 

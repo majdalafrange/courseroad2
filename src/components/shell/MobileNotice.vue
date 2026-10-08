@@ -58,6 +58,14 @@ function dismiss() {
   flex-shrink: 0;
   color: inherit;
 }
+/* Touch tier: the button is 44px; it reaches into the bar's padding so
+   the notice doesn't grow around it. */
+@media (pointer: coarse) {
+  .mobile-notice .notice-dismiss {
+    margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-3))
+      calc(-1 * var(--space-2)) 0;
+  }
+}
 .mobile-notice .notice-dismiss:hover:not(:disabled) {
   background: color-mix(in srgb, currentColor 18%, transparent);
   color: inherit;

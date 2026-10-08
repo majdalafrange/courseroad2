@@ -74,6 +74,9 @@
  *     (a subject id) reads as --text-id-small mono; a season or term label
  *     is --text-small sans at weight 500 with tabular figures.
  *
+ * TOUCH TIER: under @media (max-width: 859px) and (pointer: coarse) every
+ *   control is a 44px target; each component writes the query itself.
+ *
  * STACKING SCALE (not CSS vars: z-index doesn't inherit, so each site
  * writes its own literal; new overlays should slot into this order):
  *   50  GPopover, MobileNav (the nav bar is fine sharing this level: any
@@ -256,7 +259,8 @@
   --g-accent-fill-hover: var(--g-accent-hover);
   --g-accent-fill-active: var(--g-accent-active);
 
-  /* brand punctuation (the wordmark); in light it is the accent */
+  /* identity cardinal (wordmark, Explore's current-term label); in light
+     it is the accent */
   --g-brand: #a31f34;
   /* the current-term flag: white-on-cardinal. Same value as --g-brand
      here; dark needs its own (see below), so this stays a separate token. */
@@ -361,7 +365,8 @@
   --g-accent-fill-hover: #dde3e8;
   --g-accent-fill-active: #bfc9d0;
 
-  /* cardinal stays for identity only (the wordmark); 4.66:1 on bg */
+  /* cardinal for identity only (wordmark, Explore's current-term label);
+     4.66:1 on bg */
   --g-brand: #d4586c;
   /* darker than --g-brand: holds white text at 5.1:1, where --g-brand's
      lighter value (tuned against --g-bg, not white-on-top) would fall short. */

@@ -107,9 +107,7 @@ onUpdated(describeControl);
 </script>
 
 <style>
-/* Not scoped: see GPopover.vue's note. TooltipContent is teleported
-   through several layers of Reka's own components, and Vue's scoped-CSS
-   attribute doesn't reliably survive that chain. */
+/* Not scoped: TooltipContent is teleported (see GPopover.vue). */
 .g-tooltip-anchor {
   display: inline-flex;
 }

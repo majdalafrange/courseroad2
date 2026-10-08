@@ -110,9 +110,7 @@ const hintId = `${fieldId}-hint`;
 </script>
 
 <style>
-/* Not scoped: see GPopover.vue's note. SelectContent is teleported
-   through several layers of Reka's own components, and Vue's scoped-CSS
-   attribute doesn't reliably survive that chain. */
+/* Not scoped: SelectContent is teleported (see GPopover.vue). */
 .g-select {
   display: flex;
   flex-direction: column;

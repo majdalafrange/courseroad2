@@ -6,10 +6,6 @@
 
 import type { ProgressAssertion, ReqListEntry, RequirementNode } from "./types";
 
-/**
- * Sort programs for the picker: majors first (numeric course order), then
- * minors, then everything else alphabetically.
- */
 /** Whether Number() reads the whole string as a number ("" counts as 0). */
 function isNumericHead(head: string): boolean {
   return !Number.isNaN(Number(head));
@@ -29,6 +25,10 @@ function programNumberKey(title: string): string {
   return head;
 }
 
+/**
+ * Sort programs for the picker: majors first (numeric course order), then
+ * minors, then everything else alphabetically.
+ */
 export function sortCoursesList(reqList: ReqListEntry[]): ReqListEntry[] {
   const courses = reqList.slice(0);
   const sortKey = "medium-title";

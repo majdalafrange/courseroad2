@@ -13,7 +13,6 @@ import { router } from "./router.ts";
 import App from "./App.vue";
 import { QUERY_CACHE_KEY } from "./loaders/courseData";
 
-// Fonts and design tokens.
 import "./css/fonts.css";
 import "./design/tokens.css";
 import "./design/departmentColors.css";

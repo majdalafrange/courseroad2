@@ -17,9 +17,8 @@
     :data-cy="'road_' + roadID + '__semester_' + index"
     :aria-label="isCurrentTerm ? `${termLabel}, current term` : termLabel"
   >
-    <!-- Pinned flag, cardinal's only other job besides the wordmark and the
-         primary action: mark the one term that's happening right now, the
-         way you'd clip a tab onto the current page of a lab notebook. -->
+    <!-- The Now flag: clipped onto the current term the way you'd tab the
+         current page of a lab notebook. -->
     <span
       v-if="isCurrentTerm && !collapsedPrior"
       class="now-flag"
@@ -67,13 +66,10 @@
             @pointerdown.stop
             @click.stop
           >
-            <img
+            <span
               class="hydrant-icon"
-              :src="hydrantIcon"
-              alt=""
-              width="16"
-              height="16"
-              draggable="false"
+              :style="{ '--hydrant-mask': `url(${hydrantIcon})` }"
+              aria-hidden="true"
             />
           </g-button>
         </g-tooltip>
@@ -429,9 +425,10 @@ const placementAriaLabel = computed(() => {
     border-color var(--motion-quick) var(--ease-out),
     box-shadow var(--motion-quick) var(--ease-out);
 }
+/* The flag alone marks the current term; a cardinal ring as well would
+   spend the color twice. */
 .term-cell.is-current {
-  border-color: var(--g-brand);
-  box-shadow: 0 0 0 1px var(--g-brand);
+  border-color: var(--g-line-strong);
 }
 /* Rotation and clipped bottom corners read as attached, not a floating
    badge. */
@@ -451,6 +448,15 @@ const placementAriaLabel = computed(() => {
   pointer-events: none;
   z-index: 1;
 }
+/* In RoadCanvas's narrow year rows a term is ~150px; at 72px the flag
+   lands on the season label. */
+@media (min-width: 860px) {
+  @container road (max-width: 660px) {
+    .now-flag {
+      right: 32px;
+    }
+  }
+}
 .term-cell.is-empty {
   background: var(--g-bg);
 }
@@ -461,6 +467,11 @@ const placementAriaLabel = computed(() => {
 }
 .term-cell.is-collapsed-prior {
   min-height: 0;
+}
+@media (max-width: 859px) and (pointer: coarse) {
+  .prior-collapsed {
+    min-height: 44px;
+  }
 }
 .prior-collapsed {
   display: flex;
@@ -532,7 +543,7 @@ const placementAriaLabel = computed(() => {
   font-weight: 400;
 }
 .is-current .term-name {
-  color: var(--g-accent);
+  color: var(--g-ink);
 }
 /* --g-ink-3 at full strength: it is tuned to clear 4.5:1 at this size,
    and any opacity on top takes it under. */
@@ -540,15 +551,31 @@ const placementAriaLabel = computed(() => {
   margin-left: 3px;
   color: var(--g-ink-3);
 }
-/* Keeps the title row as tall as the text beside it. */
-.term-hydrant {
+/* Keeps the title row as tall as the text beside it. Parent-prefixed to
+   outrank GButton's ghost ink. */
+.term-head .term-hydrant {
   margin: -4px -4px -4px 0;
+  color: var(--g-ink-3);
+  transition:
+    opacity var(--motion-quick) var(--ease-out),
+    color var(--motion-quick) var(--ease-out);
+}
+.term-head .term-hydrant:hover {
+  color: var(--g-ink);
+}
+/* One ink in both themes: the logo's two colors competed with the flag.
+   Shown at rest in the current term only, elsewhere on hover or focus. */
+@media (hover: hover) {
+  .term-cell:not(.is-current):not(:hover):not(:focus-within) .term-hydrant {
+    opacity: 0;
+  }
 }
 .hydrant-icon {
   display: block;
   width: 16px;
   height: 16px;
-  object-fit: contain;
+  background: currentColor;
+  mask: var(--hydrant-mask) center / contain no-repeat;
 }
 
 .term-stats {
@@ -784,7 +811,7 @@ const placementAriaLabel = computed(() => {
   padding: var(--space-05) 0;
 }
 
-/* shake a term when 67 unit are added :3 */
+/* shake a term when it hits 67 units :3 */
 .six-seven {
   animation: shake-term 0.5s ease-in-out;
 }
@@ -808,6 +835,11 @@ const placementAriaLabel = computed(() => {
   100% {
     transform: translateX(0) rotate(0deg);
     scale: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .six-seven {
+    animation: none;
   }
 }
 </style>

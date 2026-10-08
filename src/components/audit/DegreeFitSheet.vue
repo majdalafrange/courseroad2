@@ -16,7 +16,6 @@
         </div>
       </header>
 
-      <!-- scan state -->
       <div class="fit-bar">
         <template v-if="fit.scanning">
           <g-progress

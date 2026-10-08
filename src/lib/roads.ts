@@ -245,7 +245,6 @@ export function parseRoadFile(
   if (!Array.isArray(obj.selectedSubjects)) {
     throw new RoadImportError("missing selectedSubjects");
   }
-  // progressOverrides must be defined
   if (obj.progressOverrides === undefined) {
     obj.progressOverrides = {};
   }

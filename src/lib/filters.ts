@@ -117,7 +117,6 @@ export class RegexFilter extends Filter<string> {
     try {
       return new RegExp(regex, "i");
     } catch {
-      // If a regex cannot be constructed, default to matching the literal
       return new RegExp(RegexFilter.escapeRegex(regex), "i");
     }
   }
@@ -361,9 +360,7 @@ export class ArrayFilter extends Filter<never> {
   }
 }
 
-/* ------------------------------------------------------------------ *
- * Concrete search filters
- * ------------------------------------------------------------------ */
+/* ---- concrete search filters ---- */
 
 export const textFilter = new RegexFilter(
   "Subject ID",

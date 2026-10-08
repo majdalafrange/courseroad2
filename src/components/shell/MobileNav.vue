@@ -67,8 +67,29 @@ const emit = defineEmits<{
   padding: 0;
   cursor: pointer;
 }
+/* Color alone can't carry the current tab: dark's silver accent sits
+   1.3:1 from ink-3. The weight and the bar above the icon do. */
+.mobile-tab {
+  position: relative;
+}
 .mobile-tab.active {
   color: var(--g-accent);
+  font-weight: 600;
+}
+.mobile-tab.active::before {
+  content: "";
+  position: absolute;
+  top: -1px; /* over the nav's top border */
+  left: 50%;
+  width: 32px;
+  height: 2px;
+  transform: translateX(-50%);
+  border-radius: 0 0 var(--radius-xs) var(--radius-xs);
+  background: currentColor;
+}
+.mobile-tab:focus-visible {
+  outline: none;
+  box-shadow: var(--g-focus-ring-inset);
 }
 .search-tab {
   color: var(--g-ink-2);

@@ -11,7 +11,6 @@
       class="connections-body"
       :class="{ 'panel-left': courseData.panelSide === 'left' }"
     >
-      <!-- loading -->
       <div v-if="store.status === 'loading'" class="state-fill" role="status">
         <div class="skeleton-graph" aria-hidden="true">
           <span v-for="i in 6" :key="i" class="skeleton-node" />
@@ -19,7 +18,6 @@
         <p class="state-text">Building the graph...</p>
       </div>
 
-      <!-- catalog error -->
       <div v-else-if="store.status === 'error'" class="state-fill" role="alert">
         <h2 class="state-title">The subject catalog didn't load.</h2>
         <p class="state-text">
@@ -144,7 +142,7 @@ watch(
   { immediate: true },
 );
 
-// explore page is not mobile-friendly, so redirect to the plan page on small screens
+// Explore isn't offered on small screens; send them to the plan.
 watch(
   isMobile,
   (mobile) => {

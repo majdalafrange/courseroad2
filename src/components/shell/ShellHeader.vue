@@ -18,7 +18,10 @@
         @open-compare="emit('open-compare')"
         @open-share="emit('open-share')"
       />
-      <span class="header-meta">
+      <span
+        class="header-meta"
+        :class="{ 'is-warn': saveState.tone === 'warn' }"
+      >
         <span v-if="totalUnits > 0" class="header-units"
           >{{ totalUnits }} units</span
         >
@@ -238,7 +241,6 @@ const route = useRoute();
 const isExplore = computed(() => route.name === "/explore/[[road]]");
 const moreOpen = ref(false);
 
-/* Feedback and issue-report form. */
 const feedbackFormUrl = "https://forms.gle/VAY3E7RbjmUrw3ww5";
 
 const paletteKeys = shortcutKeys("K");
@@ -255,7 +257,7 @@ const totalUnits = computed(() => {
   );
 });
 
-/* ---- save state: one line + dot; detail in the tooltip ---- */
+/* ---- save state: icon + one line; detail in the tooltip ---- */
 interface SaveState {
   label: string;
   icon: IconName;
@@ -394,7 +396,7 @@ const saveState = computed<SaveState>(() => {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .save-state.busy .save-dot {
+  .save-state.busy .save-icon {
     animation: none;
   }
 }
@@ -490,23 +492,53 @@ const saveState = computed<SaveState>(() => {
   font-weight: 600;
 }
 
+/* Narrower, the save state keeps its icon (label for screen readers):
+   a failed sync has to stay visible. */
 @media (max-width: 1120px) {
-  .header-meta {
+  .header-units,
+  .meta-dot {
     display: none;
+  }
+  .save-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 }
 
 @media (max-width: 859px) {
   .shell-header {
     padding: 0 var(--space-3);
-    /* 40px touch targets need more headroom than a 48px row gives. */
+    /* 44px touch targets need more headroom than a 48px row gives. */
     min-height: 56px;
     gap: var(--space-2);
+  }
+  /* Four 44px targets side by side: each target is its own gap. */
+  .header-right {
+    gap: var(--space-1);
   }
   .header-brand :deep(.g-name) {
     display: none;
   }
+  /* The mark alone is 18px; the link around it is the 44px target. */
+  .header-brand {
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+  }
+  .header-left {
+    gap: var(--space-1);
+  }
   .header-sep {
+    display: none;
+  }
+  /* No room for a steady "Saved" on a phone; the icon comes back only
+     when something is wrong (the failure itself also toasts). */
+  .header-meta:not(.is-warn) {
     display: none;
   }
   .header-left :deep(.switch-trigger) {
@@ -514,25 +546,24 @@ const saveState = computed<SaveState>(() => {
        crowding the touch targets on the other side of the row. */
     max-width: 40vw;
     /* level with the search field beside it */
-    height: 40px;
+    height: 44px;
   }
   .search-trigger {
     width: auto;
-    /* Icon-only here (text/kbd hidden below): widen toward the 44px
-       touch-target guideline instead of sizing to the icon alone. */
-    min-width: 40px;
-    height: 40px;
+    /* Icon-only here (text/kbd hidden below): a 44px touch target, not
+       the icon's own size. */
+    min-width: 44px;
+    height: 44px;
+    justify-content: center;
   }
   .search-trigger-text,
   .search-trigger-kbd {
     display: none;
   }
-  /* Undo/redo/feedback/more: same reasoning as .search-trigger. (Theme
-     toggle is sized in its own component, ThemeToggle.vue.) */
-  /* Parent-prefixed to outrank GButton's own size rules. */
+  /* Same 44px target; parent-prefixed to outrank GButton's sizes. */
   .header-right .g-button.header-icon-btn {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
   }
   .mode-switch {
     display: none;

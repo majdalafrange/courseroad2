@@ -74,16 +74,53 @@ import { useAuditStore } from "./audit";
 export type ConnectionsStatus =
   "idle" | "loading" | "ready" | "empty" | "error";
 
-/** Node geometry, shared by the renderer and edge trimming. Cards are
- *  stadiums: full-round end caps, so the cap radius is half the height and
- *  the width carries ~16px of cap curvature the content cannot use. */
+/** Node geometry, shared by the renderer and edge trimming. Cards are cut
+ *  like the plan's cards; NODE_RADIUS matches --radius-md in tokens.css. */
 export const NODE_WIDTH = 200;
 export const NODE_HEIGHT = 78;
 export const NODE_HEIGHT_COMPACT = 40;
+export const NODE_RADIUS = 6;
 /** Below this zoom the cards drop titles and badges. */
 export const COMPACT_ZOOM = 0.55;
 /** Clearance between a card's border and where its edges start. */
 const EDGE_GAP = 7;
+
+/**
+ * Fraction of a ray (dx, dy) from a card's center before it leaves a
+ * rounded rectangle of half-size halfW by halfH with corner radius r: a
+ * flat exit hits a side, a diagonal one hits a corner circle.
+ */
+export function exitFraction(
+  dx: number,
+  dy: number,
+  halfW: number,
+  halfH: number,
+  r: number,
+): number {
+  if (dx === 0 && dy === 0) {
+    return 0;
+  }
+  const radius = Math.min(r, halfW, halfH);
+  if (dy !== 0) {
+    const t = halfH / Math.abs(dy);
+    if (Math.abs(dx) * t <= halfW - radius) {
+      return t;
+    }
+  }
+  if (dx !== 0) {
+    const t = halfW / Math.abs(dx);
+    if (Math.abs(dy) * t <= halfH - radius) {
+      return t;
+    }
+  }
+  const cx = Math.sign(dx) * (halfW - radius);
+  const cy = Math.sign(dy) * (halfH - radius);
+  const a = dx * dx + dy * dy;
+  const b = dx * cx + dy * cy;
+  const c = cx * cx + cy * cy - radius * radius;
+  const disc = b * b - a * c;
+  return disc <= 0 ? 0 : (b + Math.sqrt(disc)) / a;
+}
 
 /**
  * A subject's grid row: its road bucket if it's already placed, else the
@@ -225,7 +262,7 @@ export const useConnectionsStore = defineStore("connections", () => {
     return engine;
   }
 
-  /* ---------------------------------------------------- derived context */
+  /* ---- derived context ---- */
 
   /** Subjects on the active road → planned/taken by their earliest bucket. */
   const roadStatus = computed(() => {
@@ -399,7 +436,7 @@ export const useConnectionsStore = defineStore("connections", () => {
     return undefined;
   }
 
-  /* --------------------------------------------------------- view models */
+  /* ---- view models ---- */
 
   /**
    * The emphasized node (debounced hover, else selection) and everything
@@ -470,40 +507,14 @@ export const useConnectionsStore = defineStore("connections", () => {
   /** Cards drop titles and badges when zoomed far out. */
   const compact = computed(() => viewport.value.zoom < COMPACT_ZOOM);
 
-  /**
-   * Fraction of segment a→b before a line from a card's center clears the
-   * card outline plus EDGE_GAP. Cards are stadiums (rectangle with
-   * half-circle caps of radius halfH): a flat exit hits the slab, an end
-   * exit hits the cap circle.
-   */
-  function exitFraction(dx: number, dy: number, halfH: number): number {
-    const halfW = NODE_WIDTH / 2 + EDGE_GAP;
-    const coreHalfW = Math.max(0, halfW - halfH);
-    if (dy !== 0) {
-      const tFlat = halfH / Math.abs(dy);
-      if (Math.abs(dx) * tFlat <= coreHalfW) {
-        return tFlat;
-      }
-    } else if (dx === 0) {
-      return 0;
-    }
-    // cap exit: intersect the ray with the end circle on the leaving side
-    const cx = Math.sign(dx) * coreHalfW;
-    const a = dx * dx + dy * dy;
-    const b = dx * cx;
-    const c = cx * cx - halfH * halfH;
-    const disc = b * b - a * c;
-    if (a === 0 || disc <= 0) {
-      return 0;
-    }
-    return (b + Math.sqrt(disc)) / a;
-  }
-
   const edges = computed<EdgeView[]>(() => {
     const positions = layout.value.positions;
     const hood = neighborhood.value;
+    // the card outline grown by EDGE_GAP: an offset rounded rectangle
+    const halfW = NODE_WIDTH / 2 + EDGE_GAP;
     const halfH =
       (compact.value ? NODE_HEIGHT_COMPACT : NODE_HEIGHT) / 2 + EDGE_GAP;
+    const radius = NODE_RADIUS + EDGE_GAP;
     const out: EdgeView[] = [];
     for (const edge of graph.value.edges.values()) {
       if (!edgeVisible(edge)) {
@@ -519,7 +530,7 @@ export const useConnectionsStore = defineStore("connections", () => {
       // pokes out from underneath
       const dx = b.x - a.x;
       const dy = b.y - a.y;
-      const t = exitFraction(dx, dy, halfH);
+      const t = exitFraction(dx, dy, halfW, halfH, radius);
       const overlapping = t * 2 >= 1;
       const x1 = overlapping ? (a.x + b.x) / 2 : a.x + dx * t;
       const y1 = overlapping ? (a.y + b.y) / 2 : a.y + dy * t;
@@ -578,7 +589,7 @@ export const useConnectionsStore = defineStore("connections", () => {
   const overBudget = computed(() => nodeCount.value > SOFT_NODE_BUDGET);
   const atCeiling = computed(() => nodeCount.value >= HARD_NODE_CEILING);
 
-  /* ---------------------------------------------------------- mutations */
+  /* ---- mutations ---- */
 
   function relayout(): void {
     layout.value = reconcileLayout(layout.value, graph.value, termOf.value);
@@ -862,9 +873,9 @@ export const useConnectionsStore = defineStore("connections", () => {
     if (before.graph.nodes.size === 0 || !tookSomethingAway(before)) {
       return;
     }
-    toast.undoable("Restarted from your road", () => {
+    toast.undoable("Started from your road", () => {
       restore(before);
-      announce("Restart undone.");
+      announce("Undone.");
     });
   }
 
@@ -1001,7 +1012,7 @@ export const useConnectionsStore = defineStore("connections", () => {
     commit(resetGraph(graph.value, e), { relayout: false });
     layout.value = reconcileLayout(layout.value, graph.value, termOf.value);
     requestFrame(undefined, COMPACT_ZOOM);
-    announce("Reset to your starting subjects.");
+    announce("Back to your starting subjects.");
 
     // Already at the seed: don't offer to take back a no-op.
     if (!tookSomethingAway(before)) {
@@ -1009,9 +1020,9 @@ export const useConnectionsStore = defineStore("connections", () => {
     }
 
     // Unconditional: edits made while the toast was up are reverted too.
-    toast.undoable("Reset to your starting subjects", () => {
+    toast.undoable("Back to your starting subjects", () => {
       restore(before);
-      announce("Reset undone.");
+      announce("Undone.");
     });
   }
 
@@ -1047,7 +1058,7 @@ export const useConnectionsStore = defineStore("connections", () => {
     }
   }
 
-  /* ------------------------------------------------- inline placement */
+  /* ---- inline placement ---- */
 
   /** Begin an inline "add to road"; the term picker opens on this. */
   function requestPlacement(id: string): void {

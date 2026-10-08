@@ -179,7 +179,6 @@ const paletteOpen = ref(false);
 const paletteRef = useTemplateRef("paletteRef");
 const customClassRef = useTemplateRef("customClassRef");
 
-/* ---- responsive ---- */
 const isMobile = useIsMobile();
 const mobileView = ref<"plan" | "progress">("plan");
 
@@ -399,7 +398,7 @@ function seedFromOnboarding(payload: {
   coursesOfStudy: string[];
   selectedSubjects: SelectedSubject[][];
 }) {
-  // Apply year (best-effort; changeSemester also syncs the server if logged in)
+  // Best-effort; changeSemester also syncs the server when logged in.
   auth.changeSemester(payload.year);
   // Seed the active (default) road in place so we don't fork an extra road.
   const id = store.activeRoad;
@@ -419,7 +418,6 @@ function seedFromOnboarding(payload: {
   );
 }
 
-/* ---- undo/redo ---- */
 function doUndo() {
   const label = history.undo();
   if (label !== undefined) {
@@ -434,7 +432,6 @@ function doRedo() {
   }
 }
 
-/* ---- keyboard ---- */
 useGlobalShortcuts({
   togglePalette: () => (paletteOpen.value = !paletteOpen.value),
   undo: doUndo,
@@ -523,7 +520,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   gap: var(--space-3);
-  height: 100vh;
+  height: 100dvh;
   padding: var(--space-5);
   text-align: center;
   background: var(--g-bg);

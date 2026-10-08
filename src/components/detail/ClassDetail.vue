@@ -5,7 +5,6 @@
     class="class-detail"
     data-cy="classInfoCard"
   >
-    <!-- viewed-class trail -->
     <div class="detail-trail">
       <g-button
         :disabled="activeIndex <= 0"
@@ -129,7 +128,6 @@
         <span><span class="sr-only">Your note: </span>{{ subjectNote }}</span>
       </p>
 
-      <!-- stats -->
       <p class="detail-stats">
         <span
           v-if="subject.rating !== undefined"
@@ -835,7 +833,6 @@ function dragSubject(event: PointerEvent, target: Subject) {
   }
 }
 
-/* ---- keyboard ---- */
 function onKeydown(event: KeyboardEvent) {
   // A layer above this one (palette, popover) that consumed the Escape
   // marks it defaultPrevented; one keypress closes one layer.
@@ -887,7 +884,6 @@ watch(
   min-height: 0;
 }
 
-/* ---------- viewed-class trail ---------- */
 .detail-trail {
   display: flex;
   align-items: center;
@@ -942,7 +938,6 @@ watch(
   flex-shrink: 0;
 }
 
-/* ---------- body ---------- */
 .detail-body {
   flex: 1;
   overflow-y: auto;
@@ -1044,7 +1039,6 @@ watch(
   flex-shrink: 0;
 }
 
-/* ---------- stats ---------- */
 /* One line of facts. Space separates the pairs rather than a glyph, so a
    wrap never orphans a separator. */
 .detail-stats {
@@ -1241,7 +1235,6 @@ watch(
   background: var(--g-surface-sunken);
 }
 
-/* ---------- facts ---------- */
 .facts {
   display: grid;
   grid-template-columns: auto 1fr;

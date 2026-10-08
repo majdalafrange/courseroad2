@@ -444,6 +444,6 @@ export function savePersistedStore(store: {
   try {
     localStorage.setItem(PERSISTED_STORE_KEY, JSON.stringify(store.$state));
   } catch {
-    // Storage full or unavailable; the road still lives in cookies/cloud.
+    // Storage full or unavailable; a logged-in road still lives in the cloud.
   }
 }

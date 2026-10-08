@@ -172,7 +172,6 @@ function toggleOpen() {
   open.value = !open.value;
 }
 
-/* ---- expand all / collapse all ---- */
 /* Every branch under this program with its current open state. Leaves
    carry no expansion state and are skipped. */
 const branchStates = computed<{ key: string; open: boolean }[]>(() => {
@@ -391,6 +390,14 @@ watch(
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;
+}
+/* Touch tier: the 44px header buttons take width from the title, so it
+   gets a third line before it ellipses. */
+@media (max-width: 859px) and (pointer: coarse) {
+  .program-title {
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
 }
 .program-name {
   font: var(--text-small);

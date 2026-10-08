@@ -177,7 +177,6 @@ export const useCourseDataStore = defineStore("courseData", {
       Object.assign(this.$state, getDefaultState());
     },
 
-    /** Low-level class splice: mutate + notify, no history recording. */
     /**
      * The live storage key for a captured road key. A key that is still a
      * live road is used as is; only a key resetID renamed away follows the
@@ -187,6 +186,7 @@ export const useCourseDataStore = defineStore("courseData", {
       return id in this.roads ? id : followAlias(id);
     },
 
+    /** Low-level class splice: mutate + notify, no history recording. */
     spliceClassRaw(
       roadID: string,
       semester: number,
@@ -1016,7 +1016,7 @@ export const useCourseDataStore = defineStore("courseData", {
       }
       let newClass: SelectedSubject;
       if (this.itemAdding.public === false) {
-        // Adding custom class
+        // A custom activity
         newClass = {
           overrideWarnings: false,
           semester: index,
@@ -1029,7 +1029,7 @@ export const useCourseDataStore = defineStore("courseData", {
           public: false,
         };
       } else {
-        // Class is in catalog
+        // A catalog subject
         newClass = {
           overrideWarnings: false,
           semester: index,

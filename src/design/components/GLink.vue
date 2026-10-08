@@ -16,7 +16,7 @@
 <script setup lang="ts">
 /**
  * A text link. Two tones:
- * - "inline" (default): a link inside a sentence; accent and underlined,
+ * - "inline" (default): a link inside a sentence; ink and underlined,
  *   since color alone must not be what marks it (WCAG 1.4.1).
  * - "quiet": a standalone link in a list, footer or stat; it takes the
  *   color around it and shows accent and an underline on hover. The
@@ -57,11 +57,16 @@ const {
   margin-left: 3px;
 }
 
+/* Ink, not cardinal: the underline marks the link, and cardinal stays
+   for the current-term flag and the primary action. */
 .t-inline {
-  color: var(--g-accent);
+  color: var(--g-ink);
   text-decoration: underline;
+  text-decoration-color: var(--g-ink-3);
 }
 .t-inline:hover {
+  color: var(--g-accent);
+  text-decoration-color: currentColor;
   text-decoration-thickness: 2px;
 }
 
@@ -70,6 +75,13 @@ const {
   align-items: center;
   color: inherit;
   text-decoration: none;
+}
+/* Touch tier (tokens.css): a standalone link is a 44px target on a
+   phone. Inline links stay text-sized, as WCAG 2.5.8 allows. */
+@media (max-width: 859px) and (pointer: coarse) {
+  .t-quiet {
+    min-height: 44px;
+  }
 }
 .t-quiet:hover {
   color: var(--g-accent);

@@ -158,7 +158,8 @@ onMounted(() => {
   margin: var(--space-2);
   padding: var(--space-3);
   background: var(--g-surface);
-  border: 1px solid var(--g-accent);
+  /* a raised panel: its elevation sets it apart, not a cardinal edge */
+  border: 1px solid var(--g-line-strong);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-2);
 }

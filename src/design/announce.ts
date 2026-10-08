@@ -10,7 +10,7 @@ export const liveMessage = ref("");
 
 let clearTimer: ReturnType<typeof setTimeout> | undefined;
 
-/** Announce a message politely (deduped re-announce via a brief clear). */
+/** Announce a message politely. */
 export function announce(message: string): void {
   if (clearTimer !== undefined) {
     clearTimeout(clearTimer);

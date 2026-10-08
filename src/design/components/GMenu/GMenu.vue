@@ -93,6 +93,12 @@ function onEscapeKeyDown(event: KeyboardEvent) {
 .g-menu-item:focus-visible {
   box-shadow: var(--g-focus-ring-inset);
 }
+/* Touch tier (tokens.css): rows are 44px targets on a phone. */
+@media (max-width: 859px) and (pointer: coarse) {
+  .g-menu-item {
+    min-height: 44px;
+  }
+}
 .g-menu-item.danger[data-highlighted] {
   background: var(--g-danger-tint);
   color: var(--g-danger);

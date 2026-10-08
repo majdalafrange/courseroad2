@@ -102,6 +102,18 @@ function optOut() {
   flex-direction: column;
   gap: var(--space-3);
 }
+/* Clears the phone bottom nav (shown at the same breakpoint) instead of
+   sitting on its labels. */
+@media (max-width: 859px) {
+  .cookie-consent {
+    bottom: calc(
+      var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px) +
+        var(--space-3)
+    );
+    right: var(--space-3);
+    max-width: calc(100vw - 2 * var(--space-3));
+  }
+}
 .consent-text {
   font: var(--text-small);
   color: var(--g-ink-2);

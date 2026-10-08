@@ -18,7 +18,7 @@
           >.
         </p>
         <p>
-          It utilizes
+          It uses
           <g-link href="https://fireroad.mit.edu" external>FireRoad</g-link>,
           which provides the subject catalog, the requirements engine, and cloud
           sync.
@@ -38,11 +38,10 @@
           >, and your department advisor.
         </p>
         <p>
-          For this new iteration of CourseRoad, we've made significant
-          improvements to the user experience and the underlying structure.
-          Generative AI has been used in the development of the user interface,
-          but it has not been used for any of the logic or data processing. All
-          course and requirement data is sourced from MIT's official resources.
+          This version of CourseRoad has a rebuilt interface. Generative AI has
+          been used in the development of the user interface, but it has not
+          been used for any of the logic or data processing. All course and
+          requirement data is sourced from MIT's official resources.
         </p>
         <!-- TODO: change url before launch -->
         <p>
@@ -114,11 +113,12 @@ const emit = defineEmits<{
   max-width: 46em;
   color: var(--g-ink);
 }
-.about-lede {
-  font: var(--text-title);
+/* .about p is (0,1,1); this has to outrank it or the lede renders as body */
+.about p.about-lede {
+  font: var(--text-heading);
   font-weight: 400;
-  color: var(--g-ink-2);
-  margin: var(--space-4) 0 var(--space-6);
+  color: var(--g-ink);
+  margin: var(--space-4) 0 var(--space-5);
 }
 .about h2 {
   font: var(--text-heading);
@@ -129,12 +129,18 @@ const emit = defineEmits<{
   color: var(--g-ink-2);
   margin: 0 0 var(--space-2);
 }
+/* Names in two columns where they fit, so the list doesn't outgrow the
+   sheet; a phone gets one. */
 .about ul {
-  margin: 0 0 var(--space-2) var(--space-1);
+  columns: 2 14em;
+  column-gap: var(--space-6);
+  margin: 0 0 var(--space-3);
+  padding-left: var(--space-5);
   color: var(--g-ink-2);
 }
 .about li {
   margin: 0 0 var(--space-05);
+  break-inside: avoid;
 }
 .about-credits {
   font: var(--text-small);

@@ -2,7 +2,6 @@
   <div class="audit-panel" data-cy="auditBox">
     <suggestion-strip @see-all="onSeeAll" />
 
-    <!-- program picker -->
     <div class="picker">
       <g-popover v-model="pickerOpen" label="Add a major or minor">
         <template #anchor>
@@ -212,8 +211,7 @@ const previewTreeWithIds = computed(() => {
   if (auditStore.previewTree === null) {
     return null;
   }
-  // Same reasoning as treeFor() above: assignListIDs mutates by design,
-  // and toRaw() unwraps the reactive Proxy structuredClone can't handle.
+  // Cloned for the same reason as in treeFor() above.
   return assignListIDs(structuredClone(toRaw(auditStore.previewTree)), 999);
 });
 </script>
@@ -239,18 +237,30 @@ const previewTreeWithIds = computed(() => {
   font: var(--text-small);
   font-weight: 500;
   color: var(--g-ink-2);
-  background: var(--g-surface-2);
-  border: 1px dashed var(--g-line-strong);
-  border-radius: var(--radius-full);
+  /* A button, so the button standard (tokens.css): dashed is for drop
+     zones like prior credit. */
+  background: var(--g-surface);
+  border: none;
+  box-shadow: var(--shadow-1);
+  border-radius: var(--radius-sm);
   padding: var(--space-1) var(--space-3);
+  min-height: 28px;
   cursor: pointer;
   transition:
+    background-color var(--motion-quick) var(--ease-out),
     color var(--motion-quick) var(--ease-out),
-    border-color var(--motion-quick) var(--ease-out);
+    box-shadow var(--motion-quick) var(--ease-out);
+}
+/* Touch tier (tokens.css). */
+@media (max-width: 859px) and (pointer: coarse) {
+  .picker-trigger {
+    min-height: 44px;
+  }
 }
 .picker-trigger:hover {
-  color: var(--g-accent);
-  border-color: var(--g-accent);
+  color: var(--g-ink);
+  background: var(--g-surface-2);
+  box-shadow: var(--shadow-2);
 }
 .picker-trigger:focus-visible {
   outline: none;
@@ -299,6 +309,12 @@ const previewTreeWithIds = computed(() => {
 /* 24px rows: the minimum target size (WCAG 2.5.8). */
 .audit-link {
   min-height: 24px;
+}
+/* Touch tier (tokens.css); this rule outranks GLink's own. */
+@media (max-width: 859px) and (pointer: coarse) {
+  .audit-link {
+    min-height: 44px;
+  }
 }
 .audit-links {
   font: var(--text-small);

@@ -154,9 +154,11 @@ const arrowPoints = computed(() => {
   }
 }
 
-/* relationship colors (theme-aware via tokens) */
+/* relationship colors (theme-aware via tokens). Ink, not cardinal: the
+   edges are the graph's content, and cardinal marks the current term.
+   ConnectionsToolbar and ConnectionsCanvas swatches use the same value. */
 .t-prereq {
-  --edge-color: var(--g-accent);
+  --edge-color: var(--g-ink-2);
 }
 
 /* interdisciplinary crossings: heavier line, warmer rest mix */

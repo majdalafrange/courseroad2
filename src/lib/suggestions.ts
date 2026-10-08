@@ -174,7 +174,6 @@ export function buildSuggestions(ctx: SuggestionContext): Suggestion[] {
   }
   const season = semesterType(targetIndex);
 
-  // Gather unfulfilled attribute gaps across every program.
   const gaps = openAttributeGaps(Object.values(ctx.reqTrees));
   if (gaps.size === 0) {
     return [];

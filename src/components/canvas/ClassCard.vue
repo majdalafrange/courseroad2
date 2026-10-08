@@ -106,6 +106,7 @@
     <g-popover
       v-if="warnings.length > 0"
       v-model="warningsOpen"
+      class="card-warning-anchor"
       align="end"
       placement="bottom"
       :label="`Warnings for ${subject.subject_id}`"
@@ -559,6 +560,47 @@ function onHoverEnd() {
 .card-warning:focus-visible {
   outline: none;
   box-shadow: var(--g-focus-ring);
+}
+
+/* Touch tier (tokens.css): a 44px corner disc would cover the card body
+   and the card above, so on a phone the badges become end zones. */
+@media (max-width: 859px) and (pointer: coarse) {
+  .card-remove,
+  .card-warning {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    width: 44px;
+    height: auto;
+    align-self: stretch;
+    flex-shrink: 0;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  }
+  .card-warning {
+    border-radius: 0;
+  }
+  .card-remove::after,
+  .card-warning::after {
+    inset: auto;
+    top: 50%;
+    left: 50%;
+    width: 22px;
+    height: 22px;
+    transform: translate(-50%, -50%);
+  }
+  .card-remove {
+    order: 2;
+  }
+  .class-card > :deep(.card-warning-anchor) {
+    order: 1;
+    display: flex;
+  }
+  /* muted warnings have no hover to bring them back here; the zone
+     goes rather than sit empty */
+  .card-warning.is-quiet:not(:focus-visible) {
+    display: none;
+  }
 }
 
 /* A note is on this placement: a small mark at the card's right edge;

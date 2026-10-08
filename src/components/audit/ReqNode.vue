@@ -1,6 +1,5 @@
 <template>
   <div class="req-node" :class="{ 'is-root': depth === 0 }">
-    <!-- ============ branch ============ -->
     <div v-if="isBranch" class="branch-line">
       <button
         type="button"
@@ -86,7 +85,7 @@
       />
     </div>
 
-    <!-- ============ leaf ============ -->
+    <!-- leaf -->
     <div
       v-if="!isBranch"
       class="leaf-line"
@@ -392,7 +391,6 @@ const percentTone = computed(() => {
   return percent > 15 ? "tone-mid" : "tone-low";
 });
 
-/* ---- assertions ---- */
 const assertions = computed(
   () => store.roads[store.activeRoad]?.contents.progressAssertions ?? {},
 );
@@ -613,7 +611,6 @@ export default { name: "ReqNode" };
   width: 100%;
 }
 
-/* ---------- branch ---------- */
 .branch-line {
   position: relative;
   display: flex;
@@ -717,7 +714,6 @@ export default { name: "ReqNode" };
   padding-left: var(--space-2);
 }
 
-/* ---------- leaf ---------- */
 .leaf-line {
   display: flex;
   align-items: center;
@@ -852,7 +848,24 @@ export default { name: "ReqNode" };
   }
 }
 
-/* ---------- popovers ---------- */
+/* Touch tier (tokens.css): the row and its actions are 44px targets on
+   a phone, so leaf rows grow instead of the buttons overhanging them. */
+@media (max-width: 859px) and (pointer: coarse) {
+  .leaf-line {
+    min-height: 44px;
+    padding-block: 0;
+  }
+  .leaf-row {
+    align-self: stretch;
+    margin-block: 0;
+  }
+  .leaf-actions {
+    margin: 0;
+    gap: 0;
+    min-width: 88px;
+  }
+}
+
 .info-pop,
 .petition-pop {
   display: flex;

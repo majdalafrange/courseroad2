@@ -124,7 +124,6 @@ const classes = computed(() => [
   }
 }
 
-/* sizes */
 .s-md {
   height: 34px;
   padding: 0 var(--space-4);
@@ -157,7 +156,21 @@ const classes = computed(() => [
   padding: 0;
 }
 
-/* variants */
+/* Phone with a touch pointer: every size is a 44px target (tokens.css,
+   TOUCH TIER). A mouse in a narrow window keeps the compact sizes. */
+@media (max-width: 859px) and (pointer: coarse) {
+  .s-md,
+  .s-sm,
+  .s-xs {
+    height: 44px;
+  }
+  .icon-only.s-md,
+  .icon-only.s-sm,
+  .icon-only.s-xs {
+    width: 44px;
+  }
+}
+
 .v-primary {
   background: var(--g-accent-fill);
   color: var(--g-on-accent);
@@ -234,6 +247,12 @@ const classes = computed(() => [
   color: var(--g-accent);
   border-radius: var(--radius-xs);
   text-underline-offset: 2px;
+}
+@media (max-width: 859px) and (pointer: coarse) {
+  .v-link,
+  .v-quiet {
+    min-height: 44px;
+  }
 }
 .v-link:hover:not(:disabled) {
   text-decoration: underline;

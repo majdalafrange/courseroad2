@@ -41,7 +41,7 @@
               {{ termLabelNow }} <span class="sep">·</span>
               {{ yearNames[store.userYear] }}
             </span>
-            <span class="year-pill-tag">Now</span>
+            <span class="sr-only">, current term</span>
             <g-icon name="chevronDown" :size="12" class="year-pill-icon" />
           </button>
         </template>
@@ -182,7 +182,6 @@ const termLabelNow = computed(() =>
   termYearLabel(store.currentSemester, baseYearValue.value),
 );
 
-/* ---- fifth year visibility ---- */
 const showFifthYearPref = ref(readRawFlag(STORAGE_KEYS.showFifthYear));
 const showFifthYear = computed(
   () =>
@@ -452,6 +451,9 @@ void dragState;
   gap: var(--space-3);
   max-width: 1140px;
   margin: 0 auto;
+  /* queried by the year rows and term cells: beside the panel on a small
+     laptop, the canvas width (not the window) is what runs out */
+  container: road / inline-size;
 }
 
 .canvas-toolbar {
@@ -479,6 +481,13 @@ void dragState;
     box-shadow var(--motion-quick) var(--ease-out),
     color var(--motion-quick) var(--ease-out);
 }
+/* Touch tier (tokens.css). Hide IAP beside it is a GButton and grows
+   on its own. */
+@media (max-width: 859px) and (pointer: coarse) {
+  .year-pill {
+    height: 44px;
+  }
+}
 .year-pill:hover {
   box-shadow: inset 0 0 0 1px var(--g-ink-3);
   color: var(--g-ink);
@@ -495,24 +504,6 @@ void dragState;
 }
 .year-pill-icon {
   flex-shrink: 0;
-}
-.year-pill-tag {
-  flex-shrink: 0;
-  font: var(--text-micro);
-  font-weight: 600;
-  color: var(--g-ink-2);
-  background: var(--g-accent-tint);
-  border-radius: var(--radius-full);
-  padding: 1px var(--space-2);
-}
-.year-pill-tag {
-  flex-shrink: 0;
-  font: var(--text-micro);
-  font-weight: 600;
-  color: var(--g-ink-2);
-  background: var(--g-accent-tint);
-  border-radius: var(--radius-full);
-  padding: 1px var(--space-2);
 }
 
 .settings-pop {
@@ -605,6 +596,27 @@ void dragState;
   color: var(--g-ink-3);
 }
 
+/* Beside the panel (860 to ~1080px windows) the year column starves IAP
+   until its ids clip, so the year moves above its terms. */
+@media (min-width: 860px) {
+  @container road (max-width: 660px) {
+    .year-row {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.7fr) minmax(0, 1fr);
+      row-gap: var(--space-2);
+    }
+    .year-row.no-iap {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .year-label {
+      grid-column: 1 / -1;
+      flex-direction: row;
+      align-items: baseline;
+      gap: var(--space-2);
+      padding-top: var(--space-2);
+    }
+  }
+}
+
 /* On a phone, the year grid stacks into a single column. minmax(0, 1fr),
    not bare 1fr: a bare track's minimum comes from its content and can
    force the column wider than the viewport. */
@@ -625,7 +637,6 @@ void dragState;
   }
 }
 
-/* larger screens get larger maximum widths */
 @media (min-width: 1600px) {
   .road-canvas {
     max-width: 1320px;

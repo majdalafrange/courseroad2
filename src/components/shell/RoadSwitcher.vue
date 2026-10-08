@@ -445,6 +445,21 @@ function commitRename() {
     opacity: 0;
   }
 }
+/* Touch tier (tokens.css): the hidden count slot widens with the actions
+   so the name ellipses before it runs under them. */
+@media (max-width: 859px) and (pointer: coarse) {
+  .switch-icon-btn {
+    width: 44px;
+    height: 44px;
+  }
+  .road-actions {
+    right: 0;
+    gap: 0;
+  }
+  .road-count {
+    width: 132px;
+  }
+}
 
 .rename-form {
   display: flex;

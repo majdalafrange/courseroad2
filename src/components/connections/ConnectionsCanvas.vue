@@ -110,7 +110,7 @@
     <div v-if="store.overBudget" class="budget-note" role="status">
       {{ store.nodeCount }} subjects shown.
       <g-button variant="link" size="sm" @click="store.reset()">
-        Reset
+        Back to start
       </g-button>
     </div>
 
@@ -230,7 +230,7 @@ const latticeStyle = computed(() => {
   };
 });
 
-/* ------------------------------------------------------- expand toggle */
+/* ---- expand toggle ---- */
 
 function toggle(node: NodeView) {
   if (!node.expanded || node.hasMore) {
@@ -240,7 +240,7 @@ function toggle(node: NodeView) {
   }
 }
 
-/* ------------------------------------------------------- edge hover card */
+/* ---- edge hover card ---- */
 
 const edgeCard = ref<{ edge: EdgeView; x: number; y: number } | undefined>();
 
@@ -286,7 +286,7 @@ function onEdgeLeave() {
   edgeCard.value = undefined;
 }
 
-/* ------------------------------------------------------- pan + zoom */
+/* ---- pan + zoom ---- */
 
 /* Programmatic camera moves (fit, framing new nodes) animate; any direct
    input cancels the animation so the camera answers the hand instantly. */
@@ -474,7 +474,6 @@ function visibleCanvasSize(): { width: number; height: number } | undefined {
   const panel = hostEl.value?.parentElement?.querySelector(".node-panel");
   if (panel !== null && panel !== undefined) {
     const p = panel.getBoundingClientRect();
-    // overlaying sheet, so the canvas area above it is what can be seen
     const overlapsX = p.left < rect.right && p.right > rect.left;
     if (p.top < rect.bottom && overlapsX) {
       height = Math.max(160, p.top - rect.top);
@@ -487,7 +486,7 @@ function fit() {
   frameNodes();
 }
 
-/* ------------------------------------------------------- framing */
+/* ---- framing ---- */
 
 /**
  * Serve a frame request: fit everything when no ids are named, otherwise
@@ -617,7 +616,7 @@ watch(
   () => store.requestFrame(),
 );
 
-/* ------------------------------------------------------- node drag/select */
+/* ---- node drag/select ---- */
 
 function onNodePointerDown(event: PointerEvent, node: NodeView) {
   const pointerId = event.pointerId;
@@ -648,7 +647,7 @@ function onNodePointerDown(event: PointerEvent, node: NodeView) {
   window.addEventListener("pointerup", up);
 }
 
-/* ------------------------------------------------------- lifecycle */
+/* ---- lifecycle ---- */
 
 /**
  * Escape backs out one layer: an open term picker first, then the
@@ -758,11 +757,10 @@ onBeforeUnmount(() => {
 .row-rail.is-unscheduled {
   stroke-dasharray: 8 6;
 }
-/* The current term: the same cardinal cue as TermCell's current-term
-   box. Mixed toward the line color, since full --g-brand equals the
-   active-prereq-edge color in light mode. */
+/* The current term's rail is only heavier; its label carries the cardinal,
+   as the Now flag does on the plan. */
 .row-rail.is-current {
-  stroke: color-mix(in srgb, var(--g-brand) 55%, var(--g-line-strong));
+  stroke: var(--g-line-strong);
   stroke-width: 2;
 }
 
@@ -780,8 +778,10 @@ onBeforeUnmount(() => {
 .row-label.is-special {
   font: var(--text-small);
 }
+/* --g-brand, not --g-accent: cardinal in both themes, like the flag */
 .row-label.is-current {
-  fill: var(--g-accent);
+  fill: var(--g-brand);
+  font-weight: 600;
 }
 @media (prefers-reduced-motion: reduce) {
   .scene.vp-animate {
@@ -863,7 +863,7 @@ onBeforeUnmount(() => {
   border-top: 2.5px solid var(--swatch-color, var(--g-ink-3));
 }
 .reason-swatch.t-prereq {
-  --swatch-color: var(--g-accent);
+  --swatch-color: var(--g-ink-2); /* matches GraphEdge's prereq color */
 }
 
 .budget-note {

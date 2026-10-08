@@ -58,14 +58,12 @@ export interface PosterTheme {
   /* term-cell working surface */
   cell: string;
   line: string;
+  /* the current term's border: heavier than a hairline, never cardinal */
+  lineStrong: string;
   ink: string;
   ink2: string;
   ink3: string;
-  /* current-term accent */
-  accent: string;
-  /* brand color, used for now border */
-  brand: string;
-  /* color of now flag */
+  /* the Now flag, the poster's one cardinal mark besides the wordmark */
   brandFlag: string;
   /* used for text contrast */
   deptOn: string;
@@ -74,7 +72,7 @@ export interface PosterTheme {
 
 /* Mirrors of the tokens.css / departmentColors.css values (the poster
    renders outside the app's stylesheet): --g-bg, --g-surface, --g-cell,
-   --g-line, --g-ink, --g-ink-2, --g-ink-3, --g-accent, --g-brand,
+   --g-line, --g-line-strong, --g-ink, --g-ink-2, --g-ink-3,
    --g-brand-flag, --dept-on, --dept-on-2 per theme. poster.spec.ts pins
    these against the parsed source files, so a retuned token fails a test
    instead of drifting. */
@@ -83,11 +81,10 @@ const LIGHT_THEME: PosterTheme = {
   surface: "#ffffff",
   cell: "#ffffff",
   line: "#dde2e5",
+  lineStrong: "#c3c9ce",
   ink: "#191c20",
   ink2: "#484d54",
   ink3: "#62676f",
-  accent: "#a31f34",
-  brand: "#a31f34",
   brandFlag: "#a31f34",
   deptOn: "#ffffff",
   deptOn2: "#f0f0f0",
@@ -102,11 +99,10 @@ const DARK_THEME: PosterTheme = {
   surface: "#171b23",
   cell: "#1e232c",
   line: "#262b35",
+  lineStrong: "#383f4c",
   ink: "#ececee",
   ink2: "#b6b7bc",
   ink3: "#999ba1",
-  accent: "#a6b2bb",
-  brand: "#d4586c",
   brandFlag: "#c04057",
   deptOn: "#16191d",
   deptOn2: "#2a2a2a",
@@ -194,7 +190,6 @@ export function buildRoadPoster(
     let maxCards = 0;
     for (let c = 0; c < 3; c++) {
       if (!options.hideIAP || c !== 1) {
-        // Skip IAP if hidden
         maxCards = Math.max(maxCards, selected[1 + y * 3 + c].length);
       }
     }
@@ -227,13 +222,12 @@ export function buildRoadPoster(
   const yearNames = ["Freshman", "Sophomore", "Junior", "Senior", "Fifth year"];
   for (let y = 0; y < years; y++) {
     const rowH = termHeaderH + maxCardsByYear[y] * (cardH + cardGap) + 16;
-    // year label
     parts.push(
       `<text x="${padding}" y="${cursorY - 8}" font-family="'Overpass Variable',sans-serif" font-size="16" font-weight="600" fill="${theme.ink}">${esc(yearNames[y])}</text>`,
     );
     for (let c = 0; c < 3; c++) {
       const index = 1 + y * 3 + c;
-      if (options.hideIAP && c === 1) continue; // Skip IAP if hidden
+      if (options.hideIAP && c === 1) continue;
       const x =
         padding +
         c * (colWidth + colGap) -
@@ -296,7 +290,7 @@ function truncateTitle(name: string): string {
 interface TermBlockFlags {
   /** Prior credit: sentence-case label, transparent dashed box, never "now". */
   isPrior: boolean;
-  /** TermCell.is-current: brand-bordered box, accent label, a "Now" flag. */
+  /** TermCell.is-current: line-strong border, ink label, a "Now" flag. */
   isCurrent: boolean;
 }
 
@@ -319,8 +313,8 @@ function termBlock(
   // prior credit sits on a dashed, transparent (not filled) box.
   parts.push(
     `<rect x="${x}" y="${y}" width="${w}" height="${blockH}" rx="6" ` +
-      `fill="${isPrior ? "none" : theme.cell}" stroke="${isCurrent ? theme.brand : theme.line}" ` +
-      `stroke-width="${isCurrent ? 1.5 : 1}"${isPrior ? ' stroke-dasharray="4 3"' : ""}/>`,
+      `fill="${isPrior ? "none" : theme.cell}" stroke="${isCurrent ? theme.lineStrong : theme.line}" ` +
+      `stroke-width="1"${isPrior ? ' stroke-dasharray="4 3"' : ""}/>`,
   );
   if (isPrior) {
     // Prior credit is a row name, not a column header: sentence case, no
@@ -329,11 +323,12 @@ function termBlock(
       `<text x="${x + 14}" y="${y + 24}" font-family="'Overpass Variable',sans-serif" font-size="12.5" fill="${theme.ink3}">${esc(season)}</text>`,
     );
   } else {
-    // Season label: the body face, medium weight, accent while current
-    // (TermCell's .term-name); the year half at opacity 0.8 (.term-year).
+    // Season label: the body face, medium weight, ink while current
+    // (TermCell's .term-name); the year at full ink-3 (.term-year), since
+    // any fade takes it under 4.5:1.
     parts.push(
-      `<text x="${x + 14}" y="${y + 24}" font-family="'Overpass Variable',sans-serif" font-size="12.5" font-weight="500" fill="${isCurrent ? theme.accent : theme.ink3}">` +
-        `<tspan>${esc(season)}</tspan><tspan dx="3" fill-opacity="0.8">${esc(yearLabel)}</tspan></text>`,
+      `<text x="${x + 14}" y="${y + 24}" font-family="'Overpass Variable',sans-serif" font-size="12.5" font-weight="500" fill="${isCurrent ? theme.ink : theme.ink3}">` +
+        `<tspan>${esc(season)}</tspan><tspan dx="3" fill="${theme.ink3}">${esc(yearLabel)}</tspan></text>`,
     );
   }
   if (isCurrent) {

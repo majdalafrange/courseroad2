@@ -19,8 +19,7 @@
         <g-wordmark size="lg" />
         <h1 class="onboard-title">Set up your road</h1>
         <p class="onboard-copy">
-          Pick your class year and program. Both can be changed after setup is
-          complete, or skip if you just want to get started.
+          Pick your class year and program. You can change both later.
         </p>
         <span id="onboardYearLabel" class="onboard-label">
           What year are you?

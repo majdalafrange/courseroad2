@@ -36,7 +36,11 @@
       <div class="node-body">
         <div class="node-headline">
           <span class="node-id">{{ node.id }}</span>
-          <span v-if="node.pinned" class="node-flag" title="Pinned" />
+          <span v-if="node.pinned" class="node-flag" title="Pinned"
+            ><g-icon name="pin" :size="11" /><span class="sr-only"
+              >, pinned</span
+            ></span
+          >
         </div>
         <div v-if="!compact" class="node-title" :title="node.subject.title">
           {{ node.subject.title }}
@@ -221,8 +225,8 @@ function onKeydown(event: KeyboardEvent) {
       var(--dept-color, var(--g-line-strong)) var(--dept-rest-mix),
       var(--g-line-strong)
     );
-  /* a stadium, like the chips it carries; edge trimming assumes the caps */
-  border-radius: var(--radius-full);
+  /* a card, cut like the plan's; edge trimming reads NODE_RADIUS */
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-1);
   overflow: hidden;
   cursor: pointer;
@@ -248,9 +252,10 @@ function onKeydown(event: KeyboardEvent) {
   outline: none;
   box-shadow: var(--g-focus-ring);
 }
-/* a starting point carries the tint alone; the fact is encoded once */
+/* a starting point carries the tint alone; the fact is encoded once.
+   Neutral at rest; cardinal is kept for the current term. */
 .node.anchor {
-  background: var(--g-accent-tint);
+  background: color-mix(in srgb, var(--g-ink) 8%, var(--g-surface));
 }
 /* selection rings the card from outside with a gap, so the accent and
    the department outline never blend (the --g-focus-ring construction) */
@@ -266,19 +271,17 @@ function onKeydown(event: KeyboardEvent) {
   opacity: 0.82;
 }
 
-/* the left padding clears the cap's curve, so the top and bottom lines
-   don't run into the rounded edge */
 .node-body {
   flex: 1;
   min-width: 0;
-  padding: 6px 4px 6px 18px;
+  padding: 6px 4px 6px var(--space-3);
   display: flex;
   flex-direction: column;
   gap: var(--space-05);
 }
 .compact .node-body {
   justify-content: center;
-  padding: 4px 4px 4px 14px;
+  padding: 4px 4px 4px var(--space-3);
 }
 .node-headline {
   display: flex;
@@ -290,11 +293,11 @@ function onKeydown(event: KeyboardEvent) {
   color: var(--g-ink);
   font-weight: 550;
 }
+/* A pin, not a cardinal dot: the panel's dot already means "on the graph",
+   and cardinal is kept for the current term and the primary action. */
 .node-flag {
-  width: 6px;
-  height: 6px;
-  border-radius: var(--radius-full);
-  background: var(--g-accent);
+  display: inline-flex;
+  color: var(--g-ink-3);
   flex-shrink: 0;
 }
 .node-title {
@@ -318,7 +321,7 @@ function onKeydown(event: KeyboardEvent) {
   color: var(--g-warn);
 }
 
-/* a round control in the cap, matching the stadium */
+/* round, like the chips: a small control, not a card */
 .node-expand {
   flex-shrink: 0;
   width: 22px;

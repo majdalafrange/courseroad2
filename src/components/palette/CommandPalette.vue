@@ -240,7 +240,7 @@ const inputEl = useTemplateRef("inputEl");
 const comboRoot = useTemplateRef("comboRoot");
 const query = ref("");
 
-/* ------------------------------------------------------------- tokens */
+/* ---- tokens ---- */
 
 const activeTokenKeys = ref<string[]>([]);
 
@@ -293,7 +293,7 @@ const tokenSuggestions = computed(() => {
   ).slice(0, 5);
 });
 
-/* ------------------------------------------------------------- search */
+/* ---- search ---- */
 
 const searchIndex = new SearchIndex();
 
@@ -319,7 +319,7 @@ const resultOverflow = computed(() =>
   Math.max(0, fullResults.value.length - MAX_RESULTS),
 );
 
-/* ------------------------------------------------------------- actions */
+/* ---- actions ---- */
 
 interface PaletteAction {
   label: string;
@@ -457,7 +457,7 @@ function runAction(action: PaletteAction) {
   }
 }
 
-/* ----------------------------------------- requirement-aware suggestions */
+/* ---- requirement-aware suggestions ---- */
 
 interface AuditSuggestion {
   label: string;
@@ -515,7 +515,7 @@ function applyAuditSuggestion(suggestion: AuditSuggestion) {
   inputEl.value?.focus();
 }
 
-/* ------------------------------------------------------- selection model */
+/* ---- selection model ---- */
 
 // The highlighted item's value ("class:6.006", "action:...", "audit:..."),
 // from the combobox. It is the input's aria-activedescendant.
@@ -678,7 +678,7 @@ function describeResults(): string {
   return parts.join(", ");
 }
 
-/* ------------------------------------------------------------ behaviors */
+/* ---- behaviors ---- */
 
 /* Click and Tab arm canvas placement; Enter opens the detail. The
    pointerdown that precedes every click runs dragStartClass first, which

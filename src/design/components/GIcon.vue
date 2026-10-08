@@ -75,6 +75,7 @@ import cloudCheck from "@iconify-icons/lucide/cloud-check";
 import messageSquareShare from "@iconify-icons/lucide/message-square-share";
 import imageDown from "@iconify-icons/lucide/image-down";
 import printer from "@iconify-icons/lucide/printer";
+import pin from "@iconify-icons/lucide/pin";
 
 /**
  * The shell's icon set: Lucide via @iconify/vue's offline renderer and
@@ -129,6 +130,7 @@ const NAME_TO_LUCIDE = {
   shareMessage: messageSquareShare,
   imageDown,
   printer,
+  pin,
 } as const satisfies Record<string, IconifyIcon>;
 
 export type IconName = keyof typeof NAME_TO_LUCIDE;
