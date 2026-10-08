@@ -8,13 +8,16 @@ import {
   parsePersistedBlob,
   persistCurrentSemester,
   persistPanelSide,
+  persistRoadLayout,
   persistThemeMode,
   persistedCurrentSemester,
   persistedPanelSide,
+  persistedRoadLayout,
   persistedThemeMode,
   sanitizePersistedStore,
   sanitizeRoadMap,
 } from "../../../src/lib/persistedStore";
+import { STORAGE_KEYS, writeValue } from "../../../src/lib/appStorage";
 import { placed } from "./fixtures";
 
 function roadBlob(extra: Record<string, unknown> = {}) {
@@ -286,6 +289,13 @@ describe("sanitizePersistedStore", () => {
     });
     expect(sanitizePersistedStore({ panelSide: "center" })).toEqual({});
   });
+
+  it("keeps a valid roadLayout and rejects an unknown one", () => {
+    expect(sanitizePersistedStore({ roadLayout: "classic" })).toEqual({
+      roadLayout: "classic",
+    });
+    expect(sanitizePersistedStore({ roadLayout: "masonry" })).toEqual({});
+  });
 });
 
 describe("localStorage readers", () => {
@@ -373,6 +383,33 @@ describe("localStorage readers", () => {
       panelSide: "right",
     });
     expect(persistedPanelSide()).toBe("right");
+  });
+});
+
+describe("road layout persistence", () => {
+  it("defaults to grid, or classic for someone who used the old app", () => {
+    expect(persistedRoadLayout()).toBe("grid");
+    writeValue(STORAGE_KEYS.usedOldApp, false);
+    expect(persistedRoadLayout()).toBe("grid");
+    writeValue(STORAGE_KEYS.usedOldApp, true);
+    expect(persistedRoadLayout()).toBe("classic");
+  });
+
+  it("a stored choice wins over the old-app default", () => {
+    writeValue(STORAGE_KEYS.usedOldApp, true);
+    localStorage.setItem(PERSISTED_STORE_KEY, '{"roadLayout":"grid"}');
+    expect(persistedRoadLayout()).toBe("grid");
+    localStorage.setItem(PERSISTED_STORE_KEY, '{"roadLayout":"rows"}');
+    expect(persistedRoadLayout()).toBe("classic");
+  });
+
+  it("persistRoadLayout writes the layout without touching the rest", () => {
+    localStorage.setItem(PERSISTED_STORE_KEY, '{"activeRoad":"a"}');
+    persistRoadLayout("classic");
+    expect(loadPersistedStore()).toEqual({
+      activeRoad: "a",
+      roadLayout: "classic",
+    });
   });
 });
 

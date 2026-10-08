@@ -483,6 +483,21 @@ function onHoverEnd() {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* Classic layout's narrower cards get two lines of title. */
+.is-classic .class-card {
+  min-height: 60px;
+}
+.is-classic .card-body {
+  justify-content: flex-start;
+  padding-block: var(--space-2);
+}
+.is-classic .card-title {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
 
 /* The card's corner badges. Each button is a 24px target (WCAG 2.5.8);
    the disc drawn in it (::after) stays 20px, and the offsets keep the

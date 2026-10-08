@@ -43,6 +43,7 @@ export async function seedReturningVisitor(
     localStorage.setItem("dismissedCookies", entry("true"));
     localStorage.setItem("versionNumber", entry("1.0.0"));
     localStorage.setItem("hasOnboarded", entry("true"));
+    localStorage.setItem("seenSettingsNotice", entry(true));
   });
 }
 

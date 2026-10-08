@@ -29,6 +29,8 @@ import { useCourseDataStore } from "../stores/courseData";
 /** App.vue watches this rather than calling the loader itself, which
  * only gets a resolved `to` by being attached to the road/explore pages. */
 export const shouldOpenOnboarding = ref(false);
+/** The one-time pointer to Settings, shown by App.vue. */
+export const shouldShowSettingsNotice = ref(false);
 
 // route.params is a union across every page (only /road and /explore
 // carry a road segment), so "road" narrows it rather than reading it
@@ -110,6 +112,9 @@ export const useAppBootLoader = defineBasicLoader(async (to) => {
     !(import.meta.env.DEV && window.location.search.includes("demo"))
   ) {
     shouldOpenOnboarding.value = true;
+  }
+  if (readValue<boolean>(STORAGE_KEYS.seenSettingsNotice) !== true) {
+    shouldShowSettingsNotice.value = true;
   }
 
   auth.attemptLogin();

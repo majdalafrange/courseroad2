@@ -1,5 +1,9 @@
 <template>
-  <div class="road-canvas" :data-cy="'road_' + roadID">
+  <div
+    class="road-canvas"
+    :class="{ 'is-classic': store.roadLayout === 'classic' }"
+    :data-cy="'road_' + roadID"
+  >
     <transition name="banner">
       <div v-if="placing" class="placement-banner">
         <span class="placement-text">
@@ -635,6 +639,20 @@ void dragState;
   .road-canvas {
     gap: var(--space-2);
   }
+}
+
+/* Classic: every term a full-width row under its year, like the old
+   CourseRoad. Outranks the grid, container and phone rules above. */
+.road-canvas.is-classic .year-row,
+.road-canvas.is-classic .year-row.no-iap {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+}
+.road-canvas.is-classic .year-label {
+  flex-direction: row;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
 }
 
 @media (min-width: 1600px) {

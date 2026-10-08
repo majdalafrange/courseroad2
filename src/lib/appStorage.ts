@@ -25,6 +25,8 @@ export const STORAGE_KEYS = {
   /** Schema version; a mismatch resets local state. */
   versionNumber: "versionNumber",
   hasOnboarded: "hasOnboarded",
+  /** Set once the "you can configure this in Settings" toast has shown. */
+  seenSettingsNotice: "seenSettingsNotice",
   dismissedAndroidWarning: "dismissedAndroidWarning",
   dismissedMobileNotice: "dismissedMobileNotice",
   hideIAP: "hideIAP",
@@ -35,6 +37,8 @@ export const STORAGE_KEYS = {
   favorites: "favoriteSubjects",
   /** Set once the legacy cookie migration has run; see legacyStorage.ts. */
   migrated: "storageMigrated",
+  /** Whether this browser used the old CourseRoad; see recordOldAppUse. */
+  usedOldApp: "usedOldApp",
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];
@@ -154,13 +158,15 @@ export function hasRawValue(key: StorageKey): boolean {
 }
 
 /**
- * Keys that survive every clear, including opt-out. The migration marker
- * must never be cleared: re-running the import would re-read a domain
- * cookie this origin cannot delete. Consent is the user's standing answer.
+ * Keys that survive every clear, including opt-out. Clearing the migration
+ * or old-app marker would re-read a domain cookie this origin cannot
+ * delete. Consent and the settings notice are answered once per browser.
  */
 const DURABLE_KEYS: readonly StorageKey[] = [
   STORAGE_KEYS.migrated,
   STORAGE_KEYS.consent,
+  STORAGE_KEYS.usedOldApp,
+  STORAGE_KEYS.seenSettingsNotice,
 ];
 
 /**

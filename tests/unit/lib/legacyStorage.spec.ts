@@ -9,6 +9,7 @@ import { cookies } from "../../../src/lib/cookies";
 import {
   LEGACY_STORE_KEY,
   migrateLegacyCookies,
+  recordOldAppUse,
   separateStoreSnapshot,
 } from "../../../src/lib/legacyStorage";
 
@@ -172,6 +173,34 @@ describe("separateStoreSnapshot", () => {
 
     expect(localStorage.getItem(STORAGE_KEYS.store)).toBeNull();
     expect(localStorage.getItem(LEGACY_STORE_KEY)).toBe("{not json");
+  });
+});
+
+describe("recordOldAppUse", () => {
+  it("records a browser the old app ran in, by its cookies", () => {
+    cookies.set("versionNumber", "1.0.0");
+
+    recordOldAppUse();
+
+    expect(readValue(STORAGE_KEYS.usedOldApp)).toBe(true);
+  });
+
+  it("records the old app's snapshot as use", () => {
+    localStorage.setItem(LEGACY_STORE_KEY, JSON.stringify({ roads: {} }));
+
+    recordOldAppUse();
+
+    expect(readValue(STORAGE_KEYS.usedOldApp)).toBe(true);
+  });
+
+  it("records a fresh browser as new, and decides once", () => {
+    recordOldAppUse();
+    expect(readValue(STORAGE_KEYS.usedOldApp)).toBe(false);
+
+    // A cookie that arrives later never flips the answer.
+    cookies.set("hasLoggedIn", "true");
+    recordOldAppUse();
+    expect(readValue(STORAGE_KEYS.usedOldApp)).toBe(false);
   });
 });
 

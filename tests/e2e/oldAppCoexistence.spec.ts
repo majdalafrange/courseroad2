@@ -78,3 +78,33 @@ test("moves a snapshot an earlier /dev build left on the old app's key", async (
   // Its settings carried over.
   expect(stored.theme).toBe("dark");
 });
+
+test("someone who used the old app starts on the classic layout", async ({
+  context,
+  page,
+}) => {
+  await mockFireroad(context);
+  await seedReturningVisitor(context);
+  await context.addCookies([
+    { name: "versionNumber", value: "1.0.0", domain: "localhost", path: "/" },
+  ]);
+
+  await page.goto("/");
+  await expect(page.locator(".road-canvas")).toHaveClass(/is-classic/);
+
+  // The choice in Settings outlasts the default.
+  await page.getByRole("button", { name: "More", exact: true }).click();
+  await cy(page, "settingsButton").click();
+  await cy(page, "roadLayoutOption-grid").click();
+  await page.reload();
+  await expect(page.locator(".road-canvas")).not.toHaveClass(/is-classic/);
+});
+
+test("a new visitor starts on the year grid", async ({ context, page }) => {
+  await mockFireroad(context);
+  await seedReturningVisitor(context);
+
+  await page.goto("/");
+  await page.locator("#canvasScroll").waitFor();
+  await expect(page.locator(".road-canvas")).not.toHaveClass(/is-classic/);
+});

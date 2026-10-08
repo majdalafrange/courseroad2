@@ -40,6 +40,37 @@
       </div>
 
       <div class="settings-section">
+        <span id="roadLayoutLabel" class="settings-label">Plan layout</span>
+        <g-radio-group
+          class="option-list"
+          :model-value="store.roadLayout"
+          aria-labelledby="roadLayoutLabel"
+          @update:model-value="(v: string) => setRoadLayout(v as RoadLayout)"
+        >
+          <g-radio-group-item
+            v-for="option in ROAD_LAYOUT_OPTIONS"
+            :key="option.layout"
+            v-slot="{ checked }"
+            class="option-row"
+            :value="option.layout"
+            :data-cy="`roadLayoutOption-${option.layout}`"
+          >
+            <g-icon :name="option.icon" :size="18" />
+            <span class="option-text">
+              <span class="option-label">{{ option.label }}</span>
+              <span class="option-detail">{{ option.detail }}</span>
+            </span>
+            <g-icon
+              v-if="checked"
+              name="check"
+              :size="14"
+              class="option-check"
+            />
+          </g-radio-group-item>
+        </g-radio-group>
+      </div>
+
+      <div class="settings-section">
         <span id="panelSideLabel" class="settings-label">
           Audit &amp; connections panel
         </span>
@@ -87,7 +118,9 @@ import { useTheme } from "../../composables/useTheme";
 import { useIsMobile } from "../../composables/useIsMobile";
 import {
   persistPanelSide,
+  persistRoadLayout,
   type PanelSide,
+  type RoadLayout,
   type ThemeMode,
 } from "../../lib/persistedStore";
 import { useCourseDataStore } from "../../stores/courseData";
@@ -113,6 +146,13 @@ function setPanelSide(side: PanelSide): void {
   }
 }
 
+function setRoadLayout(layout: RoadLayout): void {
+  store.setRoadLayout(layout);
+  if (store.cookiesAllowed) {
+    persistRoadLayout(layout);
+  }
+}
+
 const THEME_OPTIONS: {
   mode: ThemeMode;
   label: string;
@@ -127,6 +167,26 @@ const THEME_OPTIONS: {
   },
   { mode: "light", label: "Light", detail: "Always light", icon: "sun" },
   { mode: "dark", label: "Dark", detail: "Always dark", icon: "moon" },
+];
+
+const ROAD_LAYOUT_OPTIONS: {
+  layout: RoadLayout;
+  label: string;
+  detail: string;
+  icon: "columns" | "rows";
+}[] = [
+  {
+    layout: "grid",
+    label: "Year grid",
+    detail: "Each year's terms side by side",
+    icon: "columns",
+  },
+  {
+    layout: "classic",
+    label: "Classic",
+    detail: "One row per term, like the original CourseRoad",
+    icon: "rows",
+  },
 ];
 
 const PANEL_SIDE_OPTIONS: {

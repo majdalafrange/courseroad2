@@ -29,9 +29,11 @@ import {
 } from "../lib/roads";
 import {
   persistedPanelSide,
+  persistedRoadLayout,
   persistedThemeMode,
   sanitizePersistedStore,
   type PanelSide,
+  type RoadLayout,
   type ThemeMode,
 } from "../lib/persistedStore";
 import { systemPrefersDark } from "../design/tokens";
@@ -128,6 +130,7 @@ const getDefaultState = () => {
     systemPrefersDark: systemPrefersDark(),
     // Which side the audit panel (plan) and node panel (explore) render on.
     panelSide: persistedPanelSide() as PanelSide,
+    roadLayout: persistedRoadLayout() as RoadLayout,
   };
 };
 
@@ -985,6 +988,10 @@ export const useCourseDataStore = defineStore("courseData", {
 
     setPanelSide(side: PanelSide) {
       this.panelSide = side;
+    },
+
+    setRoadLayout(layout: RoadLayout) {
+      this.roadLayout = layout;
     },
 
     /* ---- catalog: fetched by loaders/courseData.ts, applied here ---- */

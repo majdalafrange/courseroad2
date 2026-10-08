@@ -678,6 +678,43 @@ const placementAriaLabel = computed(() => {
   }
 }
 
+/* Classic layout (RoadCanvas .is-classic): classes sit in equal-width
+   tracks, and a wide enough canvas puts the term's header beside them. */
+.is-classic .term-cell {
+  min-height: 0;
+}
+.is-classic .term-classes,
+.is-classic .is-prior-credit .term-classes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  align-content: start;
+}
+.is-classic .is-prior-credit .term-classes > * {
+  min-width: 0;
+}
+.is-classic .term-empty {
+  grid-column: 1 / -1;
+}
+@container road (min-width: 560px) {
+  .is-classic .term-cell:not(.is-collapsed-prior) {
+    flex-direction: row;
+  }
+  .is-classic .term-head {
+    flex: 0 0 152px;
+    padding-bottom: var(--space-2);
+  }
+  .is-classic .term-classes,
+  .is-classic .is-prior-credit .term-classes {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    padding-top: var(--space-2);
+    padding-left: 0;
+  }
+  /* The flag hangs over the class area; this keeps a full row clear of it. */
+  .is-classic .term-cell.is-current .term-classes {
+    padding-top: var(--space-5);
+  }
+}
+
 /* Opens the palette scoped to this term; the label surfaces on cell
    hover or its own focus. */
 .term-empty {

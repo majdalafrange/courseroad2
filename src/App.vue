@@ -140,7 +140,10 @@ import { releaseTabID } from "./lib/agent";
 import { useGlobalShortcuts } from "./composables/useGlobalShortcuts";
 import { useIsMobile } from "./composables/useIsMobile";
 import { useSystemThemeSync } from "./composables/useTheme";
-import { shouldOpenOnboarding } from "./loaders/appBoot";
+import {
+  shouldOpenOnboarding,
+  shouldShowSettingsNotice,
+} from "./loaders/appBoot";
 import { useReqListLoader, useSubjectsLoader } from "./loaders/courseData";
 import { DEFAULT_ROAD_NAME, newRoad, parseRoadFile } from "./lib/roads";
 import type { SelectedSubject } from "./lib/types";
@@ -253,6 +256,38 @@ watch(shouldOpenOnboarding, (open) => {
     onboardingOpen.value = true;
   }
 });
+
+// Once per browser; held back while onboarding is open.
+watch(
+  [shouldShowSettingsNotice, onboardingOpen],
+  ([show, onboarding]) => {
+    if (!show || onboarding) {
+      return;
+    }
+    shouldShowSettingsNotice.value = false;
+    writeValue(STORAGE_KEYS.seenSettingsNotice, true);
+    const classic = store.roadLayout === "classic";
+    const id = toast.show(
+      classic
+        ? "Your plan uses the classic layout"
+        : "Layout and theme are in Settings",
+      {
+        detail: classic
+          ? "You've used the original CourseRoad in this browser. Switch to the year grid in Settings."
+          : "Settings also has a classic layout with one row per term, like the original CourseRoad.",
+        duration: 12000,
+        action: {
+          label: "Open settings",
+          handler: () => {
+            settingsOpen.value = true;
+            toast.dismiss(id);
+          },
+        },
+      },
+    );
+  },
+  { flush: "post" },
+);
 
 /* ---- Plan ⁄ Explore mode ---- */
 function navigateMode(mode: "plan" | "explore") {

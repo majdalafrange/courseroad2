@@ -29,15 +29,18 @@ import {
 } from "./lib/errorBoundary";
 import {
   migrateLegacyCookies,
+  recordOldAppUse,
   separateStoreSnapshot,
 } from "./lib/legacyStorage";
 import { persistedThemeMode } from "./lib/persistedStore";
 
 // Move any legacy cookie state into origin-isolated storage before
-// anything reads it. After this the app never reads document.cookie.
+// anything reads it. After these three the app never reads document.cookie.
 migrateLegacyCookies();
 // Off the old app's snapshot key, before the theme reads it.
 separateStoreSnapshot();
+// Before the store reads its default road layout.
+recordOldAppUse();
 
 // Apply the persisted theme before first paint to avoid a flash.
 applyThemeAttribute(resolveTheme(persistedThemeMode(), systemPrefersDark()));

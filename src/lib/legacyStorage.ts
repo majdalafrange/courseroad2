@@ -1,8 +1,9 @@
 /**
  * One-time move of legacy cookie state into origin-isolated storage.
- * After this the app never reads `document.cookie`, so a cookie planted
- * by another `*.mit.edu` host is inert (a `Domain=.mit.edu` cookie cannot
- * be deleted from this origin, only ignored).
+ * After this and recordOldAppUse the app never reads `document.cookie`,
+ * so a cookie planted by another `*.mit.edu` host is inert (a
+ * `Domain=.mit.edu` cookie cannot be deleted from this origin, only
+ * ignored).
  *
  * Data migrates, authority does not, since a planted cookie cannot be
  * told from a real one: the bearer token, the schema version, and the
@@ -56,10 +57,39 @@ export function migrateLegacyCookies(): void {
 /** The old app's snapshot key; it loads the value as its whole state. */
 export const LEGACY_STORE_KEY = "courseRoadStore";
 
+/** Cookies only the old app sets; this app never writes cookies. */
+const OLD_APP_COOKIES = [
+  "versionNumber",
+  "dismissedCookies",
+  "hasLoggedIn",
+  "newRoads",
+  "accessInfo",
+  "has_set_year",
+] as const;
+
+/**
+ * Record, once per browser, whether the old CourseRoad ran here. A planted
+ * cookie can at most pick the classic layout. Run after
+ * separateStoreSnapshot, so a snapshot this app wrote does not count.
+ */
+export function recordOldAppUse(): void {
+  if (readValue<boolean>(STORAGE_KEYS.usedOldApp) !== undefined) {
+    return;
+  }
+  let oldSnapshot = false;
+  try {
+    oldSnapshot = localStorage.getItem(LEGACY_STORE_KEY) !== null;
+  } catch {
+    // Storage unavailable; the cookies still answer.
+  }
+  const used = oldSnapshot || OLD_APP_COOKIES.some((key) => cookies.isKey(key));
+  writeValue(STORAGE_KEYS.usedOldApp, used);
+}
+
 /**
  * Keep this app's snapshot off the old app's key. Adopts the old app's
  * snapshot when this app has none, and moves out one this app wrote there
- * (it has themeMode or panelSide, or no roads).
+ * (it has themeMode, panelSide or roadLayout, or no roads).
  */
 export function separateStoreSnapshot(): void {
   let raw: string | null;
@@ -81,7 +111,10 @@ export function separateStoreSnapshot(): void {
     return;
   }
   const writtenHere =
-    "themeMode" in blob || "panelSide" in blob || !("roads" in blob);
+    "themeMode" in blob ||
+    "panelSide" in blob ||
+    "roadLayout" in blob ||
+    !("roads" in blob);
   try {
     if (localStorage.getItem(STORAGE_KEYS.store) === null) {
       localStorage.setItem(STORAGE_KEYS.store, raw);

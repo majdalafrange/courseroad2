@@ -80,6 +80,7 @@ describe("clearAppStorage", () => {
     writeValue(STORAGE_KEYS.newRoads, { r: {} });
     writeValue(STORAGE_KEYS.consent, "true");
     writeValue(STORAGE_KEYS.migrated, true);
+    writeValue(STORAGE_KEYS.usedOldApp, true);
 
     clearAppStorage();
 
@@ -90,6 +91,7 @@ describe("clearAppStorage", () => {
     // Clearing the marker would let the legacy cookie import run again,
     // re-reading a cookie this origin cannot delete.
     expect(readValue(STORAGE_KEYS.migrated)).toBe(true);
+    expect(readValue(STORAGE_KEYS.usedOldApp)).toBe(true);
     expect(readValue(STORAGE_KEYS.consent)).toBe("true");
   });
 

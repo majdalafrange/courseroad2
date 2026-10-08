@@ -13,7 +13,7 @@ import type {
   Subject,
 } from "./types";
 import { flatten } from "./types";
-import { STORAGE_KEYS } from "./appStorage";
+import { STORAGE_KEYS, readValue } from "./appStorage";
 import { isCustomColor } from "./colors";
 import { formatFireroadDate } from "./dates";
 import { getSimpleSelectedSubjects, reconcileManualProgress } from "./roads";
@@ -33,6 +33,11 @@ export type PanelSide = "left" | "right";
 const PANEL_SIDES: readonly PanelSide[] = ["left", "right"];
 export const DEFAULT_PANEL_SIDE: PanelSide = "left";
 
+/** How the plan lays out terms: grid puts a year's terms side by side,
+ *  classic gives each term a full-width row, like the old CourseRoad. */
+export type RoadLayout = "grid" | "classic";
+const ROAD_LAYOUTS: readonly RoadLayout[] = ["grid", "classic"];
+
 /**
  * Keys restored from a persisted snapshot into the courseData store.
  * Everything else in the blob is session state (or worse) and is dropped.
@@ -45,6 +50,7 @@ const ALLOWED_KEYS = [
   "hideIAP",
   "themeMode",
   "panelSide",
+  "roadLayout",
   "subjectsInfo",
   "subjectsIndex",
   "genericCourses",
@@ -291,6 +297,14 @@ export function sanitizePersistedStore(
           clean[key] = value;
         }
         break;
+      case "roadLayout":
+        if (
+          typeof value === "string" &&
+          ROAD_LAYOUTS.includes(value as RoadLayout)
+        ) {
+          clean[key] = value;
+        }
+        break;
       case "roads": {
         const roads = sanitizeRoadMap(value);
         // undefined: nothing roads-shaped to restore. {}: every entry
@@ -388,6 +402,35 @@ export function persistPanelSide(side: PanelSide): void {
     const blob =
       parsePersistedBlob(localStorage.getItem(PERSISTED_STORE_KEY)) ?? {};
     blob.panelSide = side;
+    localStorage.setItem(PERSISTED_STORE_KEY, JSON.stringify(blob));
+  } catch {
+    // Storage unavailable; the choice still applies for this session.
+  }
+}
+
+/**
+ * Pre-paint read of the road layout. Without a stored choice, someone
+ * who used the old CourseRoad in this browser starts on its layout.
+ */
+export function persistedRoadLayout(): RoadLayout {
+  const stored = loadPersistedStore()?.roadLayout;
+  if (
+    typeof stored === "string" &&
+    ROAD_LAYOUTS.includes(stored as RoadLayout)
+  ) {
+    return stored as RoadLayout;
+  }
+  return readValue<boolean>(STORAGE_KEYS.usedOldApp) === true
+    ? "classic"
+    : "grid";
+}
+
+/** Single-key mid-session write, like persistThemeMode. */
+export function persistRoadLayout(layout: RoadLayout): void {
+  try {
+    const blob =
+      parsePersistedBlob(localStorage.getItem(PERSISTED_STORE_KEY)) ?? {};
+    blob.roadLayout = layout;
     localStorage.setItem(PERSISTED_STORE_KEY, JSON.stringify(blob));
   } catch {
     // Storage unavailable; the choice still applies for this session.
