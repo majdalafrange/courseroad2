@@ -26,6 +26,14 @@ export function useIsMobile() {
   return isMobile;
 }
 
+/** A one-time read of useTouchDevice's query, for code outside a component. */
+export function isTouchDevice(): boolean {
+  return (
+    typeof window.matchMedia === "function" &&
+    window.matchMedia(QUERY_TOUCH).matches
+  );
+}
+
 export function useTouchDevice() {
   if (typeof window.matchMedia !== "function") {
     return ref(false);

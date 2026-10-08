@@ -82,6 +82,7 @@
         :node="child"
         :depth="depth + 1"
         :program-key="programKey"
+        :department="childDepartment"
       />
     </div>
 
@@ -146,7 +147,7 @@
 
       <span class="leaf-actions">
         <g-button
-          v-if="!leafSatisfied && !node['plain-string']"
+          v-if="!leafSatisfied"
           variant="ghost"
           size="xs"
           icon-only
@@ -322,6 +323,7 @@ import GNumberField from "../../design/components/GNumberField.vue";
 import GProgress from "../../design/components/GProgress.vue";
 import GPopover from "../../design/components/GPopover.vue";
 import {
+  dominantDepartment,
   isIgnored,
   isPetitioned,
   manualProgress,
@@ -344,6 +346,8 @@ const props = defineProps<{
   node: RequirementNode;
   depth: number;
   programKey: string;
+  /** The enclosing branch's department, for text-only electives. */
+  department?: string;
 }>();
 
 const store = useCourseDataStore();
@@ -576,7 +580,19 @@ const ATTRIBUTE_TOKENS: Record<string, string> = {
   "GIR:REST": "rest",
 };
 
+/* A text-only elective ("8 elective subjects") searches the department
+   its branch names subjects from, or opens an unscoped search. */
+const childDepartment = computed(
+  () => dominantDepartment(props.node) ?? props.department,
+);
+
 function findClasses() {
+  if (props.node["plain-string"]) {
+    requestPalette({
+      query: props.department === undefined ? "" : `${props.department}.`,
+    });
+    return;
+  }
   const req = props.node.req ?? "";
   const token = ATTRIBUTE_TOKENS[req];
   if (token !== undefined) {
@@ -941,6 +957,12 @@ export default { name: "ReqNode" };
   gap: var(--space-05);
   max-height: 180px;
   overflow-y: auto;
+}
+/* Past max-height, flex squeezed rows below their text and a wrapped
+   row overlapped the one above. */
+.petition-courses .petition-course {
+  flex-shrink: 0;
+  align-items: flex-start;
 }
 .petition-course {
   font: var(--text-small);

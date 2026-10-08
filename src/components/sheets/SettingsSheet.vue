@@ -8,118 +8,55 @@
     <div class="settings-content">
       <h2 class="settings-title">Settings</h2>
 
-      <div class="settings-section">
-        <span id="themeLabel" class="settings-label">Theme</span>
-        <g-radio-group
-          class="option-list"
-          :model-value="store.themeMode"
-          aria-labelledby="themeLabel"
-          @update:model-value="(v: string) => setThemeMode(v as ThemeMode)"
-        >
-          <g-radio-group-item
-            v-for="option in THEME_OPTIONS"
-            :key="option.mode"
-            v-slot="{ checked }"
-            class="option-row"
-            :value="option.mode"
-            :data-cy="`themeOption-${option.mode}`"
-          >
-            <g-icon :name="option.icon" :size="18" />
-            <span class="option-text">
-              <span class="option-label">{{ option.label }}</span>
-              <span class="option-detail">{{ option.detail }}</span>
-            </span>
-            <g-icon
-              v-if="checked"
-              name="check"
-              :size="14"
-              class="option-check"
-            />
-          </g-radio-group-item>
-        </g-radio-group>
-      </div>
-
-      <div class="settings-section">
-        <span id="roadLayoutLabel" class="settings-label">Plan layout</span>
-        <g-radio-group
-          class="option-list"
-          :model-value="store.roadLayout"
-          aria-labelledby="roadLayoutLabel"
-          @update:model-value="(v: string) => setRoadLayout(v as RoadLayout)"
-        >
-          <g-radio-group-item
-            v-for="option in ROAD_LAYOUT_OPTIONS"
-            :key="option.layout"
-            v-slot="{ checked }"
-            class="option-row"
-            :value="option.layout"
-            :data-cy="`roadLayoutOption-${option.layout}`"
-          >
-            <g-icon :name="option.icon" :size="18" />
-            <span class="option-text">
-              <span class="option-label">{{ option.label }}</span>
-              <span class="option-detail">{{ option.detail }}</span>
-            </span>
-            <g-icon
-              v-if="checked"
-              name="check"
-              :size="14"
-              class="option-check"
-            />
-          </g-radio-group-item>
-        </g-radio-group>
-      </div>
-
-      <div class="settings-section">
-        <span id="panelSideLabel" class="settings-label">
-          Audit &amp; connections panel
-        </span>
-        <span v-if="isMobile" class="settings-hint">
-          Not available on mobile: one pane shows at a time either way.
+      <div
+        v-for="setting in settings"
+        :key="setting.id"
+        class="settings-section"
+      >
+        <span :id="`${setting.id}Label`" class="settings-label">
+          {{ setting.label }}
         </span>
         <g-radio-group
           class="option-list"
-          :model-value="store.panelSide"
-          :disabled="isMobile"
-          aria-labelledby="panelSideLabel"
-          @update:model-value="(v: string) => setPanelSide(v as PanelSide)"
+          :style="{ '--option-count': setting.options.length }"
+          :model-value="setting.value"
+          :disabled="setting.disabledHint !== undefined"
+          :aria-labelledby="`${setting.id}Label`"
+          :aria-describedby="`${setting.id}Hint`"
+          @update:model-value="setting.set"
         >
           <g-radio-group-item
-            v-for="option in PANEL_SIDE_OPTIONS"
-            :key="option.side"
-            v-slot="{ checked }"
+            v-for="option in setting.options"
+            :key="option.value"
             class="option-row"
-            :value="option.side"
-            :data-cy="`panelSideOption-${option.side}`"
+            :value="option.value"
+            :data-cy="`${setting.id}Option-${option.value}`"
           >
-            <g-icon :name="option.icon" :size="18" />
-            <span class="option-text">
-              <span class="option-label">{{ option.label }}</span>
-              <span class="option-detail">{{ option.detail }}</span>
-            </span>
-            <g-icon
-              v-if="checked"
-              name="check"
-              :size="14"
-              class="option-check"
-            />
+            <g-icon :name="option.icon" :size="16" />
+            <span class="option-label">{{ option.label }}</span>
           </g-radio-group-item>
         </g-radio-group>
+        <p :id="`${setting.id}Hint`" class="settings-hint">
+          {{ setting.disabledHint ?? selectedDetail(setting) }}
+        </p>
       </div>
     </div>
   </g-sheet>
 </template>
 
 <script setup lang="ts">
-import GIcon from "../../design/components/GIcon.vue";
+import { computed } from "vue";
+import GIcon, { type IconName } from "../../design/components/GIcon.vue";
 import { GRadioGroup, GRadioGroupItem } from "../../design/components/GRadio";
 import GSheet from "../../design/components/GSheet.vue";
 import { useTheme } from "../../composables/useTheme";
 import { useIsMobile } from "../../composables/useIsMobile";
 import {
   persistPanelSide,
+  persistPrereqHighlight,
   persistRoadLayout,
   type PanelSide,
+  type PrereqHighlight,
   type RoadLayout,
   type ThemeMode,
 } from "../../lib/persistedStore";
@@ -137,77 +74,136 @@ const store = useCourseDataStore();
 const { setThemeMode } = useTheme();
 const isMobile = useIsMobile();
 
-function setPanelSide(side: PanelSide): void {
-  store.setPanelSide(side);
-  // Written immediately, same reasoning as the theme: the beforeunload
-  // snapshot only runs for logged-in students.
-  if (store.cookiesAllowed) {
-    persistPanelSide(side);
-  }
+interface Option {
+  value: string;
+  label: string;
+  detail: string;
+  icon: IconName;
 }
 
-function setRoadLayout(layout: RoadLayout): void {
-  store.setRoadLayout(layout);
-  if (store.cookiesAllowed) {
-    persistRoadLayout(layout);
-  }
+interface Setting {
+  /** Prefixes the label/hint ids and each option's data-cy. */
+  id: string;
+  label: string;
+  value: string;
+  set: (value: string) => void;
+  options: Option[];
+  /** Replaces the hint and disables the group. */
+  disabledHint?: string;
 }
 
-const THEME_OPTIONS: {
-  mode: ThemeMode;
-  label: string;
-  detail: string;
-  icon: "sun" | "moon" | "monitor";
-}[] = [
-  {
-    mode: "system",
-    label: "System",
-    detail: "Matches your device",
-    icon: "monitor",
-  },
-  { mode: "light", label: "Light", detail: "Always light", icon: "sun" },
-  { mode: "dark", label: "Dark", detail: "Always dark", icon: "moon" },
-];
+/**
+ * Apply a choice, then write it at once: the beforeunload snapshot only
+ * runs for logged-in students.
+ */
+function persisted<T extends string>(
+  apply: (value: T) => void,
+  persist: (value: T) => void,
+): (value: string) => void {
+  return (value) => {
+    apply(value as T);
+    if (store.cookiesAllowed) {
+      persist(value as T);
+    }
+  };
+}
 
-const ROAD_LAYOUT_OPTIONS: {
-  layout: RoadLayout;
-  label: string;
-  detail: string;
-  icon: "columns" | "rows";
-}[] = [
-  {
-    layout: "grid",
-    label: "Year grid",
-    detail: "Each year's terms side by side",
-    icon: "columns",
-  },
-  {
-    layout: "classic",
-    label: "Classic",
-    detail: "One row per term, like the original CourseRoad",
-    icon: "rows",
-  },
-];
+function selectedDetail(setting: Setting): string {
+  return setting.options.find((o) => o.value === setting.value)?.detail ?? "";
+}
 
-const PANEL_SIDE_OPTIONS: {
-  side: PanelSide;
-  label: string;
-  detail: string;
-  icon: "panelLeft" | "panelRight";
-}[] = [
+const settings = computed<Setting[]>(() => [
   {
-    side: "left",
-    label: "Left",
-    detail: "Panel on the left, plan on the right",
-    icon: "panelLeft",
+    id: "theme",
+    label: "Theme",
+    value: store.themeMode,
+    // useTheme persists the theme itself.
+    set: (value) => setThemeMode(value as ThemeMode),
+    options: [
+      {
+        value: "system",
+        label: "System",
+        detail: "Matches your device",
+        icon: "monitor",
+      },
+      { value: "light", label: "Light", detail: "Always light", icon: "sun" },
+      { value: "dark", label: "Dark", detail: "Always dark", icon: "moon" },
+    ],
   },
   {
-    side: "right",
-    label: "Right",
-    detail: "Panel on the right, plan on the left",
-    icon: "panelRight",
+    id: "roadLayout",
+    label: "Plan layout",
+    value: store.roadLayout,
+    set: persisted<RoadLayout>(store.setRoadLayout, persistRoadLayout),
+    options: [
+      {
+        value: "grid",
+        label: "Year grid",
+        detail: "Each year's terms side by side",
+        icon: "columns",
+      },
+      {
+        value: "classic",
+        label: "Classic",
+        detail: "One row per term, like the original CourseRoad",
+        icon: "rows",
+      },
+    ],
   },
-];
+  {
+    id: "prereqHighlight",
+    label: "Prerequisite highlight",
+    value: store.prereqHighlight,
+    set: persisted<PrereqHighlight>(
+      store.setPrereqHighlight,
+      persistPrereqHighlight,
+    ),
+    options: [
+      {
+        value: "hover",
+        label: "On hover",
+        detail:
+          "Pointing at a class lights up its prerequisites and what it unlocks",
+        icon: "pointer",
+      },
+      {
+        value: "open",
+        label: "Selected",
+        detail: "Only for the class open in the detail panel",
+        icon: "panelRight",
+      },
+      {
+        value: "off",
+        label: "Off",
+        detail: "Class details still list prerequisites and what they unlock",
+        icon: "eyeOff",
+      },
+    ],
+  },
+  {
+    id: "panelSide",
+    label: "Audit & connections panel",
+    value: store.panelSide,
+    set: persisted<PanelSide>(store.setPanelSide, persistPanelSide),
+    disabledHint: isMobile.value
+      ? "Not available on mobile: one pane shows at a time either way."
+      : undefined,
+    options: [
+      {
+        value: "left",
+        label: "Left",
+        detail: "Panel on the left, plan on the right",
+        icon: "panelLeft",
+      },
+      {
+        value: "right",
+        label: "Right",
+        detail: "Panel on the right, plan on the left",
+        icon: "panelRight",
+      },
+    ],
+  },
+]);
 </script>
 
 <style scoped>
@@ -217,6 +213,12 @@ const PANEL_SIDE_OPTIONS: {
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
+  container: settings / inline-size;
+}
+@media (max-width: 859px) {
+  .settings-content {
+    padding: var(--space-4);
+  }
 }
 .settings-title {
   font: var(--text-heading);
@@ -236,11 +238,11 @@ const PANEL_SIDE_OPTIONS: {
 .settings-hint {
   font: var(--text-small);
   color: var(--g-ink-3);
-  margin-top: calc(-1 * var(--space-1));
+  margin: 0;
 }
 .option-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(var(--option-count), minmax(0, 1fr));
   gap: var(--space-2);
 }
 /* :deep(): GRadioGroupItem forwards this class to Reka's own RadioGroupItem
@@ -248,22 +250,30 @@ const PANEL_SIDE_OPTIONS: {
 :deep(.option-row) {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  width: 100%;
-  font: var(--text-body);
+  justify-content: center;
+  gap: var(--space-2);
+  min-width: 0;
+  min-height: 36px;
+  font: var(--text-small);
+  font-weight: 600;
   color: var(--g-ink-2);
   background: var(--g-surface-2);
   border: 1.5px solid var(--g-line);
   border-radius: var(--radius-sm);
-  padding: var(--space-3);
+  padding: var(--space-2);
   cursor: pointer;
-  text-align: left;
   transition:
     border-color var(--motion-quick) var(--ease-out),
     color var(--motion-quick) var(--ease-out);
 }
+@media (max-width: 859px) and (pointer: coarse) {
+  :deep(.option-row) {
+    min-height: 44px;
+  }
+}
 :deep(.option-row:hover) {
   border-color: var(--g-line-strong);
+  color: var(--g-ink);
 }
 :deep(.option-row:focus-visible) {
   outline: none;
@@ -274,26 +284,28 @@ const PANEL_SIDE_OPTIONS: {
   color: var(--g-ink);
   background: var(--g-accent-tint);
 }
+/* Forced colors flatten every border and fill, so the choice would
+   vanish. A thick Highlight border marks it; the outline is focus's. */
+@media (forced-colors: active) {
+  :deep(.option-row[data-state="checked"]) {
+    border: 3px solid Highlight;
+  }
+}
 :deep(.option-row:disabled) {
   opacity: 0.4;
   cursor: not-allowed;
 }
-.option-text {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
 .option-label {
-  font-weight: 600;
-  color: var(--g-ink);
+  min-width: 0;
+  text-align: center;
 }
-.option-detail {
-  font: var(--text-small);
-  color: var(--g-ink-3);
-}
-.option-check {
-  color: var(--g-accent);
-  flex-shrink: 0;
+/* Too narrow for icon and label side by side (three options need about
+   360px): the icon stacks above, and a label wraps rather than clips. */
+@container settings (max-width: 360px) {
+  :deep(.option-row) {
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-1);
+  }
 }
 </style>

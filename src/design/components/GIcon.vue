@@ -78,6 +78,8 @@ import printer from "@iconify-icons/lucide/printer";
 import pin from "@iconify-icons/lucide/pin";
 import columns3 from "@iconify-icons/lucide/columns-3";
 import rows3 from "@iconify-icons/lucide/rows-3";
+import mousePointer2 from "@iconify-icons/lucide/mouse-pointer-2";
+import eyeOff from "@iconify-icons/lucide/eye-off";
 
 /**
  * The shell's icon set: Lucide via @iconify/vue's offline renderer and
@@ -135,6 +137,8 @@ const NAME_TO_LUCIDE = {
   pin,
   columns: columns3,
   rows: rows3,
+  pointer: mousePointer2,
+  eyeOff,
 } as const satisfies Record<string, IconifyIcon>;
 
 export type IconName = keyof typeof NAME_TO_LUCIDE;

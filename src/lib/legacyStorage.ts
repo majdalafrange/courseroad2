@@ -89,7 +89,7 @@ export function recordOldAppUse(): void {
 /**
  * Keep this app's snapshot off the old app's key. Adopts the old app's
  * snapshot when this app has none, and moves out one this app wrote there
- * (it has themeMode, panelSide or roadLayout, or no roads).
+ * (it has one of this app's settings, or no roads).
  */
 export function separateStoreSnapshot(): void {
   let raw: string | null;
@@ -114,6 +114,7 @@ export function separateStoreSnapshot(): void {
     "themeMode" in blob ||
     "panelSide" in blob ||
     "roadLayout" in blob ||
+    "prereqHighlight" in blob ||
     !("roads" in blob);
   try {
     if (localStorage.getItem(STORAGE_KEYS.store) === null) {

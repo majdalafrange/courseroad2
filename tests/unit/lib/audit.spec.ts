@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  dominantDepartment,
   subjectUses,
   assignListIDs,
   isIgnored,
@@ -197,5 +198,41 @@ describe("programSubtitle", () => {
     expect(programSubtitle(list, "x")).toBeUndefined();
     expect(programSubtitle(list, "minor15F")).toBeUndefined();
     expect(programSubtitle(list, "nope")).toBeUndefined();
+  });
+});
+
+describe("dominantDepartment", () => {
+  // Shaped like 21S's Anthropology track in FireRoad's data.
+  const anthropology = reqTree({
+    title: "Anthropology",
+    reqs: [
+      { req: "8 elective subjects", "plain-string": true },
+      { reqs: [{ req: "21A.00" }, { req: "21A.01" }, { req: "21A.157" }] },
+    ],
+  });
+
+  it("names the department a track's subjects come from", () => {
+    expect(dominantDepartment(anthropology)).toBe("21A");
+  });
+
+  it("names none for a mix, such as all of 21S", () => {
+    const humanities = reqTree({
+      reqs: [
+        anthropology,
+        { reqs: [{ req: "21H.001" }, { req: "21H.002" }, { req: "21H.003" }] },
+      ],
+    });
+    expect(dominantDepartment(humanities)).toBeUndefined();
+  });
+
+  it("needs two subjects, and skips text and attribute leaves", () => {
+    expect(
+      dominantDepartment(
+        reqTree({ reqs: [{ req: "17.55" }, { req: "GIR:PHY1" }] }),
+      ),
+    ).toBeUndefined();
+    expect(
+      dominantDepartment(reqTree({ req: "6 subjects", "plain-string": true })),
+    ).toBeUndefined();
   });
 });

@@ -232,7 +232,7 @@ test.describe("the detail over the audit", () => {
     const chip = detail.locator(".prereq-chip", { hasText: "6.0001" }).first();
     await chip.focus();
     await page.keyboard.press("Enter");
-    await expect(page.locator(".trail-crumb.current")).toHaveText("6.0001");
+    await expect(page.locator("#classInfoTitle")).toContainText("6.0001");
     // The chip left with 6.006's prerequisites; focus is in the detail.
     await expect(detailFocus(page)).toBeFocused();
   });
@@ -273,7 +273,7 @@ test.describe("the detail over the audit", () => {
     await cy(page, "classInSemester1_8_01").click();
     const next = cy(page, "classInSemester1_18_01").locator(".card-body");
     await next.click();
-    await expect(page.locator(".trail-crumb.current")).toHaveText("18.01");
+    await expect(page.locator("#classInfoTitle")).toContainText("18.01");
     await expect(next).toBeFocused();
   });
 
@@ -423,7 +423,7 @@ test.describe("focus from the palette and from a suggestion", () => {
     await openTallRoad(context, page);
     await (await scrolledRow(page)).click();
     await openFromPalette(page, "6.0002");
-    await expect(page.locator(".trail-crumb.current")).toHaveText("6.0002");
+    await expect(page.locator("#classInfoTitle")).toContainText("6.0002");
     await expect(detailFocus(page)).toBeFocused();
   });
 

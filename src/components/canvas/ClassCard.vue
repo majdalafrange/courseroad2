@@ -353,7 +353,11 @@ function removeSelf() {
 function onHoverStart() {
   hovering.value = true;
   const road = store.roads[store.activeRoad];
-  if (road !== undefined && props.subject.public !== false) {
+  if (
+    store.prereqHighlight === "hover" &&
+    road !== undefined &&
+    props.subject.public !== false
+  ) {
     highlightSubject(
       fullSubject.value,
       road.contents.selectedSubjects,
@@ -364,7 +368,9 @@ function onHoverStart() {
 
 function onHoverEnd() {
   hovering.value = false;
-  clearHighlightIfOwnedBy(props.subject.subject_id);
+  if (store.prereqHighlight === "hover") {
+    clearHighlightIfOwnedBy(props.subject.subject_id);
+  }
 }
 </script>
 
@@ -434,10 +440,11 @@ function onHoverEnd() {
     0 0 0 2px var(--g-accent),
     0 0 0 5px var(--g-accent-tint-strong);
 }
+/* Ink ring past a cell-colored gap: a green ring vanished on green cards. */
 .class-card.is-audit-lit {
   box-shadow:
-    0 0 0 2px var(--g-ok),
-    0 0 0 5px var(--g-ok-tint);
+    0 0 0 2px var(--g-cell),
+    0 0 0 4px var(--g-ink);
 }
 
 /* The note popover's anchor wraps the card body; it takes the body's

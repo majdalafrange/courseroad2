@@ -64,7 +64,7 @@ test("a starred class is listed first in the palette, before searching", async (
 
   // Enter opens it, like any class in the palette.
   await page.keyboard.press("Enter");
-  await expect(page.locator(".trail-crumb.current")).toHaveText("18.01");
+  await expect(page.locator("#classInfoTitle")).toContainText("18.01");
   // The palette finishes closing before the next key; Escape during its
   // exit animation still reaches it, not the detail.
   await expect(page.getByRole("dialog")).toHaveCount(0);

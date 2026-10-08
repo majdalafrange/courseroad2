@@ -8,10 +8,12 @@ import {
   parsePersistedBlob,
   persistCurrentSemester,
   persistPanelSide,
+  persistPrereqHighlight,
   persistRoadLayout,
   persistThemeMode,
   persistedCurrentSemester,
   persistedPanelSide,
+  persistedPrereqHighlight,
   persistedRoadLayout,
   persistedThemeMode,
   sanitizePersistedStore,
@@ -410,6 +412,29 @@ describe("road layout persistence", () => {
       activeRoad: "a",
       roadLayout: "classic",
     });
+  });
+});
+
+describe("prerequisite highlight persistence", () => {
+  it("defaults to hover and round-trips a valid choice", () => {
+    expect(persistedPrereqHighlight()).toBe("hover");
+    persistPrereqHighlight("open");
+    expect(persistedPrereqHighlight()).toBe("open");
+    localStorage.setItem(PERSISTED_STORE_KEY, '{"prereqHighlight":"always"}');
+    expect(persistedPrereqHighlight()).toBe("hover");
+  });
+
+  it("takes the caller's fallback until a choice is stored", () => {
+    expect(persistedPrereqHighlight("open")).toBe("open");
+    persistPrereqHighlight("hover");
+    expect(persistedPrereqHighlight("open")).toBe("hover");
+  });
+
+  it("survives sanitizing only when valid", () => {
+    expect(sanitizePersistedStore({ prereqHighlight: "off" })).toEqual({
+      prereqHighlight: "off",
+    });
+    expect(sanitizePersistedStore({ prereqHighlight: "always" })).toEqual({});
   });
 });
 

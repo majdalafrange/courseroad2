@@ -119,6 +119,32 @@ export function subjectUses(tree: RequirementNode): Map<string, string[]> {
   return uses;
 }
 
+/** The department of most of a branch's named subjects ("21A" for 21S
+ *  Anthropology), if one holds two-thirds of at least two. */
+export function dominantDepartment(node: RequirementNode): string | undefined {
+  const counts = new Map<string, number>();
+  let total = 0;
+  const walk = (n: RequirementNode) => {
+    n.reqs?.forEach(walk);
+    const match =
+      n.reqs === undefined && !n["plain-string"]
+        ? /^([A-Z0-9]+)\.[A-Z0-9]+$/i.exec(n.req ?? "")
+        : null;
+    if (match !== null) {
+      const dept = match[1].toUpperCase();
+      counts.set(dept, (counts.get(dept) ?? 0) + 1);
+      total += 1;
+    }
+  };
+  walk(node);
+  for (const [dept, count] of counts) {
+    if (total >= 2 && count * 3 >= total * 2) {
+      return dept;
+    }
+  }
+  return undefined;
+}
+
 /** Whether a requirement is petitioned (has a substitution, not ignored). */
 export function isPetitioned(
   progressAssertions: Record<string, ProgressAssertion>,

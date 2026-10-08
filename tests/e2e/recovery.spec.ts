@@ -45,8 +45,11 @@ test("a road chunk that keeps failing lands on the error screen, not a loop", as
   await context.route(ROAD_CHUNK, (route) => route.abort("failed"));
 
   await page.goto("/");
+  // Two loads, each through Chromium's retries of the chunk: past the
+  // default 5s on a busy machine.
   await expect(page.getByRole("alert")).toContainText(
     "CourseRoad hit an error",
+    { timeout: 15_000 },
   );
   expect(loads()).toBe(2);
 });

@@ -249,4 +249,12 @@ function onOpenAutoFocus(event: Event) {
   height: 30px;
   z-index: 1;
 }
+/* Touch tier (tokens.css): GButton's own rule grows height only, since
+   this button is not icon-only. */
+@media (max-width: 859px) and (pointer: coarse) {
+  .g-sheet-close {
+    width: 44px;
+    height: 44px;
+  }
+}
 </style>

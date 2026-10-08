@@ -93,22 +93,22 @@ test("the detail panel's back button returns to the previous class", async ({
   await cy(page, "classInSemester1_18_01").locator(".card-body").click();
   const detail = cy(page, "classInfoCard");
   await expect(detail).toBeVisible();
-  // No history yet: back and forward are there but disabled.
-  await expect(cy(page, "classInfoBackButton")).toBeDisabled();
-  await expect(cy(page, "classInfoForwardButton")).toBeDisabled();
+  // No history yet: no back and forward to offer.
+  await expect(cy(page, "classInfoBackButton")).toHaveCount(0);
+  await expect(cy(page, "classInfoForwardButton")).toHaveCount(0);
 
   const next = detail.locator(".subject-chip, .prereq-chip").first();
   const nextId = (await next.textContent())?.trim();
   await next.click();
-  await expect(page.locator(".trail-crumb.current")).toHaveText(nextId ?? "");
+  await expect(page.locator("#classInfoTitle")).toContainText(nextId ?? "");
 
   const back = page.getByRole("button", { name: "Back to 18.01" });
   await back.click();
-  await expect(page.locator(".trail-crumb.current")).toHaveText("18.01");
+  await expect(page.locator("#classInfoTitle")).toContainText("18.01");
 
   // And forward again, to where we came from.
   await page.getByRole("button", { name: `Forward to ${nextId}` }).click();
-  await expect(page.locator(".trail-crumb.current")).toHaveText(nextId ?? "");
+  await expect(page.locator("#classInfoTitle")).toContainText(nextId ?? "");
   await expect(cy(page, "classInfoForwardButton")).toBeDisabled();
   await expect(cy(page, "classInfoForwardButton")).toHaveAccessibleName(
     "Forward",

@@ -417,3 +417,12 @@
     --motion-deliberate: 0.01ms;
   }
 }
+
+/* Forced colors drop box-shadow, which draws every focus ring here
+   (focus standard above); a system-colored outline replaces it. */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 2px solid Highlight !important;
+    outline-offset: 2px;
+  }
+}

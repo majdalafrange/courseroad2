@@ -38,6 +38,11 @@ export const DEFAULT_PANEL_SIDE: PanelSide = "left";
 export type RoadLayout = "grid" | "classic";
 const ROAD_LAYOUTS: readonly RoadLayout[] = ["grid", "classic"];
 
+/** When a class's prerequisites and dependents light up on the road:
+ *  on hover, for the class open in the detail panel, or never. */
+export type PrereqHighlight = "hover" | "open" | "off";
+const PREREQ_HIGHLIGHTS: readonly PrereqHighlight[] = ["hover", "open", "off"];
+
 /**
  * Keys restored from a persisted snapshot into the courseData store.
  * Everything else in the blob is session state (or worse) and is dropped.
@@ -51,6 +56,7 @@ const ALLOWED_KEYS = [
   "themeMode",
   "panelSide",
   "roadLayout",
+  "prereqHighlight",
   "subjectsInfo",
   "subjectsIndex",
   "genericCourses",
@@ -305,6 +311,14 @@ export function sanitizePersistedStore(
           clean[key] = value;
         }
         break;
+      case "prereqHighlight":
+        if (
+          typeof value === "string" &&
+          PREREQ_HIGHLIGHTS.includes(value as PrereqHighlight)
+        ) {
+          clean[key] = value;
+        }
+        break;
       case "roads": {
         const roads = sanitizeRoadMap(value);
         // undefined: nothing roads-shaped to restore. {}: every entry
@@ -423,6 +437,30 @@ export function persistedRoadLayout(): RoadLayout {
   return readValue<boolean>(STORAGE_KEYS.usedOldApp) === true
     ? "classic"
     : "grid";
+}
+
+/** `fallback` applies without a stored choice; the store passes "open" on
+ *  touch screens, where a tap is both a hover and a click. */
+export function persistedPrereqHighlight(
+  fallback: PrereqHighlight = "hover",
+): PrereqHighlight {
+  const stored = loadPersistedStore()?.prereqHighlight;
+  return typeof stored === "string" &&
+    PREREQ_HIGHLIGHTS.includes(stored as PrereqHighlight)
+    ? (stored as PrereqHighlight)
+    : fallback;
+}
+
+/** Single-key mid-session write, like persistThemeMode. */
+export function persistPrereqHighlight(mode: PrereqHighlight): void {
+  try {
+    const blob =
+      parsePersistedBlob(localStorage.getItem(PERSISTED_STORE_KEY)) ?? {};
+    blob.prereqHighlight = mode;
+    localStorage.setItem(PERSISTED_STORE_KEY, JSON.stringify(blob));
+  } catch {
+    // Storage unavailable; the choice still applies for this session.
+  }
 }
 
 /** Single-key mid-session write, like persistThemeMode. */

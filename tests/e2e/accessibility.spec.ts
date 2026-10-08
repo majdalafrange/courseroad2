@@ -39,7 +39,7 @@ test("Enter on a class card opens its detail", async ({ page }) => {
   await card.focus();
   await page.keyboard.press("Enter");
   await expect(cy(page, "classInfoCard")).toBeVisible();
-  await expect(page.locator(".trail-crumb.current")).toHaveText("8.01");
+  await expect(page.locator("#classInfoTitle")).toContainText("8.01");
 });
 
 test("M moves a class card by keyboard, and focus follows it", async ({

@@ -29,14 +29,17 @@ import {
 } from "../lib/roads";
 import {
   persistedPanelSide,
+  persistedPrereqHighlight,
   persistedRoadLayout,
   persistedThemeMode,
   sanitizePersistedStore,
   type PanelSide,
+  type PrereqHighlight,
   type RoadLayout,
   type ThemeMode,
 } from "../lib/persistedStore";
 import { systemPrefersDark } from "../design/tokens";
+import { isTouchDevice } from "../composables/useIsMobile";
 import { bucketName, userYearFromSemester } from "../lib/offering";
 import { history, setHistoryRoadFocus } from "./history";
 
@@ -131,6 +134,9 @@ const getDefaultState = () => {
     // Which side the audit panel (plan) and node panel (explore) render on.
     panelSide: persistedPanelSide() as PanelSide,
     roadLayout: persistedRoadLayout() as RoadLayout,
+    prereqHighlight: persistedPrereqHighlight(
+      isTouchDevice() ? "open" : "hover",
+    ) as PrereqHighlight,
   };
 };
 
@@ -992,6 +998,10 @@ export const useCourseDataStore = defineStore("courseData", {
 
     setRoadLayout(layout: RoadLayout) {
       this.roadLayout = layout;
+    },
+
+    setPrereqHighlight(mode: PrereqHighlight) {
+      this.prereqHighlight = mode;
     },
 
     /* ---- catalog: fetched by loaders/courseData.ts, applied here ---- */

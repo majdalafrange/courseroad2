@@ -130,7 +130,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from "vue";
 import TermCell from "./TermCell.vue";
 import GButton from "../../design/components/GButton.vue";
 import GCheckbox from "../../design/components/GCheckbox.vue";
@@ -150,13 +157,17 @@ import {
   type PlacementStatus,
 } from "../../lib/offering";
 import { STORAGE_KEYS, readRawFlag, writeRawFlag } from "../../lib/appStorage";
-import type { SelectedSubject, Subject } from "../../lib/types";
+import {
+  getSubject,
+  type SelectedSubject,
+  type Subject,
+} from "../../lib/types";
 import {
   configureDrag,
   dragState,
   type DragSource,
 } from "../../stores/dragdrop";
-import { clearHighlight } from "../../stores/highlight";
+import { clearHighlight, highlightSubject } from "../../stores/highlight";
 import { useCourseDataStore } from "../../stores/courseData";
 
 const props = defineProps<{
@@ -387,6 +398,35 @@ function onCanvasKeydown(event: KeyboardEvent) {
   }
 }
 
+/* "open" mode: the detail panel's class drives the highlight, only while
+   it is on the road (an unplaced class would dim every card). */
+watch(
+  () =>
+    [
+      store.prereqHighlight,
+      store.classInfoStack[store.activeClassIndex],
+      props.selectedSubjects,
+    ] as const,
+  ([mode, openId, selected], previous) => {
+    if (mode !== "open") {
+      if (previous?.[0] === "open") {
+        clearHighlight();
+      }
+      return;
+    }
+    const onRoad =
+      openId !== undefined &&
+      selected.some((bucket) => bucket.some((s) => s.subject_id === openId));
+    const subject = onRoad ? getSubject(store.catalog, openId) : undefined;
+    if (subject === undefined) {
+      clearHighlight();
+    } else {
+      highlightSubject(subject, selected, store.catalog, 0);
+    }
+  },
+  { immediate: true, deep: true },
+);
+
 /* ---- pointer drag wiring ---- */
 function handleDrop(termIndex: number, source: DragSource) {
   clearHighlight();
@@ -443,6 +483,9 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   window.removeEventListener("keydown", onCanvasKeydown);
+  if (store.prereqHighlight === "open") {
+    clearHighlight();
+  }
 });
 
 void dragState;

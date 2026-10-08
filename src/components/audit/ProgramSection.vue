@@ -105,6 +105,7 @@
         :node="child"
         :depth="0"
         :program-key="programKey"
+        :department="department"
       />
       <g-link
         v-if="officialUrl"
@@ -125,7 +126,11 @@ import GLink from "../../design/components/GLink.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import ReqNode from "./ReqNode.vue";
 import type { RequirementNode } from "../../lib/types";
-import { programSubtitle, programTitle } from "../../lib/audit";
+import {
+  dominantDepartment,
+  programSubtitle,
+  programTitle,
+} from "../../lib/audit";
 import { safeHref } from "../../lib/courseLinks";
 import { announce } from "../../design/announce";
 import { prefersReducedMotion } from "../../design/tokens";
@@ -146,6 +151,10 @@ const auditStore = useAuditStore();
 
 const title = computed(() =>
   programTitle(auditStore.reqList, props.programKey),
+);
+/** For text-only electives directly under the program; see ReqNode. */
+const department = computed(() =>
+  props.tree === null ? undefined : dominantDepartment(props.tree),
 );
 
 const subtitle = computed(() =>

@@ -6,50 +6,53 @@
     data-cy="classInfoCard"
   >
     <div class="detail-trail">
-      <g-button
-        :disabled="activeIndex <= 0"
-        variant="ghost"
-        size="xs"
-        icon-only
-        data-cy="classInfoBackButton"
-        :aria-label="
-          activeIndex > 0 ? `Back to ${trail[activeIndex - 1]}` : 'Back'
-        "
-        @click="store.setActiveClass(activeIndex - 1)"
-      >
-        <g-icon name="back" :size="14" />
-      </g-button>
-      <g-button
-        :disabled="activeIndex >= trail.length - 1"
-        variant="ghost"
-        size="xs"
-        icon-only
-        data-cy="classInfoForwardButton"
-        :aria-label="
-          activeIndex < trail.length - 1
-            ? `Forward to ${trail[activeIndex + 1]}`
-            : 'Forward'
-        "
-        @click="store.setActiveClass(activeIndex + 1)"
-      >
-        <g-icon name="forward" :size="14" />
-      </g-button>
-      <div ref="trailPathEl" class="trail-path">
-        <button
-          v-for="(id, index) in trail"
-          :key="index"
-          class="trail-crumb"
-          :class="{ current: index === activeIndex }"
-          :data-cy="
-            index === activeIndex - 1 ? 'cardPreviousButton' : undefined
+      <!-- The trail and its arrows appear once a second class is opened. -->
+      <template v-if="trail.length > 1">
+        <g-button
+          :disabled="activeIndex <= 0"
+          variant="ghost"
+          size="xs"
+          icon-only
+          data-cy="classInfoBackButton"
+          :aria-label="
+            activeIndex > 0 ? `Back to ${trail[activeIndex - 1]}` : 'Back'
           "
-          :title="id"
-          :aria-current="index === activeIndex ? 'page' : undefined"
-          @click="store.setActiveClass(index)"
+          @click="store.setActiveClass(activeIndex - 1)"
         >
-          {{ id }}
-        </button>
-      </div>
+          <g-icon name="back" :size="14" />
+        </g-button>
+        <g-button
+          :disabled="activeIndex >= trail.length - 1"
+          variant="ghost"
+          size="xs"
+          icon-only
+          data-cy="classInfoForwardButton"
+          :aria-label="
+            activeIndex < trail.length - 1
+              ? `Forward to ${trail[activeIndex + 1]}`
+              : 'Forward'
+          "
+          @click="store.setActiveClass(activeIndex + 1)"
+        >
+          <g-icon name="forward" :size="14" />
+        </g-button>
+        <div ref="trailPathEl" class="trail-path">
+          <button
+            v-for="(id, index) in trail"
+            :key="index"
+            class="trail-crumb"
+            :class="{ current: index === activeIndex }"
+            :data-cy="
+              index === activeIndex - 1 ? 'cardPreviousButton' : undefined
+            "
+            :title="id"
+            :aria-current="index === activeIndex ? 'page' : undefined"
+            @click="store.setActiveClass(index)"
+          >
+            {{ id }}
+          </button>
+        </div>
+      </template>
       <g-button
         variant="ghost"
         size="xs"
