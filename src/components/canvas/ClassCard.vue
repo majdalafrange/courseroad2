@@ -472,8 +472,11 @@ function onHoverEnd() {
   text-overflow: clip;
   overflow: hidden;
 }
+/* A lowered <sub> grows the id's line and drops the title below its
+   neighbors'. */
 .card-old-id {
   font: var(--text-id-micro);
+  line-height: 0;
   color: var(--dept-on-3);
 }
 .card-title {
