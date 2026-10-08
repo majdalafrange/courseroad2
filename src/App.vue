@@ -102,7 +102,7 @@ import MobileNotice from "./components/shell/MobileNotice.vue";
 import ShellHeader from "./components/shell/ShellHeader.vue";
 import GButton from "./design/components/GButton.vue";
 import GLiveRegion from "./design/components/GLiveRegion.vue";
-import GToastHost from "./design/components/GToastHost.vue";
+import { GToastHost } from "./design/components/GToast";
 
 // Lazy: none of these render on first paint. CustomClass and
 // CommandPalette stay eager: both are reached through a typed ref, and

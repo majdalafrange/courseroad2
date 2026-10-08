@@ -63,7 +63,7 @@ function isAuthFailure(err: unknown): boolean {
 }
 
 /** The save-failure toast on screen, so a run of failed saves shows one. */
-let saveIssueToast: number | undefined;
+let saveIssueToast: string | undefined;
 
 /** Toasts a failed sync; on a phone the header shows only an icon. */
 function announceSaveIssue(detail: string): void {

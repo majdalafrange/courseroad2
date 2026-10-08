@@ -1,34 +1,6 @@
 <template>
-  <ToastProvider swipe-direction="right">
-    <ToastRoot
-      v-for="t in toast.state.toasts"
-      :key="t.id"
-      class="g-toast"
-      :class="t.variant"
-      :duration="t.duration"
-      @update:open="(open) => !open && toast.dismiss(t.id)"
-    >
-      <span class="g-toast-rail" aria-hidden="true" />
-      <div class="g-toast-body">
-        <ToastTitle as="span" class="g-toast-message">{{
-          t.message
-        }}</ToastTitle>
-        <ToastDescription v-if="t.detail" as="span" class="g-toast-detail">
-          {{ t.detail }}
-        </ToastDescription>
-      </div>
-      <ToastAction
-        v-if="t.action"
-        class="g-toast-action"
-        :alt-text="t.action.label"
-        @click="t.action.handler()"
-      >
-        {{ t.action.label }}
-      </ToastAction>
-      <ToastClose class="g-toast-dismiss" aria-label="Dismiss">
-        <g-icon name="close" :size="10" />
-      </ToastClose>
-    </ToastRoot>
+  <ToastProvider swipe-direction="right" :toast-manager="toastManager">
+    <g-toast-list />
     <ToastPortal>
       <ToastViewport class="g-toast-host" />
     </ToastPortal>
@@ -38,22 +10,12 @@
 <script setup lang="ts">
 /*
  * Auto-dismiss timing, pause-on-hover/focus/blur, and swipe-to-dismiss
- * are Reka UI's Toast; this is the visual skin. toast.state.toasts is
- * the source of truth (see ../toast.ts), so closing removes from that
- * array.
+ * are Reka UI's Toast; this is the visual skin. Toasts arrive through
+ * the toast manager in ../toast.ts.
  */
-import {
-  ToastAction,
-  ToastClose,
-  ToastDescription,
-  ToastPortal,
-  ToastProvider,
-  ToastRoot,
-  ToastTitle,
-  ToastViewport,
-} from "reka-ui";
-import GIcon from "./GIcon.vue";
-import { toast } from "../toast";
+import { ToastPortal, ToastProvider, ToastViewport } from "reka-ui";
+import GToastList from "./GToastList.vue";
+import { toastManager } from "../../toast.ts";
 </script>
 
 <style>

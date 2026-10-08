@@ -417,7 +417,7 @@ import GNumberField from "../design/components/GNumberField.vue";
 import GPopover from "../design/components/GPopover.vue";
 import GProgress from "../design/components/GProgress.vue";
 import GSelect from "../design/components/GSelect.vue";
-import GToastHost from "../design/components/GToastHost.vue";
+import { GToastHost } from "../design/components/GToast";
 import GTooltip from "../design/components/GTooltip.vue";
 import GWordmark from "../design/components/GWordmark.vue";
 import { toast } from "../design/toast.ts";
