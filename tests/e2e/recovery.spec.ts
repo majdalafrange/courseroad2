@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { cy, mockFireroad, seedReturningVisitor } from "./support/app";
 
 // Lazy-chunk recovery, see lib/errorBoundary.ts.
@@ -9,23 +9,31 @@ test.beforeEach(async ({ context }) => {
   await seedReturningVisitor(context);
 });
 
+// Chromium can request a failing chunk twice in one load, the second time
+// after the load event, so the tests count navigations, not requests.
+function countLoads(page: Page): () => number {
+  let loads = 0;
+  page.on("request", (request) => {
+    if (request.isNavigationRequest() && request.frame() === page.mainFrame()) {
+      loads += 1;
+    }
+  });
+  return () => loads;
+}
+
 test("a road chunk that fails to load once recovers with a reload", async ({
   context,
   page,
 }) => {
-  let aborted = 0;
-  await context.route(ROAD_CHUNK, (route) => {
-    if (aborted === 0) {
-      aborted += 1;
-      return route.abort("failed");
-    }
-    return route.continue();
-  });
+  const loads = countLoads(page);
+  await context.route(ROAD_CHUNK, (route) =>
+    loads() === 1 ? route.abort("failed") : route.continue(),
+  );
 
   await page.goto("/");
   await page.locator("#canvasScroll").waitFor();
 
-  expect(aborted).toBe(1);
+  expect(loads()).toBe(2);
   await expect(cy(page, "roadSwitcher")).toContainText("My First Road");
 });
 
@@ -33,15 +41,12 @@ test("a road chunk that keeps failing lands on the error screen, not a loop", as
   context,
   page,
 }) => {
-  let aborted = 0;
-  await context.route(ROAD_CHUNK, (route) => {
-    aborted += 1;
-    return route.abort("failed");
-  });
+  const loads = countLoads(page);
+  await context.route(ROAD_CHUNK, (route) => route.abort("failed"));
 
   await page.goto("/");
   await expect(page.getByRole("alert")).toContainText(
     "CourseRoad hit an error",
   );
-  expect(aborted).toBe(2);
+  expect(loads()).toBe(2);
 });
