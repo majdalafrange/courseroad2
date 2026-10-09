@@ -13,8 +13,8 @@
  * Light is paper, garnet-led; dark is blueprint, blue-black rather than
  * neutral charcoal, where MIT silver carries every interactive state and
  * cardinal (--g-brand) is reserved for identity, so red never reads as
- * an alert. Department colors live in departmentColors.css (generated;
- * fixed OKLCH bands guarantee contrast).
+ * an alert. Department colors live in departmentPalette.ts (fixed OKLCH
+ * bands guarantee contrast).
  *
  * INTERACTION-STATE STANDARD (every component complies; transitions always
  * list explicit properties, never `transition: all`):
@@ -61,8 +61,8 @@
  *     text = var(--dept-on), or --dept-on-2/-on-3 for lower emphasis (a
  *     title under an id). Those are fixed opaque greys, not --dept-on
  *     faded toward transparent, which fades toward the fill's own hue and
- *     can lose contrast (generate-palette.mjs verifies both against every
- *     department). Hover adds a hairline ring, not a bg swap. One anatomy:
+ *     can lose contrast (departmentPalette.spec.ts verifies all three against
+ *     every department). Hover adds a hairline ring, not a bg swap. One anatomy:
  *       font: var(--text-id-small); height: 22px; padding: 0 var(--space-2);
  *       border-radius: var(--radius-sm); background: var(--dept-color);
  *       color: var(--dept-on);
@@ -271,8 +271,8 @@
   --g-progress-tint: rgba(46, 104, 73, 0.12);
 
   /* semantics: each clears 4.5:1 as text both on any --g-surface* and on
-     its own -tint. generate-palette.mjs checks department colors the same 
-     way. */
+     its own -tint. departmentPalette.spec.ts checks department colors the
+     same way. */
   --g-ok: #1d6a2a;
   --g-ok-tint: rgba(29, 106, 42, 0.12);
   --g-warn: #7d5309;

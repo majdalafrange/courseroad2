@@ -1,5 +1,4 @@
 // @vitest-environment jsdom
-import { readFileSync } from "fs";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   CUSTOM_COLOR_COUNT,
@@ -9,8 +8,9 @@ import {
   isCustomColor,
   resolveCssColor,
 } from "../../../src/lib/colors";
+import { departmentColorsCss } from "../../../src/design/departmentPalette";
 
-const css = readFileSync("src/design/departmentColors.css", "utf8");
+const css = departmentColorsCss();
 
 describe("course colors", () => {
   it("maps department ids to course colors", () => {
@@ -49,7 +49,7 @@ describe("course colors", () => {
     );
   });
 
-  it("finds every palette entry in departmentColors.css", () => {
+  it("finds every palette entry in the palette stylesheet", () => {
     // The light (:root) block; the palette does not change with the theme.
     const root = css.split('[data-theme="dark"]')[0];
     for (let i = 0; i < CUSTOM_COLOR_COUNT; i++) {

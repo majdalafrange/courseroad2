@@ -10,15 +10,14 @@
     "build-dev": "vite build --mode staging",
     "build-prod": "vite build",
     "preview": "vite preview",
-    "typecheck": "vue-tsc --noEmit -p tsconfig.app.json && vue-tsc --noEmit -p tsconfig.vitest.json",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "lint": "eslint .",
     "format": "prettier . --write",
-    "format:check": "prettier . --check",
-    "palette": "node scripts/generate-palette.mjs"
+    "format:check": "prettier . --check"
   },
   "engines": {
     "node": ">=24"

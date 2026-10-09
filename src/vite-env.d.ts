@@ -19,3 +19,6 @@ declare module "*&inline" {
   const src: string;
   export default src;
 }
+
+/** Built from src/design/departmentPalette.ts; see vite.config.ts. */
+declare module "virtual:department-colors.css";

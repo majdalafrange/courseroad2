@@ -31,7 +31,6 @@ The dev server serves <http://localhost:8080>.
 - `npm run typecheck`: vue-tsc over the app and test configs
 - `npm run lint`: ESLint
 - `npm run format` / `npm run format:check`: Prettier
-- `npm run palette`: regenerate `src/design/departmentColors.css`
 - `npm run build-prod` / `npm run build-dev`: production and staging builds
 - `npm run preview`: serve the last build locally
 

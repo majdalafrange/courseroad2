@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
-import { readFileSync } from "fs";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { mount, type VueWrapper } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import CustomClass from "../../../src/components/sheets/CustomClass.vue";
+import { departmentColorsCss } from "../../../src/design/departmentPalette";
 import { useCourseDataStore } from "../../../src/stores/courseData";
 
 /**
@@ -18,7 +18,7 @@ beforeEach(() => {
   setActivePinia(createPinia());
   // The swatches read their colors from the stylesheet, as in the app.
   const style = document.createElement("style");
-  style.textContent = readFileSync("src/design/departmentColors.css", "utf8");
+  style.textContent = departmentColorsCss();
   document.head.append(style);
 });
 

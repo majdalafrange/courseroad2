@@ -7,6 +7,7 @@
 
 import type { CatalogView, Road } from "./types";
 import { courseColor, resolveCssColor } from "./colors";
+import { DEPT_ON } from "../design/departmentPalette";
 import { semesterInformation } from "./hours";
 import {
   NUM_SEMESTERS,
@@ -70,12 +71,8 @@ export interface PosterTheme {
   deptOn2: string;
 }
 
-/* Mirrors of the tokens.css / departmentColors.css values (the poster
-   renders outside the app's stylesheet): --g-bg, --g-surface, --g-cell,
-   --g-line, --g-line-strong, --g-ink, --g-ink-2, --g-ink-3,
-   --g-brand-flag, --dept-on, --dept-on-2 per theme. poster.spec.ts pins
-   these against the parsed source files, so a retuned token fails a test
-   instead of drifting. */
+/* Mirrors of tokens.css, since the poster renders outside the app's
+   stylesheet. poster.spec.ts fails if one drifts. */
 const LIGHT_THEME: PosterTheme = {
   bg: "#eef1f3",
   surface: "#ffffff",
@@ -86,8 +83,8 @@ const LIGHT_THEME: PosterTheme = {
   ink2: "#484d54",
   ink3: "#62676f",
   brandFlag: "#a31f34",
-  deptOn: "#ffffff",
-  deptOn2: "#f0f0f0",
+  deptOn: DEPT_ON.light[0],
+  deptOn2: DEPT_ON.light[1],
 };
 
 /* --g-mark: the wordmark tile is cardinal in both themes, so it is not part
@@ -104,8 +101,8 @@ const DARK_THEME: PosterTheme = {
   ink2: "#b6b7bc",
   ink3: "#999ba1",
   brandFlag: "#c04057",
-  deptOn: "#16191d",
-  deptOn2: "#2a2a2a",
+  deptOn: DEPT_ON.dark[0],
+  deptOn2: DEPT_ON.dark[1],
 };
 
 /** Both theme tables, exported for the tokens.css sync test. */

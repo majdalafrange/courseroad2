@@ -3,6 +3,7 @@ import { defineConfig, loadEnv, type PluginOption } from "vite";
 import vue from "@vitejs/plugin-vue";
 import VueRouter from "vue-router/vite";
 import { imagetools } from "vite-imagetools";
+import { departmentColorsCss } from "./src/design/departmentPalette.ts";
 
 /**
  * Build-only CSP meta tag. The authoritative policy is the
@@ -38,6 +39,16 @@ const cspMeta = (mode: string): PluginOption => ({
   },
 });
 
+/** Serves the department palette (src/design/departmentPalette.ts) as a
+ *  stylesheet, so the CSS is built from source rather than committed. */
+const DEPARTMENT_COLORS = "virtual:department-colors.css";
+const departmentColors = (): PluginOption => ({
+  name: "department-colors",
+  resolveId: (id) => (id === DEPARTMENT_COLORS ? `\0${id}` : undefined),
+  load: (id) =>
+    id === `\0${DEPARTMENT_COLORS}` ? departmentColorsCss() : undefined,
+});
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
@@ -54,6 +65,7 @@ export default defineConfig(({ mode }) => ({
     vue(),
     cspMeta(mode),
     imagetools(),
+    departmentColors(),
   ],
   test: {
     // Lib tests are pure TS and run in node; jsdom is opt-in, for the

@@ -18,8 +18,6 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm run format:check
-      - name: Generated palette has not drifted
-        run: npm run palette && git diff --exit-code src/design
       - run: npm run test:coverage
 
   e2e:

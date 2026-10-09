@@ -15,7 +15,7 @@ import { QUERY_CACHE_KEY } from "./loaders/courseData";
 
 import "./css/fonts.css";
 import "./design/tokens.css";
-import "./design/departmentColors.css";
+import "virtual:department-colors.css";
 import "./css/app.css";
 import {
   applyThemeAttribute,
