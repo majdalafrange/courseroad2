@@ -25,6 +25,7 @@
         <g-button
           v-if="closeButton && dismissible"
           class="g-sheet-close"
+          variant="ghost"
           aria-label="Close"
           @click="close"
         >

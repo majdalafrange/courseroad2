@@ -24,6 +24,7 @@
             v-for="option in setting.options"
             :key="option.value"
             class="option-row"
+            :choice="true"
             :value="option.value"
             :data-cy="`${setting.id}Option-${option.value}`"
           >
@@ -228,55 +229,18 @@ const settings = computed<Setting[]>(() => [
   grid-template-columns: repeat(var(--option-count), minmax(0, 1fr));
   gap: var(--space-2);
 }
-/* :deep(): GRadioGroupItem forwards this class to Reka's own RadioGroupItem
-   internals, a grandchild scoped CSS can't otherwise reach. */
+/* :deep(): GRadioGroupItem forwards this class to Reka's own item, a
+   grandchild. Its surface and states come from the `choice` prop. */
 :deep(.option-row) {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
   min-width: 0;
-  min-height: 36px;
+  --choice-min-height: 36px;
   font: var(--text-small);
   font-weight: 600;
-  color: var(--g-ink-2);
-  background: var(--g-surface-2);
-  border: 1.5px solid var(--g-line);
-  border-radius: var(--radius-sm);
   padding: var(--space-2);
-  cursor: pointer;
-  transition:
-    border-color var(--motion-quick) var(--ease-out),
-    color var(--motion-quick) var(--ease-out);
-}
-@media (max-width: 859px) and (pointer: coarse) {
-  :deep(.option-row) {
-    min-height: 44px;
-  }
-}
-:deep(.option-row:hover) {
-  border-color: var(--g-line-strong);
-  color: var(--g-ink);
-}
-:deep(.option-row:focus-visible) {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
-}
-:deep(.option-row[data-state="checked"]) {
-  border-color: var(--g-accent);
-  color: var(--g-ink);
-  background: var(--g-accent-tint);
-}
-/* Forced colors flatten every border and fill, so the choice would
-   vanish. A thick Highlight border marks it; the outline is focus's. */
-@media (forced-colors: active) {
-  :deep(.option-row[data-state="checked"]) {
-    border: 3px solid Highlight;
-  }
-}
-:deep(.option-row:disabled) {
-  opacity: 0.4;
-  cursor: not-allowed;
 }
 .option-label {
   min-width: 0;

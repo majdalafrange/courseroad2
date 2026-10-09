@@ -33,6 +33,7 @@
             v-for="year in years"
             :key="year.value"
             class="year-option"
+            :choice="true"
             :value="year.value"
           >
             {{ year.label }}
@@ -245,31 +246,14 @@ function close() {
 }
 /* :deep(): GRadioGroupItem forwards this class to Reka's own RadioGroupItem
    internals, a grandchild scoped CSS can't otherwise reach. */
+/* Surface and states come from GRadioGroupItem's `choice` prop. */
 :deep(.year-option) {
   flex: 1;
   min-width: 84px;
   font: var(--text-body);
-  color: var(--g-ink-2);
-  background: var(--g-surface-2);
-  border: 1.5px solid var(--g-line);
-  border-radius: var(--radius-sm);
   padding: var(--space-3) var(--space-2);
-  cursor: pointer;
-  transition:
-    border-color var(--motion-quick) var(--ease-out),
-    color var(--motion-quick) var(--ease-out);
-}
-:deep(.year-option:hover) {
-  border-color: var(--g-line-strong);
-}
-:deep(.year-option:focus-visible) {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
 }
 :deep(.year-option[data-state="checked"]) {
-  border-color: var(--g-accent);
-  color: var(--g-ink);
-  background: var(--g-accent-tint);
   font-weight: 600;
 }
 

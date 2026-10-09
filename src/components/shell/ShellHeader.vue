@@ -180,11 +180,7 @@
           >
             <g-icon name="logout" :size="14" /> Log out
           </g-menu-item>
-          <g-menu-item
-            v-else
-            class="mobile-only login"
-            @select="auth.loginUser()"
-          >
+          <g-menu-item v-else class="mobile-only" @select="auth.loginUser()">
             <g-icon name="login" :size="14" /> Log in
           </g-menu-item>
         </div>
@@ -486,10 +482,6 @@ const saveState = computed<SaveState>(() => {
 }
 .more-menu .mobile-only {
   display: none;
-}
-.more-menu .login {
-  color: var(--g-accent);
-  font-weight: 600;
 }
 
 /* Narrower, the save state keeps its icon (label for screen readers):

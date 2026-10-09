@@ -187,18 +187,26 @@ const classes = computed(() => [
   box-shadow: none;
 }
 
+/* The Inputs rest ring (tokens.css): a shadow alone left no visible edge. */
 .v-subtle {
   background: var(--g-surface);
   color: var(--g-ink);
-  box-shadow: var(--shadow-1);
+  box-shadow: inset 0 0 0 1px var(--g-line-control);
 }
 .v-subtle:hover:not(:disabled) {
   background: var(--g-surface-2);
-  box-shadow: var(--shadow-2);
+  box-shadow: inset 0 0 0 1px var(--g-ink-3);
 }
 .v-subtle:active:not(:disabled) {
   background: var(--g-surface-sunken);
-  box-shadow: var(--shadow-1);
+  box-shadow: inset 0 0 0 1px var(--g-ink-3);
+}
+/* Matches the hover rule's weight, so focus keeps its ring under the
+   pointer too. */
+.v-subtle:focus-visible:not(:disabled) {
+  box-shadow:
+    inset 0 0 0 1px var(--g-line-control),
+    var(--g-focus-ring);
 }
 .v-subtle:disabled:not(.is-loading) {
   background: var(--g-surface-sunken);
@@ -244,7 +252,6 @@ const classes = computed(() => [
   min-height: 24px;
   padding: 0;
   background: transparent;
-  color: var(--g-accent);
   border-radius: var(--radius-xs);
   text-underline-offset: 2px;
 }
@@ -254,8 +261,18 @@ const classes = computed(() => [
     min-height: 44px;
   }
 }
-.v-link:hover:not(:disabled) {
+/* GLink's inline tone: ink and underlined at rest, so cardinal stays for
+   the current-term flag and the primary action. */
+.v-link {
+  color: var(--g-ink);
   text-decoration: underline;
+  text-decoration-color: var(--g-ink-3);
+  transition: color var(--motion-quick) var(--ease-out);
+}
+.v-link:hover:not(:disabled) {
+  color: var(--g-accent);
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 2px;
 }
 .v-link:active:not(:disabled) {
   transform: none;

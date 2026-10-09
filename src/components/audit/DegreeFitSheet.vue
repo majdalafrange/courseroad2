@@ -308,7 +308,7 @@ function close() {
 :deep(.scan-fill) {
   display: block;
   height: 100%;
-  background: var(--g-accent);
+  background: var(--g-ink-3);
   transition: width var(--motion-quick) var(--ease-out);
 }
 .scan-note {

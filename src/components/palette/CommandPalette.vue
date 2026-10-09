@@ -330,7 +330,7 @@ const baseActions = computed<PaletteAction[]>(() => {
   const actions: PaletteAction[] = [
     {
       label: "Settings",
-      detail: "Theme and panel side",
+      detail: "Theme, layout, highlighting and panel side",
       icon: "settings",
       keywords: "theme dark light mode switch settings preferences system",
       run: () => emit("action", "open-settings"),

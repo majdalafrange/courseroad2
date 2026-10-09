@@ -57,7 +57,7 @@ import { toastManager } from "../../toast.ts";
   width: 3px;
   border-radius: var(--radius-full);
   margin-right: var(--space-1);
-  background: var(--g-ink-3);
+  background: transparent;
   flex-shrink: 0;
 }
 .g-toast.ok .g-toast-rail {

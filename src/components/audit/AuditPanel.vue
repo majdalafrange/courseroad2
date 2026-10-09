@@ -5,8 +5,8 @@
     <div class="picker">
       <g-popover v-model="pickerOpen" label="Add a major or minor">
         <template #anchor>
-          <button
-            class="picker-trigger"
+          <g-button
+            size="sm"
             data-cy="auditMajorChips"
             aria-haspopup="dialog"
             :aria-expanded="pickerOpen"
@@ -18,7 +18,7 @@
                 ? "Add a major or minor"
                 : "Pick your majors and minors"
             }}</span>
-          </button>
+          </g-button>
         </template>
         <div class="picker-pop" @click.stop>
           <g-input
@@ -64,14 +64,10 @@
         </div>
       </g-popover>
 
-      <button
-        class="picker-trigger fit-trigger"
-        data-cy="openDegreeFit"
-        @click="fitOpen = true"
-      >
+      <g-button size="sm" data-cy="openDegreeFit" @click="fitOpen = true">
         <g-icon name="graph" :size="13" />
         <span>Closest majors and minors</span>
-      </button>
+      </g-button>
     </div>
 
     <degree-fit-sheet v-model="fitOpen" />
@@ -230,43 +226,6 @@ const previewTreeWithIds = computed(() => {
   gap: var(--space-2);
   margin-bottom: var(--space-3);
 }
-.picker-trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font: var(--text-small);
-  font-weight: 500;
-  color: var(--g-ink-2);
-  /* A button, so the button standard (tokens.css): dashed is for drop
-     zones like prior credit. */
-  background: var(--g-surface);
-  border: none;
-  box-shadow: var(--shadow-1);
-  border-radius: var(--radius-sm);
-  padding: var(--space-1) var(--space-3);
-  min-height: 28px;
-  cursor: pointer;
-  transition:
-    background-color var(--motion-quick) var(--ease-out),
-    color var(--motion-quick) var(--ease-out),
-    box-shadow var(--motion-quick) var(--ease-out);
-}
-/* Touch tier (tokens.css). */
-@media (max-width: 859px) and (pointer: coarse) {
-  .picker-trigger {
-    min-height: 44px;
-  }
-}
-.picker-trigger:hover {
-  color: var(--g-ink);
-  background: var(--g-surface-2);
-  box-shadow: var(--shadow-2);
-}
-.picker-trigger:focus-visible {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
-}
-
 .picker-pop {
   display: flex;
   flex-direction: column;

@@ -20,6 +20,8 @@
  * list explicit properties, never `transition: all`):
  *
  *   Buttons (and button-shaped things)
+ *     rest      subtle (the default) carries the Inputs rest ring, so
+ *               it keeps a 3:1 edge on any surface; no drop shadow.
  *     hover     background steps one level (accent → accent-hover,
  *               surface → surface-2, transparent → accent-tint);
  *               background-color var(--motion-quick) var(--ease-out);

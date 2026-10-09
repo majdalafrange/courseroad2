@@ -3,16 +3,19 @@
     <header class="sg-header">
       <g-wordmark size="lg" />
       <p class="sg-tagline">
-        Every token and component in CourseRoad, rendered live. Switch the theme
-        to check both.
+        Every token and component in CourseRoad. Styled components render live;
+        behavior primitives are listed with where the app styles them. Switch
+        the theme to check both.
       </p>
       <div class="sg-controls">
         <g-button variant="subtle" @click="toggleTheme">
           {{ isDark ? "Switch to light" : "Switch to dark" }}
         </g-button>
-        <router-link to="/road" class="sg-back"
-          ><g-icon name="back" :size="12" /> back to the app</router-link
-        >
+        <router-link v-slot="{ href, navigate }" to="/road" custom>
+          <g-link :href="href" tone="quiet" @click="navigate">
+            <g-icon name="back" :size="12" /> Back to the app
+          </g-link>
+        </router-link>
       </div>
     </header>
 
@@ -187,7 +190,13 @@
       </p>
       <g-card>
         <div class="sg-motion-row">
-          <g-button variant="subtle" @click="runMotionDemo"> Play </g-button>
+          <g-button
+            class="sg-motion-play"
+            variant="subtle"
+            @click="runMotionDemo"
+          >
+            Play
+          </g-button>
           <div class="sg-motion-track">
             <div
               class="sg-motion-dot quick"
@@ -222,8 +231,8 @@
           <g-button variant="subtle">Duplicate road</g-button>
           <g-button variant="ghost">Cancel</g-button>
           <g-button variant="danger">Delete road</g-button>
-          <g-button variant="primary" disabled>Disabled</g-button>
-          <g-button variant="subtle" disabled>Disabled</g-button>
+          <g-button variant="primary" disabled>Primary, disabled</g-button>
+          <g-button variant="subtle" disabled>Subtle, disabled</g-button>
           <g-button variant="primary" loading>Importing...</g-button>
           <g-button variant="subtle" size="sm">Small</g-button>
           <g-button variant="ghost" size="xs" icon-only aria-label="Close">
@@ -296,6 +305,21 @@
             style="width: 200px"
           />
         </div>
+        <p class="sg-body sg-note">
+          Their captions are GLabel, which ties a caption to a control by id.
+        </p>
+      </g-card>
+
+      <g-card class="sg-component-block">
+        <h3 class="sg-h3">Text area</h3>
+        <g-textarea
+          v-model="demoNote"
+          label="Note on 6.006"
+          placeholder="Check prereqs with the instructor"
+          hint="Up to 280 characters."
+          :maxlength="280"
+          style="max-width: 420px"
+        />
       </g-card>
 
       <g-card class="sg-component-block">
@@ -369,6 +393,63 @@
       </g-card>
 
       <g-card class="sg-component-block">
+        <h3 class="sg-h3">Menu</h3>
+        <p class="sg-body sg-note">
+          Actions on a road. A destructive item turns red only while
+          highlighted.
+        </p>
+        <g-menu v-model="demoMenu">
+          <template #trigger>
+            <g-button variant="subtle">
+              Road actions <g-icon name="chevronDown" :size="13" />
+            </g-button>
+          </template>
+          <g-menu-item>Duplicate road</g-menu-item>
+          <g-menu-item>Export as .road</g-menu-item>
+          <g-menu-separator />
+          <g-menu-item danger>Delete road</g-menu-item>
+        </g-menu>
+      </g-card>
+
+      <g-card class="sg-component-block">
+        <h3 class="sg-h3">Sheet</h3>
+        <p class="sg-body sg-note">
+          For tasks with no in-place alternative, such as importing a file.
+        </p>
+        <g-button variant="subtle" @click="demoSheet = true">
+          Import a road
+        </g-button>
+        <g-sheet v-model="demoSheet" label="Import road" width="480px">
+          <div class="sg-sheet-demo">
+            <h2 class="sg-h3">Import road</h2>
+            <g-textarea
+              v-model="demoImport"
+              label="Contents of a .road file"
+              monospace
+              :rows="5"
+            />
+            <div class="sg-sheet-actions">
+              <g-button variant="ghost" @click="demoSheet = false">
+                Cancel
+              </g-button>
+              <g-button variant="primary" @click="demoSheet = false">
+                Import
+              </g-button>
+            </div>
+          </div>
+        </g-sheet>
+      </g-card>
+
+      <g-card class="sg-component-block">
+        <h3 class="sg-h3">Keyboard keys</h3>
+        <p class="sg-body sg-note">
+          Press <g-kbd :keys="searchKeys.keys" :joiner="searchKeys.joiner" /> to
+          add classes, <g-kbd :keys="['Enter']" /> to place one, and
+          <g-kbd :keys="['Esc']" /> to cancel.
+        </p>
+      </g-card>
+
+      <g-card class="sg-component-block">
         <h3 class="sg-h3">Toasts with undo as the confirmation</h3>
         <div class="sg-row-wrap">
           <g-button variant="subtle" @click="demoUndoToast">
@@ -389,6 +470,32 @@
             Warning
           </g-button>
         </div>
+      </g-card>
+
+      <g-card class="sg-component-block">
+        <h3 class="sg-h3">Behavior primitives</h3>
+        <p class="sg-body sg-note">
+          These carry keyboard and screen-reader behavior only. The feature that
+          uses each one styles it; the last column says where to look.
+        </p>
+        <table class="sg-primitives">
+          <thead>
+            <tr>
+              <th scope="col">Component</th>
+              <th scope="col">Provides</th>
+              <th scope="col">Styled in</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="p in primitives" :key="p.name">
+              <td>
+                <code>{{ p.name }}</code>
+              </td>
+              <td data-label="Provides">{{ p.provides }}</td>
+              <td data-label="Styled in">{{ p.seeIt }}</td>
+            </tr>
+          </tbody>
+        </table>
       </g-card>
     </section>
 
@@ -412,16 +519,21 @@ import GChip from "../design/components/GChip.vue";
 import GDrawer from "../design/components/GDrawer.vue";
 import GIcon from "../design/components/GIcon.vue";
 import GInput from "../design/components/GInput.vue";
+import GKbd from "../design/components/GKbd.vue";
 import GLink from "../design/components/GLink.vue";
+import { GMenu, GMenuItem, GMenuSeparator } from "../design/components/GMenu";
 import GNumberField from "../design/components/GNumberField.vue";
 import GPopover from "../design/components/GPopover.vue";
 import GProgress from "../design/components/GProgress.vue";
 import GSelect from "../design/components/GSelect.vue";
+import GSheet from "../design/components/GSheet.vue";
+import GTextarea from "../design/components/GTextarea.vue";
 import { GToastHost } from "../design/components/GToast";
 import GTooltip from "../design/components/GTooltip.vue";
 import GWordmark from "../design/components/GWordmark.vue";
 import { toast } from "../design/toast.ts";
 import { useTheme } from "../composables/useTheme.ts";
+import { shortcutKeys } from "../lib/platform.ts";
 import { useCourseDataStore } from "../stores/courseData.ts";
 
 const store = useCourseDataStore();
@@ -442,6 +554,39 @@ const demoSelectOptions = [
 ];
 const demoPopover = ref(false);
 const demoDrawer = ref(false);
+const demoNote = ref("");
+const demoMenu = ref(false);
+const demoSheet = ref(false);
+const demoImport = ref("");
+const searchKeys = shortcutKeys("K");
+
+const primitives = [
+  {
+    name: "GRadioGroup",
+    provides: "One choice from a set, with arrow keys",
+    seeIt: "Settings: every choice there",
+  },
+  {
+    name: "GMenuLabel, GMenuRadioGroup",
+    provides: "A menu caption, and one choice that stays picked",
+    seeIt: "The road switcher: the road list and its active mark",
+  },
+  {
+    name: "GTabs",
+    provides: "Switching panels, with arrow keys",
+    seeIt: "Degree fit: majors and minors",
+  },
+  {
+    name: "GCombobox",
+    provides: "A search field over a list of results",
+    seeIt: "The command palette (Add classes)",
+  },
+  {
+    name: "GColorSwatchPicker",
+    provides: "A color grid, each swatch named for screen readers",
+    seeIt: "New custom activity: Color",
+  },
+];
 const motionPlaying = ref(false);
 
 function runMotionDemo() {
@@ -563,17 +708,6 @@ const deptSwatches = [
   display: flex;
   align-items: center;
   gap: var(--space-4);
-}
-.sg-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font: var(--text-small);
-  color: var(--g-ink-3);
-  text-decoration: none;
-}
-.sg-back:hover {
-  color: var(--g-accent);
 }
 
 .sg-section {
@@ -712,7 +846,7 @@ const deptSwatches = [
 }
 .sg-space-bar {
   height: 14px;
-  background: var(--g-accent);
+  background: var(--g-ink-3);
   border-radius: var(--radius-xs);
   opacity: 0.85;
 }
@@ -744,6 +878,9 @@ const deptSwatches = [
   color: var(--g-ink-2);
 }
 
+.sg-motion-play {
+  align-self: flex-start;
+}
 .sg-motion-row {
   display: flex;
   flex-direction: column;
@@ -759,7 +896,7 @@ const deptSwatches = [
   width: 18px;
   height: 18px;
   border-radius: var(--radius-full);
-  background: var(--g-accent);
+  background: var(--g-ink-3);
   transform: translateX(0);
 }
 .sg-motion-dot.quick.go {
@@ -790,6 +927,62 @@ const deptSwatches = [
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+}
+.sg-sheet-demo {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.sg-sheet-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+.sg-primitives {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--text-small);
+  color: var(--g-ink-2);
+}
+.sg-primitives th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--g-ink);
+  padding: var(--space-2) var(--space-3) var(--space-2) 0;
+  border-bottom: 1px solid var(--g-line);
+}
+.sg-primitives td {
+  padding: var(--space-2) var(--space-3) var(--space-2) 0;
+  border-bottom: 1px solid var(--g-line);
+  vertical-align: top;
+}
+.sg-primitives code {
+  font: var(--text-id-small);
+  color: var(--g-ink);
+}
+/* Too narrow for three columns: each row stacks, its labels inline. */
+@media (max-width: 599px) {
+  .sg-primitives thead {
+    display: none;
+  }
+  .sg-primitives tr,
+  .sg-primitives td {
+    display: block;
+  }
+  .sg-primitives tr {
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--g-line);
+  }
+  .sg-primitives td {
+    padding: var(--space-05) 0;
+    border-bottom: none;
+  }
+  .sg-primitives td[data-label]::before {
+    content: attr(data-label) ": ";
+    font-weight: 600;
+    color: var(--g-ink);
+  }
 }
 .sg-progress-demo {
   width: 240px;
