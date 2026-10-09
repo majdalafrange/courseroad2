@@ -322,6 +322,7 @@ import GIcon from "../../design/components/GIcon.vue";
 import GNumberField from "../../design/components/GNumberField.vue";
 import GProgress from "../../design/components/GProgress.vue";
 import GPopover from "../../design/components/GPopover.vue";
+import { REQUIREMENT_TOKENS } from "../../lib/paletteTokens";
 import {
   dominantDepartment,
   isIgnored,
@@ -569,17 +570,6 @@ function onLeafPointerDown(event: PointerEvent) {
   }
 }
 
-const ATTRIBUTE_TOKENS: Record<string, string> = {
-  "HASS-A": "hass-a",
-  "HASS-S": "hass-s",
-  "HASS-H": "hass-h",
-  "HASS-E": "hass-e",
-  "CI-H": "ci-h",
-  "CI-HW": "ci-hw",
-  "GIR:LAB": "lab",
-  "GIR:REST": "rest",
-};
-
 /* A text-only elective ("8 elective subjects") searches the department
    its branch names subjects from, or opens an unscoped search. */
 const childDepartment = computed(
@@ -594,7 +584,7 @@ function findClasses() {
     return;
   }
   const req = props.node.req ?? "";
-  const token = ATTRIBUTE_TOKENS[req];
+  const token = REQUIREMENT_TOKENS[req];
   if (token !== undefined) {
     requestPalette({ tokens: [token] });
   } else {

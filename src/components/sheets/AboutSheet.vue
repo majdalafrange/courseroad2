@@ -1,10 +1,5 @@
 <template>
-  <g-sheet
-    :model-value="modelValue"
-    label="About"
-    width="720px"
-    @update:model-value="emit('update:modelValue', $event)"
-  >
+  <g-sheet v-model="isOpen" label="About" width="720px">
     <div class="about-content">
       <div class="about">
         <g-wordmark size="lg" />
@@ -93,13 +88,7 @@ import GSheet from "../../design/components/GSheet.vue";
 import GLink from "../../design/components/GLink.vue";
 import GWordmark from "../../design/components/GWordmark.vue";
 
-defineProps<{
-  modelValue: boolean;
-}>();
-
-const emit = defineEmits<{
-  (e: "update:modelValue", value: boolean): void;
-}>();
+const isOpen = defineModel<boolean>({ required: true });
 </script>
 
 <style scoped>

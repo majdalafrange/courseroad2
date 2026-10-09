@@ -1,10 +1,5 @@
 <template>
-  <g-sheet
-    :model-value="modelValue"
-    label="Closest majors and minors"
-    width="620px"
-    @update:model-value="emit('update:modelValue', $event)"
-  >
+  <g-sheet v-model="isOpen" label="Closest majors and minors" width="620px">
     <div class="fit" data-cy="degreeFit">
       <header class="fit-head">
         <div class="fit-title-block">
@@ -173,13 +168,7 @@ import { useAuditStore } from "../../stores/audit";
 import { useCourseDataStore } from "../../stores/courseData";
 import { useDegreeFitStore } from "../../stores/degreeFit";
 
-const props = defineProps<{
-  modelValue: boolean;
-}>();
-
-const emit = defineEmits<{
-  (e: "update:modelValue", value: boolean): void;
-}>();
+const isOpen = defineModel<boolean>({ required: true });
 
 const store = useCourseDataStore();
 const auditStore = useAuditStore();
@@ -244,7 +233,7 @@ function remainingCount(rows: ProgramFit[], group: Tab): number {
 }
 
 watch(
-  () => props.modelValue,
+  () => isOpen.value,
   (open) => {
     if (open) {
       shown.majors = PAGE;
@@ -268,7 +257,7 @@ function add(key: string) {
 }
 
 function close() {
-  emit("update:modelValue", false);
+  isOpen.value = false;
 }
 </script>
 

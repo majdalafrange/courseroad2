@@ -1,7 +1,7 @@
 <template>
   <DropdownMenuRadioGroup
-    :model-value="modelValue"
-    @update:model-value="(v) => emit('update:modelValue', v as string)"
+    :model-value="model"
+    @update:model-value="(v) => (model = v as string)"
   >
     <slot />
   </DropdownMenuRadioGroup>
@@ -15,11 +15,5 @@
  */
 import { DropdownMenuRadioGroup } from "reka-ui";
 
-defineProps<{
-  modelValue: string;
-}>();
-
-const emit = defineEmits<{
-  (e: "update:modelValue", value: string): void;
-}>();
+const model = defineModel<string>({ required: true });
 </script>

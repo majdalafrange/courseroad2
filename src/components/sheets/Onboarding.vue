@@ -3,7 +3,7 @@
        final action, never a stray Escape or scrim click. The focus trap
        still applies, and Skip is in the tab order. -->
   <g-sheet
-    :model-value="visible"
+    :model-value="isOpen"
     label="Set up your road"
     width="540px"
     :dismissible="false"
@@ -121,12 +121,9 @@ import { seedCoursesOfStudy, seedSelectedSubjects } from "../../lib/onboarding";
 import { useAuditStore } from "../../stores/audit";
 import { useCourseDataStore } from "../../stores/courseData";
 
-const props = defineProps<{
-  modelValue: boolean;
-}>();
+const isOpen = defineModel<boolean>({ required: true });
 
 const emit = defineEmits<{
-  (e: "update:modelValue", value: boolean): void;
   (
     e: "seed",
     payload: {
@@ -140,7 +137,6 @@ const emit = defineEmits<{
 const auditStore = useAuditStore();
 const store = useCourseDataStore();
 
-const visible = computed(() => props.modelValue);
 const step = ref(0);
 const selectedYear = ref(0);
 const programQuery = ref("");
@@ -207,7 +203,7 @@ function skip() {
 }
 
 function close() {
-  emit("update:modelValue", false);
+  isOpen.value = false;
 }
 </script>
 

@@ -1,10 +1,5 @@
 <template>
-  <g-sheet
-    :model-value="modelValue"
-    label="Settings"
-    width="420px"
-    @update:model-value="emit('update:modelValue', $event)"
-  >
+  <g-sheet v-model="isOpen" label="Settings" width="420px">
     <div class="settings-content">
       <h2 class="settings-title">Settings</h2>
 
@@ -52,23 +47,14 @@ import GSheet from "../../design/components/GSheet.vue";
 import { useTheme } from "../../composables/useTheme";
 import { useIsMobile } from "../../composables/useIsMobile";
 import {
-  persistPanelSide,
-  persistPrereqHighlight,
-  persistRoadLayout,
-  type PanelSide,
-  type PrereqHighlight,
-  type RoadLayout,
+  persistSetting,
+  type SettingKey,
+  type SettingValue,
   type ThemeMode,
 } from "../../lib/persistedStore";
 import { useCourseDataStore } from "../../stores/courseData";
 
-defineProps<{
-  modelValue: boolean;
-}>();
-
-const emit = defineEmits<{
-  (e: "update:modelValue", value: boolean): void;
-}>();
+const isOpen = defineModel<boolean>({ required: true });
 
 const store = useCourseDataStore();
 const { setThemeMode } = useTheme();
@@ -96,14 +82,14 @@ interface Setting {
  * Apply a choice, then write it at once: the beforeunload snapshot only
  * runs for logged-in students.
  */
-function persisted<T extends string>(
-  apply: (value: T) => void,
-  persist: (value: T) => void,
+function persisted<K extends SettingKey>(
+  key: K,
+  apply: (value: SettingValue<K>) => void,
 ): (value: string) => void {
   return (value) => {
-    apply(value as T);
+    apply(value as SettingValue<K>);
     if (store.cookiesAllowed) {
-      persist(value as T);
+      persistSetting(key, value as SettingValue<K>);
     }
   };
 }
@@ -134,7 +120,7 @@ const settings = computed<Setting[]>(() => [
     id: "roadLayout",
     label: "Plan layout",
     value: store.roadLayout,
-    set: persisted<RoadLayout>(store.setRoadLayout, persistRoadLayout),
+    set: persisted("roadLayout", store.setRoadLayout),
     options: [
       {
         value: "grid",
@@ -154,10 +140,7 @@ const settings = computed<Setting[]>(() => [
     id: "prereqHighlight",
     label: "Prerequisite highlight",
     value: store.prereqHighlight,
-    set: persisted<PrereqHighlight>(
-      store.setPrereqHighlight,
-      persistPrereqHighlight,
-    ),
+    set: persisted("prereqHighlight", store.setPrereqHighlight),
     options: [
       {
         value: "hover",
@@ -184,7 +167,7 @@ const settings = computed<Setting[]>(() => [
     id: "panelSide",
     label: "Audit & connections panel",
     value: store.panelSide,
-    set: persisted<PanelSide>(store.setPanelSide, persistPanelSide),
+    set: persisted("panelSide", store.setPanelSide),
     disabledHint: isMobile.value
       ? "Not available on mobile: one pane shows at a time either way."
       : undefined,

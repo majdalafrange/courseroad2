@@ -1,8 +1,5 @@
 <template>
-  <PopoverRoot
-    :open="modelValue"
-    @update:open="emit('update:modelValue', $event)"
-  >
+  <PopoverRoot v-model:open="isOpen">
     <PopoverAnchor
       ref="anchorEl"
       as="div"
@@ -39,6 +36,7 @@
  * outside interaction; Escape closes one layer and is marked consumed for
  * window-level listeners.
  */
+import "./popover.css";
 import { useTemplateRef } from "vue";
 import {
   PopoverAnchor,
@@ -54,12 +52,10 @@ import {
 defineOptions({ inheritAttrs: false });
 
 const {
-  modelValue,
   placement = "bottom",
   align = "start",
   menu = false,
 } = defineProps<{
-  modelValue: boolean;
   /** Accessible name of the popover (it is a role="dialog"). */
   label: string;
   placement?: "top" | "bottom";
@@ -68,8 +64,9 @@ const {
   menu?: boolean;
 }>();
 
+const isOpen = defineModel<boolean>({ required: true });
+
 const emit = defineEmits<{
-  (e: "update:modelValue", value: boolean): void;
   /**
    * The popover closed and Reka is about to move focus (to nowhere in
    * particular: the anchor is not a trigger). preventDefault() and focus
@@ -80,13 +77,13 @@ const emit = defineEmits<{
 const anchorEl = useTemplateRef("anchorEl");
 
 function toggle() {
-  emit("update:modelValue", !modelValue);
+  isOpen.value = !isOpen.value;
 }
 function openPopover() {
-  emit("update:modelValue", true);
+  isOpen.value = true;
 }
 function close() {
-  emit("update:modelValue", false);
+  isOpen.value = false;
 }
 
 function onEscapeKeyDown(event: KeyboardEvent) {
@@ -107,38 +104,9 @@ function onInteractOutside(event: PointerDownOutsideEvent | FocusOutsideEvent) {
 </script>
 
 <style>
-/* Not scoped: PopoverContent is teleported through several layers of
-   Reka's components and Vue's scoped-CSS attribute does not survive
-   that. The g-* classes are unique app-wide. */
+/* Not scoped, like popover.css: the g-* classes are unique app-wide. */
 .g-popover-anchor {
   display: inline-flex;
   flex-shrink: 0;
-}
-.g-popover {
-  z-index: 50;
-  min-width: 220px;
-  background: var(--g-surface);
-  border: 1px solid var(--g-overlay-line);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-3);
-  padding: var(--space-3);
-  transform-origin: var(--reka-popover-content-transform-origin);
-}
-.g-popover.menu {
-  padding: var(--space-1);
-}
-/* Entry animation only, scoped to data-state: Reka's Presence reads
-   animation-name to decide whether to wait for an exit animation, so an
-   unconditional rule would delay the close. */
-.g-popover[data-state="open"] {
-  animation: g-pop-in var(--motion-quick) var(--ease-out);
-}
-@keyframes g-pop-in {
-  from {
-    transform: scale(0.97) translateY(-3px);
-  }
-  to {
-    transform: none;
-  }
 }
 </style>

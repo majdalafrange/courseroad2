@@ -1,13 +1,12 @@
 <template>
   <g-sheet
-    :model-value="modelValue"
+    v-model="isOpen"
     label="Search classes and commands"
     width="640px"
     placement="top"
     :close-button="false"
     initial-focus=".palette-input"
     class="palette"
-    @update:model-value="emit('update:modelValue', $event)"
     @close-auto-focus="onCloseAutoFocus"
   >
     <g-combobox-root
@@ -208,6 +207,7 @@ import GSheet from "../../design/components/GSheet.vue";
 import { useIsMobile } from "../../composables/useIsMobile";
 import {
   chosenFiltersFor,
+  REQUIREMENT_TOKENS,
   TOKEN_DEFS,
   type TokenDef,
 } from "../../lib/paletteTokens";
@@ -223,12 +223,9 @@ import { getSubject } from "../../lib/types";
 import { pointerDown } from "../../stores/dragdrop";
 import { history } from "../../stores/history";
 
-const props = defineProps<{
-  modelValue: boolean;
-}>();
+const isOpen = defineModel<boolean>({ required: true });
 
 const emit = defineEmits<{
-  (e: "update:modelValue", value: boolean): void;
   (e: "action", name: string, payload?: string): void;
 }>();
 
@@ -475,18 +472,11 @@ const auditSuggestions = computed<AuditSuggestion[]>(() => {
   }
   const suggestions: AuditSuggestion[] = [];
   const nextSeason = store.currentSemester % 3 === 1 ? "spring" : "fall";
-  const tokenFor: Record<string, string> = {
-    "HASS-A": "hass-a",
-    "HASS-S": "hass-s",
-    "HASS-H": "hass-h",
-    "HASS-E": "hass-e",
-    "CI-H": "ci-h",
-    "CI-HW": "ci-hw",
-  };
   for (const req of openAttributeGaps(
     Object.values(auditStore.reqTrees),
   ).keys()) {
-    const token = tokenFor[req];
+    // Only HASS and CI gaps are offered here; Lab and REST are not.
+    const token = /^(HASS|CI)-/.test(req) ? REQUIREMENT_TOKENS[req] : undefined;
     if (token === undefined) {
       continue;
     }
@@ -630,10 +620,10 @@ function onEscape(event: KeyboardEvent) {
 const resultSummary = ref("");
 let summaryTimer: ReturnType<typeof setTimeout> | undefined;
 watch(
-  [() => props.modelValue, totalCount, query, activeTokenKeys],
+  [() => isOpen.value, totalCount, query, activeTokenKeys],
   () => {
     clearTimeout(summaryTimer);
-    if (!props.modelValue) {
+    if (!isOpen.value) {
       resultSummary.value = "";
       return;
     }
@@ -712,12 +702,12 @@ let returnFocus = true;
 
 function dismiss() {
   returnFocus = true;
-  emit("update:modelValue", false);
+  isOpen.value = false;
 }
 
 function closeAfterAction() {
   returnFocus = false;
-  emit("update:modelValue", false);
+  isOpen.value = false;
 }
 
 function onCloseAutoFocus(event: Event) {
@@ -727,7 +717,7 @@ function onCloseAutoFocus(event: Event) {
 }
 
 watch(
-  () => props.modelValue,
+  () => isOpen.value,
   (open) => {
     if (open) {
       returnFocus = true;
@@ -740,14 +730,14 @@ watch(
 
 defineExpose({
   openWithTokens: (tokens: string[]) => {
-    emit("update:modelValue", true);
+    isOpen.value = true;
     void nextTick(() => {
       activeTokenKeys.value = [...tokens];
       inputEl.value?.focus();
     });
   },
   openWithQuery: (text: string) => {
-    emit("update:modelValue", true);
+    isOpen.value = true;
     void nextTick(() => {
       query.value = text;
       inputEl.value?.focus();

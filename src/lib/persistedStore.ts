@@ -43,6 +43,27 @@ const ROAD_LAYOUTS: readonly RoadLayout[] = ["grid", "classic"];
 export type PrereqHighlight = "hover" | "open" | "off";
 const PREREQ_HIGHLIGHTS: readonly PrereqHighlight[] = ["hover", "open", "off"];
 
+/** The display settings and their allowed values. Each is a snapshot key,
+ *  so adding one here covers its validation on read, write and restore. */
+const SETTINGS = {
+  themeMode: THEME_MODES,
+  panelSide: PANEL_SIDES,
+  roadLayout: ROAD_LAYOUTS,
+  prereqHighlight: PREREQ_HIGHLIGHTS,
+} as const;
+export type SettingKey = keyof typeof SETTINGS;
+export type SettingValue<K extends SettingKey> = (typeof SETTINGS)[K][number];
+
+function isSettingValue<K extends SettingKey>(
+  key: K,
+  value: unknown,
+): value is SettingValue<K> {
+  return (
+    typeof value === "string" &&
+    (SETTINGS[key] as readonly string[]).includes(value)
+  );
+}
+
 /**
  * Keys restored from a persisted snapshot into the courseData store.
  * Everything else in the blob is session state (or worse) and is dropped.
@@ -288,34 +309,10 @@ export function sanitizePersistedStore(
         }
         break;
       case "themeMode":
-        if (
-          typeof value === "string" &&
-          THEME_MODES.includes(value as ThemeMode)
-        ) {
-          clean[key] = value;
-        }
-        break;
       case "panelSide":
-        if (
-          typeof value === "string" &&
-          PANEL_SIDES.includes(value as PanelSide)
-        ) {
-          clean[key] = value;
-        }
-        break;
       case "roadLayout":
-        if (
-          typeof value === "string" &&
-          ROAD_LAYOUTS.includes(value as RoadLayout)
-        ) {
-          clean[key] = value;
-        }
-        break;
       case "prereqHighlight":
-        if (
-          typeof value === "string" &&
-          PREREQ_HIGHLIGHTS.includes(value as PrereqHighlight)
-        ) {
+        if (isSettingValue(key, value)) {
           clean[key] = value;
         }
         break;
@@ -367,59 +364,61 @@ export function loadPersistedStore(): Record<string, unknown> | undefined {
   }
 }
 
-/**
- * Pre-paint theme read. A pre-"system" blob (only the old `isDarkMode`
- * flag) migrates to the equivalent explicit choice.
- */
-export function persistedThemeMode(): ThemeMode {
-  const blob = loadPersistedStore();
-  const stored = blob?.themeMode;
-  if (typeof stored === "string" && THEME_MODES.includes(stored as ThemeMode)) {
-    return stored as ThemeMode;
-  }
-  const legacy = blob?.isDarkMode;
-  if (typeof legacy === "boolean") {
-    return legacy ? "dark" : "light";
-  }
-  return DEFAULT_THEME_MODE;
+/** A setting's stored value, or undefined when absent or invalid. */
+function storedSetting<K extends SettingKey>(
+  key: K,
+): SettingValue<K> | undefined {
+  const stored = loadPersistedStore()?.[key];
+  return isSettingValue(key, stored) ? stored : undefined;
 }
 
 /**
  * Single-key mid-session write. Not through savePersistedStore, which
  * strips catalog descriptions on the assumption the page is closing.
  */
-export function persistThemeMode(mode: ThemeMode): void {
+function writeToBlob(update: (blob: Record<string, unknown>) => void): void {
   try {
     const blob =
       parsePersistedBlob(localStorage.getItem(PERSISTED_STORE_KEY)) ?? {};
-    blob.themeMode = mode;
-    // Clear the legacy flag so persistedThemeMode's migration path cannot
-    // resurface it.
-    delete blob.isDarkMode;
+    update(blob);
     localStorage.setItem(PERSISTED_STORE_KEY, JSON.stringify(blob));
   } catch {
     // Storage unavailable; the choice still applies for this session.
   }
+}
+
+export function persistSetting<K extends SettingKey>(
+  key: K,
+  value: SettingValue<K>,
+): void {
+  writeToBlob((blob) => {
+    blob[key] = value;
+    // A theme choice retires the legacy flag persistedThemeMode migrates.
+    if (key === "themeMode") {
+      delete blob.isDarkMode;
+    }
+  });
+}
+
+/**
+ * Pre-paint theme read. A pre-"system" blob (only the old `isDarkMode`
+ * flag) migrates to the equivalent explicit choice.
+ */
+export function persistedThemeMode(): ThemeMode {
+  const legacy = loadPersistedStore()?.isDarkMode;
+  return (
+    storedSetting("themeMode") ??
+    (typeof legacy === "boolean"
+      ? legacy
+        ? "dark"
+        : "light"
+      : DEFAULT_THEME_MODE)
+  );
 }
 
 /** Pre-paint read of which side the audit/node panel renders on. */
 export function persistedPanelSide(): PanelSide {
-  const stored = loadPersistedStore()?.panelSide;
-  return typeof stored === "string" && PANEL_SIDES.includes(stored as PanelSide)
-    ? (stored as PanelSide)
-    : DEFAULT_PANEL_SIDE;
-}
-
-/** Single-key mid-session write, like persistThemeMode. */
-export function persistPanelSide(side: PanelSide): void {
-  try {
-    const blob =
-      parsePersistedBlob(localStorage.getItem(PERSISTED_STORE_KEY)) ?? {};
-    blob.panelSide = side;
-    localStorage.setItem(PERSISTED_STORE_KEY, JSON.stringify(blob));
-  } catch {
-    // Storage unavailable; the choice still applies for this session.
-  }
+  return storedSetting("panelSide") ?? DEFAULT_PANEL_SIDE;
 }
 
 /**
@@ -427,16 +426,10 @@ export function persistPanelSide(side: PanelSide): void {
  * who used the old CourseRoad in this browser starts on its layout.
  */
 export function persistedRoadLayout(): RoadLayout {
-  const stored = loadPersistedStore()?.roadLayout;
-  if (
-    typeof stored === "string" &&
-    ROAD_LAYOUTS.includes(stored as RoadLayout)
-  ) {
-    return stored as RoadLayout;
-  }
-  return readValue<boolean>(STORAGE_KEYS.usedOldApp) === true
-    ? "classic"
-    : "grid";
+  return (
+    storedSetting("roadLayout") ??
+    (readValue<boolean>(STORAGE_KEYS.usedOldApp) === true ? "classic" : "grid")
+  );
 }
 
 /** `fallback` applies without a stored choice; the store passes "open" on
@@ -444,50 +437,14 @@ export function persistedRoadLayout(): RoadLayout {
 export function persistedPrereqHighlight(
   fallback: PrereqHighlight = "hover",
 ): PrereqHighlight {
-  const stored = loadPersistedStore()?.prereqHighlight;
-  return typeof stored === "string" &&
-    PREREQ_HIGHLIGHTS.includes(stored as PrereqHighlight)
-    ? (stored as PrereqHighlight)
-    : fallback;
+  return storedSetting("prereqHighlight") ?? fallback;
 }
 
-/** Single-key mid-session write, like persistThemeMode. */
-export function persistPrereqHighlight(mode: PrereqHighlight): void {
-  try {
-    const blob =
-      parsePersistedBlob(localStorage.getItem(PERSISTED_STORE_KEY)) ?? {};
-    blob.prereqHighlight = mode;
-    localStorage.setItem(PERSISTED_STORE_KEY, JSON.stringify(blob));
-  } catch {
-    // Storage unavailable; the choice still applies for this session.
-  }
-}
-
-/** Single-key mid-session write, like persistThemeMode. */
-export function persistRoadLayout(layout: RoadLayout): void {
-  try {
-    const blob =
-      parsePersistedBlob(localStorage.getItem(PERSISTED_STORE_KEY)) ?? {};
-    blob.roadLayout = layout;
-    localStorage.setItem(PERSISTED_STORE_KEY, JSON.stringify(blob));
-  } catch {
-    // Storage unavailable; the choice still applies for this session.
-  }
-}
-
-/**
- * Single-key mid-session write, like persistThemeMode. Logged out this
- * copy is the only one.
- */
+/** Logged out, this copy of the "I am a..." choice is the only one. */
 export function persistCurrentSemester(semester: number): void {
-  try {
-    const blob =
-      parsePersistedBlob(localStorage.getItem(PERSISTED_STORE_KEY)) ?? {};
+  writeToBlob((blob) => {
     blob.currentSemester = semester;
-    localStorage.setItem(PERSISTED_STORE_KEY, JSON.stringify(blob));
-  } catch {
-    // Storage unavailable; the choice still applies for this session.
-  }
+  });
 }
 
 /** Boot-time read of the persisted semester; anything but a whole number in bucket range reads as absent. */

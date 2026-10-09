@@ -11,8 +11,7 @@ import { computed, ref, shallowRef, watch } from "vue";
 import { defineStore } from "pinia";
 import type { RequirementNode, Subject } from "../lib/types";
 import { getSubject } from "../lib/types";
-import { courseColor } from "../lib/colors";
-import { courseColorClassFromId } from "../lib/colors";
+import { courseColor, courseColorClassFromId } from "../lib/colors";
 import { EdgeEngine } from "../lib/connections/edges";
 import {
   HARD_NODE_CEILING,

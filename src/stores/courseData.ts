@@ -39,7 +39,7 @@ import {
   type ThemeMode,
 } from "../lib/persistedStore";
 import { systemPrefersDark } from "../design/tokens";
-import { isTouchDevice } from "../composables/useIsMobile";
+import { isTouchDevice } from "../lib/platform";
 import { bucketName, userYearFromSemester } from "../lib/offering";
 import { history, setHistoryRoadFocus } from "./history";
 
@@ -180,10 +180,6 @@ export const useCourseDataStore = defineStore("courseData", {
       for (const subscriber of roadChangeSubscribers) {
         subscriber(event);
       }
-    },
-
-    resetState() {
-      Object.assign(this.$state, getDefaultState());
     },
 
     /**
@@ -833,11 +829,6 @@ export const useCourseDataStore = defineStore("courseData", {
         fulfillment: this.activeRoad !== id ? "none" : "all",
         save: !ignoreSet,
       });
-    },
-
-    setRoads(roads: Record<string, Road>) {
-      this.roads = roads;
-      this.notifyRoadChange({ fulfillment: "all", save: true });
     },
 
     setRoadName({ id, name }: { id: string; name: string }) {

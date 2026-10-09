@@ -54,7 +54,7 @@
         >
           <g-color-swatch-picker-item
             :value="DEFAULT_COLOR_VALUE"
-            :color="rawColor(courseColorClassFromId(form.shortTitle ?? ''))"
+            :color="defaultSwatchColor"
             class="cc-swatch default"
             fill-class="cc-swatch-fill"
             check-class="cc-swatch-check"
@@ -95,7 +95,11 @@ import GSheet from "../../design/components/GSheet.vue";
 import GIcon from "../../design/components/GIcon.vue";
 import GInput from "../../design/components/GInput.vue";
 import GNumberField from "../../design/components/GNumberField.vue";
-import { courseColorClassFromId, rawColor } from "../../lib/colors";
+import {
+  CUSTOM_COLOR_COUNT,
+  courseColor,
+  resolveCssColor,
+} from "../../lib/colors";
 import type { Subject } from "../../lib/types";
 import { useCourseDataStore } from "../../stores/courseData";
 
@@ -113,13 +117,17 @@ const form = reactive({
   colorChosen: "default" as string,
 });
 
-// The palette's 42 preset hexes, index-matched to the "@N" scheme saved
-// roads persist. GColorSwatchPickerItem's value doubles as its own
-// display color, so the picker operates on these hexes directly; this
-// bridges that back to form.colorChosen's "default" | "@N" values.
-const SWATCH_HEXES = Array.from({ length: 42 }, (_, i) =>
-  rawColor(`custom_color-${i}`),
+// Index-matched to saved "@N" values. Reka names a swatch from its value,
+// so values are hexes and pickerColor maps them back to "@N".
+const SWATCH_HEXES = Array.from({ length: CUSTOM_COLOR_COUNT }, (_, i) =>
+  resolveCssColor(`var(--custom-color-${i})`),
 );
+// What the activity gets without a preset: its department color, which
+// changes with the theme.
+const defaultSwatchColor = computed(() => {
+  void store.isDarkMode;
+  return resolveCssColor(courseColor({ subject_id: form.shortTitle ?? "" }));
+});
 // A picker value naming the item instead of coloring it: the "default"
 // entry's fill isn't one of the 42 presets, so it can't double as one.
 const DEFAULT_COLOR_VALUE = "Department color";

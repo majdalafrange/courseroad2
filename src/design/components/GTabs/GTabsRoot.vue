@@ -1,9 +1,9 @@
 <template>
   <TabsRoot
     class="g-tabs-root"
-    :model-value="modelValue"
+    :model-value="model"
     :unmount-on-hide="unmountOnHide"
-    @update:model-value="(v) => emit('update:modelValue', v as T)"
+    @update:model-value="(v) => (model = v as T)"
   >
     <slot />
   </TabsRoot>
@@ -16,15 +16,12 @@
  */
 import { TabsRoot } from "reka-ui";
 
-const { modelValue = undefined, unmountOnHide = true } = defineProps<{
-  modelValue?: T;
+const { unmountOnHide = true } = defineProps<{
   /** false keeps every panel mounted (just hidden), not only the
    *  active one; the caller's own state per panel then survives a
    *  tab switch instead of resetting. */
   unmountOnHide?: boolean;
 }>();
 
-const emit = defineEmits<{
-  (e: "update:modelValue", value: T): void;
-}>();
+const model = defineModel<T>({ required: true });
 </script>

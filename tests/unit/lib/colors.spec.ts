@@ -1,11 +1,16 @@
-import { describe, expect, it } from "vitest";
+// @vitest-environment jsdom
+import { readFileSync } from "fs";
+import { afterEach, describe, expect, it } from "vitest";
 import {
+  CUSTOM_COLOR_COUNT,
   courseColor,
   courseColorClass,
   courseColorClassFromId,
   isCustomColor,
-  rawColor,
+  resolveCssColor,
 } from "../../../src/lib/colors";
+
+const css = readFileSync("src/design/departmentColors.css", "utf8");
 
 describe("course colors", () => {
   it("maps department ids to course colors", () => {
@@ -29,9 +34,8 @@ describe("course colors", () => {
 
   it("uses custom colors for custom activities", () => {
     expect(courseColorClass({ subject_id: "UROP", custom_color: "@5" })).toBe(
-      "custom_color-5",
+      "custom-color-5",
     );
-    expect(rawColor("custom_color-5")).toBe("#57b586");
   });
 
   it("resolves department colors to theme-aware CSS variables", () => {
@@ -39,10 +43,21 @@ describe("course colors", () => {
     expect(courseColor({ subject_id: "PHY1" })).toBe("var(--dept-generic-GIR)");
   });
 
-  it("keeps the saved custom palette as raw hex", () => {
+  it("resolves custom colors to the palette's CSS variables", () => {
     expect(courseColor({ subject_id: "UROP", custom_color: "@5" })).toBe(
-      "#57b586",
+      "var(--custom-color-5)",
     );
+  });
+
+  it("finds every palette entry in departmentColors.css", () => {
+    // The light (:root) block; the palette does not change with the theme.
+    const root = css.split('[data-theme="dark"]')[0];
+    for (let i = 0; i < CUSTOM_COLOR_COUNT; i++) {
+      expect(root, `--custom-color-${i}`).toMatch(
+        new RegExp(`--custom-color-${i}: #[0-9a-f]{6};`),
+      );
+    }
+    expect(root).not.toContain(`--custom-color-${CUSTOM_COLOR_COUNT}:`);
   });
 
   it("recognizes only real palette references", () => {
@@ -66,5 +81,20 @@ describe("course colors", () => {
     const outOfRange = { subject_id: "6.006", custom_color: "@999" };
     expect(courseColorClass(outOfRange)).toBe("course-6");
     expect(courseColor(outOfRange)).toBe("var(--dept-course-6)");
+  });
+});
+
+describe("resolveCssColor", () => {
+  afterEach(() => {
+    document.head.innerHTML = "";
+  });
+
+  it("reads a var() from the page's styles and passes literals through", () => {
+    const style = document.createElement("style");
+    style.textContent = css;
+    document.head.append(style);
+    expect(resolveCssColor("var(--custom-color-5)")).toBe("#57b586");
+    expect(resolveCssColor("#123456")).toBe("#123456");
+    expect(resolveCssColor("var(--not-a-color)")).toBe("");
   });
 });

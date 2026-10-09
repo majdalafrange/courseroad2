@@ -1,10 +1,5 @@
 <template>
-  <g-sheet
-    :model-value="modelValue"
-    label="Compare roads"
-    width="760px"
-    @update:model-value="emit('update:modelValue', $event)"
-  >
+  <g-sheet v-model="isOpen" label="Compare roads" width="760px">
     <div class="compare">
       <header class="compare-head">
         <h2 class="compare-title">Compare roads</h2>
@@ -185,13 +180,7 @@ import { bucketName, semesterType } from "../../lib/offering";
 import { useAuditStore } from "../../stores/audit";
 import { useCourseDataStore } from "../../stores/courseData";
 
-const props = defineProps<{
-  modelValue: boolean;
-}>();
-
-const emit = defineEmits<{
-  (e: "update:modelValue", value: boolean): void;
-}>();
+const isOpen = defineModel<boolean>({ required: true });
 
 const store = useCourseDataStore();
 const auditStore = useAuditStore();
@@ -206,7 +195,7 @@ const roadA = ref(store.activeRoad);
 const roadB = ref("");
 
 watch(
-  () => props.modelValue,
+  () => isOpen.value,
   (open) => {
     if (open) {
       roadA.value = store.activeRoad;

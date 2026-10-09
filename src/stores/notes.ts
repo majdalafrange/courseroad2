@@ -7,19 +7,13 @@
  * Logged out, they live in this browser, under the storage consent like
  * logged-out roads, and are merged into FireRoad on the next login.
  *
- * /prefs/set_notes/ replaces the whole map, so every cloud save sends it
- * all; saves are debounced so a burst of edits is one request.
+ * The sync itself is stores/cloudSync.ts, shared with favorites.
  */
 
 import { defineStore } from "pinia";
-import { toast } from "../design/toast";
-import {
-  STORAGE_KEYS,
-  readValue,
-  removeValue,
-  writeValue,
-} from "../lib/appStorage";
+import { STORAGE_KEYS, readValue } from "../lib/appStorage";
 import type { SubjectNotes } from "../lib/fireroad";
+import { createCloudSync, type SyncedState } from "./cloudSync";
 import { useCourseDataStore } from "./courseData";
 import { fireroad } from "./fireroadClient";
 import { history } from "./history";
@@ -27,25 +21,64 @@ import { history } from "./history";
 /** Longest note kept; the editor stops typing there too. */
 export const NOTE_MAX_LENGTH = 280;
 
-const CLOUD_SAVE_DELAY_MS = 600;
-
 function readLocalNotes(): SubjectNotes {
   const stored = readValue<SubjectNotes>(STORAGE_KEYS.notes);
   return stored !== undefined && typeof stored === "object" ? stored : {};
 }
 
-let cloudTimer: ReturnType<typeof setTimeout> | undefined;
-let cloudLoad: Promise<void> | undefined;
+/** A pre-load edit: the note's new text, or null for a removal. */
+interface NotesState extends SyncedState<string | null> {
+  notes: SubjectNotes;
+}
+
+const sync = createCloudSync<SubjectNotes, string | null, NotesState>({
+  name: "notes",
+  storageKey: STORAGE_KEYS.notes,
+  readLocal: readLocalNotes,
+  current: (store) => ({ ...store.notes }),
+  replace: (store, notes) => {
+    store.notes = notes;
+  },
+  async fetchCloud() {
+    const response = await fireroad.getNotes();
+    if (!response.data.success) {
+      throw new Error(response.data.error ?? "notes failed");
+    }
+    return response.data.notes ?? {};
+  },
+  async saveCloud(notes) {
+    const response = await fireroad.setNotes(notes);
+    if (!response.data.success) {
+      throw new Error(response.data.error ?? "set_notes failed");
+    }
+  },
+  // On a subject with both, the cloud note wins over the logged-out one,
+  // and an edit made this session wins over both.
+  merge(cloud, local, edits) {
+    const merged: SubjectNotes = { ...local, ...cloud };
+    for (const [subjectId, text] of Object.entries(edits)) {
+      if (text === null) {
+        delete merged[subjectId];
+      } else {
+        merged[subjectId] = text;
+      }
+    }
+    const changed =
+      Object.keys(edits).length > 0 ||
+      Object.keys(local).some((id) => !(id in cloud));
+    return { value: merged, changed };
+  },
+  saveFailed: [
+    "Couldn't save your note",
+    "It's kept in this tab and will be saved with your next change.",
+  ],
+});
 
 export const useNotesStore = defineStore("notes", {
-  state: () => ({
-    notes: readLocalNotes() as SubjectNotes,
-    /**
-     * Logged in: whether the cloud copy has arrived. Edits made before it
-     * does are remembered here and win over the cloud copy on arrival.
-     */
+  state: (): NotesState => ({
+    notes: readLocalNotes(),
     cloudLoaded: false,
-    editsBeforeLoad: {} as Record<string, string | null>,
+    editsBeforeLoad: {},
   }),
 
   actions: {
@@ -81,94 +114,12 @@ export const useNotesStore = defineStore("notes", {
       } else {
         this.notes[subjectId] = text;
       }
-      const courseData = useCourseDataStore();
-      if (!courseData.loggedIn) {
-        if (courseData.cookiesAllowed) {
-          writeValue(STORAGE_KEYS.notes, { ...this.notes });
-        }
-        return;
-      }
-      if (!this.cloudLoaded) {
-        // Never save before the cloud copy is in: set_notes replaces the
-        // whole map, so a save now would wipe notes from other devices.
-        // The load folds this edit in and saves it.
-        this.editsBeforeLoad[subjectId] = text ?? null;
-        void this.loadFromCloud();
-        return;
-      }
-      this.scheduleCloudSave();
+      sync.afterEdit(this, subjectId, text ?? null);
     },
 
-    scheduleCloudSave() {
-      clearTimeout(cloudTimer);
-      cloudTimer = setTimeout(() => {
-        cloudTimer = undefined;
-        void this.saveToCloud();
-      }, CLOUD_SAVE_DELAY_MS);
-    },
-
-    async saveToCloud(): Promise<boolean> {
-      try {
-        const response = await fireroad.setNotes({ ...this.notes });
-        if (!response.data.success) {
-          throw new Error(response.data.error ?? "set_notes failed");
-        }
-        return true;
-      } catch (error) {
-        console.warn("Couldn't save notes to FireRoad:", error);
-        toast.warn(
-          "Couldn't save your note",
-          "It's kept in this tab and will be saved with your next change.",
-        );
-        return false;
-      }
-    },
-
-    /**
-     * After login: fetch the cloud notes and fold in anything written
-     * logged out, or edited while the fetch was in flight. On a subject
-     * with both, the cloud copy wins over the logged-out one, and an edit
-     * made this session wins over both.
-     */
+    /** After login: fetch the cloud notes and fold in local changes. */
     loadFromCloud(): Promise<void> {
-      cloudLoad ??= this.fetchAndMerge().finally(() => {
-        cloudLoad = undefined;
-      });
-      return cloudLoad;
-    },
-
-    async fetchAndMerge() {
-      const local = readLocalNotes();
-      let cloud: SubjectNotes;
-      try {
-        const response = await fireroad.getNotes();
-        if (!response.data.success) {
-          throw new Error(response.data.error ?? "notes failed");
-        }
-        cloud = response.data.notes ?? {};
-      } catch (error) {
-        // Keep what this tab has; the next edit retries the load.
-        console.warn("Couldn't load notes from FireRoad:", error);
-        return;
-      }
-      const merged: SubjectNotes = { ...local, ...cloud };
-      for (const [subjectId, text] of Object.entries(this.editsBeforeLoad)) {
-        if (text === null) {
-          delete merged[subjectId];
-        } else {
-          merged[subjectId] = text;
-        }
-      }
-      const changedByUs =
-        Object.keys(this.editsBeforeLoad).length > 0 ||
-        Object.keys(local).some((id) => !(id in cloud));
-      this.notes = merged;
-      this.cloudLoaded = true;
-      this.editsBeforeLoad = {};
-      // The browser copy goes once the cloud has everything in it.
-      if (!changedByUs || (await this.saveToCloud())) {
-        removeValue(STORAGE_KEYS.notes);
-      }
+      return sync.load(this);
     },
   },
 });

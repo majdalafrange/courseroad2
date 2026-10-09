@@ -2,8 +2,8 @@
   <ComboboxInput
     ref="input"
     :aria-controls="listId"
-    :model-value="modelValue"
-    @update:model-value="(v) => emit('update:modelValue', String(v ?? ''))"
+    :model-value="model"
+    @update:model-value="(v) => (model = String(v ?? ''))"
   />
 </template>
 
@@ -21,13 +21,7 @@ import { injectListId } from "./context";
 
 const listId = injectListId();
 
-defineProps<{
-  modelValue: string;
-}>();
-
-const emit = defineEmits<{
-  (e: "update:modelValue", value: string): void;
-}>();
+const model = defineModel<string>({ required: true });
 
 const input = useTemplateRef<{ $el: HTMLInputElement }>("input");
 

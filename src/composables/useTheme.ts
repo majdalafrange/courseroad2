@@ -7,7 +7,7 @@
 import { onBeforeUnmount, onMounted, watch } from "vue";
 
 import { applyThemeAttribute, resolveTheme } from "../design/tokens";
-import { persistThemeMode, type ThemeMode } from "../lib/persistedStore";
+import { persistSetting, type ThemeMode } from "../lib/persistedStore";
 import { useCourseDataStore } from "../stores/courseData";
 
 export function useTheme(): {
@@ -22,7 +22,7 @@ export function useTheme(): {
     // Written immediately: the beforeunload snapshot only runs for
     // logged-in students.
     if (store.cookiesAllowed) {
-      persistThemeMode(mode);
+      persistSetting("themeMode", mode);
     }
   }
 

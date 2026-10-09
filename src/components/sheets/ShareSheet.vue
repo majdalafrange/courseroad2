@@ -1,10 +1,5 @@
 <template>
-  <g-sheet
-    :model-value="modelValue"
-    label="Share road"
-    width="640px"
-    @update:model-value="emit('update:modelValue', $event)"
-  >
+  <g-sheet v-model="isOpen" label="Share road" width="640px">
     <header class="share-head">
       <h2 class="share-title">Share “{{ roadName }}”</h2>
     </header>
@@ -75,13 +70,7 @@ import {
 import { useTouchDevice } from "../../composables/useIsMobile";
 import { useCourseDataStore } from "../../stores/courseData";
 
-const props = defineProps<{
-  modelValue: boolean;
-}>();
-
-const emit = defineEmits<{
-  (e: "update:modelValue", value: boolean): void;
-}>();
+const isOpen = defineModel<boolean>({ required: true });
 
 const store = useCourseDataStore();
 
@@ -93,7 +82,7 @@ const roadName = computed(() => road.value?.name ?? "");
 const posterSvg = ref("");
 
 watch(
-  () => props.modelValue,
+  () => isOpen.value,
   (open) => {
     if (open && road.value) {
       posterSvg.value = buildRoadPoster(road.value, store.catalog, {

@@ -1,10 +1,5 @@
 <template>
-  <g-sheet
-    :model-value="modelValue"
-    label="Import road"
-    width="480px"
-    @update:model-value="emit('update:modelValue', $event)"
-  >
+  <g-sheet v-model="isOpen" label="Import road" width="480px">
     <div class="import-sheet">
       <div class="import-head">
         <h2 class="import-title">Import a road</h2>
@@ -75,12 +70,9 @@ import { parseRoadFile, uniqueRoadName } from "../../lib/roads";
 import type { ProgressAssertion, SelectedSubject } from "../../lib/types";
 import { useCourseDataStore } from "../../stores/courseData";
 
-const props = defineProps<{
-  modelValue: boolean;
-}>();
+const isOpen = defineModel<boolean>({ required: true });
 
 const emit = defineEmits<{
-  (e: "update:modelValue", value: boolean): void;
   (
     e: "add-road",
     name: string,
@@ -101,7 +93,7 @@ const fileName = ref<string>();
 const suggestedName = ref("");
 
 watch(
-  () => props.modelValue,
+  () => isOpen.value,
   (open) => {
     if (open) {
       inputtext.value = "";
@@ -138,7 +130,7 @@ const nameError = computed(() => {
 });
 
 function close() {
-  emit("update:modelValue", false);
+  isOpen.value = false;
 }
 
 function onFileChange(event: Event) {

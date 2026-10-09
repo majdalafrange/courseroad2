@@ -10,7 +10,7 @@
         <input
           ref="inputEl"
           class="g-input-field"
-          :value="modelValue"
+          :value="model"
           :placeholder="placeholder"
           :disabled="disabled"
           :type="type"
@@ -18,9 +18,7 @@
           :aria-invalid="invalid || undefined"
           :aria-describedby="hint || error ? hintId : undefined"
           v-bind="$attrs"
-          @input="
-            emit('update:modelValue', ($event.target as HTMLInputElement).value)
-          "
+          @input="model = ($event.target as HTMLInputElement).value"
         />
         <slot name="trailing" />
       </span>
@@ -52,7 +50,6 @@ const {
   type = "text",
   autocomplete = "off",
 } = defineProps<{
-  modelValue: string;
   label?: string;
   placeholder?: string;
   hint?: string;
@@ -63,9 +60,8 @@ const {
   autocomplete?: string;
 }>();
 
-const emit = defineEmits<{
-  (e: "update:modelValue", value: string): void;
-}>();
+// Not v-model on the <input>, which waits out IME composition.
+const model = defineModel<string>({ required: true });
 
 const hintId = `g-input-hint-${useId()}`;
 const inputEl = useTemplateRef("inputEl");

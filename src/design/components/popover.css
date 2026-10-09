@@ -1,0 +1,29 @@
+/* The surface GPopover and GMenu share; each must import this file, since
+   Reka reads the z-index once at mount. Not scoped: the content teleports. */
+.g-popover {
+  z-index: 50;
+  min-width: 220px;
+  background: var(--g-surface);
+  border: 1px solid var(--g-overlay-line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-3);
+  padding: var(--space-3);
+  transform-origin: var(--reka-popover-content-transform-origin);
+}
+.g-popover.menu {
+  padding: var(--space-1);
+}
+/* Entry animation only, scoped to data-state: Reka's Presence reads
+   animation-name to decide whether to wait for an exit animation, so an
+   unconditional rule would delay the close. */
+.g-popover[data-state="open"] {
+  animation: g-pop-in var(--motion-quick) var(--ease-out);
+}
+@keyframes g-pop-in {
+  from {
+    transform: scale(0.97) translateY(-3px);
+  }
+  to {
+    transform: none;
+  }
+}

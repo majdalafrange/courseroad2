@@ -1,5 +1,5 @@
 <template>
-  <DialogRoot :open="modelValue" modal @update:open="onUpdateOpen">
+  <DialogRoot v-model:open="open" modal>
     <DialogPortal>
       <DialogOverlay
         class="g-sheet-scrim"
@@ -68,7 +68,6 @@ const {
   initialFocus = undefined,
   placement = "center",
 } = defineProps<{
-  modelValue: boolean;
   /** Accessible dialog name. */
   label: string;
   /** Panel width; the panel never exceeds the viewport. */
@@ -102,20 +101,14 @@ const {
   placement?: "center" | "top";
 }>();
 
-const emit = defineEmits<{
-  (e: "update:modelValue", value: boolean): void;
-}>();
+// Reka's own dismiss (Escape, outside click) writes this directly; for a
+// non-dismissible sheet both are blocked below before they fire.
+const open = defineModel<boolean>({ required: true });
 
 function close() {
   if (dismissible) {
-    emit("update:modelValue", false);
+    open.value = false;
   }
-}
-
-// Reka's own dismiss (Escape, outside click) always calls this; forward
-// it as-is (blocked below for a non-dismissible sheet before it fires).
-function onUpdateOpen(open: boolean) {
-  emit("update:modelValue", open);
 }
 
 function onEscapeKeyDown(event: KeyboardEvent) {

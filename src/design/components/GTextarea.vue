@@ -7,19 +7,14 @@
       <textarea
         ref="fieldEl"
         class="g-textarea-field"
-        :value="modelValue"
+        :value="model"
         :placeholder="placeholder"
         :rows="rows"
         :maxlength="maxlength"
         :disabled="disabled"
         :aria-describedby="hint ? hintId : undefined"
         v-bind="$attrs"
-        @input="
-          emit(
-            'update:modelValue',
-            ($event.target as HTMLTextAreaElement).value,
-          )
-        "
+        @input="model = ($event.target as HTMLTextAreaElement).value"
       />
     </label>
     <span v-if="hint" :id="hintId" class="g-textarea-hint">{{ hint }}</span>
@@ -45,7 +40,6 @@ const {
   disabled = false,
   monospace = false,
 } = defineProps<{
-  modelValue: string;
   label?: string;
   placeholder?: string;
   hint?: string;
@@ -56,9 +50,9 @@ const {
   monospace?: boolean;
 }>();
 
-const emit = defineEmits<{
-  (e: "update:modelValue", value: string): void;
-}>();
+// As in GInput: not v-model on the <textarea>, which waits out IME
+// composition.
+const model = defineModel<string>({ required: true });
 
 const hintId = `g-textarea-hint-${useId()}`;
 const fieldEl = useTemplateRef("fieldEl");

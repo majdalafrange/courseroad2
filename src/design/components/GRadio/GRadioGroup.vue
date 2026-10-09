@@ -1,9 +1,9 @@
 <template>
   <RadioGroupRoot
     class="g-radio-group"
-    :model-value="modelValue"
+    :model-value="model"
     :disabled="disabled"
-    @update:model-value="(v) => emit('update:modelValue', v as T)"
+    @update:model-value="(v) => (model = v as T)"
   >
     <slot />
   </RadioGroupRoot>
@@ -17,12 +17,9 @@
  */
 import { RadioGroupRoot } from "reka-ui";
 
-const { modelValue = undefined, disabled = false } = defineProps<{
-  modelValue?: T;
+const { disabled = false } = defineProps<{
   disabled?: boolean;
 }>();
 
-const emit = defineEmits<{
-  (e: "update:modelValue", value: T): void;
-}>();
+const model = defineModel<T>({ required: true });
 </script>

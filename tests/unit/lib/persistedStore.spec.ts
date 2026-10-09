@@ -7,10 +7,7 @@ import {
   loadPersistedStore,
   parsePersistedBlob,
   persistCurrentSemester,
-  persistPanelSide,
-  persistPrereqHighlight,
-  persistRoadLayout,
-  persistThemeMode,
+  persistSetting,
   persistedCurrentSemester,
   persistedPanelSide,
   persistedPrereqHighlight,
@@ -340,12 +337,12 @@ describe("localStorage readers", () => {
     expect(persistedThemeMode()).toBe(DEFAULT_THEME_MODE);
   });
 
-  it("persistThemeMode writes the mode without touching the rest, clearing any legacy flag", () => {
+  it("persisting the theme writes the mode without touching the rest, clearing any legacy flag", () => {
     localStorage.setItem(
       PERSISTED_STORE_KEY,
       '{"activeRoad":"a","isDarkMode":false}',
     );
-    persistThemeMode("dark");
+    persistSetting("themeMode", "dark");
     expect(loadPersistedStore()).toEqual({
       activeRoad: "a",
       themeMode: "dark",
@@ -353,11 +350,11 @@ describe("localStorage readers", () => {
     expect(persistedThemeMode()).toBe("dark");
   });
 
-  it("persistThemeMode starts a blob when none exists or it is corrupt", () => {
-    persistThemeMode("dark");
+  it("persisting the theme starts a blob when none exists or it is corrupt", () => {
+    persistSetting("themeMode", "dark");
     expect(persistedThemeMode()).toBe("dark");
     localStorage.setItem(PERSISTED_STORE_KEY, "{oops");
-    persistThemeMode("light");
+    persistSetting("themeMode", "light");
     expect(loadPersistedStore()).toEqual({ themeMode: "light" });
   });
 
@@ -377,9 +374,9 @@ describe("localStorage readers", () => {
     expect(persistedPanelSide()).toBe(DEFAULT_PANEL_SIDE);
   });
 
-  it("persistPanelSide writes the side without touching the rest", () => {
+  it("persisting the panel side writes the side without touching the rest", () => {
     localStorage.setItem(PERSISTED_STORE_KEY, '{"activeRoad":"a"}');
-    persistPanelSide("right");
+    persistSetting("panelSide", "right");
     expect(loadPersistedStore()).toEqual({
       activeRoad: "a",
       panelSide: "right",
@@ -405,9 +402,9 @@ describe("road layout persistence", () => {
     expect(persistedRoadLayout()).toBe("classic");
   });
 
-  it("persistRoadLayout writes the layout without touching the rest", () => {
+  it("persisting the layout writes the layout without touching the rest", () => {
     localStorage.setItem(PERSISTED_STORE_KEY, '{"activeRoad":"a"}');
-    persistRoadLayout("classic");
+    persistSetting("roadLayout", "classic");
     expect(loadPersistedStore()).toEqual({
       activeRoad: "a",
       roadLayout: "classic",
@@ -418,7 +415,7 @@ describe("road layout persistence", () => {
 describe("prerequisite highlight persistence", () => {
   it("defaults to hover and round-trips a valid choice", () => {
     expect(persistedPrereqHighlight()).toBe("hover");
-    persistPrereqHighlight("open");
+    persistSetting("prereqHighlight", "open");
     expect(persistedPrereqHighlight()).toBe("open");
     localStorage.setItem(PERSISTED_STORE_KEY, '{"prereqHighlight":"always"}');
     expect(persistedPrereqHighlight()).toBe("hover");
@@ -426,7 +423,7 @@ describe("prerequisite highlight persistence", () => {
 
   it("takes the caller's fallback until a choice is stored", () => {
     expect(persistedPrereqHighlight("open")).toBe("open");
-    persistPrereqHighlight("hover");
+    persistSetting("prereqHighlight", "hover");
     expect(persistedPrereqHighlight("open")).toBe("hover");
   });
 

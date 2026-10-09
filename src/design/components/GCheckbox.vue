@@ -7,9 +7,9 @@
     <CheckboxRoot
       v-bind="boxAttrs"
       class="g-checkbox-box"
-      :model-value="modelValue"
+      :model-value="model"
       :disabled="disabled"
-      @update:model-value="(v) => emit('update:modelValue', v === true)"
+      @update:model-value="(v) => (model = v === true)"
     >
       <CheckboxIndicator class="g-checkbox-indicator">
         <g-icon name="check" :size="12" />
@@ -42,13 +42,10 @@ const boxAttrs = computed(() =>
 );
 
 const { disabled = false } = defineProps<{
-  modelValue: boolean;
   disabled?: boolean;
 }>();
 
-const emit = defineEmits<{
-  (e: "update:modelValue", value: boolean): void;
-}>();
+const model = defineModel<boolean>({ required: true });
 </script>
 
 <style scoped>

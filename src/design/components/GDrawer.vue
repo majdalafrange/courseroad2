@@ -1,5 +1,5 @@
 <template>
-  <DrawerRoot :open="modelValue" @update:open="onUpdateOpen">
+  <DrawerRoot v-model:open="open">
     <DrawerPortal>
       <DrawerOverlay class="g-drawer-scrim" />
       <DrawerContent
@@ -34,25 +34,18 @@ import {
 } from "reka-ui";
 
 defineProps<{
-  modelValue: boolean;
   /** Accessible dialog name. */
   label: string;
 }>();
 
-const emit = defineEmits<{
-  (e: "update:modelValue", value: boolean): void;
-}>();
-
-function onUpdateOpen(open: boolean) {
-  emit("update:modelValue", open);
-}
+const open = defineModel<boolean>({ required: true });
 
 function onEscapeKeyDown(event: KeyboardEvent) {
   if (event.defaultPrevented) {
     return;
   }
   event.preventDefault();
-  emit("update:modelValue", false);
+  open.value = false;
 }
 </script>
 

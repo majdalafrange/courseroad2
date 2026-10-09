@@ -16,6 +16,7 @@ import type {
 } from "./types";
 import { semesterInformation, subjectTotalHours } from "./hours";
 import { NUM_SEMESTERS, scheduledSemester, semesterType } from "./offering";
+import { REQUIREMENT_TOKENS } from "./paletteTokens";
 
 /** An attribute requirement we know how to suggest classes for. */
 interface AttributeGap {
@@ -141,17 +142,6 @@ export interface SuggestionContext {
   now?: Date;
 }
 
-const ATTR_TOKENS: Record<string, string> = {
-  "HASS-A": "hass-a",
-  "HASS-S": "hass-s",
-  "HASS-H": "hass-h",
-  "HASS-E": "hass-e",
-  "CI-H": "ci-h",
-  "CI-HW": "ci-hw",
-  "GIR:LAB": "lab",
-  "GIR:REST": "rest",
-};
-
 /**
  * Produce suggestions for the next schedulable term: which audit gaps are
  * open, and the highest-rated subjects that fill them, offered that term,
@@ -224,7 +214,7 @@ export function buildSuggestions(ctx: SuggestionContext): Suggestion[] {
       term: season.toLowerCase(),
       termIndex: targetIndex,
       classes: candidates,
-      tokens: [ATTR_TOKENS[attribute]].filter(Boolean),
+      tokens: [REQUIREMENT_TOKENS[attribute]].filter(Boolean),
     });
   }
   // Most-needed first, then alphabetically for stability.

@@ -1,9 +1,5 @@
 <template>
-  <DropdownMenuRoot
-    :open="modelValue"
-    :modal="false"
-    @update:open="emit('update:modelValue', $event)"
-  >
+  <DropdownMenuRoot v-model:open="open" :modal="false">
     <DropdownMenuTrigger as-child>
       <slot name="trigger" />
     </DropdownMenuTrigger>
@@ -36,6 +32,7 @@
  * Tab, a click outside, or Escape closes it. Added here, as in GPopover:
  * Escape closes one layer and is marked consumed for window listeners.
  */
+import "../popover.css";
 import {
   DropdownMenuContent,
   DropdownMenuPortal,
@@ -46,26 +43,24 @@ import {
 defineOptions({ inheritAttrs: false });
 
 const { align = "start" } = defineProps<{
-  modelValue: boolean;
   align?: "start" | "end";
 }>();
 
-const emit = defineEmits<{
-  (e: "update:modelValue", value: boolean): void;
-}>();
+const open = defineModel<boolean>({ required: true });
 
 function onEscapeKeyDown(event: KeyboardEvent) {
   if (event.defaultPrevented) {
     return;
   }
   event.preventDefault();
-  emit("update:modelValue", false);
+  open.value = false;
 }
 </script>
 
 <style>
-/* Not scoped: the content is teleported (see GPopover.vue). The panel
-   itself is .g-popover.menu, so menus and popovers share one surface. */
+/* Not scoped: the content is teleported. The panel itself is
+   .g-popover.menu, from popover.css, so menus and popovers share one
+   surface. */
 .g-menu {
   transform-origin: var(--reka-dropdown-menu-content-transform-origin);
 }

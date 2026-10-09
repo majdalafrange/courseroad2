@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { readFileSync } from "fs";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { mount, type VueWrapper } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
@@ -15,12 +16,17 @@ let wrapper: VueWrapper | undefined;
 
 beforeEach(() => {
   setActivePinia(createPinia());
+  // The swatches read their colors from the stylesheet, as in the app.
+  const style = document.createElement("style");
+  style.textContent = readFileSync("src/design/departmentColors.css", "utf8");
+  document.head.append(style);
 });
 
 afterEach(() => {
   wrapper?.unmount();
   wrapper = undefined;
   document.body.innerHTML = "";
+  document.head.innerHTML = "";
 });
 
 describe("CustomClass defaults", () => {

@@ -6,7 +6,7 @@
  */
 
 import type { CatalogView, Road } from "./types";
-import { courseColor } from "./colors";
+import { courseColor, resolveCssColor } from "./colors";
 import { semesterInformation } from "./hours";
 import {
   NUM_SEMESTERS,
@@ -15,7 +15,7 @@ import {
   semesterCalendarYearShort,
   semesterType,
 } from "./offering";
-import { useTouchDevice } from "../composables/useIsMobile";
+import { saveFile, type SaveFileOutcome } from "./download";
 import overpassUrl from "@fontsource-variable/overpass/files/overpass-latin-wght-normal.woff2?url";
 import overpassMonoUrl from "@fontsource-variable/overpass-mono/files/overpass-mono-latin-wght-normal.woff2?url";
 
@@ -140,14 +140,7 @@ export function sanitizeColorToken(value: string | undefined): string {
 
 /** Resolve a CSS var or literal color through the live document. */
 function resolveColor(value: string | undefined): string {
-  const match = /var\((--[\w-]+)\)/.exec(value ?? "");
-  if (match === null) {
-    return sanitizeColorToken(value);
-  }
-  const resolved = getComputedStyle(document.documentElement)
-    .getPropertyValue(match[1])
-    .trim();
-  return sanitizeColorToken(resolved || "#888888");
+  return sanitizeColorToken(resolveCssColor(value ?? "") || "#888888");
 }
 
 export interface PosterOptions {
@@ -162,7 +155,7 @@ export function buildRoadPoster(
   catalog: CatalogView,
   options: PosterOptions,
 ): string {
-  const theme = options.dark ? DARK_THEME : LIGHT_THEME;
+  const theme = POSTER_THEMES[options.dark ? "dark" : "light"];
   const base = baseYear(options.userYear);
   const selected = road.contents.selectedSubjects;
   const currentSemester = defaultCurrentSemester() + options.userYear * 3;
@@ -404,42 +397,10 @@ export function rasterizeToPng(svg: string, scale = 2): Promise<string> {
   });
 }
 
-export type SavePngOutcome = "shared" | "downloaded" | "cancelled";
-
-/**
- * Save a PNG data URL, preferring the OS share sheet on a touch device.
- */
 export async function savePng(
   dataUrl: string,
   filename: string,
-): Promise<SavePngOutcome> {
-  const preferShare = useTouchDevice().value;
-  if (preferShare && navigator.canShare !== undefined) {
-    try {
-      const blob = await (await fetch(dataUrl)).blob();
-      const file = new File([blob], filename, { type: "image/png" });
-      if (navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file] });
-        return "shared";
-      }
-    } catch (err) {
-      // The user backing out of the share sheet is not a failure; anything
-      // else falls through to the direct download below.
-      if (err instanceof DOMException && err.name === "AbortError") {
-        return "cancelled";
-      }
-    }
-  }
-  triggerDownload(dataUrl, filename);
-  return "downloaded";
-}
-
-function triggerDownload(url: string, filename: string): void {
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.style.display = "none";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+): Promise<SaveFileOutcome> {
+  const blob = await (await fetch(dataUrl)).blob();
+  return saveFile(new File([blob], filename, { type: "image/png" }), dataUrl);
 }

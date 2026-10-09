@@ -31,3 +31,14 @@ export function shortcutKeys(key: string): ShortcutKeys {
     ? { keys: ["⌘", key], joiner: "" }
     : { keys: ["Ctrl", key], joiner: "+" };
 }
+
+/** The touch-pointer media query; useTouchDevice is its reactive form. */
+export const TOUCH_QUERY = "(pointer: coarse)";
+
+/** A one-time touch-pointer check, for code outside a component. */
+export function isTouchDevice(): boolean {
+  return (
+    typeof window.matchMedia === "function" &&
+    window.matchMedia(TOUCH_QUERY).matches
+  );
+}

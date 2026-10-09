@@ -15,6 +15,18 @@ export interface TokenDef {
   aliases: string[];
 }
 
+/** The palette token that filters to an attribute requirement's subjects. */
+export const REQUIREMENT_TOKENS: Record<string, string> = {
+  "HASS-A": "hass-a",
+  "HASS-S": "hass-s",
+  "HASS-H": "hass-h",
+  "HASS-E": "hass-e",
+  "CI-H": "ci-h",
+  "CI-HW": "ci-hw",
+  "GIR:LAB": "lab",
+  "GIR:REST": "rest",
+};
+
 export const TOKEN_DEFS: TokenDef[] = [
   { key: "gir", label: "GIR", group: "girs", index: 0, aliases: ["gir"] },
   { key: "lab", label: "Lab", group: "girs", index: 1, aliases: ["lab"] },

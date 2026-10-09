@@ -1,56 +1,35 @@
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { onBeforeUnmount, onMounted, ref, type Ref } from "vue";
+import { TOUCH_QUERY } from "../lib/platform";
 
-const QUERY_WIDTH = "(max-width: 859px)";
-const QUERY_TOUCH = "(pointer: coarse)";
+/** A media query's match state, kept live while the component is mounted.
+ *  `fallback` stands in where matchMedia is missing (jsdom). */
+function useMediaQuery(query: string, fallback: () => boolean): Ref<boolean> {
+  if (typeof window.matchMedia !== "function") {
+    return ref(fallback());
+  }
+  const list = window.matchMedia(query);
+  const matches = ref(list.matches);
+
+  function onChange(event: MediaQueryListEvent) {
+    matches.value = event.matches;
+  }
+
+  onMounted(() => {
+    list.addEventListener("change", onChange);
+  });
+  onBeforeUnmount(() => {
+    list.removeEventListener("change", onChange);
+  });
+
+  return matches;
+}
 
 /** Reactive mobile/desktop split at the 860px breakpoint the shell layout uses. */
-export function useIsMobile() {
-  // jsdom has no matchMedia; fall back to a one-time width check.
-  if (typeof window.matchMedia !== "function") {
-    return ref(window.innerWidth < 860);
-  }
-  const query = window.matchMedia(QUERY_WIDTH);
-  const isMobile = ref(query.matches);
-
-  function onChange(event: MediaQueryListEvent) {
-    isMobile.value = event.matches;
-  }
-
-  onMounted(() => {
-    query.addEventListener("change", onChange);
-  });
-  onBeforeUnmount(() => {
-    query.removeEventListener("change", onChange);
-  });
-
-  return isMobile;
+export function useIsMobile(): Ref<boolean> {
+  return useMediaQuery("(max-width: 859px)", () => window.innerWidth < 860);
 }
 
-/** A one-time read of useTouchDevice's query, for code outside a component. */
-export function isTouchDevice(): boolean {
-  return (
-    typeof window.matchMedia === "function" &&
-    window.matchMedia(QUERY_TOUCH).matches
-  );
-}
-
-export function useTouchDevice() {
-  if (typeof window.matchMedia !== "function") {
-    return ref(false);
-  }
-  const query = window.matchMedia(QUERY_TOUCH);
-  const isTouchDevice = ref(query.matches);
-
-  function onChange(event: MediaQueryListEvent) {
-    isTouchDevice.value = event.matches;
-  }
-
-  onMounted(() => {
-    query.addEventListener("change", onChange);
-  });
-  onBeforeUnmount(() => {
-    query.removeEventListener("change", onChange);
-  });
-
-  return isTouchDevice;
+/** Reactive touch-pointer check; outside a component use isTouchDevice(). */
+export function useTouchDevice(): Ref<boolean> {
+  return useMediaQuery(TOUCH_QUERY, () => false);
 }

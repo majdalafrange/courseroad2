@@ -1,48 +1,48 @@
-/** Browser file-download helper for `.road` exports. */
+/** Saving files the user exports: `.road` files and the share poster. */
 
 import type { RoadContents } from "./types";
+import { isTouchDevice } from "./platform";
 import { formatRoadContents } from "./roads";
 
 export type SaveFileOutcome = "shared" | "downloaded" | "cancelled";
 
 /**
- * Save a road as `<name>.road`, preferring the OS share sheet on a touch
- * device: `<a download>` does not reliably save on mobile WebKit. Decided
- * by pointer type, not viewport width.
+ * Prefers the share sheet on a touch device: `<a download>` is unreliable
+ * on mobile WebKit. `href` is a data: URL, so the bytes never become a page.
  */
-export async function downloadRoadFile(
-  name: string,
-  contents: RoadContents,
+export async function saveFile(
+  file: File,
+  href: string,
 ): Promise<SaveFileOutcome> {
-  const text = JSON.stringify(formatRoadContents(contents));
-  const filename = `${name}.road`;
-  const preferShare = matchMedia("(pointer: coarse)").matches;
-  if (preferShare && navigator.canShare !== undefined) {
+  if (isTouchDevice() && navigator.canShare?.({ files: [file] })) {
     try {
-      const file = new File([text], filename, { type: "text/plain" });
-      if (navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file] });
-        return "shared";
-      }
+      await navigator.share({ files: [file] });
+      return "shared";
     } catch (err) {
+      // Backing out of the share sheet is not a failure; anything else
+      // falls through to the direct download below.
       if (err instanceof DOMException && err.name === "AbortError") {
         return "cancelled";
       }
     }
   }
-  triggerDownload(text, filename);
+  const link = document.createElement("a");
+  link.href = href;
+  link.download = file.name;
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
   return "downloaded";
 }
 
-function triggerDownload(text: string, filename: string): void {
-  const element = document.createElement("a");
-  element.setAttribute(
-    "href",
+export function downloadRoadFile(
+  name: string,
+  contents: RoadContents,
+): Promise<SaveFileOutcome> {
+  const text = JSON.stringify(formatRoadContents(contents));
+  return saveFile(
+    new File([text], `${name}.road`, { type: "text/plain" }),
     "data:text/plain;charset=utf-8," + encodeURIComponent(text),
   );
-  element.setAttribute("download", filename);
-  element.style.display = "none";
-  document.body.appendChild(element);
-  element.click();
-  document.body.removeChild(element);
 }
