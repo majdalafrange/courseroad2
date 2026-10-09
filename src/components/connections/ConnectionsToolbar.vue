@@ -41,7 +41,7 @@
       <!-- One keeps the starting subjects, the other replaces them; the
            names say which. -->
       <g-button size="sm" variant="ghost" @click="store.reset()">
-        Remove added classes
+        Remove unpinned classes
       </g-button>
       <g-button
         size="sm"
