@@ -905,6 +905,19 @@ export const useConnectionsStore = defineStore("connections", () => {
         ? "No more connections to show for this subject."
         : `Revealed ${added.length} connected ${added.length === 1 ? "subject" : "subjects"}.`,
     );
+
+    const remainingNeighbors = e
+      .neighbors(id)
+      .filter((n) => !graph.value.nodes.has(n.id));
+
+    if (remainingNeighbors.length != 0) {
+      toast.show(
+        `This subject has ${remainingNeighbors.length} more connection${remainingNeighbors.length === 1 ? "" : "s"}!`,
+        {
+          duration: 4000,
+        },
+      );
+    }
   }
 
   function collapse(id: string): void {
