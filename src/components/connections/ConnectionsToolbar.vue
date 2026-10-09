@@ -36,12 +36,12 @@
 
     <div class="toolbar-right">
       <g-button size="sm" variant="ghost" @click="store.tidy()">
-        Auto-arrange
+        Arrange view
       </g-button>
       <!-- One keeps the starting subjects, the other replaces them; the
            names say which. -->
       <g-button size="sm" variant="ghost" @click="store.reset()">
-        Back to start
+        Remove added classes
       </g-button>
       <g-button
         size="sm"
@@ -49,7 +49,7 @@
         data-cy="connectionsReseed"
         @click="store.reseedFromRoad()"
       >
-        Start from my road
+        Full Reset
       </g-button>
     </div>
   </div>
