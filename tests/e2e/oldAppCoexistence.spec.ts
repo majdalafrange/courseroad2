@@ -33,7 +33,6 @@ test("leaves the old app's cookies and snapshot alone", async ({
   await page.goto("/");
   await page.locator("#canvasScroll").waitFor();
   // A settings write lands in this app's own snapshot.
-  await page.getByRole("button", { name: "More", exact: true }).click();
   await cy(page, "settingsButton").click();
   await cy(page, "panelSideOption-right").click();
   await page.reload();
@@ -93,7 +92,6 @@ test("someone who used the old app starts on the classic layout", async ({
   await expect(page.locator(".road-canvas")).toHaveClass(/is-classic/);
 
   // The choice in Settings outlasts the default.
-  await page.getByRole("button", { name: "More", exact: true }).click();
   await cy(page, "settingsButton").click();
   await cy(page, "roadLayoutOption-grid").click();
   await page.reload();

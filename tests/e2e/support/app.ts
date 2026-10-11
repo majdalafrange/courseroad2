@@ -89,9 +89,7 @@ export async function seedLocalRoads(
   }, roads);
 }
 
-/** Settings lives in the header's overflow menu, so opening it is two clicks. */
 export async function openSettings(page: Page): Promise<void> {
-  await page.getByRole("button", { name: "More", exact: true }).click();
   await cy(page, "settingsButton").click();
 }
 

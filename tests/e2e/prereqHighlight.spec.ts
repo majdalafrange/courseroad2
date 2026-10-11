@@ -29,7 +29,6 @@ const card = (page: Page, id: string) =>
   );
 
 async function choose(page: Page, mode: string) {
-  await page.getByRole("button", { name: "More", exact: true }).click();
   await cy(page, "settingsButton").click();
   await cy(page, `prereqHighlightOption-${mode}`).click();
   await page.keyboard.press("Escape");
@@ -84,7 +83,7 @@ test.describe("on a touch screen", () => {
     ).toBe(true);
     // A tap is also a hover, so the setting itself shows which mode is on.
     await page.getByRole("button", { name: "More", exact: true }).tap();
-    await cy(page, "settingsButton").tap();
+    await page.getByRole("menuitem", { name: "Settings" }).tap();
     await expect(cy(page, "prereqHighlightOption-open")).toHaveAttribute(
       "aria-checked",
       "true",

@@ -142,6 +142,20 @@
         Log in
       </g-button>
 
+      <g-tooltip class="header-settings" text="Settings">
+        <g-button
+          variant="ghost"
+          size="sm"
+          icon-only
+          class="header-icon-btn"
+          aria-label="Settings"
+          data-cy="settingsButton"
+          @click="emit('open-settings')"
+        >
+          <g-icon name="settings" :size="15" />
+        </g-button>
+      </g-tooltip>
+
       <g-menu v-model="moreOpen" align="end">
         <template #trigger>
           <g-button
@@ -158,7 +172,7 @@
           <g-menu-item @select="emit('open-about')">
             <g-icon name="info" :size="14" /> About CourseRoad
           </g-menu-item>
-          <g-menu-item data-cy="settingsButton" @select="emit('open-settings')">
+          <g-menu-item class="mobile-only" @select="emit('open-settings')">
             <g-icon name="settings" :size="14" /> Settings
           </g-menu-item>
           <g-menu-item v-if="auth.loggedIn" as-child>
@@ -563,7 +577,8 @@ const saveState = computed<SaveState>(() => {
   /* :global: these classes land on GTooltip's trigger span, which scoped
      CSS can't tag (Reka's TooltipProvider/Root have no DOM node to inherit
      the attribute onto). */
-  .header-right :global(.header-feedback) {
+  .header-right :global(.header-feedback),
+  .header-right :global(.header-settings) {
     display: none;
   }
   .header-right .header-login {
