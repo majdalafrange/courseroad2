@@ -4,6 +4,7 @@ import {
   collapseNode,
   expandNode,
   hasMoreNeighbors,
+  moreNeighborCount,
   pinNode,
   removeNode,
   resetGraph,
@@ -116,6 +117,16 @@ describe("expand cap + show more", () => {
     g = expandNode(g, engine, "6.000", 8); // show more
     expect(g.nodes.size).toBe(1 + 12);
     expect(hasMoreNeighbors(g, engine, "6.000")).toBe(false);
+  });
+
+  it("counts what show more would reveal, not removed neighbors", () => {
+    const engine = hubEngine();
+    let g = seedGraph(engine, ["6.000"]);
+    g = expandNode(g, engine, "6.000", 8);
+    expect(moreNeighborCount(g, engine, "6.000")).toBe(4);
+    const shown = [...g.nodes.keys()].find((id) => id !== "6.000")!;
+    g = removeNode(g, shown);
+    expect(moreNeighborCount(g, engine, "6.000")).toBe(4);
   });
 
   it("expanding a fully-expanded node is a no-op (idempotency)", () => {

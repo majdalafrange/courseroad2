@@ -19,6 +19,7 @@ import {
   collapseNode,
   expandNode,
   hasMoreNeighbors,
+  moreNeighborCount,
   pinNode,
   removeNode,
   resetGraph,
@@ -900,22 +901,18 @@ export const useConnectionsStore = defineStore("connections", () => {
     if (added.length > 0) {
       requestFrame([id, ...added]);
     }
-    announce(
-      added.length === 0
-        ? "No more connections to show for this subject."
-        : `Revealed ${added.length} connected ${added.length === 1 ? "subject" : "subjects"}.`,
-    );
+    if (added.length === 0) {
+      announce("No more connections to show for this subject.");
+      return;
+    }
+    const revealed = `Revealed ${added.length} connected ${added.length === 1 ? "subject" : "subjects"}.`;
+    const more = moreNeighborCount(graph.value, e, id);
 
-    const remainingNeighbors = e
-      .neighbors(id)
-      .filter((n) => !graph.value.nodes.has(n.id));
-
-    if (remainingNeighbors.length != 0) {
+    if (more === 0) {
+      announce(revealed);
+    } else {
       toast.show(
-        `This subject has ${remainingNeighbors.length} more connection${remainingNeighbors.length === 1 ? "" : "s"}!`,
-        {
-          duration: 4000,
-        },
+        `${revealed} This subject has ${more} more ${more === 1 ? "connection" : "connections"}.`,
       );
     }
   }

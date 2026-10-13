@@ -155,23 +155,28 @@ export function seedGraph(engine: EdgeEngine, seedIds: string[]): GraphState {
   return state;
 }
 
-/** Whether `nodeId` has more neighbors to reveal beyond what's shown. */
+/** How many neighbors of `nodeId` expanding again could still reveal. */
+export function moreNeighborCount(
+  state: GraphState,
+  engine: EdgeEngine,
+  nodeId: string,
+): number {
+  if (!state.nodes.has(nodeId)) {
+    return 0;
+  }
+  const shown = state.shownCount.get(nodeId) ?? 0;
+  return engine
+    .neighbors(nodeId)
+    .slice(shown)
+    .filter((n) => !state.removed.has(n.id)).length;
+}
+
 export function hasMoreNeighbors(
   state: GraphState,
   engine: EdgeEngine,
   nodeId: string,
 ): boolean {
-  if (!state.nodes.has(nodeId)) {
-    return false;
-  }
-  const candidates = engine.neighbors(nodeId);
-  const shown = state.shownCount.get(nodeId) ?? 0;
-  for (let i = shown; i < candidates.length; i++) {
-    if (!state.removed.has(candidates[i].id)) {
-      return true;
-    }
-  }
-  return false;
+  return moreNeighborCount(state, engine, nodeId) > 0;
 }
 
 /**
