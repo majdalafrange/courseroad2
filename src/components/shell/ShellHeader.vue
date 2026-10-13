@@ -513,6 +513,13 @@ const saveState = computed<SaveState>(() => {
     clip-path: inset(50%);
     white-space: nowrap;
   }
+  .search-trigger {
+    width: 180px;
+  }
+  .search-trigger-kbd,
+  .header-left :deep(.switch-count) {
+    display: none;
+  }
 }
 
 @media (max-width: 859px) {
