@@ -42,3 +42,20 @@ export function isTouchDevice(): boolean {
     window.matchMedia(TOUCH_QUERY).matches
   );
 }
+
+/** Publishes the part of the screen the on-screen keyboard leaves as
+ *  --visible-top/--visible-height; vh and dvh ignore the keyboard. */
+export function trackVisibleViewport(): void {
+  const viewport = window.visualViewport;
+  if (!viewport) {
+    return;
+  }
+  const root = document.documentElement.style;
+  const update = () => {
+    root.setProperty("--visible-top", `${viewport.offsetTop}px`);
+    root.setProperty("--visible-height", `${viewport.height}px`);
+  };
+  viewport.addEventListener("resize", update);
+  viewport.addEventListener("scroll", update);
+  update();
+}

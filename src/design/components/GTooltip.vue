@@ -1,6 +1,6 @@
 <template>
   <TooltipProvider :delay-duration="delay">
-    <TooltipRoot v-model:open="open">
+    <TooltipRoot v-model:open="open" :disable-closing-trigger="tap">
       <TooltipTrigger
         ref="trigger"
         as="span"
@@ -8,6 +8,7 @@
         v-bind="$attrs"
         @focusin="onFocusin"
         @focusout="open = false"
+        @pointerup="onPointerup"
       >
         <slot />
         <!-- Reka points aria-describedby at the content only while open, and
@@ -56,6 +57,7 @@ const {
   placement = "bottom",
   delay = 350,
   wide = false,
+  tap = false,
 } = defineProps<{
   text?: string;
   placement?: "top" | "bottom";
@@ -63,6 +65,9 @@ const {
   delay?: number;
   /** Wrap to a fixed column instead of one nowrap line, for a sentence. */
   wide?: boolean;
+  /** A tap toggles it too, for a trigger whose only job is this tooltip.
+   *  Touch never hovers; an action button keeps its tap for the action. */
+  tap?: boolean;
 }>();
 
 // Reka's trigger listens for "focus", which does not bubble from the
@@ -75,6 +80,12 @@ function onFocusin(event: FocusEvent) {
   const target = event.target;
   if (target instanceof HTMLElement && target.matches(":focus-visible")) {
     open.value = true;
+  }
+}
+
+function onPointerup(event: PointerEvent) {
+  if (tap && event.pointerType !== "mouse") {
+    open.value = !open.value;
   }
 }
 

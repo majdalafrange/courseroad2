@@ -215,6 +215,14 @@ function onOpenAutoFocus(event: Event) {
 .g-sheet-panel.top[data-state="open"] {
   animation: g-sheet-drop-in var(--motion-standard) var(--ease-settle);
 }
+/* Phones: the keyboard is up while the palette is, so the panel fits the
+   visible area above it, or its last results sit behind the keyboard. */
+@media (max-width: 859px) {
+  .g-sheet-panel.top {
+    top: calc(var(--visible-top, 0px) + var(--space-3));
+    max-height: calc(var(--visible-height, 100dvh) - 2 * var(--space-3));
+  }
+}
 @keyframes g-sheet-drop-in {
   from {
     opacity: 0;

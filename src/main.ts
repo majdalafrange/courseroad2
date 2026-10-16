@@ -33,6 +33,7 @@ import {
   separateStoreSnapshot,
 } from "./lib/legacyStorage";
 import { persistedThemeMode } from "./lib/persistedStore";
+import { trackVisibleViewport } from "./lib/platform";
 
 // Move any legacy cookie state into origin-isolated storage before
 // anything reads it. After these three the app never reads document.cookie.
@@ -41,6 +42,9 @@ migrateLegacyCookies();
 separateStoreSnapshot();
 // Before the store reads its default road layout.
 recordOldAppUse();
+
+// Sizes the command palette above the on-screen keyboard.
+trackVisibleViewport();
 
 // Apply the persisted theme before first paint to avoid a flash.
 applyThemeAttribute(resolveTheme(persistedThemeMode(), systemPrefersDark()));

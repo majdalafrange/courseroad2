@@ -28,7 +28,7 @@
         <span v-if="totalUnits > 0" class="meta-dot sep" aria-hidden="true"
           >·</span
         >
-        <g-tooltip :text="saveState.detail" placement="bottom" :delay="200">
+        <g-tooltip :text="saveState.detail" placement="bottom" :delay="200" tap>
           <!-- Focusable so its tooltip (the detail) is reachable by
                keyboard, not only by hover. -->
           <span class="save-state" :class="saveState.tone" tabindex="0">

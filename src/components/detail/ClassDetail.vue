@@ -176,7 +176,7 @@
       </p>
       <p v-if="hoursVerdict" class="detail-verdict" :class="hoursTone">
         {{ hoursVerdict }}
-        <g-tooltip wide placement="bottom">
+        <g-tooltip wide placement="bottom" tap>
           <button
             class="verdict-why g-hit"
             type="button"

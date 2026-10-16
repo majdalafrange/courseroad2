@@ -79,7 +79,7 @@
           ><span aria-hidden="true">{{ info.totalUnits }}u</span
           ><span class="sr-only">{{ info.totalUnits }} units</span></span
         >
-        <g-tooltip placement="bottom">
+        <g-tooltip placement="bottom" tap>
           <span class="term-hours" :class="loadTone" tabindex="0"
             ><span aria-hidden="true"
               >{{ info.totalExpectedHours.toFixed(0) }}h</span
@@ -138,6 +138,7 @@
       <g-tooltip
         v-if="index !== 0 && subjects.length"
         class="load-gauge-wrap"
+        tap
         text="48 units is the typical load per semester."
       >
         <g-progress

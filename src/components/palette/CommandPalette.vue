@@ -928,6 +928,14 @@ defineExpose({
   color: var(--g-ink-3);
   white-space: nowrap;
 }
+/* Key hints mean nothing without a keyboard, and on a phone they squeeze
+   the class title to a few letters. */
+@media (pointer: coarse) {
+  .palette .row-place,
+  .palette .palette-kbd {
+    display: none;
+  }
+}
 
 .palette .palette-empty {
   padding: var(--space-6) var(--space-4);

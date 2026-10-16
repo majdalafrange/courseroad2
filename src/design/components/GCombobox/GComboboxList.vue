@@ -57,6 +57,8 @@ const emit = defineEmits<{
 .g-combobox-viewport {
   flex: 1;
   min-height: 0;
+  /* A swipe past either end stays in the list, not the page behind it. */
+  overscroll-behavior: contain;
 }
 /* The viewport is what scrolls. Reka injects a style hiding its scrollbar
    (made for dropdowns that scroll by arrow buttons); in a list that is

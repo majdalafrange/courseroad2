@@ -22,11 +22,14 @@ import { toastManager } from "../../toast.ts";
 /* Not scoped: see GPopover.vue's note. ToastRoot teleports into the
    viewport element, which itself teleports through ToastPortal, so
    scoped CSS has two teleport hops to survive rather than one. */
+/* Inset from both edges: left: 50% capped a toast at half the screen.
+   Click-through, so the strips beside a toast stay usable. */
 .g-toast-host {
   position: fixed;
   bottom: var(--space-5);
-  left: 50%;
-  transform: translateX(-50%);
+  left: var(--space-3);
+  right: var(--space-3);
+  pointer-events: none;
   z-index: 200;
   display: flex;
   flex-direction: column;
@@ -48,7 +51,7 @@ import { toastManager } from "../../toast.ts";
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-3);
   padding: var(--space-2) var(--space-3) var(--space-2) 0;
-  min-width: 260px;
+  min-width: min(260px, 100%);
   max-width: 480px;
   overflow: hidden;
 }
