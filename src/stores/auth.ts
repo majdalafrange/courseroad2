@@ -79,6 +79,8 @@ function announceSaveIssue(detail: string): void {
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     accessInfo: undefined as AccessInfo | undefined,
+    /** When this login's token expires; set at login, not restore. */
+    loginExpiresAt: undefined as number | undefined,
     loggedIn: false,
     newRoads: [] as string[],
     saveWarnings: [] as SaveWarning[],
@@ -118,6 +120,27 @@ export const useAuthStore = defineStore("auth", {
       this.accessInfo = undefined;
       setFireroadToken(undefined);
       window.location.reload();
+    },
+
+    /**
+     * Store a fresh login so it survives a reload. Also runs when consent
+     * arrives after login (the banner can still be up when Log in is
+     * clicked); without it that login ended at the next reload.
+     */
+    persistLogin() {
+      if (
+        !this.cookiesAllowed ||
+        this.accessInfo === undefined ||
+        this.loginExpiresAt === undefined
+      ) {
+        return;
+      }
+      writeValue(
+        STORAGE_KEYS.accessInfo,
+        this.accessInfo,
+        this.loginExpiresAt - Date.now(),
+      );
+      writeValue(STORAGE_KEYS.hasLoggedIn, "true");
     },
 
     setAccessInfo(accessInfo: AccessInfo | undefined) {
@@ -318,14 +341,9 @@ export const useAuthStore = defineStore("auth", {
     async getAuthorizationToken(code: string) {
       const response = await fireroad.fetchToken(code);
       if (response.data.success) {
-        if (this.cookiesAllowed) {
-          writeValue(
-            STORAGE_KEYS.accessInfo,
-            response.data.access_info,
-            ACCESS_INFO_TTL_MS,
-          );
-        }
+        this.loginExpiresAt = Date.now() + ACCESS_INFO_TTL_MS;
         this.setAccessInfo(response.data.access_info);
+        this.persistLogin();
         this.verify().catch((err) => {
           console.warn("Post-login verification failed:", err);
         });

@@ -99,6 +99,67 @@ describe("auth.attemptLogin (OAuth callback)", () => {
     expect(readValue(STORAGE_KEYS.accessInfo)).toBeUndefined();
   });
 
+  it("keeps a login made before consent once consent is given", async () => {
+    window.history.replaceState({}, "", "/?code=abc123");
+    mocks.fetchToken.mockResolvedValue({
+      data: { success: true, access_info: { access_token: "tok" } },
+    });
+    mocks.verify.mockResolvedValue({
+      data: { success: true, current_semester: 4 },
+    });
+    mocks.getRoads.mockResolvedValue({
+      status: 200,
+      data: { success: true, files: {} },
+    });
+    const store = useCourseDataStore();
+    const auth = useAuthStore();
+
+    auth.attemptLogin();
+    await vi.waitFor(() => expect(auth.loggedIn).toBe(true));
+    expect(readValue(STORAGE_KEYS.accessInfo)).toBeUndefined();
+
+    // The banner's accept()
+    store.allowCookies();
+    auth.persistLogin();
+
+    expect(readValue(STORAGE_KEYS.accessInfo)).toEqual({
+      access_token: "tok",
+    });
+    expect(readValue(STORAGE_KEYS.hasLoggedIn)).toBe("true");
+  });
+
+  it("keeps the login as long as FireRoad's week-long token", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      window.history.replaceState({}, "", "/?code=abc123");
+      mocks.fetchToken.mockResolvedValue({
+        data: { success: true, access_info: { access_token: "tok" } },
+      });
+      mocks.verify.mockResolvedValue({
+        data: { success: true, current_semester: 4 },
+      });
+      mocks.getRoads.mockResolvedValue({
+        status: 200,
+        data: { success: true, files: {} },
+      });
+      useCourseDataStore().allowCookies();
+      const auth = useAuthStore();
+
+      auth.attemptLogin();
+      await vi.waitFor(() => expect(auth.loggedIn).toBe(true));
+
+      const DAY = 24 * 60 * 60 * 1000;
+      vi.setSystemTime(Date.now() + 6 * DAY);
+      expect(readValue(STORAGE_KEYS.accessInfo)).toEqual({
+        access_token: "tok",
+      });
+      vi.setSystemTime(Date.now() + 1 * DAY);
+      expect(readValue(STORAGE_KEYS.accessInfo)).toBeUndefined();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("reports a failed redemption instead of failing silently", async () => {
     window.history.replaceState({}, "", "/?code=bad");
     mocks.fetchToken.mockRejectedValue(new Error("Network Error"));

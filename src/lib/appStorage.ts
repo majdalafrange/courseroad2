@@ -191,8 +191,9 @@ export function clearAppStorage(options?: {
   }
 }
 
-/** Three days, matching the expiry the accessInfo cookie used to carry. */
-export const ACCESS_INFO_TTL_MS = 3 * 24 * 60 * 60 * 1000;
+/** FireRoad's web token lifetime (TOKEN_EXPIRY_WEB, 6e5 s). The old app's
+ *  three days dropped logins FireRoad still accepted. */
+export const ACCESS_INFO_TTL_MS = 600_000 * 1000;
 
 /**
  * Local-state schema version. A mismatch resets local state, so it is

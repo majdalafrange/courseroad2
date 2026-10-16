@@ -67,6 +67,7 @@ function accept() {
   // path above runs before restoreFromStorage has hydrated the roads and
   // would overwrite the stored map with the empty default.
   auth.saveLocal();
+  auth.persistLogin();
 }
 
 function optOut() {
