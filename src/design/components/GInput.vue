@@ -1,42 +1,37 @@
 <template>
-  <div class="g-input" :class="{ invalid, disabled }">
-    <!-- The label wraps the caption and the field only: a hint inside it
-         would be read as part of the field's name. display: contents keeps
-         the layout the root's. -->
-    <label class="g-input-labelled">
-      <span v-if="label" class="g-input-label">{{ label }}</span>
-      <span class="g-input-shell">
-        <slot name="leading" />
-        <input
-          ref="inputEl"
-          class="g-input-field"
-          :value="model"
-          :placeholder="placeholder"
-          :disabled="disabled"
-          :type="type"
-          :autocomplete="autocomplete"
-          :aria-invalid="invalid || undefined"
-          :aria-describedby="hint || error ? hintId : undefined"
-          v-bind="$attrs"
-          @input="model = ($event.target as HTMLInputElement).value"
-        />
-        <slot name="trailing" />
-      </span>
-    </label>
-    <span
-      v-if="hint || error"
-      :id="hintId"
-      class="g-input-hint"
-      :class="{ invalid }"
-      :role="invalid && error ? 'alert' : undefined"
-    >
-      {{ invalid && error ? error : hint }}
+  <g-field
+    class="g-input"
+    :label="label"
+    :hint="hint"
+    :error="error"
+    :invalid="invalid"
+    :disabled="disabled"
+  >
+    <span class="g-input-shell g-field-shell" @mousedown="onShellMousedown">
+      <slot name="leading" />
+      <FieldControl
+        ref="inputEl"
+        class="g-input-field"
+        :model-value="model"
+        :placeholder="placeholder"
+        :type="type"
+        :autocomplete="autocomplete"
+        v-bind="$attrs"
+        @update:model-value="(v) => (model = String(v ?? ''))"
+      />
+      <slot name="trailing" />
     </span>
-  </div>
+  </g-field>
 </template>
 
 <script setup lang="ts">
-import { useId, useTemplateRef } from "vue";
+/**
+ * A single-line text field in a GField. Attrs (aria-label, data-cy,
+ * listeners) go to the <input>.
+ */
+import { useTemplateRef } from "vue";
+import { FieldControl } from "reka-ui";
+import GField from "./GField.vue";
 
 defineOptions({ inheritAttrs: false });
 
@@ -53,6 +48,7 @@ const {
   label?: string;
   placeholder?: string;
   hint?: string;
+  /** Shown in place of the hint while `invalid`. */
   error?: string;
   invalid?: boolean;
   disabled?: boolean;
@@ -60,58 +56,43 @@ const {
   autocomplete?: string;
 }>();
 
-// Not v-model on the <input>, which waits out IME composition.
+// FieldControl updates on every input event; v-model on a bare <input>
+// would wait out IME composition.
 const model = defineModel<string>({ required: true });
 
-const hintId = `g-input-hint-${useId()}`;
-const inputEl = useTemplateRef("inputEl");
+const inputEl = useTemplateRef<{ $el: HTMLInputElement }>("inputEl");
 defineExpose({
-  focus: () => inputEl.value?.focus(),
-  select: () => inputEl.value?.select(),
+  focus: () => inputEl.value?.$el.focus(),
+  select: () => inputEl.value?.$el.select(),
 });
+
+/** The shell's padding and leading icon focus the field, as a label would. */
+function onShellMousedown(event: MouseEvent) {
+  const input = inputEl.value?.$el;
+  if (
+    !input ||
+    input.disabled ||
+    event.target === input ||
+    (event.target as Element).closest("button, a, input")
+  ) {
+    return;
+  }
+  event.preventDefault();
+  input.focus();
+}
 </script>
 
 <style scoped>
-.g-input {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  min-width: 0;
-}
-.g-input-labelled {
-  display: contents;
-}
-.g-input-label {
-  font: var(--text-small);
-  color: var(--g-ink-3);
-}
 .g-input-shell {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  background: var(--g-surface);
-  border-radius: var(--radius-sm);
-  box-shadow: inset 0 0 0 1px var(--g-line-control);
   padding: 0 var(--space-3);
   height: 34px;
-  transition: box-shadow var(--motion-quick) var(--ease-out);
+  cursor: text;
 }
-.g-input-shell:hover {
-  box-shadow: inset 0 0 0 1px var(--g-ink-3);
-}
-.g-input:focus-within .g-input-shell {
-  box-shadow:
-    inset 0 0 0 1.5px var(--g-accent),
-    0 0 0 3px var(--g-accent-tint);
-}
-.g-input.invalid .g-input-shell {
-  box-shadow:
-    inset 0 0 0 1.5px var(--g-danger),
-    0 0 0 3px var(--g-danger-tint);
-}
-.g-input.disabled .g-input-shell {
-  background: var(--g-surface-sunken);
-  box-shadow: inset 0 0 0 1px var(--g-line);
+.g-input[data-disabled] .g-input-shell {
+  cursor: default;
 }
 .g-input-field {
   font: var(--text-body);
@@ -122,15 +103,5 @@ defineExpose({
   flex: 1;
   min-width: 0;
   height: 100%;
-}
-.g-input-field::placeholder {
-  color: var(--g-ink-3);
-}
-.g-input-hint {
-  font: var(--text-small);
-  color: var(--g-ink-3);
-}
-.g-input-hint.invalid {
-  color: var(--g-danger);
 }
 </style>

@@ -1,19 +1,16 @@
 <template>
-  <div class="req-node" :class="{ 'is-root': depth === 0 }">
+  <g-collapsible-root
+    class="req-node"
+    :class="{ 'is-root': depth === 0 }"
+    :open="isBranch && open"
+    @update:open="(value: boolean) => (open = value)"
+  >
     <div v-if="isBranch" class="branch-line">
-      <button
-        type="button"
+      <g-collapsible-trigger
         class="branch-row"
         :data-cy="'auditItem' + (node['list-id'] ?? '')"
-        :aria-expanded="open"
-        @click="open = !open"
       >
-        <g-icon
-          name="chevronRight"
-          :size="12"
-          class="branch-chevron"
-          :style="{ transform: open ? 'rotate(90deg)' : '' }"
-        />
+        <g-icon name="chevronRight" :size="12" class="branch-chevron" />
         <span class="branch-title">{{ branchTitle }}</span>
         <span v-if="node['threshold-desc']" class="branch-threshold">{{
           node["threshold-desc"]
@@ -27,21 +24,20 @@
             {{ node.fulfilled ? "fulfilled, complete" : "fulfilled" }}</span
           ></span
         >
-      </button>
+      </g-collapsible-trigger>
       <g-popover
         v-model="infoOpen"
         align="end"
         :label="`Details for ${branchTitle}`"
       >
-        <template #anchor>
+        <template #anchor="{ triggerProps }">
           <g-button
             variant="ghost"
             size="xs"
             icon-only
             :data-cy="'auditInfoButton' + (node['list-id'] ?? '')"
             :aria-label="`Details for ${branchTitle}`"
-            aria-haspopup="dialog"
-            :aria-expanded="infoOpen"
+            v-bind="triggerProps"
             @click.stop="infoOpen = !infoOpen"
           >
             <g-icon name="info" :size="12" />
@@ -75,7 +71,7 @@
         />
       </span>
     </div>
-    <div v-if="isBranch && open" class="branch-children">
+    <g-collapsible-content v-if="isBranch" class="branch-children">
       <req-node
         v-for="(child, index) in node.reqs"
         :key="child.uniqueKey ?? index"
@@ -84,7 +80,7 @@
         :program-key="programKey"
         :department="childDepartment"
       />
-    </div>
+    </g-collapsible-content>
 
     <!-- leaf -->
     <div
@@ -166,7 +162,7 @@
               : `Petition ${leafName}`
           "
         >
-          <template #anchor>
+          <template #anchor="{ triggerProps }">
             <g-button
               variant="ghost"
               size="xs"
@@ -178,8 +174,7 @@
                     ? `Enter progress for ${leafName}`
                     : `Petition or ignore ${leafName}`
               "
-              aria-haspopup="dialog"
-              :aria-expanded="petitionOpen"
+              v-bind="triggerProps"
               :data-cy="'petitionButton' + (node['list-id'] ?? '')"
               @click.stop="petitionOpen = !petitionOpen"
               @pointerdown.stop
@@ -311,11 +306,16 @@
         </g-popover>
       </span>
     </div>
-  </div>
+  </g-collapsible-root>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, useTemplateRef, watch } from "vue";
+import {
+  GCollapsibleContent,
+  GCollapsibleRoot,
+  GCollapsibleTrigger,
+} from "../../design/components/GCollapsible";
 import GButton from "../../design/components/GButton.vue";
 import GCheckbox from "../../design/components/GCheckbox.vue";
 import GIcon from "../../design/components/GIcon.vue";
@@ -655,6 +655,9 @@ export default { name: "ReqNode" };
   transition: transform var(--motion-quick) var(--ease-out);
   flex-shrink: 0;
 }
+.branch-row[data-state="open"] .branch-chevron {
+  transform: rotate(90deg);
+}
 .branch-title {
   font: var(--text-body-strong);
   color: var(--g-ink);
@@ -733,7 +736,7 @@ export default { name: "ReqNode" };
 }
 .leaf-line.cross-lit {
   background: var(--g-ok-tint);
-  box-shadow: inset 2px 0 0 var(--g-ok);
+  box-shadow: inset 0 0 0 1px var(--g-ok);
 }
 .leaf-line.ignored {
   opacity: 0.55;

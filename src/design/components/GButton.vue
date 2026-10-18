@@ -38,8 +38,11 @@ const {
   /** "link" and "quiet" read as text, sized by it rather than a box:
    *  "link" is an accent action ("Go to it"); "quiet" is a secondary
    *  one that should recede ("Retry", "More links"), muted and
-   *  underlined like GLink's quiet tone. */
-  variant?: "primary" | "subtle" | "ghost" | "danger" | "link" | "quiet";
+   *  underlined like GLink's quiet tone. "field" is shaped like a
+   *  text field (the header's road switcher and class search): a
+   *  button that stands in for one, or names what its menu holds. */
+  variant?:
+    "primary" | "subtle" | "ghost" | "danger" | "link" | "quiet" | "field";
   /** "xs" is the 24px minimum target (WCAG 2.5.8): a small control
    *  inside a row or header, usually icon-only. */
   size?: "xs" | "sm" | "md";
@@ -209,6 +212,35 @@ const classes = computed(() => [
     var(--g-focus-ring);
 }
 .v-subtle:disabled:not(.is-loading) {
+  background: var(--g-surface-sunken);
+  color: var(--g-ink-disabled);
+  box-shadow: inset 0 0 0 1px var(--g-line);
+}
+
+/* After the sizes, whose padding it narrows to a field's. The Inputs rest
+   and hover rings with the Buttons focus ring (tokens.css); an open menu
+   keeps the hover ring, so the button reads as the menu's owner. A field
+   doesn't press in. */
+.v-field {
+  justify-content: flex-start;
+  padding: 0 var(--space-3);
+  font: var(--text-body);
+  font-family: var(--font-text);
+  background: var(--g-surface);
+  color: var(--g-ink);
+  box-shadow: inset 0 0 0 1px var(--g-line-control);
+}
+.v-field:hover:not(:disabled),
+.v-field[aria-expanded="true"] {
+  box-shadow: inset 0 0 0 1px var(--g-ink-3);
+}
+.v-field:focus-visible {
+  box-shadow: var(--g-focus-ring);
+}
+.v-field:active:not(:disabled) {
+  transform: none;
+}
+.v-field:disabled:not(.is-loading) {
   background: var(--g-surface-sunken);
   color: var(--g-ink-disabled);
   box-shadow: inset 0 0 0 1px var(--g-line);

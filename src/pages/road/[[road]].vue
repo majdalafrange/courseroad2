@@ -34,11 +34,11 @@
         placement="top"
         label="More links"
       >
-        <template #anchor>
+        <template #anchor="{ triggerProps }">
           <g-button
             variant="quiet"
             size="sm"
-            :aria-expanded="footLinksOpen"
+            v-bind="triggerProps"
             @click="footLinksOpen = !footLinksOpen"
           >
             More links

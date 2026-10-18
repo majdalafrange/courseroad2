@@ -1,16 +1,17 @@
 <template>
-  <div class="g-select" :class="{ invalid, disabled }">
-    <g-label v-if="label" :for-id="fieldId" class="g-select-label">{{
-      label
-    }}</g-label>
-    <SelectRoot v-model="model" :disabled="disabled">
+  <g-field
+    class="g-select"
+    :label="label"
+    :hint="hint"
+    :error="error"
+    :invalid="invalid"
+    :disabled="disabled"
+  >
+    <SelectRoot v-model="model">
       <SelectTrigger
-        :id="fieldId"
-        class="g-select-trigger"
+        class="g-select-trigger g-field-shell"
         :data-cy="dataCy"
         :aria-label="label ? undefined : ariaLabel"
-        :aria-invalid="invalid || undefined"
-        :aria-describedby="hint || error ? hintId : undefined"
       >
         <SelectValue class="g-select-value" :placeholder="placeholder" />
         <SelectIcon as-child>
@@ -25,13 +26,13 @@
           :collision-padding="8"
         >
           <SelectScrollUpButton class="g-select-scroll">
-            <g-icon name="chevronDown" :size="13" class="g-select-scroll-up" />
+            <g-icon name="chevronUp" :size="13" />
           </SelectScrollUpButton>
           <SelectViewport class="g-select-viewport">
             <SelectItem
               v-for="option in options"
               :key="String(option.value)"
-              class="g-select-item"
+              class="g-select-item g-row"
               :value="option.value"
             >
               <SelectItemText>{{ option.label }}</SelectItemText>
@@ -46,25 +47,16 @@
         </SelectContent>
       </SelectPortal>
     </SelectRoot>
-    <span
-      v-if="hint || error"
-      :id="hintId"
-      class="g-select-hint"
-      :class="{ invalid }"
-      :role="invalid && error ? 'alert' : undefined"
-    >
-      {{ invalid && error ? error : hint }}
-    </span>
-  </div>
+  </g-field>
 </template>
 
 <script setup lang="ts" generic="T extends string | number">
 /**
  * A single-choice field: typeahead, roving highlight, and popper
  * positioning are Reka UI's Select; a plain <select>'s dropdown cannot
- * be styled.
+ * be styled. The trigger takes its label, hint and error wiring from the
+ * surrounding GField.
  */
-import { useId } from "vue";
 import {
   SelectContent,
   SelectIcon,
@@ -79,8 +71,9 @@ import {
   SelectValue,
   SelectViewport,
 } from "reka-ui";
+import "./rows.css";
 import GIcon from "./GIcon.vue";
-import GLabel from "./GLabel.vue";
+import GField from "./GField.vue";
 
 const model = defineModel<T>({ required: true });
 const {
@@ -104,22 +97,10 @@ const {
   /** Accessible name when no visible label fits (the context names it). */
   ariaLabel?: string;
 }>();
-
-const fieldId = `g-select-${useId()}`;
-const hintId = `${fieldId}-hint`;
 </script>
 
 <style>
 /* Not scoped: SelectContent is teleported (see GPopover.vue). */
-.g-select {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  min-width: 0;
-}
-.g-select-label {
-  display: block;
-}
 .g-select-trigger {
   display: flex;
   align-items: center;
@@ -129,30 +110,9 @@ const hintId = `${fieldId}-hint`;
   padding: 0 var(--space-3);
   font: var(--text-body);
   color: var(--g-ink);
-  background: var(--g-surface);
-  border: none;
-  border-radius: var(--radius-sm);
-  box-shadow: inset 0 0 0 1px var(--g-line-control);
   cursor: pointer;
-  transition: box-shadow var(--motion-quick) var(--ease-out);
 }
-.g-select-trigger:hover {
-  box-shadow: inset 0 0 0 1px var(--g-ink-3);
-}
-.g-select-trigger:focus-visible {
-  outline: none;
-  box-shadow:
-    inset 0 0 0 1.5px var(--g-accent),
-    0 0 0 3px var(--g-accent-tint);
-}
-.g-select.invalid .g-select-trigger {
-  box-shadow:
-    inset 0 0 0 1.5px var(--g-danger),
-    0 0 0 3px var(--g-danger-tint);
-}
-.g-select.disabled .g-select-trigger {
-  background: var(--g-surface-sunken);
-  box-shadow: inset 0 0 0 1px var(--g-line);
+.g-select[data-disabled] .g-select-trigger {
   cursor: not-allowed;
 }
 .g-select-value {
@@ -209,44 +169,17 @@ const hintId = `${fieldId}-hint`;
   color: var(--g-ink-3);
   cursor: default;
 }
-.g-select-scroll-up {
-  transform: rotate(180deg);
-}
 .g-select-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  font: var(--text-body);
-  color: var(--g-ink-2);
   border-radius: var(--radius-xs);
-  cursor: pointer;
-  outline: none;
-}
-.g-select-item[data-highlighted] {
-  background: var(--g-surface-sunken);
-  color: var(--g-ink);
 }
 .g-select-item[data-state="checked"] {
   color: var(--g-ink);
   font-weight: 600;
-}
-.g-select-item[data-disabled] {
-  opacity: 0.4;
-  cursor: not-allowed;
 }
 .g-select-check {
   margin-left: auto;
   color: var(--g-accent);
   flex-shrink: 0;
   display: inline-flex;
-}
-
-.g-select-hint {
-  font: var(--text-small);
-  color: var(--g-ink-3);
-}
-.g-select-hint.invalid {
-  color: var(--g-danger);
 }
 </style>

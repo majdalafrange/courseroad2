@@ -32,12 +32,11 @@
 
     <div class="canvas-toolbar">
       <g-popover v-model="settingsOpen" align="start" label="Class year">
-        <template #anchor>
+        <template #anchor="{ triggerProps }">
           <button
             class="year-pill"
             data-cy="semester_title"
-            aria-haspopup="dialog"
-            :aria-expanded="settingsOpen"
+            v-bind="triggerProps"
             @click="settingsOpen = !settingsOpen"
           >
             <g-icon name="map" :size="14" class="year-pill-icon" />

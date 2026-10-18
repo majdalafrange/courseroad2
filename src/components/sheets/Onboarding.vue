@@ -74,23 +74,47 @@
             <g-icon name="close" :size="9" />
           </button>
         </div>
-        <div class="program-results">
-          <button
+        <g-toggle-group-root
+          v-model="chosenPrograms"
+          class="program-results"
+          aria-label="Majors and minors"
+          orientation="vertical"
+        >
+          <g-toggle-group-item
             v-for="entry in programResults"
             :key="entry.key"
-            class="program-result"
-            :class="{ chosen: chosenPrograms.includes(entry.key) }"
-            :aria-pressed="chosenPrograms.includes(entry.key)"
-            @click="toggleProgram(entry.key)"
+            :value="entry.key"
+            as-child
           >
-            <span>{{ entry["medium-title"] }}</span>
-            <g-icon
-              v-if="chosenPrograms.includes(entry.key)"
-              name="check"
-              :size="14"
-            />
-          </button>
-        </div>
+            <button type="button" class="program-result">
+              <span>{{ entry["medium-title"] }}</span>
+              <g-icon
+                v-if="chosenPrograms.includes(entry.key)"
+                name="check"
+                :size="14"
+              />
+            </button>
+          </g-toggle-group-item>
+        </g-toggle-group-root>
+        <p
+          v-if="programResults.length === 0"
+          class="program-empty"
+          role="status"
+        >
+          <template v-if="programQuery.trim() !== ''">
+            No major or minor matches "{{ programQuery.trim() }}".
+          </template>
+          <template v-else-if="reqListStatus === 'error'">
+            The list of majors and minors didn't load.
+            <g-button variant="link" size="sm" @click="refetchReqList()"
+              >Try again</g-button
+            >
+          </template>
+          <template v-else-if="reqListStatus === 'pending'"
+            >Loading majors and minors...</template
+          >
+          <template v-else>No majors or minors are available.</template>
+        </p>
         <div class="onboard-actions">
           <g-button variant="ghost" @click="step = 0">Back</g-button>
           <g-button variant="primary" @click="finish">
@@ -111,6 +135,10 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, useTemplateRef, watch } from "vue";
 import CanvasGlyphs from "../canvas/CanvasGlyphs.vue";
+import {
+  GToggleGroupItem,
+  GToggleGroupRoot,
+} from "../../design/components/GToggleGroup";
 import GButton from "../../design/components/GButton.vue";
 import GInput from "../../design/components/GInput.vue";
 import { GRadioGroup, GRadioGroupItem } from "../../design/components/GRadio";
@@ -119,6 +147,7 @@ import GIcon from "../../design/components/GIcon.vue";
 import GWordmark from "../../design/components/GWordmark.vue";
 import { programTitle, sortCoursesList } from "../../lib/audit";
 import { seedCoursesOfStudy, seedSelectedSubjects } from "../../lib/onboarding";
+import { useReqListLoader } from "../../loaders/courseData";
 import { useAuditStore } from "../../stores/audit";
 import { useCourseDataStore } from "../../stores/courseData";
 
@@ -137,6 +166,7 @@ const emit = defineEmits<{
 
 const auditStore = useAuditStore();
 const store = useCourseDataStore();
+const { status: reqListStatus, refetch: refetchReqList } = useReqListLoader();
 
 const step = ref(0);
 const selectedYear = ref(0);
@@ -296,10 +326,22 @@ function close() {
   cursor: pointer;
   text-align: left;
 }
+/* Touch tier (tokens.css). */
+@media (max-width: 859px) and (pointer: coarse) {
+  .program-result {
+    min-height: 44px;
+  }
+}
+.program-empty {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  font: var(--text-small);
+  color: var(--g-ink-2);
+}
 .program-result:hover {
   background: var(--g-surface-2);
 }
-.program-result.chosen {
+.program-result[data-state="on"] {
   color: var(--g-accent);
 }
 

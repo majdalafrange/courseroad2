@@ -22,15 +22,24 @@
  * there, and calls preventDefault to mark the keypress consumed for
  * window-level listeners.
  */
-import { onMounted, useTemplateRef } from "vue";
+import { nextTick, onBeforeUnmount, useTemplateRef, watch } from "vue";
 import { ComboboxContent, ComboboxViewport } from "reka-ui";
-import { injectListId } from "./context";
+import { injectListId, injectListOpen } from "./context";
 
-// Report the list's id to the input (see context.ts). Reka gives the list
-// its id when it mounts; the listbox is the content's own element.
+// Report the list's id to the input (see context.ts) each time Reka mounts
+// the listbox; the listbox is the content's own element.
 const listId = injectListId();
+const listOpen = injectListOpen();
 const content = useTemplateRef<{ $el: Element | null }>("content");
-onMounted(() => {
+watch(
+  listOpen,
+  async () => {
+    await nextTick();
+    reportListId();
+  },
+  { immediate: true, flush: "post" },
+);
+function reportListId() {
   const el = content.value?.$el;
   const listbox =
     el instanceof Element
@@ -39,6 +48,9 @@ onMounted(() => {
         (el.getAttribute("role") === "listbox" ? el : null))
       : null;
   listId.value = listbox?.id || undefined;
+}
+onBeforeUnmount(() => {
+  listId.value = undefined;
 });
 
 defineProps<{

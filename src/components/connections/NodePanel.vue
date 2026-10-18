@@ -159,7 +159,6 @@
           <div
             class="neighbor"
             :class="{
-              crossing: n.crossing,
               stale: !n.offered,
               hovered: store.hoverId === n.id,
             }"
@@ -604,9 +603,6 @@ function toggleExpand() {
 .neighbor:hover,
 .neighbor.hovered {
   background: var(--g-surface-2);
-}
-.neighbor.crossing {
-  box-shadow: inset 2px 0 0 var(--g-warn);
 }
 .neighbor.stale {
   opacity: 0.7;

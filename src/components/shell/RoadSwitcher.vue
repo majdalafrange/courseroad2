@@ -1,8 +1,9 @@
 <template>
   <g-menu v-model="open" align="start" @close-auto-focus="onMenuClosed">
     <template #trigger>
-      <button
+      <g-button
         ref="triggerEl"
+        variant="field"
         class="switch-trigger"
         data-cy="roadSwitcher"
         :aria-label="triggerLabel"
@@ -12,7 +13,7 @@
           >{{ roadIds.length }} roads</span
         >
         <g-icon name="chevronDown" :size="13" class="switch-chevron" />
-      </button>
+      </g-button>
     </template>
 
     <div class="switch-menu">
@@ -46,7 +47,9 @@
             class="road-item"
             :data-cy="'roadTab' + roadId"
           >
-            <span class="road-active-bar" aria-hidden="true" />
+            <span class="road-check" aria-hidden="true"
+              ><g-icon v-if="roadId === activeRoad" name="check" :size="13"
+            /></span>
             <span class="road-name">{{ roads[roadId].name }}</span>
             <span class="road-count" aria-hidden="true">{{
               classCount(roadId) || ""
@@ -207,11 +210,11 @@ const renameOpen = computed({
 
 /* The dialog opens after the menu has gone, so what it saw as focused
    was nothing in particular; closing goes back to the switcher. */
-const triggerEl = useTemplateRef("triggerEl");
+const triggerEl = useTemplateRef<{ $el: HTMLElement }>("triggerEl");
 
 function onRenameClosed(event: Event) {
   event.preventDefault();
-  triggerEl.value?.focus();
+  triggerEl.value?.$el.focus();
 }
 
 function queueRename(roadId: string) {
@@ -283,34 +286,12 @@ function commitRename() {
 </script>
 
 <style scoped>
-/* The bare name read as a page title, so the switcher takes the search
-   field's shell (fill and --g-line-control ring), and the chevron says
-   it opens a list. */
-.switch-trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
+/* The bare name read as a page title, so the switcher is field-shaped
+   (GButton's "field"), and the chevron says it opens a list. */
+.g-button.switch-trigger {
   min-width: 0;
   max-width: 340px;
-  height: 34px;
   font: var(--text-body-strong);
-  color: var(--g-ink);
-  background: var(--g-surface);
-  border: none;
-  border-radius: var(--radius-sm);
-  box-shadow: inset 0 0 0 1px var(--g-line-control);
-  padding: 0 var(--space-3);
-  cursor: pointer;
-  transition: box-shadow var(--motion-quick) var(--ease-out);
-}
-/* The open menu keeps the hover ring, so the trigger reads as its owner. */
-.switch-trigger:hover,
-.switch-trigger[aria-expanded="true"] {
-  box-shadow: inset 0 0 0 1px var(--g-ink-3);
-}
-.switch-trigger:focus-visible {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
 }
 .switch-name {
   min-width: 0;
@@ -379,18 +360,12 @@ function commitRename() {
   color: var(--g-ink);
   font-weight: 600;
 }
-.road-active-bar {
-  position: absolute;
-  left: 0;
-  top: 6px;
-  bottom: 6px;
-  width: 3px;
-  border-radius: var(--radius-full);
-  background: transparent;
-  transition: background-color var(--motion-quick) var(--ease-out);
-}
-.switch-road.active .road-active-bar {
-  background: var(--g-accent);
+/* A fixed slot, so every road name starts at the same x. */
+.road-check {
+  display: inline-flex;
+  width: 13px;
+  flex-shrink: 0;
+  color: var(--g-accent);
 }
 .road-name {
   flex: 1;

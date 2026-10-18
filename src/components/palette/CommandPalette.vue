@@ -839,18 +839,9 @@ defineExpose({
 }
 
 .palette .palette-row {
-  display: flex;
-  align-items: center;
   gap: var(--space-3);
   width: 100%;
   padding: 6px var(--space-3);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  user-select: none;
-  outline: none;
-}
-.palette .palette-row[data-highlighted] {
-  background: var(--g-accent-tint);
 }
 .palette .class-row {
   cursor: grab;

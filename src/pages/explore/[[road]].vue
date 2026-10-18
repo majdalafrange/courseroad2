@@ -38,44 +38,36 @@
           }}
         </p>
         <div class="seed-search">
-          <g-input
-            ref="seedInput"
-            v-model="seedQuery"
-            placeholder="Search for a class to start from..."
-            aria-label="Search for a starting class"
-            role="combobox"
-            aria-autocomplete="list"
-            aria-controls="seedResultsList"
-            :aria-expanded="seedResults.length > 0"
-            :aria-activedescendant="
-              seedResults.length > 0 ? `seedOption-${seedActive}` : undefined
-            "
-            @keydown="onSeedKeydown"
-          />
-          <ul
-            v-if="seedResults.length"
-            id="seedResultsList"
-            class="seed-results"
-            role="listbox"
-            aria-label="Starting classes"
-          >
-            <li
-              v-for="(s, i) in seedResults"
-              :id="`seedOption-${i}`"
-              :key="s.subject_id"
-              class="seed-result"
-              :class="{ active: i === seedActive }"
-              role="option"
-              :aria-selected="i === seedActive"
-              @mousemove="seedActive = i"
-              @mousedown.prevent
-              @click="store.seedFrom(s.subject_id)"
-            >
-              <span class="seed-bar" :style="{ background: courseColor(s) }" />
-              <span class="seed-id">{{ s.subject_id }}</span>
-              <span class="seed-title">{{ s.title }}</span>
-            </li>
-          </ul>
+          <g-combobox-root ref="seedCombo" :open="seedResults.length > 0">
+            <g-combobox-input
+              ref="seedInput"
+              v-model="seedQuery"
+              class="seed-input"
+              shell
+              placeholder="Search for a class to start from..."
+              aria-label="Search for a starting class"
+            />
+            <g-combobox-list label="Starting classes" class="seed-results">
+              <g-combobox-item
+                v-for="s in seedResults"
+                :key="s.subject_id"
+                :value="s.subject_id"
+                class="seed-result"
+                @select="store.seedFrom(s.subject_id)"
+              >
+                <span
+                  class="seed-bar"
+                  :style="{ background: courseColor(s) }"
+                />
+                <span class="seed-id">{{ s.subject_id }}</span>
+                <span class="seed-title">{{ s.title }}</span>
+              </g-combobox-item>
+            </g-combobox-list>
+          </g-combobox-root>
+          <p v-if="seedNoMatch" class="seed-empty" role="status">
+            No class matches "{{ seedQuery.trim() }}". Try a subject number,
+            like 6.1210, or words from the title.
+          </p>
         </div>
         <g-button
           v-if="!roadEmpty"
@@ -111,7 +103,12 @@ import ConnectionsToolbar from "../../components/connections/ConnectionsToolbar.
 import ConnectionsCanvas from "../../components/connections/ConnectionsCanvas.vue";
 import NodePanel from "../../components/connections/NodePanel.vue";
 import GButton from "../../design/components/GButton.vue";
-import GInput from "../../design/components/GInput.vue";
+import {
+  GComboboxInput,
+  GComboboxItem,
+  GComboboxList,
+  GComboboxRoot,
+} from "../../design/components/GCombobox";
 import { courseColor } from "../../lib/colors";
 import { useAppBootLoader } from "../../loaders/appBoot";
 import { SearchIndex } from "../../lib/search";
@@ -165,8 +162,8 @@ const roadEmpty = computed(() => {
 
 /* ---------- cold-start seed search ---------- */
 const seedQuery = ref("");
-const seedActive = ref(0);
-const seedInput = ref<InstanceType<typeof GInput>>();
+const seedCombo = ref<InstanceType<typeof GComboboxRoot>>();
+const seedInput = ref<InstanceType<typeof GComboboxInput>>();
 const searchIndex = new SearchIndex();
 watch(
   () => courseData.subjectsInfo,
@@ -178,28 +175,15 @@ const seedResults = computed(() =>
     ? searchIndex.search(seedQuery.value.trim()).slice(0, 8)
     : [],
 );
-watch(seedResults, () => {
-  seedActive.value = 0;
-});
+const seedNoMatch = computed(
+  () => seedQuery.value.trim() !== "" && seedResults.value.length === 0,
+);
 
-/** The search is keyboard-first: arrows move, Enter seeds. */
-function onSeedKeydown(event: KeyboardEvent) {
-  const count = seedResults.value.length;
-  if (count === 0) {
-    return;
-  }
-  if (event.key === "ArrowDown") {
-    event.preventDefault();
-    seedActive.value = (seedActive.value + 1) % count;
-  } else if (event.key === "ArrowUp") {
-    event.preventDefault();
-    seedActive.value = (seedActive.value - 1 + count) % count;
-  } else if (event.key === "Enter") {
-    event.preventDefault();
-    const pick = seedResults.value[seedActive.value] ?? seedResults.value[0];
-    store.seedFrom(pick.subject_id);
-  }
-}
+/* The search is keyboard-first: Enter seeds the top result, unless the
+   arrows moved the highlight. */
+watch(seedResults, () => {
+  void nextTick(() => seedCombo.value?.highlightFirst());
+});
 
 /* the prompt is the page's one action, so the input takes focus */
 watch(
@@ -345,8 +329,16 @@ function onAdd(id: string) {
   width: 100%;
   max-width: 440px;
 }
+.seed-input {
+  width: 100%;
+  height: 34px;
+  padding: 0 var(--space-3);
+  font: var(--text-body);
+  color: var(--g-ink);
+}
 .seed-results {
-  list-style: none;
+  display: flex;
+  flex-direction: column;
   margin: var(--space-2) 0 0;
   padding: var(--space-1);
   border: 1px solid var(--g-overlay-line);
@@ -355,21 +347,15 @@ function onAdd(id: string) {
   box-shadow: var(--shadow-2);
   text-align: left;
   max-height: 280px;
-  overflow-y: auto;
 }
-.seed-result {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  width: 100%;
-  padding: var(--space-2);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  cursor: pointer;
+.seed-empty {
+  margin: var(--space-2) 0 0;
+  font: var(--text-small);
+  color: var(--g-ink-2);
   text-align: left;
 }
-.seed-result.active {
-  background: var(--g-accent-tint);
+.seed-result {
+  text-align: left;
 }
 .seed-bar {
   width: 4px;

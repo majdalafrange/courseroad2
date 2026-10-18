@@ -92,18 +92,21 @@
           class="favorite-toggle-wrap"
           :text="isFavorite ? 'Remove from favorites' : 'Add to favorites'"
         >
-          <g-button
-            variant="ghost"
-            size="sm"
-            icon-only
-            class="favorite-toggle"
-            data-cy="favoriteToggle"
-            :aria-label="`Favorite ${subject.subject_id}`"
-            :aria-pressed="isFavorite"
-            @click="favorites.toggleFavorite(subject.subject_id)"
+          <g-toggle
+            :model-value="isFavorite"
+            @update:model-value="favorites.toggleFavorite(subject.subject_id)"
           >
-            <g-icon name="star" :size="16" />
-          </g-button>
+            <g-button
+              variant="ghost"
+              size="sm"
+              icon-only
+              class="favorite-toggle"
+              data-cy="favoriteToggle"
+              :aria-label="`Favorite ${subject.subject_id}`"
+            >
+              <g-icon name="star" :size="16" />
+            </g-button>
+          </g-toggle>
         </g-tooltip>
       </div>
 
@@ -395,6 +398,7 @@ import {
   useTemplateRef,
 } from "vue";
 import { useRouter } from "vue-router";
+import GToggle from "../../design/components/GToggle.vue";
 import GButton from "../../design/components/GButton.vue";
 import GLink from "../../design/components/GLink.vue";
 import GIcon from "../../design/components/GIcon.vue";
@@ -982,7 +986,7 @@ watch(
 .detail-ident .favorite-toggle:active:not(:disabled) {
   background: color-mix(in srgb, var(--dept-on) 24%, transparent);
 }
-.favorite-toggle[aria-pressed="true"] :deep(path) {
+.favorite-toggle[data-state="on"] :deep(path) {
   fill: currentColor;
 }
 .detail-id {

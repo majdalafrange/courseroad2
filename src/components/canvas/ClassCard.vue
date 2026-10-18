@@ -111,7 +111,7 @@
       placement="bottom"
       :label="`Warnings for ${subject.subject_id}`"
     >
-      <template #anchor>
+      <template #anchor="{ triggerProps }">
         <button
           type="button"
           class="card-warning"
@@ -121,8 +121,7 @@
           :aria-label="`${warnings.length} ${
             warnings.length === 1 ? 'warning' : 'warnings'
           } for ${subject.subject_id}`"
-          aria-haspopup="dialog"
-          :aria-expanded="warningsOpen"
+          v-bind="triggerProps"
           @pointerdown.stop
           @click.stop="warningsOpen = !warningsOpen"
         >

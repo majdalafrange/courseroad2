@@ -1,6 +1,6 @@
 <template>
   <DropdownMenuItem
-    class="g-menu-item"
+    class="g-menu-item g-row"
     :class="{ danger }"
     :disabled="disabled"
     :as-child="asChild"

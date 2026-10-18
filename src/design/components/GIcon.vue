@@ -53,6 +53,7 @@ import cloud from "@iconify-icons/lucide/cloud";
 import triangleAlert from "@iconify-icons/lucide/triangle-alert";
 import chevronDown from "@iconify-icons/lucide/chevron-down";
 import chevronRight from "@iconify-icons/lucide/chevron-right";
+import chevronUp from "@iconify-icons/lucide/chevron-up";
 import map from "@iconify-icons/lucide/map";
 import share2 from "@iconify-icons/lucide/share-2";
 import messageSquare from "@iconify-icons/lucide/message-square";
@@ -112,6 +113,7 @@ const NAME_TO_LUCIDE = {
   warn: triangleAlert,
   chevronDown,
   chevronRight,
+  chevronUp,
   map,
   graph: share2,
   message: messageSquare,

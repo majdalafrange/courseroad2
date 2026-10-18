@@ -1,49 +1,67 @@
 <template>
-  <section
-    v-if="subject"
-    ref="sheetEl"
-    class="term-picker"
-    role="dialog"
-    :aria-label="`Add ${subject.subject_id} to a term`"
-    tabindex="-1"
-    @keydown.esc.stop="store.cancelPlacement()"
-  >
-    <div class="picker-head">
-      <span class="picker-title">
-        Add <span class="picker-id">{{ subject.subject_id }}</span> to...
-      </span>
-      <g-button
-        variant="ghost"
-        size="xs"
-        icon-only
-        aria-label="Cancel adding"
-        @click="store.cancelPlacement()"
-      >
-        <g-icon name="close" :size="13" />
-      </g-button>
-    </div>
+  <div v-if="subject" class="term-picker">
+    <!-- Focus starts on the first term, the likeliest choice, not Cancel. -->
+    <g-inline-dialog
+      initial-focus=".term-chip"
+      :described-by="note !== undefined"
+      @close="store.cancelPlacement()"
+    >
+      <div class="picker-head">
+        <g-inline-dialog-title as="span" class="picker-title">
+          Add <span class="picker-id">{{ subject.subject_id }}</span> to...
+        </g-inline-dialog-title>
+        <g-button
+          variant="ghost"
+          size="xs"
+          icon-only
+          aria-label="Cancel adding"
+          @click="store.cancelPlacement()"
+        >
+          <g-icon name="close" :size="13" />
+        </g-button>
+      </div>
 
-    <div class="picker-grid">
-      <button
-        v-for="term in terms"
-        :key="term.index"
-        class="term-chip"
-        :class="[`k-${term.kind}`, { early: term.early }]"
-        :title="term.title"
-        :data-cy="`connectionTerm_${term.index}`"
-        @click="store.confirmPlacement(term.index)"
-      >
-        {{ term.label }}
-        <span v-if="term.early" class="early-dot" aria-hidden="true" />
-      </button>
-    </div>
+      <div class="picker-grid">
+        <button
+          v-for="term in terms"
+          :key="term.index"
+          class="term-chip"
+          :class="[`k-${term.kind}`, { early: term.early }]"
+          :title="term.title"
+          :data-cy="`connectionTerm_${term.index}`"
+          @click="store.confirmPlacement(term.index)"
+        >
+          {{ term.label }}
+          <span v-if="term.early" class="early-dot" aria-hidden="true" />
+          <span v-if="term.kind !== 'ok' || term.early" class="sr-only"
+            >: {{ term.title }}</span
+          >
+        </button>
+      </div>
+      <!-- The marks in words, for whoever can't hover a chip's title. -->
+      <p v-if="hasDoubt || hasEarly" class="picker-legend" aria-hidden="true">
+        <span v-if="hasDoubt" class="legend-entry"
+          ><span class="legend-dash" />May not be offered</span
+        >
+        <span v-if="hasEarly" class="legend-entry"
+          ><span class="early-dot" />Before your prereqs finish</span
+        >
+      </p>
 
-    <p v-if="note" class="picker-note">{{ note }}</p>
-  </section>
+      <g-inline-dialog-description v-if="note" as="p" class="picker-note">{{
+        note
+      }}</g-inline-dialog-description>
+    </g-inline-dialog>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, useTemplateRef } from "vue";
+import { computed } from "vue";
+import {
+  GInlineDialog,
+  GInlineDialogDescription,
+  GInlineDialogTitle,
+} from "../../design/components/GInlineDialog";
 import GIcon from "../../design/components/GIcon.vue";
 import GButton from "../../design/components/GButton.vue";
 import {
@@ -57,7 +75,6 @@ import { useConnectionsStore } from "../../stores/connections";
 
 const store = useConnectionsStore();
 const courseData = useCourseDataStore();
-const sheetEl = useTemplateRef("sheetEl");
 
 const subject = computed(() => store.placementRequest);
 
@@ -121,6 +138,9 @@ const terms = computed<TermChip[]>(() => {
   return out;
 });
 
+const hasDoubt = computed(() => terms.value.some((t) => t.kind !== "ok"));
+const hasEarly = computed(() => terms.value.some((t) => t.early));
+
 /** One line of prereq context under the grid: advice, not a gate. */
 const note = computed(() => {
   const s = subject.value;
@@ -146,26 +166,12 @@ const note = computed(() => {
   }
   return undefined;
 });
-
-onMounted(() => {
-  sheetEl.value?.focus();
-});
 </script>
 
 <style scoped>
 .term-picker {
   flex-shrink: 0;
   margin: var(--space-2);
-  padding: var(--space-3);
-  background: var(--g-surface);
-  /* a raised panel: its elevation sets it apart, not a cardinal edge */
-  border: 1px solid var(--g-line-strong);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-2);
-}
-.term-picker:focus-visible {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
 }
 
 .picker-head {
@@ -190,6 +196,7 @@ onMounted(() => {
 }
 .term-chip {
   position: relative;
+  min-height: 24px;
   font: var(--text-micro);
   padding: var(--space-1) var(--space-05);
   border: 1px solid var(--g-line);
@@ -222,6 +229,34 @@ onMounted(() => {
   background: var(--g-accent-tint);
   border-color: var(--g-accent);
   color: var(--g-ink);
+}
+/* Touch tier (tokens.css). */
+@media (max-width: 859px) and (pointer: coarse) {
+  .term-chip {
+    min-height: 44px;
+  }
+}
+.picker-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: var(--space-2) 0 0;
+  font: var(--text-micro);
+  color: var(--g-ink-3);
+}
+.legend-entry {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.legend-dash {
+  width: 14px;
+  height: 10px;
+  border: 1px dashed var(--g-ink-3);
+  border-radius: var(--radius-xs);
+}
+.legend-entry .early-dot {
+  margin-left: 0;
 }
 .early-dot {
   display: inline-block;

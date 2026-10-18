@@ -33,6 +33,7 @@
  * Escape closes one layer and is marked consumed for window listeners.
  */
 import "../popover.css";
+import "../rows.css";
 import {
   DropdownMenuContent,
   DropdownMenuPortal,
@@ -64,42 +65,9 @@ function onEscapeKeyDown(event: KeyboardEvent) {
 .g-menu {
   transform-origin: var(--reka-dropdown-menu-content-transform-origin);
 }
-.g-menu-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font: var(--text-body);
-  color: var(--g-ink-2);
-  border-radius: var(--radius-sm);
-  padding: var(--space-2) var(--space-3);
-  cursor: pointer;
-  text-decoration: none;
-  user-select: none;
-  outline: none;
-  transition: background-color var(--motion-quick) var(--ease-out);
-}
-/* Reka moves real focus onto the highlighted item, by pointer and by
-   arrow key alike; keyboard focus adds the inset ring so the tint alone
-   never carries it. */
-.g-menu-item[data-highlighted] {
-  background: var(--g-accent-tint);
-  color: var(--g-ink);
-}
-.g-menu-item:focus-visible {
-  box-shadow: var(--g-focus-ring-inset);
-}
-/* Touch tier (tokens.css): rows are 44px targets on a phone. */
-@media (max-width: 859px) and (pointer: coarse) {
-  .g-menu-item {
-    min-height: 44px;
-  }
-}
+/* Items are .g-row (rows.css); a destructive one takes the danger tint. */
 .g-menu-item.danger[data-highlighted] {
   background: var(--g-danger-tint);
   color: var(--g-danger);
-}
-.g-menu-item[data-disabled] {
-  color: var(--g-ink-disabled);
-  cursor: default;
 }
 </style>

@@ -1,5 +1,7 @@
 <template>
-  <section
+  <g-collapsible-root
+    v-model:open="open"
+    as="section"
     class="program"
     :class="{
       'is-preview': preview,
@@ -8,42 +10,40 @@
   >
     <header class="program-head" @click="toggleOpen">
       <h2 class="program-heading">
-        <button
-          type="button"
-          class="program-toggle"
-          :aria-expanded="open"
-          @click.stop="toggleOpen"
-        >
-          <svg
-            class="program-ring"
-            :class="{ celebrate: celebrating }"
-            viewBox="0 0 36 36"
-            aria-hidden="true"
-          >
-            <circle class="ring-track" cx="18" cy="18" r="15.5" />
-            <circle
-              class="ring-fill"
-              :class="ringTone"
-              cx="18"
-              cy="18"
-              r="15.5"
-              :stroke-dasharray="`${ringLength} ${circumference}`"
-            />
-          </svg>
-          <span class="program-title-block">
-            <span class="program-title">{{ title }}</span>
-            <span v-if="subtitle" class="program-name">{{ subtitle }}</span>
-            <span class="program-sub">
-              <template v-if="preview">What if? (not saved)</template>
-              <template v-else-if="tree?.fulfilled">Complete</template>
-              <template v-else-if="percent !== null"
-                >{{ percent }}% complete</template
-              >
-              <template v-else-if="failed">Progress didn't load</template>
-              <template v-else-if="tree === null">Computing...</template>
+        <!-- The header toggles too; stop the trigger's click there. -->
+        <g-collapsible-trigger as-child>
+          <button type="button" class="program-toggle" @click.stop>
+            <svg
+              class="program-ring"
+              :class="{ celebrate: celebrating }"
+              viewBox="0 0 36 36"
+              aria-hidden="true"
+            >
+              <circle class="ring-track" cx="18" cy="18" r="15.5" />
+              <circle
+                class="ring-fill"
+                :class="ringTone"
+                cx="18"
+                cy="18"
+                r="15.5"
+                :stroke-dasharray="`${ringLength} ${circumference}`"
+              />
+            </svg>
+            <span class="program-title-block">
+              <span class="program-title">{{ title }}</span>
+              <span v-if="subtitle" class="program-name">{{ subtitle }}</span>
+              <span class="program-sub">
+                <template v-if="preview">What if? (not saved)</template>
+                <template v-else-if="tree?.fulfilled">Complete</template>
+                <template v-else-if="percent !== null"
+                  >{{ percent }}% complete</template
+                >
+                <template v-else-if="failed">Progress didn't load</template>
+                <template v-else-if="tree === null">Computing...</template>
+              </span>
             </span>
-          </span>
-        </button>
+          </button>
+        </g-collapsible-trigger>
       </h2>
       <g-button
         v-if="failed"
@@ -98,7 +98,7 @@
       </g-button>
     </header>
 
-    <div v-if="open && tree" class="program-body">
+    <g-collapsible-content v-if="tree" class="program-body">
       <req-node
         v-for="(child, index) in tree.reqs ?? []"
         :key="child.uniqueKey ?? index"
@@ -115,12 +115,17 @@
         external
         >Official {{ title }} requirements</g-link
       >
-    </div>
-  </section>
+    </g-collapsible-content>
+  </g-collapsible-root>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
+import {
+  GCollapsibleContent,
+  GCollapsibleRoot,
+  GCollapsibleTrigger,
+} from "../../design/components/GCollapsible";
 import GButton from "../../design/components/GButton.vue";
 import GLink from "../../design/components/GLink.vue";
 import GIcon from "../../design/components/GIcon.vue";

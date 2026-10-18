@@ -75,8 +75,10 @@
         </g-button>
       </g-tooltip>
 
-      <button
+      <g-button
+        v-if="!isExplore"
         id="searchInputTF"
+        variant="field"
         class="search-trigger"
         data-cy="classSearchInput"
         aria-label="Add classes"
@@ -90,7 +92,7 @@
           :keys="paletteKeys.keys"
           :joiner="paletteKeys.joiner"
         />
-      </button>
+      </g-button>
 
       <nav class="mode-switch" aria-label="Mode">
         <button
@@ -418,29 +420,14 @@ const saveState = computed<SaveState>(() => {
   flex-shrink: 0;
 }
 
-.search-trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
+/* GButton's "field": it reads as the search box it opens, placeholder
+   ink included. Parent-prefixed to outrank GButton's own rules. */
+.header-right .search-trigger {
   width: 260px;
-  height: 34px;
-  padding: 0 var(--space-3);
-  font: var(--text-body);
   color: var(--g-ink-3);
-  background: var(--g-surface);
-  border: none;
-  border-radius: var(--radius-sm);
-  box-shadow: inset 0 0 0 1px var(--g-line-control);
-  cursor: pointer;
-  transition: box-shadow var(--motion-quick) var(--ease-out);
 }
-.search-trigger:hover {
-  box-shadow: inset 0 0 0 1px var(--g-ink-3);
+.header-right .search-trigger:hover {
   color: var(--g-ink-2);
-}
-.search-trigger:focus-visible {
-  outline: none;
-  box-shadow: var(--g-focus-ring);
 }
 .search-trigger-text {
   flex: 1;
@@ -513,7 +500,7 @@ const saveState = computed<SaveState>(() => {
     clip-path: inset(50%);
     white-space: nowrap;
   }
-  .search-trigger {
+  .header-right .search-trigger {
     width: 180px;
   }
   .search-trigger-kbd,
@@ -561,7 +548,7 @@ const saveState = computed<SaveState>(() => {
     /* level with the search field beside it */
     height: 44px;
   }
-  .search-trigger {
+  .header-right .search-trigger {
     width: auto;
     /* Icon-only here (text/kbd hidden below): a 44px touch target, not
        the icon's own size. */

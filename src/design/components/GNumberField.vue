@@ -1,12 +1,18 @@
 <template>
-  <div class="g-number-field" :class="{ invalid, disabled, compact }">
-    <g-label v-if="label" :for-id="fieldId" class="g-number-field-label">{{
-      label
-    }}</g-label>
+  <g-field
+    v-slot="{ id, labelledBy, describedBy, invalid: fieldInvalid }"
+    class="g-number-field"
+    :class="{ compact }"
+    :label="label"
+    :hint="hint"
+    :error="error"
+    :invalid="invalid"
+    :disabled="disabled"
+  >
     <NumberFieldRoot
-      :id="fieldId"
+      :id="id"
       v-model="model"
-      class="g-number-field-shell"
+      class="g-number-field-shell g-field-shell"
       :min="min"
       :max="max"
       :step="step"
@@ -18,32 +24,25 @@
       <NumberFieldInput
         class="g-number-field-input"
         :aria-label="label ? undefined : ariaLabel"
-        :aria-invalid="invalid || undefined"
-        :aria-describedby="hint || error ? hintId : undefined"
+        :aria-labelledby="labelledBy"
+        :aria-describedby="describedBy"
+        :aria-invalid="(fieldInvalid && !disabled) || undefined"
       />
       <NumberFieldIncrement class="g-number-field-btn">
-        <g-icon name="chevronDown" :size="12" class="g-number-field-up" />
+        <g-icon name="chevronUp" :size="12" />
       </NumberFieldIncrement>
     </NumberFieldRoot>
-    <span
-      v-if="hint || error"
-      :id="hintId"
-      class="g-number-field-hint"
-      :class="{ invalid }"
-      :role="invalid && error ? 'alert' : undefined"
-    >
-      {{ invalid && error ? error : hint }}
-    </span>
-  </div>
+  </g-field>
 </template>
 
 <script setup lang="ts">
 /**
  * A numeric field: min/max clamping, arrow/Page/Home/End stepping, and
  * scroll-to-adjust are Reka UI's NumberField; a plain `<input
- * type="number">` only enforces min/max on its spinners.
+ * type="number">` only enforces min/max on its spinners. Reka's Field
+ * doesn't know NumberField, so the input takes GField's wiring from its
+ * slot props.
  */
-import { useId } from "vue";
 import {
   NumberFieldDecrement,
   NumberFieldIncrement,
@@ -51,7 +50,7 @@ import {
   NumberFieldRoot,
 } from "reka-ui";
 import GIcon from "./GIcon.vue";
-import GLabel from "./GLabel.vue";
+import GField from "./GField.vue";
 
 const model = defineModel<number | null>({ required: true });
 
@@ -81,47 +80,14 @@ const {
   /** Accessible name for a compact field with no visible label. */
   ariaLabel?: string;
 }>();
-
-const fieldId = `g-number-field-${useId()}`;
-const hintId = `${fieldId}-hint`;
 </script>
 
 <style scoped>
-.g-number-field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  min-width: 0;
-}
-.g-number-field-label {
-  display: block;
-}
 .g-number-field-shell {
   display: flex;
   align-items: stretch;
-  background: var(--g-surface);
-  border-radius: var(--radius-sm);
-  box-shadow: inset 0 0 0 1px var(--g-line-control);
   height: 34px;
   overflow: hidden;
-  transition: box-shadow var(--motion-quick) var(--ease-out);
-}
-.g-number-field-shell:hover {
-  box-shadow: inset 0 0 0 1px var(--g-ink-3);
-}
-.g-number-field:focus-within .g-number-field-shell {
-  box-shadow:
-    inset 0 0 0 1.5px var(--g-accent),
-    0 0 0 3px var(--g-accent-tint);
-}
-.g-number-field.invalid .g-number-field-shell {
-  box-shadow:
-    inset 0 0 0 1.5px var(--g-danger),
-    0 0 0 3px var(--g-danger-tint);
-}
-.g-number-field.disabled .g-number-field-shell {
-  background: var(--g-surface-sunken);
-  box-shadow: inset 0 0 0 1px var(--g-line);
 }
 .g-number-field-input {
   flex: 1;
@@ -154,17 +120,6 @@ const hintId = `${fieldId}-hint`;
   opacity: 0.35;
   cursor: not-allowed;
 }
-.g-number-field-up {
-  transform: rotate(180deg);
-}
-.g-number-field-hint {
-  font: var(--text-small);
-  color: var(--g-ink-3);
-}
-.g-number-field-hint.invalid {
-  color: var(--g-danger);
-}
-
 .g-number-field.compact .g-number-field-shell {
   height: 26px;
   border-radius: var(--radius-xs);

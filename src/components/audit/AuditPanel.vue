@@ -4,12 +4,11 @@
 
     <div class="picker">
       <g-popover v-model="pickerOpen" label="Add a major or minor">
-        <template #anchor>
+        <template #anchor="{ triggerProps }">
           <g-button
             size="sm"
             data-cy="auditMajorChips"
-            aria-haspopup="dialog"
-            :aria-expanded="pickerOpen"
+            v-bind="triggerProps"
             @click="openPicker"
           >
             <g-icon name="plus" :size="13" />

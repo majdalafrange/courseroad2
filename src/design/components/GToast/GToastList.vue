@@ -6,7 +6,12 @@
     class="g-toast"
     :class="t.data?.variant"
   >
-    <span class="g-toast-rail" aria-hidden="true" />
+    <g-icon
+      v-if="t.data && TONE_ICON[t.data.variant]"
+      :name="TONE_ICON[t.data.variant]!"
+      :size="15"
+      class="g-toast-icon"
+    />
     <div class="g-toast-body">
       <ToastTitle as="span" class="g-toast-message" />
       <ToastDescription as="span" class="g-toast-detail" />
@@ -33,4 +38,11 @@ import GIcon from "../GIcon.vue";
 import type { ToastData } from "../../toast.ts";
 
 const { toasts } = useToastManager<ToastData>();
+
+/* The tone in shape as well as color; a neutral toast has none. */
+const TONE_ICON: Partial<Record<ToastData["variant"], string>> = {
+  ok: "check",
+  warn: "warn",
+  danger: "notice",
+};
 </script>

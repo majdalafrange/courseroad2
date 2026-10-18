@@ -468,7 +468,11 @@ function doRedo() {
 }
 
 useGlobalShortcuts({
-  togglePalette: () => (paletteOpen.value = !paletteOpen.value),
+  togglePalette: () => {
+    if (!isExplore.value) {
+      paletteOpen.value = !paletteOpen.value;
+    }
+  },
   undo: doUndo,
   redo: doRedo,
 });

@@ -23,3 +23,16 @@ export function provideListId(): Ref<string | undefined> {
 export function injectListId(): Ref<string | undefined> {
   return inject(LIST_ID, ref(undefined));
 }
+
+/* Whether the root's list is open: Reka mounts the listbox inside
+   GComboboxList only then, so the list re-reads its id on each change. */
+const LIST_OPEN: InjectionKey<Readonly<Ref<boolean>>> =
+  Symbol("GComboboxListOpen");
+
+export function provideListOpen(open: Readonly<Ref<boolean>>): void {
+  provide(LIST_OPEN, open);
+}
+
+export function injectListOpen(): Readonly<Ref<boolean>> {
+  return inject(LIST_OPEN, ref(true));
+}

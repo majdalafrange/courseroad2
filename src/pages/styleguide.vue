@@ -239,10 +239,18 @@
             <g-icon name="close" :size="13" />
           </g-button>
           <g-button variant="link" size="sm">Retry</g-button>
+          <g-button variant="field" style="width: 220px">
+            <g-icon name="search" :size="14" /> Add classes
+          </g-button>
           <g-button size="sm" href="https://catalog.mit.edu/" external>
             Catalog <g-icon name="external" :size="12" />
           </g-button>
         </div>
+        <p class="sg-body sg-note">
+          The field variant stands in for a text field, or names what its menu
+          holds: the header's class search and road switcher. It takes the
+          field's rings, with a button's focus ring.
+        </p>
       </g-card>
 
       <g-card class="sg-component-block">
@@ -286,7 +294,19 @@
             error="There's already a road with this name."
             style="width: 260px"
           />
+          <g-input
+            v-model="demoInputDisabled"
+            label="Disabled field"
+            disabled
+            style="width: 260px"
+          />
         </div>
+        <p class="sg-body sg-note">
+          Every field sits in a GField, which ties its caption, hint and error
+          to the control. Its box is one shared shell, so a text field, number
+          field, select and text area all rest, hover, focus and fail the same
+          way.
+        </p>
       </g-card>
 
       <g-card class="sg-component-block">
@@ -304,10 +324,15 @@
             :options="demoSelectOptions"
             style="width: 200px"
           />
+          <g-select
+            v-model="demoSelect"
+            label="Term"
+            :options="demoSelectOptions"
+            invalid
+            error="Not offered that term."
+            style="width: 200px"
+          />
         </div>
-        <p class="sg-body sg-note">
-          Their captions are GLabel, which ties a caption to a control by id.
-        </p>
       </g-card>
 
       <g-card class="sg-component-block">
@@ -369,8 +394,10 @@
         <h3 class="sg-h3">Popover &amp; tooltip</h3>
         <div class="sg-row-wrap">
           <g-popover v-model="demoPopover" label="Demo popover">
-            <template #anchor="{ toggle }">
-              <g-button variant="subtle" @click="toggle">Open popover</g-button>
+            <template #anchor="{ toggle, triggerProps }">
+              <g-button variant="subtle" v-bind="triggerProps" @click="toggle"
+                >Open popover</g-button
+              >
             </template>
             <div
               style="display: flex; flex-direction: column; gap: var(--space-2)"
@@ -396,7 +423,8 @@
         <h3 class="sg-h3">Menu</h3>
         <p class="sg-body sg-note">
           Actions on a road. A destructive item turns red only while
-          highlighted.
+          highlighted. Menu items, select options and search results share one
+          row: tinted while highlighted, 44px tall on a touch screen.
         </p>
         <g-menu v-model="demoMenu">
           <template #trigger>
@@ -441,6 +469,49 @@
       </g-card>
 
       <g-card class="sg-component-block">
+        <h3 class="sg-h3">Inline dialog</h3>
+        <p class="sg-body sg-note">
+          A step that takes over part of a panel instead of floating over it.
+          Focus moves in, Escape closes it, and focus goes back to what opened
+          it.
+        </p>
+        <g-button
+          v-if="!demoInline"
+          variant="subtle"
+          @click="demoInline = true"
+        >
+          Add 6.006 to a term
+        </g-button>
+        <div v-else class="sg-inline-demo">
+          <g-inline-dialog
+            initial-focus=".sg-inline-term"
+            described-by
+            @close="demoInline = false"
+          >
+            <div class="sg-inline-body">
+              <g-inline-dialog-title as="strong" class="sg-inline-title">
+                Add 6.006 to...
+              </g-inline-dialog-title>
+              <div class="sg-row-wrap">
+                <g-button
+                  v-for="term in ['Fall', 'IAP', 'Spring']"
+                  :key="term"
+                  size="sm"
+                  class="sg-inline-term"
+                  @click="demoInline = false"
+                >
+                  {{ term }}
+                </g-button>
+              </div>
+              <g-inline-dialog-description class="sg-small">
+                Prereqs complete from Fall.
+              </g-inline-dialog-description>
+            </div>
+          </g-inline-dialog>
+        </div>
+      </g-card>
+
+      <g-card class="sg-component-block">
         <h3 class="sg-h3">Keyboard keys</h3>
         <p class="sg-body sg-note">
           Press <g-kbd :keys="searchKeys.keys" :joiner="searchKeys.joiner" /> to
@@ -475,8 +546,9 @@
       <g-card class="sg-component-block">
         <h3 class="sg-h3">Behavior primitives</h3>
         <p class="sg-body sg-note">
-          These carry keyboard and screen-reader behavior only. The feature that
-          uses each one styles it; the last column says where to look.
+          These carry keyboard and screen-reader behavior. Most leave their look
+          to the feature that uses them (GCombobox brings the shared row); the
+          last column says where to look.
         </p>
         <table class="sg-primitives">
           <thead>
@@ -518,6 +590,11 @@ import GCheckbox from "../design/components/GCheckbox.vue";
 import GChip from "../design/components/GChip.vue";
 import GDrawer from "../design/components/GDrawer.vue";
 import GIcon from "../design/components/GIcon.vue";
+import {
+  GInlineDialog,
+  GInlineDialogDescription,
+  GInlineDialogTitle,
+} from "../design/components/GInlineDialog";
 import GInput from "../design/components/GInput.vue";
 import GKbd from "../design/components/GKbd.vue";
 import GLink from "../design/components/GLink.vue";
@@ -545,6 +622,7 @@ const { toggleTheme } = useTheme();
 const demoInput = ref("");
 const demoCheck = ref(true);
 const demoInputInvalid = ref("Junior year");
+const demoInputDisabled = ref("Not editable here");
 const demoNumber = ref(12);
 const demoSelect = ref("fall");
 const demoSelectOptions = [
@@ -557,6 +635,7 @@ const demoDrawer = ref(false);
 const demoNote = ref("");
 const demoMenu = ref(false);
 const demoSheet = ref(false);
+const demoInline = ref(false);
 const demoImport = ref("");
 const searchKeys = shortcutKeys("K");
 
@@ -579,7 +658,22 @@ const primitives = [
   {
     name: "GCombobox",
     provides: "A search field over a list of results",
-    seeIt: "The command palette (Add classes)",
+    seeIt: "The command palette (Add classes), and Explore's first search",
+  },
+  {
+    name: "GCollapsible",
+    provides: "A section that shows and hides from its heading",
+    seeIt: "Progress: a program and its requirement groups",
+  },
+  {
+    name: "GToggle",
+    provides: "A button that stays pressed",
+    seeIt: "Class detail: the favorite star",
+  },
+  {
+    name: "GToggleGroup",
+    provides: "Several toggles, one Tab stop, arrow keys between them",
+    seeIt: "Explore: the edge filters. Onboarding: majors and minors",
   },
   {
     name: "GColorSwatchPicker",
@@ -718,6 +812,17 @@ const deptSwatches = [
   margin-bottom: var(--space-4);
   padding-bottom: var(--space-2);
   border-bottom: 1px solid var(--g-line);
+}
+.sg-inline-demo {
+  max-width: 360px;
+}
+.sg-inline-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.sg-inline-title {
+  font: var(--text-body-strong);
 }
 .sg-h3 {
   font: var(--text-heading);

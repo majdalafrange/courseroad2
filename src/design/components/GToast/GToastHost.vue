@@ -50,27 +50,26 @@ import { toastManager } from "../../toast.ts";
   border: 1px solid var(--g-overlay-line);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-3);
-  padding: var(--space-2) var(--space-3) var(--space-2) 0;
+  padding: var(--space-2) var(--space-3);
   min-width: min(260px, 100%);
   max-width: 480px;
   overflow: hidden;
 }
-.g-toast-rail {
-  align-self: stretch;
-  width: 3px;
-  border-radius: var(--radius-full);
-  margin-right: var(--space-1);
-  background: transparent;
+/* Level with the message's first line, not centered on a two-line toast. */
+.g-toast-icon {
+  align-self: flex-start;
   flex-shrink: 0;
+  margin-top: calc(var(--space-1) + 3px);
+  margin-right: calc(var(--space-1) * -1);
 }
-.g-toast.ok .g-toast-rail {
-  background: var(--g-ok);
+.g-toast.ok .g-toast-icon {
+  color: var(--g-ok);
 }
-.g-toast.warn .g-toast-rail {
-  background: var(--g-warn);
+.g-toast.warn .g-toast-icon {
+  color: var(--g-warn);
 }
-.g-toast.danger .g-toast-rail {
-  background: var(--g-danger);
+.g-toast.danger .g-toast-icon {
+  color: var(--g-danger);
 }
 .g-toast-body {
   display: flex;

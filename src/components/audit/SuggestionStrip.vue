@@ -7,14 +7,14 @@
       <div class="strip-title">
         <span class="strip-label">Suggestions</span>
         <g-popover v-model="infoOpen" label="How suggestions are produced">
-          <template #anchor="{ toggle }">
+          <template #anchor="{ toggle, triggerProps }">
             <g-button
               variant="ghost"
               size="xs"
               icon-only
               data-cy="suggestionsInfo"
               aria-label="How suggestions are produced"
-              :aria-expanded="infoOpen"
+              v-bind="triggerProps"
               @click="toggle"
             >
               <g-icon name="notice" :size="13" />

@@ -6,10 +6,17 @@
       class="g-popover-anchor"
       v-bind="$attrs"
     >
-      <slot name="anchor" :toggle="toggle" :open="openPopover" :close="close" />
+      <slot
+        name="anchor"
+        :toggle="toggle"
+        :open="openPopover"
+        :close="close"
+        :trigger-props="triggerProps"
+      />
     </PopoverAnchor>
     <PopoverPortal>
       <PopoverContent
+        :id="contentId"
         class="g-popover"
         :class="[placement, align, { menu }]"
         :side="placement"
@@ -37,7 +44,7 @@
  * window-level listeners.
  */
 import "./popover.css";
-import { useTemplateRef } from "vue";
+import { computed, useId, useTemplateRef } from "vue";
 import {
   PopoverAnchor,
   PopoverContent,
@@ -75,6 +82,15 @@ const emit = defineEmits<{
   (e: "closeAutoFocus", event: Event): void;
 }>();
 const anchorEl = useTemplateRef("anchorEl");
+
+const contentId = `g-popover-${useId()}`;
+/** Bind on an anchor that opens the popover; the anchor isn't a Reka
+ *  trigger, so nothing sets these otherwise. */
+const triggerProps = computed(() => ({
+  "aria-haspopup": "dialog" as const,
+  "aria-expanded": isOpen.value,
+  "aria-controls": isOpen.value ? contentId : undefined,
+}));
 
 function toggle() {
   isOpen.value = !isOpen.value;

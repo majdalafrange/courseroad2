@@ -1,7 +1,7 @@
 <template>
   <ComboboxRoot
     ref="root"
-    :open="true"
+    :open="open"
     ignore-filter
     :reset-search-term-on-blur="false"
     :reset-search-term-on-select="false"
@@ -28,11 +28,18 @@
  * status line) counts as part of the combobox, so focusing or clicking
  * it does not dismiss the list.
  */
-import { useTemplateRef } from "vue";
+import { toRef, useTemplateRef } from "vue";
 import { ComboboxRoot } from "reka-ui";
-import { provideListId } from "./context";
+import { provideListId, provideListOpen } from "./context";
+
+const { open = true } = defineProps<{
+  /** false while there is nothing to list, so the input reports the list
+   *  closed and the listbox unmounts. */
+  open?: boolean;
+}>();
 
 provideListId();
+provideListOpen(toRef(() => open));
 
 const emit = defineEmits<{
   /** The highlighted item's value, or undefined when nothing is. */

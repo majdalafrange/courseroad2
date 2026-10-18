@@ -8,31 +8,34 @@
       >
     </div>
 
-    <div class="toolbar-center" role="group" aria-label="Edge filters">
-      <g-button
-        size="sm"
-        variant="ghost"
-        class="legend-item t-prereq"
-        :class="{ off: store.hiddenTypes.has('prereq') }"
-        :aria-pressed="!store.hiddenTypes.has('prereq')"
-        :title="`${store.hiddenTypes.has('prereq') ? 'Show' : 'Hide'} prerequisite edges`"
-        @click="store.toggleType('prereq')"
-      >
-        <span class="swatch" aria-hidden="true" />
-        <span class="legend-text">Prerequisite</span>
-      </g-button>
-      <g-button
-        size="sm"
-        variant="ghost"
-        class="legend-item"
-        :class="{ off: !store.showRowLabels }"
-        :aria-pressed="store.showRowLabels"
-        :title="`${store.showRowLabels ? 'Hide' : 'Show'} row labels`"
-        @click="store.toggleRowLabels()"
-      >
-        <span class="legend-text">Labels</span>
-      </g-button>
-    </div>
+    <g-toggle-group-root
+      class="toolbar-center"
+      aria-label="Edge filters"
+      :model-value="shownLayers"
+      @update:model-value="setShownLayers"
+    >
+      <g-toggle-group-item value="prereq" as-child>
+        <g-button
+          size="sm"
+          variant="ghost"
+          class="legend-item t-prereq"
+          :title="`${store.hiddenTypes.has('prereq') ? 'Show' : 'Hide'} prerequisite edges`"
+        >
+          <span class="swatch" aria-hidden="true" />
+          <span class="legend-text">Prerequisite</span>
+        </g-button>
+      </g-toggle-group-item>
+      <g-toggle-group-item value="labels" as-child>
+        <g-button
+          size="sm"
+          variant="ghost"
+          class="legend-item"
+          :title="`${store.showRowLabels ? 'Hide' : 'Show'} row labels`"
+        >
+          <span class="legend-text">Labels</span>
+        </g-button>
+      </g-toggle-group-item>
+    </g-toggle-group-root>
 
     <div class="toolbar-right">
       <g-button size="sm" variant="ghost" @click="store.tidy()">
@@ -57,10 +60,29 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import {
+  GToggleGroupItem,
+  GToggleGroupRoot,
+} from "../../design/components/GToggleGroup";
 import GButton from "../../design/components/GButton.vue";
 import { useConnectionsStore } from "../../stores/connections";
 
 const store = useConnectionsStore();
+
+/* The filters are one toggle group (Tab in once, arrows between them);
+   each still writes to its own store flag. */
+const shownLayers = computed(() => [
+  ...(store.hiddenTypes.has("prereq") ? [] : ["prereq"]),
+  ...(store.showRowLabels ? ["labels"] : []),
+]);
+function setShownLayers(next: string[]) {
+  if (next.includes("prereq") === store.hiddenTypes.has("prereq")) {
+    store.toggleType("prereq");
+  }
+  if (next.includes("labels") !== store.showRowLabels) {
+    store.toggleRowLabels();
+  }
+}
 
 const seedParts = computed((): string[] => {
   const count = store.seed.subjectIds.length;
@@ -128,23 +150,23 @@ const seedParts = computed((): string[] => {
   box-shadow: var(--g-focus-ring);
 }
 /* On is filled, off is an empty outline: the two states have to differ
-   by more than a shade of grey. */
-.legend-item:not(.off) {
+   by more than a shade of grey. data-state is the toggle group's. */
+.legend-item[data-state="on"] {
   color: var(--g-ink);
   background: var(--g-surface-sunken);
 }
-.legend-item:not(.off):hover:not(:disabled) {
+.legend-item[data-state="on"]:hover:not(:disabled) {
   background: var(--g-line);
 }
-.legend-item.off {
+.legend-item[data-state="off"] {
   color: var(--g-ink-3);
   border-color: var(--g-line);
 }
-.legend-item.off .legend-text {
+.legend-item[data-state="off"] .legend-text {
   text-decoration: line-through;
   text-decoration-color: var(--g-ink-3);
 }
-.legend-item.off .swatch {
+.legend-item[data-state="off"] .swatch {
   filter: grayscale(1);
   opacity: 0.55;
 }
