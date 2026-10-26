@@ -4,7 +4,7 @@
 // to redeem.
 definePage({
   redirect: (to) => ({
-    path: "/road/[[road]]",
+    name: "/road/[[road]]",
     query: to.query,
   }),
 });

@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 definePage({
-  redirect: "/road/[[road]]",
+  redirect: {
+    name: "/road/[[road]]",
+  },
 });
 </script>
