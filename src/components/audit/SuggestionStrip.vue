@@ -17,7 +17,7 @@
               v-bind="triggerProps"
               @click="toggle"
             >
-              <BaseIcon name="notice" :size="13" />
+              <BaseIcon name="info" :size="13" />
             </BaseButton>
           </template>
           <p class="strip-explain">

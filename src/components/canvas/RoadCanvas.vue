@@ -43,7 +43,7 @@
             v-bind="triggerProps"
             @click="settingsOpen = !settingsOpen"
           >
-            <BaseIcon name="map" :size="14" class="year-pill-icon" />
+            <BaseIcon name="calendar" :size="14" class="year-pill-icon" />
             <span class="year-pill-text">
               {{ termLabelNow }} <span class="sep">·</span>
               {{ yearNames[store.userYear] }}

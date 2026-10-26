@@ -87,7 +87,7 @@
           </BaseButton>
         </div>
         <div v-else-if="offline" class="offline-note" role="status">
-          <BaseIcon name="cloud" :size="14" />
+          <BaseIcon name="offline" :size="14" />
           You're offline. Changes are kept locally and sync once you're back
           online.
         </div>

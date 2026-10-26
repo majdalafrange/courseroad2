@@ -6,7 +6,7 @@
       :aria-current="active === 'plan' ? 'page' : undefined"
       @click="emit('navigate', 'plan')"
     >
-      <BaseIcon name="map" :size="18" />
+      <BaseIcon name="plan" :size="18" />
       <span>Plan</span>
     </button>
     <button
@@ -15,7 +15,7 @@
       :aria-current="active === 'progress' ? 'page' : undefined"
       @click="emit('navigate', 'progress')"
     >
-      <BaseIcon name="check" :size="18" />
+      <BaseIcon name="progress" :size="18" />
       <span>Progress</span>
     </button>
     <button class="mobile-tab search-tab" @click="emit('search')">

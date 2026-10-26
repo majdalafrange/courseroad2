@@ -193,6 +193,9 @@ export interface EdgeView {
   y2: number;
   /** Screen-space endpoints of the prereq arrow (prerequisite → dependent). */
   arrow?: { fromX: number; fromY: number; toX: number; toY: number };
+  /** Subject ids of a prereq edge, prerequisite first; set even when the
+   *  cards overlap and no arrow is drawn. */
+  direction?: { from: string; to: string };
   reasons: EdgeReason[];
   title: string;
   /** Incident to the emphasized (selected/hovered) node. */
@@ -554,6 +557,7 @@ export const useConnectionsStore = defineStore("connections", () => {
         x2,
         y2,
         arrow,
+        direction: edge.arrow,
         reasons: edge.reasons,
         title: edge.reasons.map((r) => r.label).join(" · "),
         active: hood !== undefined && hood.edgeIds.has(edge.id),

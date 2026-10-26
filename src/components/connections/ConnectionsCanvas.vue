@@ -85,7 +85,14 @@
       <div class="edge-card-head">
         <span class="edge-card-ids"
           >{{ edgeCardIds[0] }}
-          <BaseIcon name="swap" :size="12" />
+          <template v-if="edgeCard.edge.direction">
+            <BaseIcon name="forward" :size="12" />
+            <span class="sr-only">is a prerequisite for</span>
+          </template>
+          <template v-else>
+            <BaseIcon name="swap" :size="12" />
+            <span class="sr-only">and</span>
+          </template>
           {{ edgeCardIds[1] }}</span
         >
         <span v-if="edgeCard.edge.crossing" class="edge-card-crossing"
@@ -140,7 +147,7 @@
         aria-label="Fit graph to view"
         @click="fit"
       >
-        <BaseIcon name="map" :size="15" />
+        <BaseIcon name="fitView" :size="15" />
       </BaseButton>
     </div>
   </div>
@@ -244,10 +251,14 @@ function toggle(node: NodeView) {
 
 const edgeCard = ref<{ edge: EdgeView; x: number; y: number } | undefined>();
 
+// A prereq edge reads prerequisite first; any other edge has no direction.
 const edgeCardIds = computed((): [string, string] => {
   const edge = edgeCard.value?.edge;
   if (edge === undefined) {
     return ["", ""];
+  }
+  if (edge.direction !== undefined) {
+    return [edge.direction.from, edge.direction.to];
   }
   const [a, b] = edge.id.split("|");
   return [a, b];

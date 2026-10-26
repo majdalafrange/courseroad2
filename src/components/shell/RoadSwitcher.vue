@@ -107,7 +107,7 @@
         data-cy="compareRoadsButton"
         @select="emit('open-compare')"
       >
-        <BaseIcon name="map" :size="14" />
+        <BaseIcon name="compare" :size="14" />
         Compare roads...
       </BaseMenuItem>
     </div>

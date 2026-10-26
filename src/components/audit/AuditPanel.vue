@@ -64,7 +64,7 @@
       </BasePopover>
 
       <BaseButton size="sm" data-cy="openDegreeFit" @click="fitOpen = true">
-        <BaseIcon name="graph" :size="13" />
+        <BaseIcon name="match" :size="13" />
         <span>Closest majors and minors</span>
       </BaseButton>
     </div>

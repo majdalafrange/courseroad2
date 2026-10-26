@@ -49,13 +49,11 @@ import redo2 from "@iconify-icons/lucide/redo-2";
 import logIn from "@iconify-icons/lucide/log-in";
 import logOut from "@iconify-icons/lucide/log-out";
 import check from "@iconify-icons/lucide/check";
-import cloud from "@iconify-icons/lucide/cloud";
 import triangleAlert from "@iconify-icons/lucide/triangle-alert";
 import chevronDown from "@iconify-icons/lucide/chevron-down";
 import chevronRight from "@iconify-icons/lucide/chevron-right";
 import chevronUp from "@iconify-icons/lucide/chevron-up";
-import map from "@iconify-icons/lucide/map";
-import share2 from "@iconify-icons/lucide/share-2";
+import workflow from "@iconify-icons/lucide/workflow";
 import messageSquare from "@iconify-icons/lucide/message-square";
 import settings from "@iconify-icons/lucide/settings";
 import monitor from "@iconify-icons/lucide/monitor";
@@ -81,11 +79,17 @@ import columns3 from "@iconify-icons/lucide/columns-3";
 import rows3 from "@iconify-icons/lucide/rows-3";
 import mousePointer2 from "@iconify-icons/lucide/mouse-pointer-2";
 import eyeOff from "@iconify-icons/lucide/eye-off";
+import calendar from "@iconify-icons/lucide/calendar";
+import scan from "@iconify-icons/lucide/scan";
+import chartGantt from "@iconify-icons/lucide/chart-gantt";
+import columns2 from "@iconify-icons/lucide/columns-2";
+import listChecks from "@iconify-icons/lucide/list-checks";
+import chartNoAxesColumnIncreasing from "@iconify-icons/lucide/chart-no-axes-column-increasing";
+import cloudOff from "@iconify-icons/lucide/cloud-off";
 
 /**
- * The shell's icon set: Lucide via @iconify/vue's offline renderer and
- * @iconify-icons/lucide's per-icon exports, so each import pulls in one
- * icon's data. Names are the app's own semantic labels.
+ * Lucide, one import per icon so only used icons ship. Keys are the app's
+ * semantic names; one Lucide icon can back several of them.
  */
 const NAME_TO_LUCIDE = {
   plus,
@@ -109,13 +113,11 @@ const NAME_TO_LUCIDE = {
   login: logIn,
   logout: logOut,
   check,
-  cloud,
   warn: triangleAlert,
   chevronDown,
   chevronRight,
   chevronUp,
-  map,
-  graph: share2,
+  graph: workflow,
   message: messageSquare,
   settings,
   monitor,
@@ -141,6 +143,13 @@ const NAME_TO_LUCIDE = {
   rows: rows3,
   pointer: mousePointer2,
   eyeOff,
+  calendar,
+  fitView: scan,
+  plan: chartGantt,
+  compare: columns2,
+  progress: listChecks,
+  match: chartNoAxesColumnIncreasing,
+  offline: cloudOff,
 } as const satisfies Record<string, IconifyIcon>;
 
 export type IconName = keyof typeof NAME_TO_LUCIDE;

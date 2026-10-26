@@ -399,7 +399,7 @@ const baseActions = computed<PaletteAction[]>(() => {
     if (roadID !== store.activeRoad) {
       actions.push({
         label: `Go to road: ${road.name}`,
-        icon: "map",
+        icon: "plan",
         keywords: `road switch go ${road.name.toLowerCase()}`,
         run: () => emit("action", "switch-road", roadID),
       });
@@ -423,7 +423,7 @@ const programActions = computed<PaletteAction[]>(() => {
     .slice(0, 4)
     .map((entry) => ({
       label: `Add program: ${entry["medium-title"]}`,
-      icon: "check",
+      icon: "plus",
       keywords: "",
       // runAction() keeps the palette open after this action so several
       // programs can be added in one go.

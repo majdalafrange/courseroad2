@@ -87,9 +87,8 @@ export default defineConfig(
   },
   prettier,
   {
-    // eslint-config-prettier turns this off, but Prettier keeps either form
-    // as written. The style guide asks for empty components to self-close
-    // in SFCs; plain HTML elements are left alone.
+    // eslint-config-prettier turns this off, but Prettier keeps either form;
+    // only empty components are required to self-close.
     files: ["**/*.vue"],
     rules: {
       "vue/html-self-closing": [

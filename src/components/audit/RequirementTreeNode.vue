@@ -105,11 +105,11 @@
         @focus="onLeafHover"
         @blur="clearAuditHighlight()"
       >
+        <!-- An unmet leaf is the empty circle, as in a checklist. -->
         <span class="leaf-state" :class="{ ok: leafSatisfied }">
           <BaseIcon
-            :name="
-              node['plain-string'] ? 'pencil' : leafSatisfied ? 'check' : 'dots'
-            "
+            v-if="node['plain-string'] || leafSatisfied"
+            :name="node['plain-string'] ? 'pencil' : 'check'"
             :size="12"
           />
         </span>
@@ -768,11 +768,15 @@ const crossLit = computed(
   height: 16px;
   border-radius: var(--radius-full);
   background: var(--base-surface-sunken);
+  /* The unmet circle is often empty, so its edge carries the state: 3:1 in
+     both themes, and a border (not a shadow) survives forced colors. */
+  border: 1.5px solid var(--base-line-control);
   color: var(--base-ink-3);
   flex-shrink: 0;
 }
 .leaf-state.ok {
   background: var(--base-progress-tint);
+  border: none;
   color: var(--base-progress);
 }
 
