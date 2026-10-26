@@ -1,26 +1,26 @@
 <template>
   <div class="audit-panel" data-cy="auditBox">
-    <suggestion-strip @see-all="onSeeAll" />
+    <SuggestionStrip @see-all="onSeeAll" />
 
     <div class="picker">
-      <g-popover v-model="pickerOpen" label="Add a major or minor">
+      <BasePopover v-model="pickerOpen" label="Add a major or minor">
         <template #anchor="{ triggerProps }">
-          <g-button
+          <BaseButton
             size="sm"
             data-cy="auditMajorChips"
             v-bind="triggerProps"
             @click="openPicker"
           >
-            <g-icon name="plus" :size="13" />
+            <BaseIcon name="plus" :size="13" />
             <span>{{
               selectedReqs.length
                 ? "Add a major or minor"
                 : "Pick your majors and minors"
             }}</span>
-          </g-button>
+          </BaseButton>
         </template>
         <div class="picker-pop" @click.stop>
-          <g-input
+          <BaseInput
             ref="pickerInput"
             v-model="pickerQuery"
             placeholder="Majors, minors, GIRs..."
@@ -34,15 +34,15 @@
               class="picker-row"
             >
               <span class="picker-name">{{ entry["medium-title"] }}</span>
-              <g-button
+              <BaseButton
                 size="sm"
                 variant="ghost"
                 :aria-label="`What if: preview ${entry['medium-title']}`"
                 @click="previewProgram(entry.key)"
               >
                 What if?
-              </g-button>
-              <g-button
+              </BaseButton>
+              <BaseButton
                 size="sm"
                 variant="primary"
                 :data-cy="'addProgram' + entry.key"
@@ -50,7 +50,7 @@
                 @click="addProgram(entry.key)"
               >
                 Add
-              </g-button>
+              </BaseButton>
             </div>
             <span
               v-if="!pickerResults.length"
@@ -61,18 +61,18 @@
             </span>
           </div>
         </div>
-      </g-popover>
+      </BasePopover>
 
-      <g-button size="sm" data-cy="openDegreeFit" @click="fitOpen = true">
-        <g-icon name="graph" :size="13" />
+      <BaseButton size="sm" data-cy="openDegreeFit" @click="fitOpen = true">
+        <BaseIcon name="graph" :size="13" />
         <span>Closest majors and minors</span>
-      </g-button>
+      </BaseButton>
     </div>
 
-    <degree-fit-sheet v-model="fitOpen" />
+    <DegreeFitSheet v-model="fitOpen" />
 
     <!-- what-if preview -->
-    <program-section
+    <ProgramSection
       v-if="auditStore.previewProgram !== null"
       :program-key="auditStore.previewProgram"
       :tree="previewTreeWithIds"
@@ -80,7 +80,7 @@
     />
 
     <!-- committed programs -->
-    <program-section
+    <ProgramSection
       v-for="(req, index) in selectedReqs"
       :key="req"
       :program-key="req"
@@ -94,21 +94,21 @@
     </div>
 
     <div class="audit-links">
-      <g-link
+      <BaseLink
         v-for="courseLink in courseLinks"
         :key="courseLink.link"
         :href="courseLink.link"
         tone="quiet"
         external
         class="audit-link"
-        >{{ courseLink.text }}</g-link
+        >{{ courseLink.text }}</BaseLink
       >
-      <g-link
+      <BaseLink
         href="https://mit.turbovote.org/"
         tone="quiet"
         external
         class="audit-link"
-        >Register to vote</g-link
+        >Register to vote</BaseLink
       >
     </div>
   </div>
@@ -116,11 +116,11 @@
 
 <script setup lang="ts">
 import { computed, ref, toRaw, useTemplateRef } from "vue";
-import GButton from "../../design/components/GButton.vue";
-import GLink from "../../design/components/GLink.vue";
-import GIcon from "../../design/components/GIcon.vue";
-import GInput from "../../design/components/GInput.vue";
-import GPopover from "../../design/components/GPopover.vue";
+import BaseButton from "../../design/components/BaseButton.vue";
+import BaseLink from "../../design/components/BaseLink.vue";
+import BaseIcon from "../../design/components/BaseIcon.vue";
+import BaseInput from "../../design/components/BaseInput.vue";
+import BasePopover from "../../design/components/BasePopover.vue";
 import DegreeFitSheet from "./DegreeFitSheet.vue";
 import ProgramSection from "./ProgramSection.vue";
 import SuggestionStrip from "./SuggestionStrip.vue";
@@ -245,7 +245,7 @@ const previewTreeWithIds = computed(() => {
 }
 .picker-name {
   font: var(--text-small);
-  color: var(--g-ink);
+  color: var(--base-ink);
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -254,13 +254,13 @@ const previewTreeWithIds = computed(() => {
 }
 .picker-empty {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   padding: var(--space-2);
 }
 
 .audit-empty {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   padding: var(--space-4) var(--space-2);
 }
 
@@ -268,7 +268,7 @@ const previewTreeWithIds = computed(() => {
 .audit-link {
   min-height: 24px;
 }
-/* Touch tier (tokens.css); this rule outranks GLink's own. */
+/* Touch tier (tokens.css); this rule outranks BaseLink's own. */
 @media (max-width: 859px) and (pointer: coarse) {
   .audit-link {
     min-height: 44px;
@@ -276,11 +276,11 @@ const previewTreeWithIds = computed(() => {
 }
 .audit-links {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   display: flex;
   flex-direction: column;
   margin-top: var(--space-4);
   padding-top: var(--space-3);
-  border-top: 1px solid var(--g-line);
+  border-top: 1px solid var(--base-line);
 }
 </style>

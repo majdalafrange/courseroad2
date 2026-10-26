@@ -1,5 +1,5 @@
 <template>
-  <g-sheet
+  <BaseSheet
     v-model="isOpen"
     label="Search classes and commands"
     width="640px"
@@ -9,7 +9,7 @@
     class="palette"
     @close-auto-focus="onCloseAutoFocus"
   >
-    <g-combobox-root
+    <BaseComboboxRoot
       ref="comboRoot"
       class="palette-combobox"
       @highlight="highlighted = $event"
@@ -17,7 +17,7 @@
       @pointerdown.capture="lastInput = 'pointer'"
     >
       <div class="palette-input-row">
-        <g-icon name="search" :size="16" class="palette-search-icon" />
+        <BaseIcon name="search" :size="16" class="palette-search-icon" />
         <div class="palette-tokens">
           <button
             v-for="token in activeTokens"
@@ -28,9 +28,9 @@
             @click="removeToken(token.key)"
           >
             {{ token.label }}
-            <g-icon name="close" :size="9" />
+            <BaseIcon name="close" :size="9" />
           </button>
-          <g-combobox-input
+          <BaseComboboxInput
             ref="inputEl"
             v-model="query"
             class="palette-input"
@@ -42,7 +42,7 @@
             @keydown="onInputKeydown"
           />
         </div>
-        <g-kbd class="palette-kbd" :keys="['esc']" aria-hidden="true" />
+        <BaseKbd class="palette-kbd" :keys="['esc']" aria-hidden="true" />
       </div>
       <span id="paletteHelp" hidden>
         Up and down arrows move through the results. Enter opens a class or runs
@@ -52,24 +52,24 @@
 
       <div v-if="tokenSuggestions.length" class="token-suggest-row">
         <span class="token-suggest-label">Filters:</span>
-        <g-chip
+        <BaseChip
           v-for="suggestion in tokenSuggestions"
           :key="suggestion.key"
           interactive
           @click="addToken(suggestion.key)"
         >
           {{ suggestion.label }}
-        </g-chip>
+        </BaseChip>
       </div>
 
-      <g-combobox-list label="Results" class="palette-list" @escape="onEscape">
+      <BaseComboboxList label="Results" class="palette-list" @escape="onEscape">
         <!-- favorites, first, before any search (empty query, no filter) -->
-        <g-combobox-group
+        <BaseComboboxGroup
           v-if="favoriteSubjects.length"
           label-class="palette-section"
         >
           <template #label>Favorites</template>
-          <palette-class-row
+          <PaletteClassRow
             v-for="subject in favoriteSubjects"
             :key="subject.subject_id"
             :subject="subject"
@@ -79,15 +79,15 @@
             @pointerdown="rowPointerDown($event, subject)"
             @select="onClassSelect(subject)"
           />
-        </g-combobox-group>
+        </BaseComboboxGroup>
 
         <!-- requirement-aware suggestions (empty query only) -->
-        <g-combobox-group
+        <BaseComboboxGroup
           v-if="showAuditSuggestions"
           label-class="palette-section"
         >
           <template #label>From your audit</template>
-          <g-combobox-item
+          <BaseComboboxItem
             v-for="suggestion in auditSuggestions"
             :key="suggestion.label"
             :value="`audit:${suggestion.label}`"
@@ -95,17 +95,17 @@
             @select="applyAuditSuggestion(suggestion)"
           >
             <span class="row-icon ok">
-              <g-icon name="check" :size="14" />
+              <BaseIcon name="check" :size="14" />
             </span>
             <span class="row-main">
               <span class="row-title">{{ suggestion.label }}</span>
               <span class="row-sub">{{ suggestion.detail }}</span>
             </span>
-          </g-combobox-item>
-        </g-combobox-group>
+          </BaseComboboxItem>
+        </BaseComboboxGroup>
 
         <!-- classes -->
-        <g-combobox-group
+        <BaseComboboxGroup
           v-if="classResults.length"
           label-class="palette-section"
         >
@@ -116,7 +116,7 @@
               {{ classResults.length + resultOverflow }}, keep typing)
             </span>
           </template>
-          <palette-class-row
+          <PaletteClassRow
             v-for="subject in classResults"
             :key="subject.subject_id"
             :subject="subject"
@@ -126,15 +126,15 @@
             @pointerdown="rowPointerDown($event, subject)"
             @select="onClassSelect(subject)"
           />
-        </g-combobox-group>
+        </BaseComboboxGroup>
 
         <!-- actions -->
-        <g-combobox-group
+        <BaseComboboxGroup
           v-if="actionResults.length"
           label-class="palette-section"
         >
           <template #label>Actions</template>
-          <g-combobox-item
+          <BaseComboboxItem
             v-for="action in actionResults"
             :key="action.label"
             :value="`action:${action.label}`"
@@ -142,7 +142,7 @@
             @select="runAction(action)"
           >
             <span class="row-icon">
-              <g-icon :name="action.icon" :size="14" />
+              <BaseIcon :name="action.icon" :size="14" />
             </span>
             <span class="row-main">
               <span class="row-title">{{ action.label }}</span>
@@ -150,8 +150,8 @@
                 action.detail
               }}</span>
             </span>
-          </g-combobox-item>
-        </g-combobox-group>
+          </BaseComboboxItem>
+        </BaseComboboxGroup>
 
         <div
           v-if="
@@ -162,10 +162,10 @@
           class="palette-empty"
         >
           Nothing matches.<template v-if="tokenSuggestions.length">
-            <g-kbd :keys="['Tab']" /> applies the suggested filter.</template
+            <BaseKbd :keys="['Tab']" /> applies the suggested filter.</template
           >
         </div>
-      </g-combobox-list>
+      </BaseComboboxList>
 
       <!-- The filter grammar's one line of documentation. A footer rather
            than part of the empty state: with an empty query the base
@@ -177,11 +177,11 @@
         data-cy="paletteGrammarHint"
       >
         Type to search {{ catalogSize }} subjects, or compose filters:
-        <code>hass-a</code> then <g-kbd :keys="['Tab']" />,
-        <code>spring</code> then <g-kbd :keys="['Tab']" />.
+        <code>hass-a</code> then <BaseKbd :keys="['Tab']" />,
+        <code>spring</code> then <BaseKbd :keys="['Tab']" />.
       </div>
-    </g-combobox-root>
-  </g-sheet>
+    </BaseComboboxRoot>
+  </BaseSheet>
 </template>
 
 <script setup lang="ts">
@@ -194,16 +194,16 @@ import {
   watch,
 } from "vue";
 import {
-  GComboboxGroup,
-  GComboboxInput,
-  GComboboxItem,
-  GComboboxList,
-  GComboboxRoot,
-} from "../../design/components/GCombobox";
-import GChip from "../../design/components/GChip.vue";
-import GIcon, { type IconName } from "../../design/components/GIcon.vue";
-import GKbd from "../../design/components/GKbd.vue";
-import GSheet from "../../design/components/GSheet.vue";
+  BaseComboboxGroup,
+  BaseComboboxInput,
+  BaseComboboxItem,
+  BaseComboboxList,
+  BaseComboboxRoot,
+} from "../../design/components/BaseCombobox";
+import BaseChip from "../../design/components/BaseChip.vue";
+import BaseIcon, { type IconName } from "../../design/components/BaseIcon.vue";
+import BaseKbd from "../../design/components/BaseKbd.vue";
+import BaseSheet from "../../design/components/BaseSheet.vue";
 import { useIsMobile } from "../../composables/useIsMobile";
 import {
   chosenFiltersFor,
@@ -748,7 +748,7 @@ defineExpose({
 </script>
 
 <style>
-/* Not scoped: the panel is GSheet's, teleported by Reka, and the rows
+/* Not scoped: the panel is BaseSheet's, teleported by Reka, and the rows
    are Reka's elements; every rule is under .palette (the panel's class)
    instead. */
 .palette-combobox {
@@ -763,10 +763,10 @@ defineExpose({
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--g-line);
+  border-bottom: 1px solid var(--base-line);
 }
 .palette .palette-search-icon {
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 .palette .palette-tokens {
   flex: 1;
@@ -784,8 +784,8 @@ defineExpose({
   gap: var(--space-1);
   font: var(--text-small);
   font-weight: 600;
-  color: var(--g-on-accent);
-  background: var(--g-accent-fill);
+  color: var(--base-on-accent);
+  background: var(--base-accent-fill);
   border: none;
   border-radius: var(--radius-full);
   padding: var(--space-05) var(--space-2);
@@ -793,20 +793,20 @@ defineExpose({
 }
 .palette .token-chip:focus-visible {
   outline: none;
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
 }
 .palette .palette-input {
   flex: 1;
   min-width: 140px;
   font: var(--text-body-lg);
-  color: var(--g-ink);
+  color: var(--base-ink);
   background: transparent;
   border: none;
   outline: none;
   height: 30px;
 }
 .palette .palette-input::placeholder {
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 
 .palette .token-suggest-row {
@@ -814,12 +814,12 @@ defineExpose({
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-4);
-  border-bottom: 1px solid var(--g-line);
-  background: var(--g-surface-2);
+  border-bottom: 1px solid var(--base-line);
+  background: var(--base-surface-2);
 }
 .palette .token-suggest-label {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 
 .palette .palette-list {
@@ -830,7 +830,7 @@ defineExpose({
 }
 .palette .palette-section {
   font: var(--text-micro);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   padding: var(--space-2) var(--space-3) var(--space-1);
 }
 /* The count aside is secondary; italic marks it. */
@@ -854,8 +854,8 @@ defineExpose({
   flex-shrink: 0;
   background: color-mix(
     in srgb,
-    var(--dept-color, var(--g-line-strong)) var(--dept-rest-mix),
-    var(--g-line-strong)
+    var(--dept-color, var(--base-line-strong)) var(--dept-rest-mix),
+    var(--base-line-strong)
   );
   transition: background-color var(--motion-quick) var(--ease-out);
 }
@@ -864,7 +864,7 @@ defineExpose({
 }
 .palette .row-id {
   font: var(--text-id);
-  color: var(--g-ink);
+  color: var(--base-ink);
   min-width: 72px;
   flex-shrink: 0;
 }
@@ -875,13 +875,13 @@ defineExpose({
   width: 22px;
   height: 22px;
   border-radius: var(--radius-xs);
-  background: var(--g-surface-sunken);
-  color: var(--g-ink-2);
+  background: var(--base-surface-sunken);
+  color: var(--base-ink-2);
   flex-shrink: 0;
 }
 .palette .row-icon.ok {
-  background: var(--g-ok-tint);
-  color: var(--g-ok);
+  background: var(--base-ok-tint);
+  color: var(--base-ok);
 }
 .palette .row-main {
   flex: 1;
@@ -893,7 +893,7 @@ defineExpose({
 .palette .row-title {
   font: var(--text-body);
   line-height: 1.3;
-  color: var(--g-ink);
+  color: var(--base-ink);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -901,7 +901,7 @@ defineExpose({
 .palette .row-sub {
   font: var(--text-small);
   line-height: 1.3;
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   margin-top: var(--space-05);
   white-space: nowrap;
   overflow: hidden;
@@ -916,7 +916,7 @@ defineExpose({
   align-items: center;
   gap: 3px;
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   white-space: nowrap;
 }
 /* Key hints mean nothing without a keyboard, and on a phone they squeeze
@@ -931,19 +931,19 @@ defineExpose({
 .palette .palette-empty {
   padding: var(--space-6) var(--space-4);
   font: var(--text-body);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   text-align: center;
 }
 
 .palette .palette-hint {
-  border-top: 1px solid var(--g-line);
+  border-top: 1px solid var(--base-line);
   padding: var(--space-2) var(--space-4);
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 .palette .palette-hint code {
   font: var(--text-id-small);
-  background: var(--g-surface-sunken);
+  background: var(--base-surface-sunken);
   border-radius: var(--radius-xs);
   padding: 1px 5px;
 }

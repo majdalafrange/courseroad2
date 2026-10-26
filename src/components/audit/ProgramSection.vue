@@ -1,5 +1,5 @@
 <template>
-  <g-collapsible-root
+  <BaseCollapsibleRoot
     v-model:open="open"
     as="section"
     class="program"
@@ -11,7 +11,7 @@
     <header class="program-head" @click="toggleOpen">
       <h2 class="program-heading">
         <!-- The header toggles too; stop the trigger's click there. -->
-        <g-collapsible-trigger as-child>
+        <BaseCollapsibleTrigger as-child>
           <button type="button" class="program-toggle" @click.stop>
             <svg
               class="program-ring"
@@ -43,9 +43,9 @@
               </span>
             </span>
           </button>
-        </g-collapsible-trigger>
+        </BaseCollapsibleTrigger>
       </h2>
-      <g-button
+      <BaseButton
         v-if="failed"
         variant="quiet"
         size="sm"
@@ -55,8 +55,8 @@
         @click.stop="retry"
       >
         Retry
-      </g-button>
-      <g-button
+      </BaseButton>
+      <BaseButton
         v-if="!preview && tree"
         variant="ghost"
         size="sm"
@@ -65,26 +65,26 @@
         @click.stop="toggleAll"
       >
         {{ anyCollapsed ? "Expand all" : "Collapse all" }}
-      </g-button>
+      </BaseButton>
       <span v-if="preview" class="preview-actions">
-        <g-button
+        <BaseButton
           size="sm"
           variant="primary"
           :aria-label="`Keep ${title}`"
           @click.stop="auditStore.keepPreview()"
         >
           Keep
-        </g-button>
-        <g-button
+        </BaseButton>
+        <BaseButton
           size="sm"
           variant="ghost"
           :aria-label="`Discard ${title}`"
           @click.stop="auditStore.clearPreview()"
         >
           Discard
-        </g-button>
+        </BaseButton>
       </span>
-      <g-button
+      <BaseButton
         v-else
         variant="ghost"
         size="xs"
@@ -94,12 +94,12 @@
         data-cy="removeProgramButton"
         @click.stop="emit('remove')"
       >
-        <g-icon name="close" :size="12" />
-      </g-button>
+        <BaseIcon name="close" :size="12" />
+      </BaseButton>
     </header>
 
-    <g-collapsible-content v-if="tree" class="program-body">
-      <req-node
+    <BaseCollapsibleContent v-if="tree" class="program-body">
+      <RequirementTreeNode
         v-for="(child, index) in tree.reqs ?? []"
         :key="child.uniqueKey ?? index"
         :node="child"
@@ -107,29 +107,29 @@
         :program-key="programKey"
         :department="department"
       />
-      <g-link
+      <BaseLink
         v-if="officialUrl"
         class="program-link"
         tone="quiet"
         :href="safeHref(officialUrl)"
         external
-        >Official {{ title }} requirements</g-link
+        >Official {{ title }} requirements</BaseLink
       >
-    </g-collapsible-content>
-  </g-collapsible-root>
+    </BaseCollapsibleContent>
+  </BaseCollapsibleRoot>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import {
-  GCollapsibleContent,
-  GCollapsibleRoot,
-  GCollapsibleTrigger,
-} from "../../design/components/GCollapsible";
-import GButton from "../../design/components/GButton.vue";
-import GLink from "../../design/components/GLink.vue";
-import GIcon from "../../design/components/GIcon.vue";
-import ReqNode from "./ReqNode.vue";
+  BaseCollapsibleContent,
+  BaseCollapsibleRoot,
+  BaseCollapsibleTrigger,
+} from "../../design/components/BaseCollapsible";
+import BaseButton from "../../design/components/BaseButton.vue";
+import BaseLink from "../../design/components/BaseLink.vue";
+import BaseIcon from "../../design/components/BaseIcon.vue";
+import RequirementTreeNode from "./RequirementTreeNode.vue";
 import type { RequirementNode } from "../../lib/types";
 import {
   dominantDepartment,
@@ -157,7 +157,7 @@ const auditStore = useAuditStore();
 const title = computed(() =>
   programTitle(auditStore.reqList, props.programKey),
 );
-/** For text-only electives directly under the program; see ReqNode. */
+/** For text-only electives directly under the program; see RequirementTreeNode. */
 const department = computed(() =>
   props.tree === null ? undefined : dominantDepartment(props.tree),
 );
@@ -280,27 +280,27 @@ watch(
 
 <style scoped>
 .program {
-  border: 1px solid var(--g-line);
+  border: 1px solid var(--base-line);
   border-radius: var(--radius-md);
-  background: var(--g-surface);
+  background: var(--base-surface);
   margin-bottom: var(--space-3);
   overflow: visible;
 }
 .program.is-preview {
   border-style: dashed;
-  border-color: var(--g-accent);
-  background: var(--g-accent-tint);
+  border-color: var(--base-accent);
+  background: var(--base-accent-tint);
 }
 .program.just-completed {
   animation: program-land var(--motion-deliberate) var(--ease-settle);
 }
 @keyframes program-land {
   0% {
-    box-shadow: 0 0 0 0 var(--g-progress-tint);
+    box-shadow: 0 0 0 0 var(--base-progress-tint);
   }
   40% {
-    box-shadow: 0 0 0 4px var(--g-progress-tint);
-    border-color: var(--g-progress);
+    box-shadow: 0 0 0 4px var(--base-progress-tint);
+    border-color: var(--base-progress);
   }
   100% {
     box-shadow: 0 0 0 0 transparent;
@@ -358,7 +358,7 @@ watch(
 }
 .program-toggle:focus-visible {
   outline: none;
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
 }
 
 .program-ring {
@@ -369,7 +369,7 @@ watch(
 }
 .ring-track {
   fill: none;
-  stroke: var(--g-line);
+  stroke: var(--base-line);
   stroke-width: 3.5;
 }
 .ring-fill {
@@ -379,13 +379,13 @@ watch(
   transition: stroke-dasharray var(--motion-deliberate) var(--ease-out);
 }
 .ring-fill.tone-ok {
-  stroke: var(--g-progress);
+  stroke: var(--base-progress);
 }
 .ring-fill.tone-mid {
-  stroke: var(--g-progress);
+  stroke: var(--base-progress);
 }
 .ring-fill.tone-low {
-  stroke: var(--g-ink-3);
+  stroke: var(--base-ink-3);
 }
 
 .program-title-block {
@@ -398,7 +398,7 @@ watch(
 .program-title {
   /* the display face marks the tree's first level; branches stay 14 */
   font: var(--text-heading);
-  color: var(--g-ink);
+  color: var(--base-ink);
   overflow: hidden;
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -415,14 +415,14 @@ watch(
 }
 .program-name {
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .program-sub {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   /* One line even with nothing to state (an N/A percent), so the header
      keeps its height as the tree arrives. The em value is --text-small's
      line-height, for browsers without lh. */
@@ -435,7 +435,7 @@ watch(
 }
 
 /* Revealed on header hover or focus. Parent-prefixed to outrank
-   GButton's own transition. */
+   BaseButton's own transition. */
 .program-head .program-expandall,
 .program-head .program-remove {
   flex-shrink: 0;
@@ -468,7 +468,7 @@ watch(
 }
 .program-link {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   padding: var(--space-2);
 }
 </style>

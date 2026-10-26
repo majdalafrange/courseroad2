@@ -5,11 +5,11 @@
          nothing on the page sits outside one. -->
     <h1 class="sr-only">{{ pageHeading }}</h1>
     <div class="header-left">
-      <router-link to="/road" class="header-brand" aria-label="CourseRoad home">
-        <g-wordmark size="sm" />
-      </router-link>
+      <RouterLink to="/road" class="header-brand" aria-label="CourseRoad home">
+        <BaseWordmark size="sm" />
+      </RouterLink>
       <span class="header-sep" aria-hidden="true" />
-      <road-switcher
+      <RoadSwitcher
         @create-road="emit('create-road')"
         @switch-road="emit('switch-road', $event)"
         @duplicate-road="emit('duplicate-road', $event)"
@@ -28,24 +28,29 @@
         <span v-if="totalUnits > 0" class="meta-dot sep" aria-hidden="true"
           >·</span
         >
-        <g-tooltip :text="saveState.detail" placement="bottom" :delay="200" tap>
+        <BaseTooltip
+          :text="saveState.detail"
+          placement="bottom"
+          :delay="200"
+          tap
+        >
           <!-- Focusable so its tooltip (the detail) is reachable by
                keyboard, not only by hover. -->
           <span class="save-state" :class="saveState.tone" tabindex="0">
-            <g-icon class="save-icon" :name="saveState.icon" :size="12" />
+            <BaseIcon class="save-icon" :name="saveState.icon" :size="12" />
             <span class="save-label">{{ saveState.label }}</span>
           </span>
-        </g-tooltip>
+        </BaseTooltip>
       </span>
     </div>
 
     <div class="header-right">
-      <g-tooltip
+      <BaseTooltip
         :text="
           history.canUndo ? `Undo: ${history.undoLabel}` : 'Nothing to undo'
         "
       >
-        <g-button
+        <BaseButton
           variant="ghost"
           size="sm"
           icon-only
@@ -54,15 +59,15 @@
           aria-label="Undo"
           @click="emit('undo')"
         >
-          <g-icon name="undo" :size="15" />
-        </g-button>
-      </g-tooltip>
-      <g-tooltip
+          <BaseIcon name="undo" :size="15" />
+        </BaseButton>
+      </BaseTooltip>
+      <BaseTooltip
         :text="
           history.canRedo ? `Redo: ${history.redoLabel}` : 'Nothing to redo'
         "
       >
-        <g-button
+        <BaseButton
           variant="ghost"
           size="sm"
           icon-only
@@ -71,11 +76,11 @@
           aria-label="Redo"
           @click="emit('redo')"
         >
-          <g-icon name="redo" :size="15" />
-        </g-button>
-      </g-tooltip>
+          <BaseIcon name="redo" :size="15" />
+        </BaseButton>
+      </BaseTooltip>
 
-      <g-button
+      <BaseButton
         v-if="!isExplore"
         id="searchInputTF"
         variant="field"
@@ -85,14 +90,14 @@
         :aria-keyshortcuts="isMac() ? 'Meta+K' : 'Control+K'"
         @click.stop="emit('open-search')"
       >
-        <g-icon name="search" :size="14" />
+        <BaseIcon name="search" :size="14" />
         <span class="search-trigger-text">Add classes</span>
-        <g-kbd
+        <BaseKbd
           class="search-trigger-kbd"
           :keys="paletteKeys.keys"
           :joiner="paletteKeys.joiner"
         />
-      </g-button>
+      </BaseButton>
 
       <nav class="mode-switch" aria-label="Mode">
         <button
@@ -114,12 +119,12 @@
         </button>
       </nav>
 
-      <g-tooltip
+      <BaseTooltip
         v-if="auth.loggedIn"
         class="header-feedback"
         text="Send feedback"
       >
-        <g-button
+        <BaseButton
           variant="ghost"
           size="sm"
           icon-only
@@ -129,11 +134,11 @@
           aria-label="Send feedback (opens in a new tab)"
           data-cy="feedbackButton"
         >
-          <g-icon name="message" :size="15" />
-        </g-button>
-      </g-tooltip>
+          <BaseIcon name="message" :size="15" />
+        </BaseButton>
+      </BaseTooltip>
 
-      <g-button
+      <BaseButton
         v-if="!auth.loggedIn"
         variant="ghost"
         size="sm"
@@ -142,10 +147,10 @@
         @click="auth.loginUser()"
       >
         Log in
-      </g-button>
+      </BaseButton>
 
-      <g-tooltip class="header-settings" text="Settings">
-        <g-button
+      <BaseTooltip class="header-settings" text="Settings">
+        <BaseButton
           variant="ghost"
           size="sm"
           icon-only
@@ -154,53 +159,53 @@
           data-cy="settingsButton"
           @click="emit('open-settings')"
         >
-          <g-icon name="settings" :size="15" />
-        </g-button>
-      </g-tooltip>
+          <BaseIcon name="settings" :size="15" />
+        </BaseButton>
+      </BaseTooltip>
 
-      <g-menu v-model="moreOpen" align="end">
+      <BaseMenu v-model="moreOpen" align="end">
         <template #trigger>
-          <g-button
+          <BaseButton
             variant="ghost"
             size="sm"
             icon-only
             class="header-icon-btn"
             aria-label="More"
           >
-            <g-icon name="dots" :size="16" />
-          </g-button>
+            <BaseIcon name="dots" :size="16" />
+          </BaseButton>
         </template>
         <div class="more-menu">
-          <g-menu-item @select="emit('open-about')">
-            <g-icon name="info" :size="14" /> About CourseRoad
-          </g-menu-item>
-          <g-menu-item class="mobile-only" @select="emit('open-settings')">
-            <g-icon name="settings" :size="14" /> Settings
-          </g-menu-item>
-          <g-menu-item v-if="auth.loggedIn" as-child>
+          <BaseMenuItem @select="emit('open-about')">
+            <BaseIcon name="info" :size="14" /> About CourseRoad
+          </BaseMenuItem>
+          <BaseMenuItem class="mobile-only" @select="emit('open-settings')">
+            <BaseIcon name="settings" :size="14" /> Settings
+          </BaseMenuItem>
+          <BaseMenuItem v-if="auth.loggedIn" as-child>
             <a
               class="mobile-only"
               :href="feedbackFormUrl"
               target="_blank"
               rel="noopener"
             >
-              <g-icon name="message" :size="14" /> Send feedback
+              <BaseIcon name="message" :size="14" /> Send feedback
               <span class="sr-only">(opens in a new tab)</span>
             </a>
-          </g-menu-item>
-          <g-menu-separator v-if="auth.loggedIn" />
-          <g-menu-item
+          </BaseMenuItem>
+          <BaseMenuSeparator v-if="auth.loggedIn" />
+          <BaseMenuItem
             v-if="auth.loggedIn"
             data-cy="logoutButton"
             @select="auth.logoutUser()"
           >
-            <g-icon name="logout" :size="14" /> Log out
-          </g-menu-item>
-          <g-menu-item v-else class="mobile-only" @select="auth.loginUser()">
-            <g-icon name="login" :size="14" /> Log in
-          </g-menu-item>
+            <BaseIcon name="logout" :size="14" /> Log out
+          </BaseMenuItem>
+          <BaseMenuItem v-else class="mobile-only" @select="auth.loginUser()">
+            <BaseIcon name="login" :size="14" /> Log in
+          </BaseMenuItem>
         </div>
-      </g-menu>
+      </BaseMenu>
     </div>
   </header>
 </template>
@@ -208,16 +213,16 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
-import GButton from "../../design/components/GButton.vue";
-import GIcon, { type IconName } from "../../design/components/GIcon.vue";
-import GKbd from "../../design/components/GKbd.vue";
+import BaseButton from "../../design/components/BaseButton.vue";
+import BaseIcon, { type IconName } from "../../design/components/BaseIcon.vue";
+import BaseKbd from "../../design/components/BaseKbd.vue";
 import {
-  GMenu,
-  GMenuItem,
-  GMenuSeparator,
-} from "../../design/components/GMenu";
-import GTooltip from "../../design/components/GTooltip.vue";
-import GWordmark from "../../design/components/GWordmark.vue";
+  BaseMenu,
+  BaseMenuItem,
+  BaseMenuSeparator,
+} from "../../design/components/BaseMenu";
+import BaseTooltip from "../../design/components/BaseTooltip.vue";
+import BaseWordmark from "../../design/components/BaseWordmark.vue";
 import RoadSwitcher from "./RoadSwitcher.vue";
 import { semesterInformation } from "../../lib/hours";
 import { isMac, shortcutKeys } from "../../lib/platform";
@@ -336,8 +341,8 @@ const saveState = computed<SaveState>(() => {
   justify-content: space-between;
   gap: var(--space-4);
   padding: 0 var(--space-5);
-  border-bottom: 1px solid var(--g-line);
-  background: var(--g-bg);
+  border-bottom: 1px solid var(--base-line);
+  background: var(--base-bg);
   min-height: 52px;
   flex-shrink: 0;
 }
@@ -356,12 +361,12 @@ const saveState = computed<SaveState>(() => {
 }
 .header-brand:focus-visible {
   outline: none;
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
 }
 .header-sep {
   width: 1px;
   height: 20px;
-  background: var(--g-line-strong);
+  background: var(--base-line-strong);
   flex-shrink: 0;
 }
 
@@ -370,7 +375,7 @@ const saveState = computed<SaveState>(() => {
   align-items: center;
   gap: var(--space-2);
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   white-space: nowrap;
 }
 .header-units {
@@ -378,7 +383,7 @@ const saveState = computed<SaveState>(() => {
   font-variant-numeric: tabular-nums;
 }
 .meta-dot {
-  color: var(--g-line-strong);
+  color: var(--base-line-strong);
 }
 .save-state {
   display: inline-flex;
@@ -389,17 +394,17 @@ const saveState = computed<SaveState>(() => {
 }
 .save-state:focus-visible {
   outline: none;
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
 }
 .save-state.ok .save-icon {
-  color: var(--g-ok);
+  color: var(--base-ok);
 }
 .save-state.warn .save-icon,
 .save-state.warn .save-label {
-  color: var(--g-warn);
+  color: var(--base-warn);
 }
 .save-state.busy .save-icon {
-  color: var(--g-info);
+  color: var(--base-info);
   animation: pulse 1.2s var(--ease-in-out) infinite;
 }
 @keyframes pulse {
@@ -420,14 +425,14 @@ const saveState = computed<SaveState>(() => {
   flex-shrink: 0;
 }
 
-/* GButton's "field": it reads as the search box it opens, placeholder
-   ink included. Parent-prefixed to outrank GButton's own rules. */
+/* BaseButton's "field": it reads as the search box it opens, placeholder
+   ink included. Parent-prefixed to outrank BaseButton's own rules. */
 .header-right .search-trigger {
   width: 260px;
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 .header-right .search-trigger:hover {
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
 }
 .search-trigger-text {
   flex: 1;
@@ -438,14 +443,14 @@ const saveState = computed<SaveState>(() => {
   display: inline-flex;
   align-items: center;
   gap: var(--space-05);
-  background: var(--g-surface-sunken);
+  background: var(--base-surface-sunken);
   border-radius: var(--radius-sm);
   padding: var(--space-05);
 }
 .mode-btn {
   font: var(--text-small);
   font-weight: 500;
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   background: transparent;
   border: none;
   border-radius: var(--radius-xs);
@@ -458,18 +463,18 @@ const saveState = computed<SaveState>(() => {
     box-shadow var(--motion-quick) var(--ease-out);
 }
 .mode-btn:hover {
-  color: var(--g-ink);
+  color: var(--base-ink);
 }
 /* the thumb is a control: ringed, no shadow */
 .mode-btn.active {
-  background: var(--g-surface);
-  color: var(--g-ink);
+  background: var(--base-surface);
+  color: var(--base-ink);
   font-weight: 600;
-  box-shadow: inset 0 0 0 1px var(--g-line);
+  box-shadow: inset 0 0 0 1px var(--base-line);
 }
 .mode-btn:focus-visible {
   outline: none;
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
 }
 
 .more-menu {
@@ -478,8 +483,8 @@ const saveState = computed<SaveState>(() => {
   gap: var(--space-05);
   min-width: 190px;
 }
-.more-menu .g-menu-item {
-  color: var(--g-ink);
+.more-menu .base-menu-item {
+  color: var(--base-ink);
 }
 .more-menu .mobile-only {
   display: none;
@@ -520,7 +525,7 @@ const saveState = computed<SaveState>(() => {
   .header-right {
     gap: var(--space-1);
   }
-  .header-brand :deep(.g-name) {
+  .header-brand :deep(.base-name) {
     display: none;
   }
   /* The mark alone is 18px; the link around it is the 44px target. */
@@ -560,15 +565,15 @@ const saveState = computed<SaveState>(() => {
   .search-trigger-kbd {
     display: none;
   }
-  /* Same 44px target; parent-prefixed to outrank GButton's sizes. */
-  .header-right .g-button.header-icon-btn {
+  /* Same 44px target; parent-prefixed to outrank BaseButton's sizes. */
+  .header-right .base-button.header-icon-btn {
     width: 44px;
     height: 44px;
   }
   .mode-switch {
     display: none;
   }
-  /* :global: these classes land on GTooltip's trigger span, which scoped
+  /* :global: these classes land on BaseTooltip's trigger span, which scoped
      CSS can't tag (Reka's TooltipProvider/Root have no DOM node to inherit
      the attribute onto). */
   .header-right :global(.header-feedback),

@@ -1,5 +1,5 @@
 <template>
-  <g-sheet v-model="isOpen" label="Closest majors and minors" width="620px">
+  <BaseSheet v-model="isOpen" label="Closest majors and minors" width="620px">
     <div class="fit" data-cy="degreeFit">
       <header class="fit-head">
         <div class="fit-title-block">
@@ -13,7 +13,7 @@
 
       <div class="fit-bar">
         <template v-if="fit.scanning">
-          <g-progress
+          <BaseProgress
             class="scan-track"
             fill-class="scan-fill"
             :value="fit.percentDone"
@@ -22,9 +22,9 @@
           <span class="scan-note">
             Checking {{ fit.completed }} of {{ fit.total }}
           </span>
-          <g-button size="sm" variant="ghost" @click="fit.cancel()">
+          <BaseButton size="sm" variant="ghost" @click="fit.cancel()">
             Stop
-          </g-button>
+          </BaseButton>
         </template>
         <template v-else-if="fit.status === 'ready'">
           <span class="scan-note">
@@ -33,15 +33,15 @@
               Your road changed since this ran.
             </template>
           </span>
-          <g-button size="sm" variant="subtle" @click="fit.scan(true)">
+          <BaseButton size="sm" variant="subtle" @click="fit.scan(true)">
             {{ fit.stale ? "Check again" : "Refresh" }}
-          </g-button>
+          </BaseButton>
         </template>
         <template v-else-if="fit.status === 'error'">
           <span class="scan-note scan-error" role="alert">{{ fit.error }}</span>
-          <g-button size="sm" variant="primary" @click="fit.scan(true)">
+          <BaseButton size="sm" variant="primary" @click="fit.scan(true)">
             Try again
-          </g-button>
+          </BaseButton>
         </template>
       </div>
 
@@ -55,9 +55,9 @@
             <template v-else>every major and minor.</template>
             It takes a few seconds.
           </p>
-          <g-button variant="primary" @click="fit.scan()">
+          <BaseButton variant="primary" @click="fit.scan()">
             Check this road
-          </g-button>
+          </BaseButton>
         </div>
 
         <template v-else>
@@ -65,14 +65,14 @@
                    separate tabs rather than one scroll. Reka's Tabs owns
                    the roving tabindex, arrow/Home/End keys, and all the
                    id/aria-controls/aria-labelledby wiring. -->
-          <g-tabs-root
+          <BaseTabsRoot
             v-if="anyRanked"
             v-model="tab"
             class="fit-tabs-wrap"
             :unmount-on-hide="false"
           >
-            <g-tabs-list class="fit-tabs" aria-label="Majors or minors">
-              <g-tabs-trigger
+            <BaseTabsList class="fit-tabs" aria-label="Majors or minors">
+              <BaseTabsTrigger
                 v-for="option in TABS"
                 :key="option"
                 class="fit-tab"
@@ -81,16 +81,16 @@
               >
                 {{ option === "majors" ? "Majors" : "Minors" }}
                 <span class="tab-count">{{ groups[option].length }}</span>
-              </g-tabs-trigger>
-            </g-tabs-list>
+              </BaseTabsTrigger>
+            </BaseTabsList>
 
-            <g-tabs-content
+            <BaseTabsContent
               v-for="option in TABS"
               :key="option"
               class="fit-section"
               :value="option"
             >
-              <fit-row
+              <FitRow
                 v-for="(row, i) in visible(groups[option], option)"
                 :key="row.key"
                 :fit="row"
@@ -101,16 +101,16 @@
               <p v-if="!groups[option].length" class="fit-section-note">
                 No {{ option }} were ranked.
               </p>
-              <g-button
+              <BaseButton
                 v-if="groups[option].length > shown[option]"
                 size="sm"
                 class="fit-more"
                 @click="shown[option] += PAGE"
               >
                 Show {{ remainingCount(groups[option], option) }} more
-              </g-button>
-            </g-tabs-content>
-          </g-tabs-root>
+              </BaseButton>
+            </BaseTabsContent>
+          </BaseTabsRoot>
 
           <!-- Below the tabs, not inside one: these span both types, and
                    a program the scan could not measure is an unanswered
@@ -126,9 +126,9 @@
               class="fit-plain"
             >
               <span class="plain-title">{{ row.title }}</span>
-              <g-button size="sm" variant="ghost" @click="preview(row.key)">
+              <BaseButton size="sm" variant="ghost" @click="preview(row.key)">
                 What if?
-              </g-button>
+              </BaseButton>
             </div>
           </section>
 
@@ -146,21 +146,21 @@
         </template>
       </div>
     </div>
-  </g-sheet>
+  </BaseSheet>
 </template>
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from "vue";
 import {
-  GTabsContent,
-  GTabsList,
-  GTabsRoot,
-  GTabsTrigger,
-} from "../../design/components/GTabs";
+  BaseTabsContent,
+  BaseTabsList,
+  BaseTabsRoot,
+  BaseTabsTrigger,
+} from "../../design/components/BaseTabs";
 import { announce } from "../../design/announce";
-import GButton from "../../design/components/GButton.vue";
-import GProgress from "../../design/components/GProgress.vue";
-import GSheet from "../../design/components/GSheet.vue";
+import BaseButton from "../../design/components/BaseButton.vue";
+import BaseProgress from "../../design/components/BaseProgress.vue";
+import BaseSheet from "../../design/components/BaseSheet.vue";
 import FitRow from "./FitRow.vue";
 import type { ProgramFit } from "../../lib/degreeFit";
 import { scannablePrograms } from "../../lib/degreeFit";
@@ -273,7 +273,7 @@ function close() {
   justify-content: space-between;
   gap: var(--space-4);
   padding: var(--space-4) var(--space-5);
-  border-bottom: 1px solid var(--g-line);
+  border-bottom: 1px solid var(--base-line);
 }
 .fit-title {
   font: var(--text-title);
@@ -281,7 +281,7 @@ function close() {
 }
 .fit-sub {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   margin: var(--space-1) 0 0;
   max-width: 46ch;
 }
@@ -292,7 +292,7 @@ function close() {
   gap: var(--space-3);
   min-height: 34px;
   padding: var(--space-2) var(--space-5);
-  border-bottom: 1px solid var(--g-line);
+  border-bottom: 1px solid var(--base-line);
 }
 .fit-bar:empty {
   display: none;
@@ -301,22 +301,22 @@ function close() {
   flex: 1;
   height: 4px;
   border-radius: var(--radius-full);
-  background: var(--g-surface-sunken);
+  background: var(--base-surface-sunken);
   overflow: hidden;
 }
-/* :deep(): GProgress's own indicator, a grandchild from here. */
+/* :deep(): BaseProgress's own indicator, a grandchild from here. */
 :deep(.scan-fill) {
   display: block;
   height: 100%;
-  background: var(--g-ink-3);
+  background: var(--base-ink-3);
   transition: width var(--motion-quick) var(--ease-out);
 }
 .scan-note {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 .scan-error {
-  color: var(--g-danger);
+  color: var(--base-danger);
 }
 
 .fit-body {
@@ -332,7 +332,7 @@ function close() {
 }
 .fit-idle p {
   font: var(--text-body);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   margin: 0;
   max-width: 48ch;
 }
@@ -343,7 +343,7 @@ function close() {
   display: inline-flex;
   align-items: center;
   gap: var(--space-05);
-  background: var(--g-surface-sunken);
+  background: var(--base-surface-sunken);
   border-radius: var(--radius-sm);
   padding: var(--space-05);
   margin-bottom: var(--space-3);
@@ -354,7 +354,7 @@ function close() {
   gap: var(--space-2);
   font: var(--text-small);
   font-weight: 500;
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   background: transparent;
   border: none;
   border-radius: var(--radius-xs);
@@ -367,20 +367,20 @@ function close() {
     box-shadow var(--motion-quick) var(--ease-out);
 }
 .fit-tab:hover {
-  color: var(--g-ink);
+  color: var(--base-ink);
 }
 .fit-tab[data-state="active"] {
-  background: var(--g-surface);
-  color: var(--g-ink);
+  background: var(--base-surface);
+  color: var(--base-ink);
   font-weight: 600;
-  box-shadow: inset 0 0 0 1px var(--g-line);
+  box-shadow: inset 0 0 0 1px var(--base-line);
 }
 .tab-count {
   font: var(--text-micro);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 .fit-tab[data-state="active"] .tab-count {
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
 }
 /* The panel is focusable for the tabs pattern; it should not draw a ring
    on mouse focus, only on keyboard. */
@@ -389,22 +389,22 @@ function close() {
 }
 .fit-section:focus-visible {
   outline: none;
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
   border-radius: var(--radius-md);
 }
 .fit-tab:focus-visible {
   outline: none;
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
 }
 
 .fit-section-head {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   margin: 0 0 var(--space-2);
 }
 .fit-section-note {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   margin: 0 0 var(--space-2);
 }
 
@@ -413,20 +413,20 @@ function close() {
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-2) 0;
-  border-bottom: 1px solid var(--g-line);
+  border-bottom: 1px solid var(--base-line);
 }
 .plain-title {
   flex: 1;
   font: var(--text-body);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
 }
 .plain-error {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 .fit-empty {
   font: var(--text-body);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 
 .fit-more {

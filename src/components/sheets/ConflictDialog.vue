@@ -1,5 +1,5 @@
 <template>
-  <g-sheet
+  <BaseSheet
     :model-value="conflictInfo !== undefined && conflictDialog"
     label="Save conflict"
     width="680px"
@@ -43,7 +43,7 @@
               >
             </span>
           </div>
-          <g-button
+          <BaseButton
             variant="primary"
             :aria-label="
               side === 'remote'
@@ -57,17 +57,17 @@
             "
           >
             Keep this one
-          </g-button>
+          </BaseButton>
         </div>
       </div>
     </div>
-  </g-sheet>
+  </BaseSheet>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
-import GButton from "../../design/components/GButton.vue";
-import GSheet from "../../design/components/GSheet.vue";
+import BaseButton from "../../design/components/BaseButton.vue";
+import BaseSheet from "../../design/components/BaseSheet.vue";
 import { flatten } from "../../lib/types";
 import type { SelectedSubject } from "../../lib/types";
 import { useAuthStore } from "../../stores/auth";
@@ -170,7 +170,7 @@ function isChanged(subjectIndex: number, side: string): boolean {
 }
 .conflict-sub {
   font: var(--text-body);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   margin: var(--space-2) 0 0;
 }
 .conflict-cols {
@@ -184,13 +184,13 @@ function isChanged(subjectIndex: number, side: string): boolean {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  background: var(--g-surface-2);
+  background: var(--base-surface-2);
   border-radius: var(--radius-md);
   padding: var(--space-4);
 }
 .col-tag {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 .col-facts {
   display: grid;
@@ -200,11 +200,11 @@ function isChanged(subjectIndex: number, side: string): boolean {
 }
 .col-facts dt {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 .col-facts dd {
   font: var(--text-small);
-  color: var(--g-ink);
+  color: var(--base-ink);
   margin: 0;
 }
 .col-subjects {
@@ -216,14 +216,14 @@ function isChanged(subjectIndex: number, side: string): boolean {
 }
 .col-subject {
   font: var(--text-id-small);
-  color: var(--g-ink-2);
-  background: var(--g-surface);
+  color: var(--base-ink-2);
+  background: var(--base-surface);
   border-radius: var(--radius-xs);
   padding: 1px var(--space-1);
 }
 .col-subject.changed {
-  background: var(--g-info-tint);
-  color: var(--g-info);
+  background: var(--base-info-tint);
+  color: var(--base-info);
   font-weight: 600;
 }
 </style>

@@ -81,8 +81,8 @@ const arrowPoints = computed(() => {
 .edge {
   --edge-rest: color-mix(
     in srgb,
-    var(--edge-color, var(--g-ink-3)) 55%,
-    var(--g-line-strong)
+    var(--edge-color, var(--base-ink-3)) 55%,
+    var(--base-line-strong)
   );
 }
 .edge .edge-line {
@@ -117,12 +117,12 @@ const arrowPoints = computed(() => {
 
 /* the emphasized node's own connections come forward... */
 .edge.active .edge-line {
-  stroke: var(--edge-color, var(--g-ink-3));
+  stroke: var(--edge-color, var(--base-ink-3));
   stroke-width: 2.5;
   opacity: 0.92;
 }
 .edge.active .edge-arrow {
-  stroke: var(--edge-color, var(--g-ink-3));
+  stroke: var(--edge-color, var(--base-ink-3));
   opacity: 1;
 }
 /* ...everything else recedes (opacity only, nothing moves) */
@@ -158,15 +158,15 @@ const arrowPoints = computed(() => {
    edges are the graph's content, and cardinal marks the current term.
    ConnectionsToolbar and ConnectionsCanvas swatches use the same value. */
 .t-prereq {
-  --edge-color: var(--g-ink-2);
+  --edge-color: var(--base-ink-2);
 }
 
 /* interdisciplinary crossings: heavier line, warmer rest mix */
 .edge.crossing {
   --edge-rest: color-mix(
     in srgb,
-    var(--edge-color, var(--g-ink-3)) 80%,
-    var(--g-line-strong)
+    var(--edge-color, var(--base-ink-3)) 80%,
+    var(--base-line-strong)
   );
 }
 .edge.crossing .edge-line {

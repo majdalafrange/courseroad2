@@ -1,0 +1,90 @@
+<template>
+  <a
+    class="base-link"
+    :class="`t-${tone}`"
+    :href="href"
+    :target="external ? '_blank' : undefined"
+    :rel="external ? 'noopener' : undefined"
+    ><slot /><BaseIcon
+      v-if="external && !hideExternalMark"
+      name="external"
+      :size="11"
+      class="base-link-mark"
+  /></a>
+</template>
+
+<script setup lang="ts">
+/**
+ * A text link. Two tones:
+ * - "inline" (default): a link inside a sentence; ink and underlined,
+ *   since color alone must not be what marks it (WCAG 1.4.1).
+ * - "quiet": a standalone link in a list, footer or stat; it takes the
+ *   color around it and shows accent and an underline on hover. The
+ *   caller's container sets the color and font.
+ *
+ * external opens a new tab and appends BaseIcon's external mark, which
+ * tells screen readers so. hideExternalMark drops the mark for a link
+ * whose aria-label says it already. A link styled as a button is
+ * BaseButton with an href.
+ */
+import BaseIcon from "./BaseIcon.vue";
+
+const {
+  href = undefined,
+  tone = "inline",
+  external = false,
+  hideExternalMark = false,
+} = defineProps<{
+  /** Unset (an unsafe URL filtered out) leaves a plain anchor. */
+  href?: string;
+  tone?: "inline" | "quiet";
+  external?: boolean;
+  hideExternalMark?: boolean;
+}>();
+</script>
+
+<style scoped>
+.base-link {
+  border-radius: var(--radius-xs);
+  text-underline-offset: 2px;
+  transition: color var(--motion-quick) var(--ease-out);
+}
+.base-link:focus-visible {
+  outline: none;
+  box-shadow: var(--base-focus-ring);
+}
+.base-link-mark {
+  margin-left: 3px;
+}
+
+/* Ink, not cardinal: the underline marks the link, and cardinal stays
+   for the current-term flag and the primary action. */
+.t-inline {
+  color: var(--base-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--base-ink-3);
+}
+.t-inline:hover {
+  color: var(--base-accent);
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 2px;
+}
+
+.t-quiet {
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
+  text-decoration: none;
+}
+/* Touch tier (tokens.css): a standalone link is a 44px target on a
+   phone. Inline links stay text-sized, as WCAG 2.5.8 allows. */
+@media (max-width: 859px) and (pointer: coarse) {
+  .t-quiet {
+    min-height: 44px;
+  }
+}
+.t-quiet:hover {
+  color: var(--base-accent);
+  text-decoration: underline;
+}
+</style>

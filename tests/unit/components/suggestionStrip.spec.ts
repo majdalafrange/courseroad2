@@ -61,7 +61,7 @@ describe("SuggestionStrip explanation control", () => {
     expect(control.attributes("aria-expanded")).toBe("false");
 
     await control.trigger("click");
-    const popover = document.querySelector(".g-popover");
+    const popover = document.querySelector(".base-popover");
     expect(popover).not.toBeNull();
     // the copy names the mechanism and the one network dependency
     expect(popover?.textContent).toContain("unsatisfied requirement and are");
@@ -78,6 +78,6 @@ describe("SuggestionStrip explanation control", () => {
       }),
     );
     await flushPromises();
-    expect(document.querySelector(".g-popover")).toBeNull();
+    expect(document.querySelector(".base-popover")).toBeNull();
   });
 });

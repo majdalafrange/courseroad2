@@ -1,55 +1,55 @@
-/* The Inputs standard (tokens.css) for every .g-field-shell; invalid and
-   disabled key off GField's root. Unscoped, so each user imports it. */
-.g-field-shell {
-  background: var(--g-surface);
+/* The Inputs standard (tokens.css) for every .base-field-shell; invalid and
+   disabled key off BaseField's root. Unscoped, so each user imports it. */
+.base-field-shell {
+  background: var(--base-surface);
   border: none;
   border-radius: var(--radius-sm);
-  box-shadow: inset 0 0 0 1px var(--g-line-control);
+  box-shadow: inset 0 0 0 1px var(--base-line-control);
   outline: none;
   transition: box-shadow var(--motion-quick) var(--ease-out);
 }
-.g-field-shell:hover {
-  box-shadow: inset 0 0 0 1px var(--g-ink-3);
+.base-field-shell:hover {
+  box-shadow: inset 0 0 0 1px var(--base-ink-3);
 }
 /* A text field always shows focus; a select trigger only from the
    keyboard (:focus-visible tells them apart). */
-.g-field-shell:focus-visible,
-.g-field-shell:has(:focus-visible) {
+.base-field-shell:focus-visible,
+.base-field-shell:has(:focus-visible) {
   box-shadow:
-    inset 0 0 0 1.5px var(--g-accent),
-    0 0 0 3px var(--g-accent-tint);
+    inset 0 0 0 1.5px var(--base-accent),
+    0 0 0 3px var(--base-accent-tint);
 }
-.g-field[data-invalid] > .g-field-shell {
+.base-field[data-invalid] > .base-field-shell {
   box-shadow:
-    inset 0 0 0 1.5px var(--g-danger),
-    0 0 0 3px var(--g-danger-tint);
+    inset 0 0 0 1.5px var(--base-danger),
+    0 0 0 3px var(--base-danger-tint);
 }
-.g-field[data-disabled] > .g-field-shell,
-.g-field-shell:disabled {
-  background: var(--g-surface-sunken);
-  box-shadow: inset 0 0 0 1px var(--g-line);
+.base-field[data-disabled] > .base-field-shell,
+.base-field-shell:disabled {
+  background: var(--base-surface-sunken);
+  box-shadow: inset 0 0 0 1px var(--base-line);
 }
-.g-field[data-disabled] > .g-field-shell,
-.g-field[data-disabled] > .g-field-shell :is(input, textarea) {
-  color: var(--g-ink-disabled);
+.base-field[data-disabled] > .base-field-shell,
+.base-field[data-disabled] > .base-field-shell :is(input, textarea) {
+  color: var(--base-ink-disabled);
 }
-.g-field-shell::placeholder,
-.g-field-shell ::placeholder {
-  color: var(--g-ink-3);
+.base-field-shell::placeholder,
+.base-field-shell ::placeholder {
+  color: var(--base-ink-3);
 }
 /* Touch tier (tokens.css); min-height outranks each field's own height. */
 @media (max-width: 859px) and (pointer: coarse) {
-  .g-field-shell {
+  .base-field-shell {
     min-height: 44px;
   }
 }
 /* Forced colors drop box-shadow, and with it every ring above. */
 @media (forced-colors: active) {
-  .g-field-shell {
+  .base-field-shell {
     border: 1px solid CanvasText;
   }
-  .g-field[data-disabled] > .g-field-shell,
-  .g-field-shell:disabled {
+  .base-field[data-disabled] > .base-field-shell,
+  .base-field-shell:disabled {
     border-color: GrayText;
   }
 }

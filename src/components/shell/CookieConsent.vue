@@ -1,5 +1,5 @@
 <template>
-  <transition name="consent">
+  <Transition name="consent">
     <div
       v-if="visible"
       class="cookie-consent"
@@ -11,23 +11,25 @@
         you logged in. If you opt out, changes are lost when this tab closes.
       </p>
       <div class="consent-actions">
-        <g-button
+        <BaseButton
           variant="primary"
           size="sm"
           data-cy="acceptCookies"
           @click="accept"
         >
           OK
-        </g-button>
-        <g-button variant="ghost" size="sm" @click="optOut">Opt out</g-button>
+        </BaseButton>
+        <BaseButton variant="ghost" size="sm" @click="optOut"
+          >Opt out</BaseButton
+        >
       </div>
     </div>
-  </transition>
+  </Transition>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import GButton from "../../design/components/GButton.vue";
+import BaseButton from "../../design/components/BaseButton.vue";
 import {
   STORAGE_KEYS,
   clearAppStorage,
@@ -95,7 +97,7 @@ function optOut() {
   z-index: 90;
   width: 340px;
   max-width: calc(100vw - 32px);
-  background: var(--g-surface);
+  background: var(--base-surface);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-3);
   padding: var(--space-4);
@@ -117,7 +119,7 @@ function optOut() {
 }
 .consent-text {
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   margin: 0;
 }
 .consent-actions {

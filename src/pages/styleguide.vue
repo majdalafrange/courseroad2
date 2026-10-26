@@ -1,21 +1,21 @@
 <template>
   <div class="styleguide">
     <header class="sg-header">
-      <g-wordmark size="lg" />
+      <BaseWordmark size="lg" />
       <p class="sg-tagline">
         Every token and component in CourseRoad. Styled components render live;
         behavior primitives are listed with where the app styles them. Switch
         the theme to check both.
       </p>
       <div class="sg-controls">
-        <g-button variant="subtle" @click="toggleTheme">
+        <BaseButton variant="subtle" @click="toggleTheme">
           {{ isDark ? "Switch to light" : "Switch to dark" }}
-        </g-button>
-        <router-link v-slot="{ href, navigate }" to="/road" custom>
-          <g-link :href="href" tone="quiet" @click="navigate">
-            <g-icon name="back" :size="12" /> Back to the app
-          </g-link>
-        </router-link>
+        </BaseButton>
+        <RouterLink v-slot="{ href, navigate }" to="/road" custom>
+          <BaseLink :href="href" tone="quiet" @click="navigate">
+            <BaseIcon name="back" :size="12" /> Back to the app
+          </BaseLink>
+        </RouterLink>
       </div>
     </header>
 
@@ -86,7 +86,7 @@
         subject ids and numeric data. The fixed advance keeps ids made of
         letters and ids made of digits aligned down a list.
       </p>
-      <g-card class="sg-type-ramp">
+      <BaseCard class="sg-type-ramp">
         <div class="sg-type-row">
           <code class="sg-type-token">--text-display</code>
           <span style="font: var(--text-display)">Plan all four years</span>
@@ -110,14 +110,14 @@
         </div>
         <div class="sg-type-row">
           <code class="sg-type-token">--text-small</code>
-          <span style="font: var(--text-small); color: var(--g-ink-2)">
+          <span style="font: var(--text-small); color: var(--base-ink-2)">
             Prereq: 6.1200 or 18.062 <span class="sep">·</span> 12 units
             <span class="sep">·</span> Fall, Spring
           </span>
         </div>
         <div class="sg-type-row">
           <code class="sg-type-token">--text-micro</code>
-          <span style="font: var(--text-micro); color: var(--g-ink-3)"
+          <span style="font: var(--text-micro); color: var(--base-ink-3)"
             >Classes</span
           >
         </div>
@@ -127,18 +127,18 @@
         </div>
         <div class="sg-type-row">
           <code class="sg-type-token">--text-id-small</code>
-          <span style="font: var(--text-id-small); color: var(--g-ink-3)"
+          <span style="font: var(--text-id-small); color: var(--base-ink-3)"
             >Fall '26</span
           >
         </div>
-      </g-card>
+      </BaseCard>
     </section>
 
     <!-- space & shape -->
     <section class="sg-section">
       <h2 class="sg-h2">Space &amp; shape</h2>
       <div class="sg-row">
-        <g-card class="sg-half">
+        <BaseCard class="sg-half">
           <h3 class="sg-h3">Spacing on a 4px grid</h3>
           <div class="sg-space-ramp">
             <div
@@ -153,8 +153,8 @@
               />
             </div>
           </div>
-        </g-card>
-        <g-card class="sg-half">
+        </BaseCard>
+        <BaseCard class="sg-half">
           <h3 class="sg-h3">Radius &amp; elevation</h3>
           <div class="sg-shape-row">
             <div
@@ -176,7 +176,7 @@
               shadow-{{ e }}
             </div>
           </div>
-        </g-card>
+        </BaseCard>
       </div>
     </section>
 
@@ -188,15 +188,15 @@
         distances get longer durations. With reduced motion enabled, transitions
         are skipped.
       </p>
-      <g-card>
+      <BaseCard>
         <div class="sg-motion-row">
-          <g-button
+          <BaseButton
             class="sg-motion-play"
             variant="subtle"
             @click="runMotionDemo"
           >
             Play
-          </g-button>
+          </BaseButton>
           <div class="sg-motion-track">
             <div
               class="sg-motion-dot quick"
@@ -217,84 +217,84 @@
             <code>deliberate 340ms</code>
           </div>
         </div>
-      </g-card>
+      </BaseCard>
     </section>
 
     <!-- components -->
     <section class="sg-section">
       <h2 class="sg-h2">Components</h2>
 
-      <g-card class="sg-component-block">
+      <BaseCard class="sg-component-block">
         <h3 class="sg-h3">Buttons</h3>
         <div class="sg-row-wrap">
-          <g-button variant="primary">Add to plan</g-button>
-          <g-button variant="subtle">Duplicate road</g-button>
-          <g-button variant="ghost">Cancel</g-button>
-          <g-button variant="danger">Delete road</g-button>
-          <g-button variant="primary" disabled>Primary, disabled</g-button>
-          <g-button variant="subtle" disabled>Subtle, disabled</g-button>
-          <g-button variant="primary" loading>Importing...</g-button>
-          <g-button variant="subtle" size="sm">Small</g-button>
-          <g-button variant="ghost" size="xs" icon-only aria-label="Close">
-            <g-icon name="close" :size="13" />
-          </g-button>
-          <g-button variant="link" size="sm">Retry</g-button>
-          <g-button variant="field" style="width: 220px">
-            <g-icon name="search" :size="14" /> Add classes
-          </g-button>
-          <g-button size="sm" href="https://catalog.mit.edu/" external>
-            Catalog <g-icon name="external" :size="12" />
-          </g-button>
+          <BaseButton variant="primary">Add to plan</BaseButton>
+          <BaseButton variant="subtle">Duplicate road</BaseButton>
+          <BaseButton variant="ghost">Cancel</BaseButton>
+          <BaseButton variant="danger">Delete road</BaseButton>
+          <BaseButton variant="primary" disabled>Primary, disabled</BaseButton>
+          <BaseButton variant="subtle" disabled>Subtle, disabled</BaseButton>
+          <BaseButton variant="primary" loading>Importing...</BaseButton>
+          <BaseButton variant="subtle" size="sm">Small</BaseButton>
+          <BaseButton variant="ghost" size="xs" icon-only aria-label="Close">
+            <BaseIcon name="close" :size="13" />
+          </BaseButton>
+          <BaseButton variant="link" size="sm">Retry</BaseButton>
+          <BaseButton variant="field" style="width: 220px">
+            <BaseIcon name="search" :size="14" /> Add classes
+          </BaseButton>
+          <BaseButton size="sm" href="https://catalog.mit.edu/" external>
+            Catalog <BaseIcon name="external" :size="12" />
+          </BaseButton>
         </div>
         <p class="sg-body sg-note">
           The field variant stands in for a text field, or names what its menu
           holds: the header's class search and road switcher. It takes the
           field's rings, with a button's focus ring.
         </p>
-      </g-card>
+      </BaseCard>
 
-      <g-card class="sg-component-block">
+      <BaseCard class="sg-component-block">
         <h3 class="sg-h3">Links</h3>
         <p class="sg-body sg-note">
           Inline, in a sentence: confirm with the
-          <g-link href="https://student.mit.edu/" external
-            >official audit</g-link
+          <BaseLink href="https://student.mit.edu/" external
+            >official audit</BaseLink
           >.
         </p>
         <p class="sg-body sg-note">
           Quiet, standing alone:
-          <g-link href="https://catalog.mit.edu/" tone="quiet" external
-            >Degree charts</g-link
+          <BaseLink href="https://catalog.mit.edu/" tone="quiet" external
+            >Degree charts</BaseLink
           >
         </p>
-      </g-card>
+      </BaseCard>
 
-      <g-card class="sg-component-block">
+      <BaseCard class="sg-component-block">
         <h3 class="sg-h3">Checkbox</h3>
         <div class="sg-row-wrap">
-          <g-checkbox v-model="demoCheck">Show a fifth year</g-checkbox>
-          <g-checkbox :model-value="false" disabled>Disabled</g-checkbox>
+          <BaseCheckbox v-model="demoCheck">Show a fifth year</BaseCheckbox>
+          <BaseCheckbox :model-value="false" disabled>Disabled</BaseCheckbox>
         </div>
-      </g-card>
+      </BaseCard>
 
-      <g-card class="sg-component-block">
+      <BaseCard class="sg-component-block">
         <h3 class="sg-h3">Inputs</h3>
         <div class="sg-row-wrap" style="align-items: flex-start">
-          <g-input
+          <BaseInput
             v-model="demoInput"
             label="Road name"
             placeholder="Junior spring draft"
             hint="Visible on the tab"
             style="width: 260px"
           />
-          <g-input
+          <BaseInput
             v-model="demoInputInvalid"
             label="Subject number"
             invalid
             error="There's already a road with this name."
             style="width: 260px"
           />
-          <g-input
+          <BaseInput
             v-model="demoInputDisabled"
             label="Disabled field"
             disabled
@@ -302,29 +302,29 @@
           />
         </div>
         <p class="sg-body sg-note">
-          Every field sits in a GField, which ties its caption, hint and error
-          to the control. Its box is one shared shell, so a text field, number
-          field, select and text area all rest, hover, focus and fail the same
-          way.
+          Every field sits in a BaseField, which ties its caption, hint and
+          error to the control. Its box is one shared shell, so a text field,
+          number field, select and text area all rest, hover, focus and fail the
+          same way.
         </p>
-      </g-card>
+      </BaseCard>
 
-      <g-card class="sg-component-block">
+      <BaseCard class="sg-component-block">
         <h3 class="sg-h3">Number field &amp; select</h3>
         <div class="sg-row-wrap" style="align-items: flex-start">
-          <g-number-field
+          <BaseNumberField
             v-model="demoNumber"
             label="Units"
             :min="0"
             style="width: 140px"
           />
-          <g-select
+          <BaseSelect
             v-model="demoSelect"
             label="Term"
             :options="demoSelectOptions"
             style="width: 200px"
           />
-          <g-select
+          <BaseSelect
             v-model="demoSelect"
             label="Term"
             :options="demoSelectOptions"
@@ -333,11 +333,11 @@
             style="width: 200px"
           />
         </div>
-      </g-card>
+      </BaseCard>
 
-      <g-card class="sg-component-block">
+      <BaseCard class="sg-component-block">
         <h3 class="sg-h3">Text area</h3>
-        <g-textarea
+        <BaseTextarea
           v-model="demoNote"
           label="Note on 6.006"
           placeholder="Check prereqs with the instructor"
@@ -345,58 +345,58 @@
           :maxlength="280"
           style="max-width: 420px"
         />
-      </g-card>
+      </BaseCard>
 
-      <g-card class="sg-component-block">
+      <BaseCard class="sg-component-block">
         <h3 class="sg-h3">Progress</h3>
         <div class="sg-row-wrap" style="align-items: flex-start">
-          <g-progress
+          <BaseProgress
             class="sg-progress-demo"
             fill-class="sg-progress-demo-fill"
             :value="68"
           />
         </div>
-      </g-card>
+      </BaseCard>
 
-      <g-card class="sg-component-block">
+      <BaseCard class="sg-component-block">
         <h3 class="sg-h3">Chips</h3>
         <div class="sg-row-wrap">
-          <g-chip>Fall</g-chip>
-          <g-chip interactive>HASS-A</g-chip>
-          <g-chip selected>CI-H</g-chip>
-          <g-chip closable @close="noop">6-3 Major</g-chip>
-          <g-chip dept="course-6" closable @close="noop">6.006</g-chip>
-          <g-chip dept="course-21M">21M.301</g-chip>
-          <g-chip dept="course-8">8.01</g-chip>
+          <BaseChip>Fall</BaseChip>
+          <BaseChip interactive>HASS-A</BaseChip>
+          <BaseChip selected>CI-H</BaseChip>
+          <BaseChip closable @close="noop">6-3 Major</BaseChip>
+          <BaseChip dept="course-6" closable @close="noop">6.006</BaseChip>
+          <BaseChip dept="course-21M">21M.301</BaseChip>
+          <BaseChip dept="course-8">8.01</BaseChip>
         </div>
-      </g-card>
+      </BaseCard>
 
-      <g-card class="sg-component-block">
+      <BaseCard class="sg-component-block">
         <h3 class="sg-h3">Drawer</h3>
         <div class="sg-row-wrap">
-          <g-button variant="subtle" @click="demoDrawer = true">
+          <BaseButton variant="subtle" @click="demoDrawer = true">
             Open drawer
-          </g-button>
-          <g-drawer v-model="demoDrawer" label="Demo drawer">
+          </BaseButton>
+          <BaseDrawer v-model="demoDrawer" label="Demo drawer">
             <div class="sg-drawer-demo">
               <strong style="font: var(--text-body-strong)"
                 >A bottom sheet</strong
               >
-              <span style="font: var(--text-small); color: var(--g-ink-2)">
+              <span style="font: var(--text-small); color: var(--base-ink-2)">
                 Swipe down, tap outside, or press Escape to close.
               </span>
             </div>
-          </g-drawer>
+          </BaseDrawer>
         </div>
-      </g-card>
+      </BaseCard>
 
-      <g-card class="sg-component-block">
+      <BaseCard class="sg-component-block">
         <h3 class="sg-h3">Popover &amp; tooltip</h3>
         <div class="sg-row-wrap">
-          <g-popover v-model="demoPopover" label="Demo popover">
+          <BasePopover v-model="demoPopover" label="Demo popover">
             <template #anchor="{ toggle, triggerProps }">
-              <g-button variant="subtle" v-bind="triggerProps" @click="toggle"
-                >Open popover</g-button
+              <BaseButton variant="subtle" v-bind="triggerProps" @click="toggle"
+                >Open popover</BaseButton
               >
             </template>
             <div
@@ -405,95 +405,98 @@
               <strong style="font: var(--text-body-strong)"
                 >Move 6.006 here?</strong
               >
-              <span style="font: var(--text-small); color: var(--g-ink-2)">
+              <span style="font: var(--text-small); color: var(--base-ink-2)">
                 Offered in spring <span class="sep">·</span> prereqs satisfied
               </span>
-              <g-button variant="primary" size="sm" @click="demoPopover = false"
-                >Place it</g-button
+              <BaseButton
+                variant="primary"
+                size="sm"
+                @click="demoPopover = false"
+                >Place it</BaseButton
               >
             </div>
-          </g-popover>
-          <g-tooltip text="Expected hours, averaged across terms">
-            <g-button variant="ghost">Hover for tooltip</g-button>
-          </g-tooltip>
+          </BasePopover>
+          <BaseTooltip text="Expected hours, averaged across terms">
+            <BaseButton variant="ghost">Hover for tooltip</BaseButton>
+          </BaseTooltip>
         </div>
-      </g-card>
+      </BaseCard>
 
-      <g-card class="sg-component-block">
+      <BaseCard class="sg-component-block">
         <h3 class="sg-h3">Menu</h3>
         <p class="sg-body sg-note">
           Actions on a road. A destructive item turns red only while
           highlighted. Menu items, select options and search results share one
           row: tinted while highlighted, 44px tall on a touch screen.
         </p>
-        <g-menu v-model="demoMenu">
+        <BaseMenu v-model="demoMenu">
           <template #trigger>
-            <g-button variant="subtle">
-              Road actions <g-icon name="chevronDown" :size="13" />
-            </g-button>
+            <BaseButton variant="subtle">
+              Road actions <BaseIcon name="chevronDown" :size="13" />
+            </BaseButton>
           </template>
-          <g-menu-item>Duplicate road</g-menu-item>
-          <g-menu-item>Export as .road</g-menu-item>
-          <g-menu-separator />
-          <g-menu-item danger>Delete road</g-menu-item>
-        </g-menu>
-      </g-card>
+          <BaseMenuItem>Duplicate road</BaseMenuItem>
+          <BaseMenuItem>Export as .road</BaseMenuItem>
+          <BaseMenuSeparator />
+          <BaseMenuItem danger>Delete road</BaseMenuItem>
+        </BaseMenu>
+      </BaseCard>
 
-      <g-card class="sg-component-block">
+      <BaseCard class="sg-component-block">
         <h3 class="sg-h3">Sheet</h3>
         <p class="sg-body sg-note">
           For tasks with no in-place alternative, such as importing a file.
         </p>
-        <g-button variant="subtle" @click="demoSheet = true">
+        <BaseButton variant="subtle" @click="demoSheet = true">
           Import a road
-        </g-button>
-        <g-sheet v-model="demoSheet" label="Import road" width="480px">
+        </BaseButton>
+        <BaseSheet v-model="demoSheet" label="Import road" width="480px">
           <div class="sg-sheet-demo">
             <h2 class="sg-h3">Import road</h2>
-            <g-textarea
+            <BaseTextarea
               v-model="demoImport"
               label="Contents of a .road file"
               monospace
               :rows="5"
             />
             <div class="sg-sheet-actions">
-              <g-button variant="ghost" @click="demoSheet = false">
+              <BaseButton variant="ghost" @click="demoSheet = false">
                 Cancel
-              </g-button>
-              <g-button variant="primary" @click="demoSheet = false">
+              </BaseButton>
+              <BaseButton variant="primary" @click="demoSheet = false">
                 Import
-              </g-button>
+              </BaseButton>
             </div>
           </div>
-        </g-sheet>
-      </g-card>
+        </BaseSheet>
+      </BaseCard>
 
-      <g-card class="sg-component-block">
+      <BaseCard class="sg-component-block">
         <h3 class="sg-h3">Inline dialog</h3>
         <p class="sg-body sg-note">
           A step that takes over part of a panel instead of floating over it.
           Focus moves in, Escape closes it, and focus goes back to what opened
           it.
         </p>
-        <g-button
+        <BaseButton
           v-if="!demoInline"
           variant="subtle"
           @click="demoInline = true"
         >
           Add 6.006 to a term
-        </g-button>
+        </BaseButton>
         <div v-else class="sg-inline-demo">
-          <g-inline-dialog
+          <BaseInlineDialog
             initial-focus=".sg-inline-term"
             described-by
             @close="demoInline = false"
           >
             <div class="sg-inline-body">
-              <g-inline-dialog-title as="strong" class="sg-inline-title">
+              <BaseInlineDialogTitle as="strong" class="sg-inline-title">
                 Add 6.006 to...
-              </g-inline-dialog-title>
+              </BaseInlineDialogTitle>
               <div class="sg-row-wrap">
-                <g-button
+                <BaseButton
                   v-for="term in ['Fall', 'IAP', 'Spring']"
                   :key="term"
                   size="sm"
@@ -501,35 +504,36 @@
                   @click="demoInline = false"
                 >
                   {{ term }}
-                </g-button>
+                </BaseButton>
               </div>
-              <g-inline-dialog-description class="sg-small">
+              <BaseInlineDialogDescription class="sg-small">
                 Prereqs complete from Fall.
-              </g-inline-dialog-description>
+              </BaseInlineDialogDescription>
             </div>
-          </g-inline-dialog>
+          </BaseInlineDialog>
         </div>
-      </g-card>
+      </BaseCard>
 
-      <g-card class="sg-component-block">
+      <BaseCard class="sg-component-block">
         <h3 class="sg-h3">Keyboard keys</h3>
         <p class="sg-body sg-note">
-          Press <g-kbd :keys="searchKeys.keys" :joiner="searchKeys.joiner" /> to
-          add classes, <g-kbd :keys="['Enter']" /> to place one, and
-          <g-kbd :keys="['Esc']" /> to cancel.
+          Press
+          <BaseKbd :keys="searchKeys.keys" :joiner="searchKeys.joiner" /> to add
+          classes, <BaseKbd :keys="['Enter']" /> to place one, and
+          <BaseKbd :keys="['Esc']" /> to cancel.
         </p>
-      </g-card>
+      </BaseCard>
 
-      <g-card class="sg-component-block">
+      <BaseCard class="sg-component-block">
         <h3 class="sg-h3">Toasts with undo as the confirmation</h3>
         <div class="sg-row-wrap">
-          <g-button variant="subtle" @click="demoUndoToast">
+          <BaseButton variant="subtle" @click="demoUndoToast">
             Delete with undo
-          </g-button>
-          <g-button variant="subtle" @click="toast.ok('Road saved')">
+          </BaseButton>
+          <BaseButton variant="subtle" @click="toast.ok('Road saved')">
             Success
-          </g-button>
-          <g-button
+          </BaseButton>
+          <BaseButton
             variant="subtle"
             @click="
               toast.warn(
@@ -539,16 +543,16 @@
             "
           >
             Warning
-          </g-button>
+          </BaseButton>
         </div>
-      </g-card>
+      </BaseCard>
 
-      <g-card class="sg-component-block">
+      <BaseCard class="sg-component-block">
         <h3 class="sg-h3">Behavior primitives</h3>
         <p class="sg-body sg-note">
           These carry keyboard and screen-reader behavior. Most leave their look
-          to the feature that uses them (GCombobox brings the shared row); the
-          last column says where to look.
+          to the feature that uses them (BaseCombobox brings the shared row);
+          the last column says where to look.
         </p>
         <table class="sg-primitives">
           <thead>
@@ -568,7 +572,7 @@
             </tr>
           </tbody>
         </table>
-      </g-card>
+      </BaseCard>
     </section>
 
     <footer class="sg-footer">
@@ -578,36 +582,40 @@
       </span>
     </footer>
 
-    <g-toast-host />
+    <BaseToastHost />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import GButton from "../design/components/GButton.vue";
-import GCard from "../design/components/GCard.vue";
-import GCheckbox from "../design/components/GCheckbox.vue";
-import GChip from "../design/components/GChip.vue";
-import GDrawer from "../design/components/GDrawer.vue";
-import GIcon from "../design/components/GIcon.vue";
+import BaseButton from "../design/components/BaseButton.vue";
+import BaseCard from "../design/components/BaseCard.vue";
+import BaseCheckbox from "../design/components/BaseCheckbox.vue";
+import BaseChip from "../design/components/BaseChip.vue";
+import BaseDrawer from "../design/components/BaseDrawer.vue";
+import BaseIcon from "../design/components/BaseIcon.vue";
 import {
-  GInlineDialog,
-  GInlineDialogDescription,
-  GInlineDialogTitle,
-} from "../design/components/GInlineDialog";
-import GInput from "../design/components/GInput.vue";
-import GKbd from "../design/components/GKbd.vue";
-import GLink from "../design/components/GLink.vue";
-import { GMenu, GMenuItem, GMenuSeparator } from "../design/components/GMenu";
-import GNumberField from "../design/components/GNumberField.vue";
-import GPopover from "../design/components/GPopover.vue";
-import GProgress from "../design/components/GProgress.vue";
-import GSelect from "../design/components/GSelect.vue";
-import GSheet from "../design/components/GSheet.vue";
-import GTextarea from "../design/components/GTextarea.vue";
-import { GToastHost } from "../design/components/GToast";
-import GTooltip from "../design/components/GTooltip.vue";
-import GWordmark from "../design/components/GWordmark.vue";
+  BaseInlineDialog,
+  BaseInlineDialogDescription,
+  BaseInlineDialogTitle,
+} from "../design/components/BaseInlineDialog";
+import BaseInput from "../design/components/BaseInput.vue";
+import BaseKbd from "../design/components/BaseKbd.vue";
+import BaseLink from "../design/components/BaseLink.vue";
+import {
+  BaseMenu,
+  BaseMenuItem,
+  BaseMenuSeparator,
+} from "../design/components/BaseMenu";
+import BaseNumberField from "../design/components/BaseNumberField.vue";
+import BasePopover from "../design/components/BasePopover.vue";
+import BaseProgress from "../design/components/BaseProgress.vue";
+import BaseSelect from "../design/components/BaseSelect.vue";
+import BaseSheet from "../design/components/BaseSheet.vue";
+import BaseTextarea from "../design/components/BaseTextarea.vue";
+import { BaseToastHost } from "../design/components/BaseToast";
+import BaseTooltip from "../design/components/BaseTooltip.vue";
+import BaseWordmark from "../design/components/BaseWordmark.vue";
 import { toast } from "../design/toast.ts";
 import { useTheme } from "../composables/useTheme.ts";
 import { shortcutKeys } from "../lib/platform.ts";
@@ -641,42 +649,42 @@ const searchKeys = shortcutKeys("K");
 
 const primitives = [
   {
-    name: "GRadioGroup",
+    name: "BaseRadioGroup",
     provides: "One choice from a set, with arrow keys",
     seeIt: "Settings: every choice there",
   },
   {
-    name: "GMenuLabel, GMenuRadioGroup",
+    name: "BaseMenuLabel, BaseMenuRadioGroup",
     provides: "A menu caption, and one choice that stays picked",
     seeIt: "The road switcher: the road list and its active mark",
   },
   {
-    name: "GTabs",
+    name: "BaseTabs",
     provides: "Switching panels, with arrow keys",
     seeIt: "Degree fit: majors and minors",
   },
   {
-    name: "GCombobox",
+    name: "BaseCombobox",
     provides: "A search field over a list of results",
     seeIt: "The command palette (Add classes), and Explore's first search",
   },
   {
-    name: "GCollapsible",
+    name: "BaseCollapsible",
     provides: "A section that shows and hides from its heading",
     seeIt: "Progress: a program and its requirement groups",
   },
   {
-    name: "GToggle",
+    name: "BaseToggle",
     provides: "A button that stays pressed",
     seeIt: "Class detail: the favorite star",
   },
   {
-    name: "GToggleGroup",
+    name: "BaseToggleGroup",
     provides: "Several toggles, one Tab stop, arrow keys between them",
     seeIt: "Explore: the edge filters. Onboarding: majors and minors",
   },
   {
-    name: "GColorSwatchPicker",
+    name: "BaseColorSwatchPicker",
     provides: "A color grid, each swatch named for screen readers",
     seeIt: "New custom activity: Color",
   },
@@ -726,19 +734,19 @@ const principles = [
 ];
 
 const semanticSwatches = [
-  { name: "Background", varName: "--g-bg" },
-  { name: "Surface", varName: "--g-surface" },
-  { name: "Sunken", varName: "--g-surface-sunken" },
-  { name: "Ink", varName: "--g-ink" },
-  { name: "Ink 2", varName: "--g-ink-2" },
-  { name: "Ink 3", varName: "--g-ink-3" },
-  { name: "Line", varName: "--g-line" },
-  { name: "Accent", varName: "--g-accent" },
-  { name: "Cardinal", varName: "--g-brand" },
-  { name: "OK", varName: "--g-ok" },
-  { name: "Warn", varName: "--g-warn" },
-  { name: "Danger", varName: "--g-danger" },
-  { name: "Info", varName: "--g-info" },
+  { name: "Background", varName: "--base-bg" },
+  { name: "Surface", varName: "--base-surface" },
+  { name: "Sunken", varName: "--base-surface-sunken" },
+  { name: "Ink", varName: "--base-ink" },
+  { name: "Ink 2", varName: "--base-ink-2" },
+  { name: "Ink 3", varName: "--base-ink-3" },
+  { name: "Line", varName: "--base-line" },
+  { name: "Accent", varName: "--base-accent" },
+  { name: "Cardinal", varName: "--base-brand" },
+  { name: "OK", varName: "--base-ok" },
+  { name: "Warn", varName: "--base-warn" },
+  { name: "Danger", varName: "--base-danger" },
+  { name: "Info", varName: "--base-info" },
 ];
 
 const deptSwatches = [
@@ -780,8 +788,8 @@ const deptSwatches = [
 <style scoped>
 .styleguide {
   min-height: 100vh;
-  background: var(--g-bg);
-  color: var(--g-ink);
+  background: var(--base-bg);
+  color: var(--base-ink);
   font: var(--text-body);
   padding: var(--space-10) var(--space-8) var(--space-16);
   max-width: 1080px;
@@ -794,7 +802,7 @@ const deptSwatches = [
 .sg-tagline {
   font: var(--text-title);
   font-weight: 400;
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   max-width: 38em;
   margin: var(--space-4) 0 var(--space-5);
 }
@@ -811,7 +819,7 @@ const deptSwatches = [
   font: var(--text-title);
   margin-bottom: var(--space-4);
   padding-bottom: var(--space-2);
-  border-bottom: 1px solid var(--g-line);
+  border-bottom: 1px solid var(--base-line);
 }
 .sg-inline-demo {
   max-width: 360px;
@@ -830,7 +838,7 @@ const deptSwatches = [
 }
 .sg-body {
   font: var(--text-body);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
 }
 .sg-note {
   max-width: 46em;
@@ -838,7 +846,7 @@ const deptSwatches = [
 }
 .sg-small {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 
 .sg-principles {
@@ -850,11 +858,11 @@ const deptSwatches = [
 }
 .sg-principle-title {
   font: var(--text-body-strong);
-  color: var(--g-ink);
+  color: var(--base-ink);
 }
 .sg-principle-body {
   font: var(--text-body);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   margin: 0;
 }
 @media (max-width: 640px) {
@@ -880,14 +888,14 @@ const deptSwatches = [
 .sg-swatch-color {
   height: 56px;
   border-radius: var(--radius-sm);
-  box-shadow: inset 0 0 0 1px var(--g-line);
+  box-shadow: inset 0 0 0 1px var(--base-line);
 }
 .sg-swatch-name {
   font: var(--text-body-strong);
 }
 .sg-swatch-var {
   font: var(--text-id-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 
 .sg-dept-grid {
@@ -926,7 +934,7 @@ const deptSwatches = [
 }
 .sg-type-token {
   font: var(--text-id-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 
 .sg-row {
@@ -951,7 +959,7 @@ const deptSwatches = [
 }
 .sg-space-bar {
   height: 14px;
-  background: var(--g-ink-3);
+  background: var(--base-ink-3);
   border-radius: var(--radius-xs);
   opacity: 0.85;
 }
@@ -963,24 +971,24 @@ const deptSwatches = [
 .sg-radius-demo {
   width: 72px;
   height: 56px;
-  background: var(--g-surface-sunken);
-  box-shadow: inset 0 0 0 1.5px var(--g-line-strong);
+  background: var(--base-surface-sunken);
+  box-shadow: inset 0 0 0 1.5px var(--base-line-strong);
   display: flex;
   align-items: center;
   justify-content: center;
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
 }
 .sg-shadow-demo {
   width: 100px;
   height: 56px;
-  background: var(--g-surface);
+  background: var(--base-surface);
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
 }
 
 .sg-motion-play {
@@ -1001,7 +1009,7 @@ const deptSwatches = [
   width: 18px;
   height: 18px;
   border-radius: var(--radius-full);
-  background: var(--g-ink-3);
+  background: var(--base-ink-3);
   transform: translateX(0);
 }
 .sg-motion-dot.quick.go {
@@ -1020,7 +1028,7 @@ const deptSwatches = [
   display: flex;
   gap: var(--space-5);
   font: var(--text-id-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 
 .sg-component-block {
@@ -1048,23 +1056,23 @@ const deptSwatches = [
   width: 100%;
   border-collapse: collapse;
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
 }
 .sg-primitives th {
   text-align: left;
   font-weight: 600;
-  color: var(--g-ink);
+  color: var(--base-ink);
   padding: var(--space-2) var(--space-3) var(--space-2) 0;
-  border-bottom: 1px solid var(--g-line);
+  border-bottom: 1px solid var(--base-line);
 }
 .sg-primitives td {
   padding: var(--space-2) var(--space-3) var(--space-2) 0;
-  border-bottom: 1px solid var(--g-line);
+  border-bottom: 1px solid var(--base-line);
   vertical-align: top;
 }
 .sg-primitives code {
   font: var(--text-id-small);
-  color: var(--g-ink);
+  color: var(--base-ink);
 }
 /* Too narrow for three columns: each row stacks, its labels inline. */
 @media (max-width: 599px) {
@@ -1077,7 +1085,7 @@ const deptSwatches = [
   }
   .sg-primitives tr {
     padding: var(--space-2) 0;
-    border-bottom: 1px solid var(--g-line);
+    border-bottom: 1px solid var(--base-line);
   }
   .sg-primitives td {
     padding: var(--space-05) 0;
@@ -1086,21 +1094,21 @@ const deptSwatches = [
   .sg-primitives td[data-label]::before {
     content: attr(data-label) ": ";
     font-weight: 600;
-    color: var(--g-ink);
+    color: var(--base-ink);
   }
 }
 .sg-progress-demo {
   width: 240px;
   height: 6px;
   border-radius: var(--radius-full);
-  background: var(--g-surface-sunken);
+  background: var(--base-surface-sunken);
   overflow: hidden;
 }
-/* :deep(): GProgress's own indicator, a grandchild from here. */
+/* :deep(): BaseProgress's own indicator, a grandchild from here. */
 :deep(.sg-progress-demo-fill) {
   display: block;
   height: 100%;
-  background: var(--g-progress);
+  background: var(--base-progress);
 }
 .sg-row-wrap {
   display: flex;
@@ -1110,7 +1118,7 @@ const deptSwatches = [
 }
 
 .sg-footer {
-  border-top: 1px solid var(--g-line);
+  border-top: 1px solid var(--base-line);
   padding-top: var(--space-5);
 }
 </style>

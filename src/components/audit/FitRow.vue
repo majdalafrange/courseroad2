@@ -20,7 +20,7 @@
       </span>
     </div>
 
-    <g-progress
+    <BaseProgress
       class="row-gauge"
       fill-class="gauge-fill"
       :value="fit.percent ?? 0"
@@ -30,15 +30,15 @@
     />
 
     <div class="row-actions">
-      <g-button
+      <BaseButton
         size="sm"
         variant="ghost"
         :aria-label="`What if: preview ${fit.title}`"
         @click="emit('preview')"
       >
         What if?
-      </g-button>
-      <g-button
+      </BaseButton>
+      <BaseButton
         :disabled="fit.onRoad"
         size="sm"
         variant="primary"
@@ -48,14 +48,14 @@
         @click="emit('add')"
       >
         Add
-      </g-button>
+      </BaseButton>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import GButton from "../../design/components/GButton.vue";
-import GProgress from "../../design/components/GProgress.vue";
+import BaseButton from "../../design/components/BaseButton.vue";
+import BaseProgress from "../../design/components/BaseProgress.vue";
 import type { ProgramFit } from "../../lib/degreeFit";
 
 defineProps<{
@@ -76,11 +76,11 @@ const emit = defineEmits<{
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-2) 0;
-  border-bottom: 1px solid var(--g-line);
+  border-bottom: 1px solid var(--base-line);
 }
 .row-rank {
   font: var(--text-id-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   text-align: right;
 }
 .row-main {
@@ -90,36 +90,36 @@ const emit = defineEmits<{
 }
 .row-title {
   font: var(--text-body);
-  color: var(--g-ink);
+  color: var(--base-ink);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .row-tag {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   margin-left: var(--space-2);
 }
 .row-meta {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 .is-complete .row-meta {
-  color: var(--g-ok);
+  color: var(--base-ok);
 }
 
 /* Same encoding as the audit's program ring: green means progress. */
 .row-gauge {
   height: 4px;
   border-radius: var(--radius-full);
-  background: var(--g-surface-sunken);
+  background: var(--base-surface-sunken);
   overflow: hidden;
 }
-/* :deep(): GProgress's own indicator, a grandchild from here. */
+/* :deep(): BaseProgress's own indicator, a grandchild from here. */
 :deep(.gauge-fill) {
   display: block;
   height: 100%;
-  background: var(--g-ok);
+  background: var(--base-ok);
 }
 .row-actions {
   display: flex;

@@ -1,11 +1,11 @@
 <template>
-  <g-drawer
+  <BaseDrawer
     :model-value="true"
     label="Class detail"
     @update:model-value="(open) => !open && emit('close')"
   >
     <slot />
-  </g-drawer>
+  </BaseDrawer>
 </template>
 
 <script setup lang="ts">
@@ -15,7 +15,7 @@
  * exists; Escape, a swipe-down, or a scrim tap emit("close") rather than
  * tracking open state here.
  */
-import GDrawer from "../../design/components/GDrawer.vue";
+import BaseDrawer from "../../design/components/BaseDrawer.vue";
 
 const emit = defineEmits<{
   (e: "close"): void;

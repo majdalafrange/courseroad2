@@ -1,5 +1,5 @@
 <template>
-  <g-sheet v-model="isOpen" label="Settings" width="420px">
+  <BaseSheet v-model="isOpen" label="Settings" width="420px">
     <div class="settings-content">
       <h2 class="settings-title">Settings</h2>
 
@@ -11,7 +11,7 @@
         <span :id="`${setting.id}Label`" class="settings-label">
           {{ setting.label }}
         </span>
-        <g-radio-group
+        <BaseRadioGroup
           class="option-list"
           :style="{ '--option-count': setting.options.length }"
           :model-value="setting.value"
@@ -20,7 +20,7 @@
           :aria-describedby="`${setting.id}Hint`"
           @update:model-value="setting.set"
         >
-          <g-radio-group-item
+          <BaseRadioGroupItem
             v-for="option in setting.options"
             :key="option.value"
             class="option-row"
@@ -28,23 +28,26 @@
             :value="option.value"
             :data-cy="`${setting.id}Option-${option.value}`"
           >
-            <g-icon :name="option.icon" :size="16" />
+            <BaseIcon :name="option.icon" :size="16" />
             <span class="option-label">{{ option.label }}</span>
-          </g-radio-group-item>
-        </g-radio-group>
+          </BaseRadioGroupItem>
+        </BaseRadioGroup>
         <p :id="`${setting.id}Hint`" class="settings-hint">
           {{ setting.disabledHint ?? selectedDetail(setting) }}
         </p>
       </div>
     </div>
-  </g-sheet>
+  </BaseSheet>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
-import GIcon, { type IconName } from "../../design/components/GIcon.vue";
-import { GRadioGroup, GRadioGroupItem } from "../../design/components/GRadio";
-import GSheet from "../../design/components/GSheet.vue";
+import BaseIcon, { type IconName } from "../../design/components/BaseIcon.vue";
+import {
+  BaseRadioGroup,
+  BaseRadioGroupItem,
+} from "../../design/components/BaseRadio";
+import BaseSheet from "../../design/components/BaseSheet.vue";
 import { useTheme } from "../../composables/useTheme";
 import { useIsMobile } from "../../composables/useIsMobile";
 import {
@@ -206,7 +209,7 @@ const settings = computed<Setting[]>(() => [
 }
 .settings-title {
   font: var(--text-heading);
-  color: var(--g-ink);
+  color: var(--base-ink);
   margin: 0;
 }
 .settings-section {
@@ -217,11 +220,11 @@ const settings = computed<Setting[]>(() => [
 .settings-label {
   font: var(--text-small);
   font-weight: 600;
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
 }
 .settings-hint {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   margin: 0;
 }
 .option-list {
@@ -229,7 +232,7 @@ const settings = computed<Setting[]>(() => [
   grid-template-columns: repeat(var(--option-count), minmax(0, 1fr));
   gap: var(--space-2);
 }
-/* :deep(): GRadioGroupItem forwards this class to Reka's own item, a
+/* :deep(): BaseRadioGroupItem forwards this class to Reka's own item, a
    grandchild. Its surface and states come from the `choice` prop. */
 :deep(.option-row) {
   display: flex;

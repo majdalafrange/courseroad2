@@ -3,7 +3,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { defineComponent, h, nextTick, ref } from "vue";
-import GSheet from "../../../src/design/components/GSheet.vue";
+import BaseSheet from "../../../src/design/components/BaseSheet.vue";
 
 /**
  * The modal keyboard contract: Escape closes one layer, Tab stays
@@ -30,7 +30,7 @@ function mountHost(open = true) {
         h("div", [
           h("button", { id: "opener" }, "open"),
           h(
-            GSheet,
+            BaseSheet,
             {
               modelValue: openRef.value,
               "onUpdate:modelValue": (v: boolean) => (openRef.value = v),
@@ -51,7 +51,7 @@ function mountHost(open = true) {
 }
 
 function panel(): HTMLElement {
-  const el = document.querySelector<HTMLElement>(".g-sheet-panel");
+  const el = document.querySelector<HTMLElement>(".base-sheet-panel");
   expect(el).not.toBeNull();
   return el as HTMLElement;
 }
@@ -88,11 +88,11 @@ function pressTabFromFocused(shiftKey = false): KeyboardEvent {
 async function clickScrim(): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, 0));
   document
-    .querySelector<HTMLElement>(".g-sheet-scrim")
+    .querySelector<HTMLElement>(".base-sheet-scrim")
     ?.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
 }
 
-describe("GSheet", () => {
+describe("BaseSheet", () => {
   it("renders role=dialog naming the sheet via aria-labelledby", async () => {
     mountHost();
     // Reka's Teleport defers to a mounted ref (an SSR-safety guard), so
@@ -146,7 +146,7 @@ describe("GSheet", () => {
     // The built-in close button is the panel's first focusable, Reka's
     // FocusScope default.
     expect(document.activeElement).toBe(
-      document.querySelector(".g-sheet-close"),
+      document.querySelector(".base-sheet-close"),
     );
     expect(panel().contains(document.activeElement)).toBe(true);
   });
@@ -154,7 +154,7 @@ describe("GSheet", () => {
   it("wraps Tab at the last focusable and Shift+Tab at the first", async () => {
     mountHost();
     await flushPromises();
-    const close = document.querySelector<HTMLElement>(".g-sheet-close");
+    const close = document.querySelector<HTMLElement>(".base-sheet-close");
     const last = document.querySelector<HTMLElement>("#last");
     last?.focus();
     const tab = pressTabFromFocused();
@@ -185,7 +185,7 @@ describe("GSheet", () => {
         setup() {
           return () =>
             h(
-              GSheet,
+              BaseSheet,
               {
                 modelValue: openRef.value,
                 "onUpdate:modelValue": (v: boolean) => (openRef.value = v),
@@ -206,7 +206,7 @@ describe("GSheet", () => {
     await clickScrim();
     await flushPromises();
     expect(openRef.value).toBe(true);
-    expect(document.querySelector(".g-sheet-close")).toBeNull();
+    expect(document.querySelector(".base-sheet-close")).toBeNull();
   });
 
   it("stops listening after close (no ghost Escape handling)", async () => {

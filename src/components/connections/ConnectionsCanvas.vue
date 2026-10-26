@@ -44,7 +44,7 @@
             {{ r.label }}
           </text>
         </template>
-        <graph-edge
+        <GraphEdge
           v-for="edge in store.edges"
           :key="edge.id"
           :edge="edge"
@@ -53,7 +53,7 @@
           @move="onEdgeMove"
           @leave="onEdgeLeave"
         />
-        <graph-node
+        <GraphNode
           v-for="node in store.nodes"
           :key="node.id"
           :node="node"
@@ -85,7 +85,7 @@
       <div class="edge-card-head">
         <span class="edge-card-ids"
           >{{ edgeCardIds[0] }}
-          <g-icon name="swap" :size="12" />
+          <BaseIcon name="swap" :size="12" />
           {{ edgeCardIds[1] }}</span
         >
         <span v-if="edgeCard.edge.crossing" class="edge-card-crossing"
@@ -109,39 +109,39 @@
 
     <div v-if="store.overBudget" class="budget-note" role="status">
       {{ store.nodeCount }} subjects shown.
-      <g-button variant="link" size="sm" @click="store.reset()">
+      <BaseButton variant="link" size="sm" @click="store.reset()">
         Back to start
-      </g-button>
+      </BaseButton>
     </div>
 
     <div class="zoom-controls" role="group" aria-label="Zoom">
-      <g-button
+      <BaseButton
         variant="ghost"
         size="md"
         icon-only
         aria-label="Zoom in"
         @click="zoomBy(1.2)"
       >
-        <g-icon name="plus" :size="15" />
-      </g-button>
-      <g-button
+        <BaseIcon name="plus" :size="15" />
+      </BaseButton>
+      <BaseButton
         variant="ghost"
         size="md"
         icon-only
         aria-label="Zoom out"
         @click="zoomBy(1 / 1.2)"
       >
-        <g-icon name="minus" :size="15" />
-      </g-button>
-      <g-button
+        <BaseIcon name="minus" :size="15" />
+      </BaseButton>
+      <BaseButton
         variant="ghost"
         size="md"
         icon-only
         aria-label="Fit graph to view"
         @click="fit"
       >
-        <g-icon name="map" :size="15" />
-      </g-button>
+        <BaseIcon name="map" :size="15" />
+      </BaseButton>
     </div>
   </div>
 </template>
@@ -158,8 +158,8 @@ import {
 } from "vue";
 import GraphEdge from "./GraphEdge.vue";
 import GraphNode from "./GraphNode.vue";
-import GIcon from "../../design/components/GIcon.vue";
-import GButton from "../../design/components/GButton.vue";
+import BaseIcon from "../../design/components/BaseIcon.vue";
+import BaseButton from "../../design/components/BaseButton.vue";
 import { computeBounds, fitViewport } from "../../lib/connections/layout";
 import type { Viewport } from "../../lib/connections/types";
 import {
@@ -728,7 +728,7 @@ onBeforeUnmount(() => {
   overflow: hidden;
   /* The lattice surface; the tile's size and offset come from the viewport
      so it moves with the graph. See --canvas-lattice. */
-  background-color: var(--g-bg);
+  background-color: var(--base-bg);
   background-image: var(--canvas-lattice);
 }
 .canvas-svg {
@@ -750,7 +750,7 @@ onBeforeUnmount(() => {
 /* A ledger line behind each row's cards: solid for a real term, dashed
    for Unscheduled. Drawn first so it sits under edges and cards. */
 .row-rail {
-  stroke: var(--g-line);
+  stroke: var(--base-line);
   stroke-width: 1.5;
   pointer-events: none;
 }
@@ -760,7 +760,7 @@ onBeforeUnmount(() => {
 /* The current term's rail is only heavier; its label carries the cardinal,
    as the Now flag does on the plan. */
 .row-rail.is-current {
-  stroke: var(--g-line-strong);
+  stroke: var(--base-line-strong);
   stroke-width: 2;
 }
 
@@ -771,16 +771,16 @@ onBeforeUnmount(() => {
   font: var(--text-small);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
-  fill: var(--g-ink-3);
+  fill: var(--base-ink-3);
   pointer-events: none;
   user-select: none;
 }
 .row-label.is-special {
   font: var(--text-small);
 }
-/* --g-brand, not --g-accent: cardinal in both themes, like the flag */
+/* --base-brand, not --base-accent: cardinal in both themes, like the flag */
 .row-label.is-current {
-  fill: var(--g-brand);
+  fill: var(--base-brand);
   font-weight: 600;
 }
 @media (prefers-reduced-motion: reduce) {
@@ -795,25 +795,25 @@ onBeforeUnmount(() => {
   bottom: var(--space-4);
   display: flex;
   flex-direction: column;
-  background: var(--g-surface);
-  border: 1px solid var(--g-overlay-line);
+  background: var(--base-surface);
+  border: 1px solid var(--base-overlay-line);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-2);
   overflow: hidden;
 }
 /* Square inside the group's rounded box, divided by a rule. */
-.zoom-controls .g-button {
+.zoom-controls .base-button {
   border-radius: 0;
 }
-.zoom-controls .g-button + .g-button {
-  border-top: 1px solid var(--g-line);
+.zoom-controls .base-button + .base-button {
+  border-top: 1px solid var(--base-line);
 }
 .edge-card {
   position: absolute;
   z-index: 5;
   max-width: 280px;
-  background: var(--g-surface);
-  border: 1px solid var(--g-overlay-line);
+  background: var(--base-surface);
+  border: 1px solid var(--base-overlay-line);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-3);
   padding: var(--space-2) var(--space-3);
@@ -831,14 +831,14 @@ onBeforeUnmount(() => {
   gap: var(--space-1);
   font: var(--text-id-small);
   font-weight: 550;
-  color: var(--g-ink);
+  color: var(--base-ink);
 }
 /* a crossing is information, not a caution; warn is reserved for
    not-offered */
 .edge-card-crossing {
   font: var(--text-micro);
-  color: var(--g-info);
-  background: var(--g-info-tint);
+  color: var(--base-info);
+  background: var(--base-info-tint);
   border-radius: var(--radius-full);
   padding: 0 5px;
 }
@@ -855,15 +855,15 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: var(--space-2);
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
 }
 .reason-swatch {
   flex-shrink: 0;
   width: 14px;
-  border-top: 2.5px solid var(--swatch-color, var(--g-ink-3));
+  border-top: 2.5px solid var(--swatch-color, var(--base-ink-3));
 }
 .reason-swatch.t-prereq {
-  --swatch-color: var(--g-ink-2); /* matches GraphEdge's prereq color */
+  --swatch-color: var(--base-ink-2); /* matches GraphEdge's prereq color */
 }
 
 .budget-note {
@@ -872,8 +872,8 @@ onBeforeUnmount(() => {
   left: 50%;
   transform: translateX(-50%);
   font: var(--text-small);
-  color: var(--g-ink-2);
-  background: var(--g-warn-tint);
+  color: var(--base-ink-2);
+  background: var(--base-warn-tint);
   border-radius: var(--radius-full);
   padding: var(--space-1) var(--space-3);
   white-space: nowrap;

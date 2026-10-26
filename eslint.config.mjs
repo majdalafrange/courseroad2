@@ -37,9 +37,13 @@ export default defineConfig(
         "error",
         { argsIgnorePattern: "^_" },
       ],
-      // Single-word component filenames are always used via imports, never
-      // as raw tags, so they cannot clash with HTML elements.
-      "vue/multi-word-component-names": "off",
+      // Vue style guide rules outside flat/recommended.
+      "vue/component-name-in-template-casing": [
+        "error",
+        "PascalCase",
+        { registeredComponentsOnly: false },
+      ],
+      "vue/match-component-file-name": ["error", { extensions: ["vue"] }],
       // warn and error report real failures; anything else is leftover
       // debugging.
       "no-console": ["error", { allow: ["warn", "error"] }],
@@ -68,6 +72,13 @@ export default defineConfig(
     },
   },
   {
+    // File-based routes are named by their URL path and never used as tags.
+    files: ["src/pages/**"],
+    rules: {
+      "vue/multi-word-component-names": "off",
+    },
+  },
+  {
     // CLI scripts report through stdout; console.log is their interface.
     files: ["scripts/**"],
     rules: {
@@ -75,4 +86,20 @@ export default defineConfig(
     },
   },
   prettier,
+  {
+    // eslint-config-prettier turns this off, but Prettier keeps either form
+    // as written. The style guide asks for empty components to self-close
+    // in SFCs; plain HTML elements are left alone.
+    files: ["**/*.vue"],
+    rules: {
+      "vue/html-self-closing": [
+        "error",
+        {
+          html: { void: "any", normal: "any", component: "always" },
+          svg: "any",
+          math: "any",
+        },
+      ],
+    },
+  },
 );

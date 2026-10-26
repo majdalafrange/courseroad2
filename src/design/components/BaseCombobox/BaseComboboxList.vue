@@ -1,0 +1,88 @@
+<template>
+  <ComboboxContent
+    ref="content"
+    position="inline"
+    :aria-label="label"
+    @escape-key-down="(event: KeyboardEvent) => emit('escape', event)"
+  >
+    <ComboboxViewport class="base-combobox-viewport">
+      <slot />
+    </ComboboxViewport>
+  </ComboboxContent>
+</template>
+
+<script setup lang="ts">
+/**
+ * The result list of a BaseComboboxRoot (role="listbox"), laid out in place
+ * under the input rather than floating. Attrs (a class) go to the list.
+ *
+ * Escape: the list is the top dismissable layer while it shows, so an
+ * Escape anywhere reaches it before any dialog it sits in. It emits
+ * "escape" with the event; a caller inside a dialog closes the dialog
+ * there, and calls preventDefault to mark the keypress consumed for
+ * window-level listeners.
+ */
+import { nextTick, onBeforeUnmount, useTemplateRef, watch } from "vue";
+import { ComboboxContent, ComboboxViewport } from "reka-ui";
+import { injectListId, injectListOpen } from "./context";
+
+// Report the list's id to the input (see context.ts) each time Reka mounts
+// the listbox; the listbox is the content's own element.
+const listId = injectListId();
+const listOpen = injectListOpen();
+const content = useTemplateRef<{ $el: Element | null }>("content");
+watch(
+  listOpen,
+  async () => {
+    await nextTick();
+    reportListId();
+  },
+  { immediate: true, flush: "post" },
+);
+function reportListId() {
+  const el = content.value?.$el;
+  const listbox =
+    el instanceof Element
+      ? (el.closest("[role=listbox]") ??
+        el.querySelector("[role=listbox]") ??
+        (el.getAttribute("role") === "listbox" ? el : null))
+      : null;
+  listId.value = listbox?.id || undefined;
+}
+onBeforeUnmount(() => {
+  listId.value = undefined;
+});
+
+defineProps<{
+  /** Accessible name of the list, e.g. "Results". */
+  label: string;
+}>();
+
+const emit = defineEmits<{
+  (e: "escape", event: KeyboardEvent): void;
+}>();
+</script>
+
+<style>
+/* Not scoped: Reka's viewport is a grandchild of the caller. It must be
+   allowed to grow and scroll inside the caller's list. */
+.base-combobox-viewport {
+  flex: 1;
+  min-height: 0;
+  /* A swipe past either end stays in the list, not the page behind it. */
+  overscroll-behavior: contain;
+}
+/* The viewport is what scrolls. Reka injects a style hiding its scrollbar
+   (made for dropdowns that scroll by arrow buttons); in a list that is
+   always open that leaves no sign there is more below. The app's own thin
+   scrollbar comes back here: the attribute selector outranks Reka's
+   [data-reka-combobox-viewport] rule whichever loads last. */
+.base-combobox-viewport[data-reka-combobox-viewport] {
+  scrollbar-width: thin;
+  scrollbar-color: var(--base-line-strong) transparent;
+}
+.base-combobox-viewport[data-reka-combobox-viewport]::-webkit-scrollbar {
+  display: block;
+  width: 8px;
+}
+</style>

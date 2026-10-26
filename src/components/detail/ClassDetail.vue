@@ -8,7 +8,7 @@
     <div class="detail-trail">
       <!-- The trail and its arrows appear once a second class is opened. -->
       <template v-if="trail.length > 1">
-        <g-button
+        <BaseButton
           :disabled="activeIndex <= 0"
           variant="ghost"
           size="xs"
@@ -19,9 +19,9 @@
           "
           @click="store.setActiveClass(activeIndex - 1)"
         >
-          <g-icon name="back" :size="14" />
-        </g-button>
-        <g-button
+          <BaseIcon name="back" :size="14" />
+        </BaseButton>
+        <BaseButton
           :disabled="activeIndex >= trail.length - 1"
           variant="ghost"
           size="xs"
@@ -34,8 +34,8 @@
           "
           @click="store.setActiveClass(activeIndex + 1)"
         >
-          <g-icon name="forward" :size="14" />
-        </g-button>
+          <BaseIcon name="forward" :size="14" />
+        </BaseButton>
         <div ref="trailPathEl" class="trail-path">
           <button
             v-for="(id, index) in trail"
@@ -53,7 +53,7 @@
           </button>
         </div>
       </template>
-      <g-button
+      <BaseButton
         variant="ghost"
         size="xs"
         icon-only
@@ -62,8 +62,8 @@
         data-cy="closeClassInfoButton"
         @click="store.clearClassInfoStack()"
       >
-        <g-icon name="close" :size="13" />
-      </g-button>
+        <BaseIcon name="close" :size="13" />
+      </BaseButton>
     </div>
 
     <div
@@ -88,15 +88,15 @@
         <p class="detail-title" data-cy="cardSubjectTitle">
           {{ subject.title }}
         </p>
-        <g-tooltip
+        <BaseTooltip
           class="favorite-toggle-wrap"
           :text="isFavorite ? 'Remove from favorites' : 'Add to favorites'"
         >
-          <g-toggle
+          <BaseToggle
             :model-value="isFavorite"
             @update:model-value="favorites.toggleFavorite(subject.subject_id)"
           >
-            <g-button
+            <BaseButton
               variant="ghost"
               size="sm"
               icon-only
@@ -104,20 +104,20 @@
               data-cy="favoriteToggle"
               :aria-label="`Favorite ${subject.subject_id}`"
             >
-              <g-icon name="star" :size="16" />
-            </g-button>
-          </g-toggle>
-        </g-tooltip>
+              <BaseIcon name="star" :size="16" />
+            </BaseButton>
+          </BaseToggle>
+        </BaseTooltip>
       </div>
 
       <!-- alerts -->
       <p v-if="subject.is_historical" class="detail-alert">
-        <g-icon name="warn" :size="13" />
+        <BaseIcon name="warn" :size="13" />
         No longer offered. Last offered
         {{ (subject.source_semester ?? "").split("-").join(" ") }}.
       </p>
       <p v-else-if="subject.not_offered_year" class="detail-alert">
-        <g-icon name="warn" :size="13" />
+        <BaseIcon name="warn" :size="13" />
         Not offered in the {{ subject.not_offered_year }} school year.
       </p>
 
@@ -126,11 +126,15 @@
         <span>
           On your road: <strong>{{ bucketName(onRoadBucket) }}</strong>
         </span>
-        <g-button variant="link" size="sm" @click="goToIt">Go to it</g-button>
-        <g-button variant="link" size="sm" @click="moveIt">Move it</g-button>
+        <BaseButton variant="link" size="sm" @click="goToIt"
+          >Go to it</BaseButton
+        >
+        <BaseButton variant="link" size="sm" @click="moveIt"
+          >Move it</BaseButton
+        >
       </div>
       <p v-if="subjectNote !== undefined" class="detail-own-note">
-        <g-icon name="message" :size="12" class="detail-own-note-icon" />
+        <BaseIcon name="message" :size="12" class="detail-own-note-icon" />
         <span><span class="sr-only">Your note: </span>{{ subjectNote }}</span>
       </p>
 
@@ -140,14 +144,14 @@
           class="stat"
           data-cy="cardRating"
         >
-          <g-link
+          <BaseLink
             :href="evaluationsUrl"
             tone="quiet"
             external
             hide-external-mark
             :aria-label="`Rated ${subject.rating.toFixed(1)} of 7 in subject evaluations (opens in a new tab)`"
-            ><g-icon name="star" :size="11" class="stat-icon" />
-            {{ subject.rating.toFixed(1) }}</g-link
+            ><BaseIcon name="star" :size="11" class="stat-icon" />
+            {{ subject.rating.toFixed(1) }}</BaseLink
           ><span class="stat-label" aria-hidden="true">/7</span>
         </span>
         <span v-if="totalHours !== null" class="stat" data-cy="cardHours">
@@ -179,48 +183,48 @@
       </p>
       <p v-if="hoursVerdict" class="detail-verdict" :class="hoursTone">
         {{ hoursVerdict }}
-        <g-tooltip wide placement="bottom" tap>
+        <BaseTooltip wide placement="bottom" tap>
           <button
-            class="verdict-why g-hit"
+            class="verdict-why base-hit"
             type="button"
             :aria-label="hoursExplainer"
             data-cy="hoursExplainer"
           >
-            <g-icon name="info" :size="12" />
+            <BaseIcon name="info" :size="12" />
           </button>
           <template #content>{{ hoursExplainer }}</template>
-        </g-tooltip>
+        </BaseTooltip>
       </p>
       <p v-if="isGeneric" class="detail-note">
         *Hours averaged over all {{ subject.subject_id }} subjects.
       </p>
 
       <!-- explore connections: not offered on mobile -->
-      <g-button
+      <BaseButton
         v-if="inCatalog && !isMobile"
         variant="quiet"
         class="explore-link"
         data-cy="exploreFromDetail"
         @click="exploreFromHere"
       >
-        <g-icon name="graph" :size="14" />
+        <BaseIcon name="graph" :size="14" />
         Show in Connections
-      </g-button>
+      </BaseButton>
       <div class="external-links">
-        <g-button
+        <BaseButton
           v-if="subject.url"
           size="sm"
           :href="safeHref(subject.url)"
           external
         >
-          Catalog <g-icon name="external" :size="12" class="link-out" />
-        </g-button>
-        <g-button v-if="inCatalog" size="sm" :href="evaluationsUrl" external>
-          Evaluations <g-icon name="external" :size="12" class="link-out" />
-        </g-button>
-        <g-button v-if="inCatalog" size="sm" :href="openGradesUrl" external>
-          OpenGrades <g-icon name="external" :size="12" class="link-out" />
-        </g-button>
+          Catalog <BaseIcon name="external" :size="12" class="link-out" />
+        </BaseButton>
+        <BaseButton v-if="inCatalog" size="sm" :href="evaluationsUrl" external>
+          Evaluations <BaseIcon name="external" :size="12" class="link-out" />
+        </BaseButton>
+        <BaseButton v-if="inCatalog" size="sm" :href="openGradesUrl" external>
+          OpenGrades <BaseIcon name="external" :size="12" class="link-out" />
+        </BaseButton>
       </div>
 
       <!-- add to a term -->
@@ -254,7 +258,7 @@
           >
             <!-- The tint marks an uncertain term; the icon says it without
                  relying on color. -->
-            <g-icon
+            <BaseIcon
               v-if="fit.kind !== 'ok'"
               name="notice"
               :size="11"
@@ -263,7 +267,7 @@
             {{ fit.label }}
           </button>
         </div>
-        <g-button
+        <BaseButton
           variant="quiet"
           size="sm"
           class="inline-place"
@@ -271,12 +275,16 @@
           @click="store.addFromCard(subject)"
         >
           Or place it on your road
-        </g-button>
+        </BaseButton>
       </section>
       <section v-else class="detail-section">
-        <g-button variant="ghost" size="sm" @click="store.cancelAddFromCard()">
+        <BaseButton
+          variant="ghost"
+          size="sm"
+          @click="store.cancelAddFromCard()"
+        >
           Cancel placing
-        </g-button>
+        </BaseButton>
       </section>
 
       <!-- prerequisites -->
@@ -287,7 +295,7 @@
             >(satisfied by your plan)</span
           >
         </h3>
-        <prereq-tree :node="parsedPrereqs" data-cy="cardPrereqs" />
+        <PrereqTree :node="parsedPrereqs" data-cy="cardPrereqs" />
       </section>
       <p v-if="subject.either_prereq_or_coreq" class="either-note">
         or, at the same time
@@ -297,7 +305,7 @@
           Corequisites
           <span v-if="parsedCoreqs.fulfilled" class="head-ok">(satisfied)</span>
         </h3>
-        <prereq-tree :node="parsedCoreqs" />
+        <PrereqTree :node="parsedCoreqs" />
       </section>
 
       <!-- facts -->
@@ -398,11 +406,11 @@ import {
   useTemplateRef,
 } from "vue";
 import { useRouter } from "vue-router";
-import GToggle from "../../design/components/GToggle.vue";
-import GButton from "../../design/components/GButton.vue";
-import GLink from "../../design/components/GLink.vue";
-import GIcon from "../../design/components/GIcon.vue";
-import GTooltip from "../../design/components/GTooltip.vue";
+import BaseToggle from "../../design/components/BaseToggle.vue";
+import BaseButton from "../../design/components/BaseButton.vue";
+import BaseLink from "../../design/components/BaseLink.vue";
+import BaseIcon from "../../design/components/BaseIcon.vue";
+import BaseTooltip from "../../design/components/BaseTooltip.vue";
 import { prefersReducedMotion } from "../../design/tokens";
 import PrereqTree from "./PrereqTree.vue";
 import { useIsMobile } from "../../composables/useIsMobile";
@@ -896,7 +904,7 @@ watch(
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-3) var(--space-3) var(--space-2) var(--space-4);
-  border-bottom: 1px solid var(--g-line);
+  border-bottom: 1px solid var(--base-line);
   flex-shrink: 0;
 }
 .trail-path {
@@ -912,7 +920,7 @@ watch(
 }
 .trail-crumb {
   font: var(--text-id-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   background: transparent;
   border: none;
   padding: var(--space-05) var(--space-1);
@@ -922,22 +930,22 @@ watch(
   flex-shrink: 0;
 }
 .trail-crumb:hover {
-  color: var(--g-accent);
-  background: var(--g-accent-tint);
+  color: var(--base-accent);
+  background: var(--base-accent-tint);
 }
 .trail-crumb:not(:last-child)::after {
   content: "›";
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   margin-left: var(--space-1);
 }
 .trail-crumb.current {
   font-weight: 600;
-  color: var(--g-ink);
+  color: var(--base-ink);
   cursor: default;
 }
 .trail-crumb.current:hover {
   background: transparent;
-  color: var(--g-ink);
+  color: var(--base-ink);
 }
 
 .trail-close {
@@ -959,7 +967,7 @@ watch(
   outline: none;
 }
 .detail-body:focus-visible {
-  box-shadow: var(--g-focus-ring-inset);
+  box-shadow: var(--base-focus-ring-inset);
 }
 
 /* Solid department color header bar. */
@@ -1011,7 +1019,7 @@ watch(
   align-items: center;
   gap: var(--space-2);
   font: var(--text-small);
-  color: var(--g-warn);
+  color: var(--base-warn);
   margin: var(--space-3) 0 0;
 }
 
@@ -1020,8 +1028,8 @@ watch(
   align-items: center;
   gap: var(--space-2) var(--space-3);
   font: var(--text-small);
-  color: var(--g-ink-2);
-  background: var(--g-surface-2);
+  color: var(--base-ink-2);
+  background: var(--base-surface-2);
   border-radius: var(--radius-sm);
   padding: var(--space-2) var(--space-3);
   margin-top: var(--space-3);
@@ -1032,8 +1040,8 @@ watch(
   align-items: flex-start;
   gap: var(--space-2);
   font: var(--text-small);
-  color: var(--g-ink);
-  background: var(--g-surface-2);
+  color: var(--base-ink);
+  background: var(--base-surface-2);
   border-radius: var(--radius-sm);
   padding: var(--space-2) var(--space-3);
   margin: var(--space-3) 0 0;
@@ -1041,7 +1049,7 @@ watch(
   overflow-wrap: anywhere;
 }
 .detail-own-note-icon {
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   margin-top: 2px;
   flex-shrink: 0;
 }
@@ -1057,7 +1065,7 @@ watch(
   margin: var(--space-3) 0 0;
   font: var(--text-id);
   font-variant-numeric: tabular-nums;
-  color: var(--g-ink);
+  color: var(--base-ink);
 }
 .stat {
   display: inline-flex;
@@ -1070,19 +1078,19 @@ watch(
   align-self: center;
 }
 .stat .tone-heavy {
-  color: var(--g-danger);
+  color: var(--base-danger);
 }
 .stat .tone-light {
-  color: var(--g-ok);
+  color: var(--base-ok);
 }
 .stat-label {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 .detail-verdict {
   font: var(--text-small);
   margin: var(--space-2) 0 0;
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
 }
 /* The icon stays neutral even when the verdict is toned. */
 .verdict-why {
@@ -1093,32 +1101,32 @@ watch(
   padding: 0;
   border: none;
   background: none;
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   cursor: help;
   border-radius: var(--radius-full);
   transition: color var(--motion-quick) var(--ease-out);
 }
 .verdict-why:hover {
-  color: var(--g-ink);
+  color: var(--base-ink);
 }
 .verdict-why:focus-visible {
   outline: none;
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
 }
 .detail-verdict.tone-heavy {
-  color: var(--g-danger);
+  color: var(--base-danger);
 }
 .detail-verdict.tone-light {
-  color: var(--g-ok);
+  color: var(--base-ok);
 }
 .detail-note {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   margin: var(--space-1) 0 0;
 }
 .repeat-note {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   margin: 0 0 var(--space-2);
 }
 
@@ -1134,16 +1142,16 @@ watch(
 .section-head {
   font: var(--text-heading);
   margin: 0 0 var(--space-2);
-  color: var(--g-ink);
+  color: var(--base-ink);
 }
 .head-ok {
   font: var(--text-small);
-  color: var(--g-ok);
+  color: var(--base-ok);
 }
 .either-note {
   font: var(--text-small);
   font-style: italic;
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   margin: var(--space-2) 0;
   text-align: center;
 }
@@ -1164,49 +1172,49 @@ watch(
   font: var(--text-small);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
-  border: 1px solid var(--g-line-strong);
+  border: 1px solid var(--base-line-strong);
   border-radius: var(--radius-sm);
   padding: var(--space-1) var(--space-2);
   cursor: pointer;
-  background: var(--g-surface);
-  color: var(--g-ink-2);
+  background: var(--base-surface);
+  color: var(--base-ink-2);
   transition:
     background-color var(--motion-quick) var(--ease-out),
     border-color var(--motion-quick) var(--ease-out);
 }
 .term-fit:hover {
-  border-color: var(--g-ink-3);
+  border-color: var(--base-ink-3);
 }
 .term-fit-mark {
   margin-right: 3px;
-  color: var(--g-warn);
+  color: var(--base-warn);
 }
 .term-fit:focus-visible {
   outline: none;
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
 }
 /* Offered is the normal case and carries no color; only the exceptions
    are marked, once. */
 .term-fit.maybe,
 .term-fit.no-longer-offered,
 .term-fit.not-this-year {
-  background: var(--g-warn-tint);
+  background: var(--base-warn-tint);
   border-color: transparent;
 }
 .term-fit.maybe:hover,
 .term-fit.no-longer-offered:hover,
 .term-fit.not-this-year:hover {
-  border-color: var(--g-warn);
+  border-color: var(--base-warn);
 }
 .term-fit.unavailable {
-  background: var(--g-danger-tint);
+  background: var(--base-danger-tint);
   border-color: transparent;
 }
 .term-fit.unavailable .term-fit-mark {
-  color: var(--g-danger);
+  color: var(--base-danger);
 }
 .term-fit.unavailable:hover {
-  border-color: var(--g-danger);
+  border-color: var(--base-danger);
 }
 
 /* ---------- chips ---------- */
@@ -1222,7 +1230,7 @@ watch(
   font: var(--text-id-small);
   color: var(--dept-on);
   height: 22px;
-  background: var(--dept-color, var(--g-line-strong));
+  background: var(--dept-color, var(--base-line-strong));
   border: none;
   border-radius: var(--radius-sm);
   padding: 0 var(--space-2);
@@ -1230,16 +1238,16 @@ watch(
   transition: box-shadow var(--motion-quick) var(--ease-out);
 }
 .subject-chip:hover {
-  box-shadow: 0 0 0 1.5px var(--g-accent);
+  box-shadow: 0 0 0 1.5px var(--base-accent);
 }
 /* "+N more" names no subject, so it carries no department color. */
 .subject-chip.more {
-  background: var(--g-surface-2);
-  color: var(--g-ink-3);
+  background: var(--base-surface-2);
+  color: var(--base-ink-3);
 }
 .subject-chip.more:hover {
   box-shadow: none;
-  background: var(--g-surface-sunken);
+  background: var(--base-surface-sunken);
 }
 
 .facts {
@@ -1250,17 +1258,17 @@ watch(
 }
 .facts dt {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   align-self: baseline;
 }
 .facts dd {
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   margin: 0;
 }
 .detail-desc {
   font: var(--text-body);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   margin: 0 0 var(--space-3);
 }
 .external-links {
@@ -1271,6 +1279,6 @@ watch(
 }
 /* the one glyph that says "leaves the app" carries the notice hue */
 .link-out {
-  color: var(--g-info);
+  color: var(--base-info);
 }
 </style>

@@ -1,19 +1,19 @@
 <template>
-  <g-sheet v-model="isOpen" label="Compare roads" width="760px">
+  <BaseSheet v-model="isOpen" label="Compare roads" width="760px">
     <div class="compare">
       <header class="compare-head">
         <h2 class="compare-title">Compare roads</h2>
       </header>
 
       <div class="compare-pickers">
-        <g-select
+        <BaseSelect
           v-model="roadA"
           class="road-select"
           aria-label="First road"
           :options="roadOptions"
         />
         <span class="vs" aria-hidden="true">vs</span>
-        <g-select
+        <BaseSelect
           v-model="roadB"
           class="road-select"
           aria-label="Second road"
@@ -22,14 +22,14 @@
       </div>
 
       <div v-if="roadA !== roadB" class="compare-options">
-        <g-checkbox
+        <BaseCheckbox
           class="iap-check"
           data-cy="compareHideIapToggle"
           :model-value="store.hideIAP"
           @update:model-value="store.setHideIAP"
         >
           Hide IAP
-        </g-checkbox>
+        </BaseCheckbox>
       </div>
 
       <div v-if="roadA !== roadB" class="compare-body">
@@ -160,14 +160,14 @@
         Pick two different roads and we'll compare them side by side.
       </div>
     </div>
-  </g-sheet>
+  </BaseSheet>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import GSelect from "../../design/components/GSelect.vue";
-import GCheckbox from "../../design/components/GCheckbox.vue";
-import GSheet from "../../design/components/GSheet.vue";
+import BaseSelect from "../../design/components/BaseSelect.vue";
+import BaseCheckbox from "../../design/components/BaseCheckbox.vue";
+import BaseSheet from "../../design/components/BaseSheet.vue";
 import { courseColor } from "../../lib/colors";
 import {
   diffClasses,
@@ -277,7 +277,7 @@ function titleFor(key: string): string {
   align-items: center;
   justify-content: space-between;
   padding: var(--space-4) var(--space-5);
-  border-bottom: 1px solid var(--g-line);
+  border-bottom: 1px solid var(--base-line);
 }
 .compare-title {
   font: var(--text-title);
@@ -296,7 +296,7 @@ function titleFor(key: string): string {
 }
 .vs {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 
 .compare-body {
@@ -312,17 +312,17 @@ function titleFor(key: string): string {
 .summary-col {
   display: flex;
   flex-direction: column;
-  background: var(--g-surface-2);
+  background: var(--base-surface-2);
   border-radius: var(--radius-md);
   padding: var(--space-3);
 }
 .summary-units {
   font: var(--text-display);
-  color: var(--g-ink);
+  color: var(--base-ink);
 }
 .summary-label {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 
 .compare-section {
@@ -330,7 +330,7 @@ function titleFor(key: string): string {
 }
 .section-label {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   margin: 0 0 var(--space-2);
 }
 /* Sits above the scrolling body so the option is visible when the panel
@@ -342,7 +342,7 @@ function titleFor(key: string): string {
 }
 .iap-check {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 .diff-cols {
   display: grid;
@@ -357,7 +357,7 @@ function titleFor(key: string): string {
 }
 .diff-col-head {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   margin-bottom: var(--space-1);
 }
 /* Solid department color (see tokens.css, course chips); the add-a/add-b
@@ -366,14 +366,14 @@ function titleFor(key: string): string {
   font: var(--text-id-small);
   border-radius: var(--radius-xs);
   padding: var(--space-05) var(--space-2);
-  background: var(--dept-color, var(--g-line-strong));
+  background: var(--dept-color, var(--base-line-strong));
   color: var(--dept-on);
 }
 .diff-chip.add-a {
-  box-shadow: 0 0 0 1.5px var(--g-info);
+  box-shadow: 0 0 0 1.5px var(--base-info);
 }
 .diff-chip.add-b {
-  box-shadow: 0 0 0 1.5px var(--g-ok);
+  box-shadow: 0 0 0 1.5px var(--base-ok);
 }
 
 /* A program has no department color of its own, so the add-a/add-b side
@@ -382,18 +382,18 @@ function titleFor(key: string): string {
   font: var(--text-id-small);
   border-radius: var(--radius-xs);
   padding: var(--space-05) var(--space-2);
-  background: var(--g-surface-2);
-  color: var(--g-ink);
+  background: var(--base-surface-2);
+  color: var(--base-ink);
 }
 .program-chip.add-a {
-  background: var(--g-info-tint);
+  background: var(--base-info-tint);
 }
 .program-chip.add-b {
-  background: var(--g-ok-tint);
+  background: var(--base-ok-tint);
 }
 .diff-none {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   font-style: italic;
 }
 
@@ -411,7 +411,7 @@ function titleFor(key: string): string {
 }
 .load-term {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 .load-bars {
   display: flex;
@@ -422,7 +422,7 @@ function titleFor(key: string): string {
   font: var(--text-micro);
   /* on-color for the semantic fills: white in light, near-black in dark;
      white on the dark-theme pastels would sit around 2.3:1 */
-  color: var(--g-surface);
+  color: var(--base-surface);
   border-radius: var(--radius-xs);
   padding: 0 var(--space-1);
   min-width: 28px;
@@ -435,7 +435,7 @@ function titleFor(key: string): string {
   flex-wrap: wrap;
   gap: var(--space-4);
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   margin-bottom: var(--space-2);
 }
 .legend-item {
@@ -451,16 +451,16 @@ function titleFor(key: string): string {
   flex-shrink: 0;
 }
 .bar-a {
-  background: var(--g-info);
+  background: var(--base-info);
 }
 .bar-b {
-  background: var(--g-ok);
+  background: var(--base-ok);
 }
 
 .compare-same {
   padding: var(--space-8);
   text-align: center;
   font: var(--text-body);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 </style>

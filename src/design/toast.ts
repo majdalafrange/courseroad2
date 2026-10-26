@@ -1,7 +1,7 @@
 /**
  * Toast service with a first-class undo affordance: destructive actions
  * are confirmed with undo (`toast.undoable`), not dialogs. Toasts travel
- * to GToastHost through Reka's toast manager; `state.toasts` mirrors the
+ * to BaseToastHost through Reka's toast manager; `state.toasts` mirrors the
  * open ones so stores can ask whether a toast is still showing.
  */
 
@@ -25,7 +25,7 @@ export interface Toast {
   duration: number;
 }
 
-/** What GToastList reads off each managed toast's `data`. */
+/** What BaseToastList reads off each managed toast's `data`. */
 export interface ToastData {
   variant: ToastVariant;
 }

@@ -11,7 +11,7 @@
            ignore it: the covered rows stay reachable by Tab, and nothing
            changes visually. Below 860px the detail is a sheet, so the
            audit is never inert there. -->
-      <audit-panel
+      <AuditPanel
         v-if="activeRoad !== '' && activeRoad in roads"
         :inert="detailOpen && !isMobile"
         data-cy="audit"
@@ -19,55 +19,55 @@
       <!-- One mount at a time (aside or sheet) so ClassDetail's window
            keydown listener never registers twice. Crossing 860px remounts
            the detail and loses its scroll position. -->
-      <class-detail v-if="detailOpen && !isMobile" class="panel-detail" />
+      <ClassDetail v-if="detailOpen && !isMobile" class="panel-detail" />
     </div>
     <div class="progress-foot" data-cy="unofficialWarning">
       <span class="foot-line">
         Unofficial tool. Confirm with the
-        <g-link href="https://student.mit.edu/cgi-bin/shrwsdau.sh" external
-          >official audit</g-link
+        <BaseLink href="https://student.mit.edu/cgi-bin/shrwsdau.sh" external
+          >official audit</BaseLink
         >
       </span>
-      <g-popover
+      <BasePopover
         v-model="footLinksOpen"
         align="end"
         placement="top"
         label="More links"
       >
         <template #anchor="{ triggerProps }">
-          <g-button
+          <BaseButton
             variant="quiet"
             size="sm"
             v-bind="triggerProps"
             @click="footLinksOpen = !footLinksOpen"
           >
             More links
-          </g-button>
+          </BaseButton>
         </template>
         <div class="foot-links" @click.stop>
-          <g-link
+          <BaseLink
             href="https://student.mit.edu/catalog/index.cgi"
             tone="quiet"
             external
-            >Subject listing</g-link
+            >Subject listing</BaseLink
           >
-          <g-link
+          <BaseLink
             href="https://catalog.mit.edu/degree-charts/"
             tone="quiet"
             external
-            >Degree charts</g-link
+            >Degree charts</BaseLink
           >
-          <g-link
+          <BaseLink
             href="https://fireroad.mit.edu/requirements/"
             tone="quiet"
             external
-            >Requirement wrong? Request an edit</g-link
+            >Requirement wrong? Request an edit</BaseLink
           >
-          <g-link href="mailto:courseroad@mit.edu" tone="quiet"
-            >courseroad@mit.edu</g-link
+          <BaseLink href="mailto:courseroad@mit.edu" tone="quiet"
+            >courseroad@mit.edu</BaseLink
           >
         </div>
-      </g-popover>
+      </BasePopover>
     </div>
   </aside>
 
@@ -76,18 +76,18 @@
       <!-- The glyph field sizes to the plan, not the viewport, so it
            scrolls with the cards instead of sitting still behind them. -->
       <div class="canvas-sheet">
-        <canvas-glyphs />
+        <CanvasGlyphs />
         <div v-if="subjectsError" class="catalog-error" role="alert">
           <div>
             <strong>We couldn't load the subject catalog.</strong>
             <span>Check your connection and try again.</span>
           </div>
-          <g-button variant="primary" size="sm" @click="refetchSubjects()">
+          <BaseButton variant="primary" size="sm" @click="refetchSubjects()">
             Try again
-          </g-button>
+          </BaseButton>
         </div>
         <div v-else-if="offline" class="offline-note" role="status">
-          <g-icon name="cloud" :size="14" />
+          <BaseIcon name="cloud" :size="14" />
           You're offline. Changes are kept locally and sync once you're back
           online.
         </div>
@@ -105,13 +105,13 @@
             to see what's left.
           </p>
           <div class="empty-actions">
-            <g-button variant="primary" @click.stop="focusSearch">
+            <BaseButton variant="primary" @click.stop="focusSearch">
               Add classes
-            </g-button>
+            </BaseButton>
           </div>
         </div>
 
-        <road-canvas
+        <RoadCanvas
           v-if="activeRoad !== '' && activeRoad in roads && !roadLoading"
           :key="activeRoad"
           :selected-subjects="roads[activeRoad].contents.selectedSubjects"
@@ -137,10 +137,10 @@ import AuditPanel from "../../components/audit/AuditPanel.vue";
 import ClassDetail from "../../components/detail/ClassDetail.vue";
 import CanvasGlyphs from "../../components/canvas/CanvasGlyphs.vue";
 import RoadCanvas from "../../components/canvas/RoadCanvas.vue";
-import GButton from "../../design/components/GButton.vue";
-import GLink from "../../design/components/GLink.vue";
-import GIcon from "../../design/components/GIcon.vue";
-import GPopover from "../../design/components/GPopover.vue";
+import BaseButton from "../../design/components/BaseButton.vue";
+import BaseLink from "../../design/components/BaseLink.vue";
+import BaseIcon from "../../design/components/BaseIcon.vue";
+import BasePopover from "../../design/components/BasePopover.vue";
 import { useIsMobile } from "../../composables/useIsMobile";
 import { useAppBootLoader } from "../../loaders/appBoot";
 import { useSubjectsLoader } from "../../loaders/courseData";
@@ -225,8 +225,8 @@ function focusSearch() {
 .progress-panel {
   width: 384px;
   flex-shrink: 0;
-  background: var(--g-surface);
-  border-right: 1px solid var(--g-line);
+  background: var(--base-surface);
+  border-right: 1px solid var(--base-line);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -237,7 +237,7 @@ function focusSearch() {
 .progress-panel.panel-right {
   order: 1;
   border-right: none;
-  border-left: 1px solid var(--g-line);
+  border-left: 1px solid var(--base-line);
 }
 
 .panel-stack {
@@ -255,7 +255,7 @@ function focusSearch() {
   position: absolute;
   inset: 0;
   z-index: 2;
-  background: var(--g-surface);
+  background: var(--base-surface);
   animation: detail-enter var(--motion-standard) var(--ease-out);
 }
 @keyframes detail-enter {
@@ -277,9 +277,9 @@ function focusSearch() {
   justify-content: space-between;
   gap: var(--space-2);
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   padding: var(--space-2) var(--space-4);
-  border-top: 1px solid var(--g-line);
+  border-top: 1px solid var(--base-line);
 }
 .foot-line {
   min-width: 0;
@@ -292,7 +292,7 @@ function focusSearch() {
   flex-direction: column;
   gap: var(--space-2);
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
 }
 
 .shell-main {
@@ -348,7 +348,7 @@ function focusSearch() {
 }
 .empty-copy {
   font: var(--text-body);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   margin: 0;
 }
 .empty-actions {
@@ -364,19 +364,19 @@ function focusSearch() {
   gap: var(--space-3);
   max-width: 1080px;
   margin: 0 auto var(--space-3);
-  background: var(--g-danger-tint);
-  border: 1px solid var(--g-danger);
+  background: var(--base-danger-tint);
+  border: 1px solid var(--base-danger);
   border-radius: var(--radius-md);
   padding: var(--space-3) var(--space-4);
 }
 .catalog-error strong {
   font: var(--text-body-strong);
-  color: var(--g-ink);
+  color: var(--base-ink);
   display: block;
 }
 .catalog-error span {
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
 }
 .offline-note,
 .road-loading {
@@ -386,9 +386,9 @@ function focusSearch() {
   max-width: 1080px;
   margin: 0 auto var(--space-3);
   font: var(--text-small);
-  color: var(--g-ink-2);
-  background: var(--g-surface-2);
-  border: 1px solid var(--g-line);
+  color: var(--base-ink-2);
+  background: var(--base-surface-2);
+  border: 1px solid var(--base-line);
   border-radius: var(--radius-md);
   padding: var(--space-2) var(--space-4);
 }

@@ -1,5 +1,5 @@
 <template>
-  <g-sheet v-model="isOpen" label="Share road" width="640px">
+  <BaseSheet v-model="isOpen" label="Share road" width="640px">
     <header class="share-head">
       <h2 class="share-title">Share “{{ roadName }}”</h2>
     </header>
@@ -22,7 +22,7 @@
 
     <div class="share-options">
       <button class="share-option" @click="savePng">
-        <g-icon
+        <BaseIcon
           :name="isTouchDevice ? 'shareMessage' : 'imageDown'"
           :size="16"
         />
@@ -32,7 +32,7 @@
         </span>
       </button>
       <button class="share-option" @click="printPoster">
-        <g-icon name="printer" :size="16" />
+        <BaseIcon name="printer" :size="16" />
         <span class="option-text">
           <strong>Print / Save as PDF</strong>
           <small>Opens your browser's print dialog</small>
@@ -43,7 +43,7 @@
         data-cy="exportRoadFileButton"
         @click="saveRoadFile"
       >
-        <g-icon name="download" :size="16" />
+        <BaseIcon name="download" :size="16" />
         <span class="option-text">
           <strong>Export .road file</strong>
           <small
@@ -52,13 +52,13 @@
         </span>
       </button>
     </div>
-  </g-sheet>
+  </BaseSheet>
 </template>
 
 <script setup lang="ts">
 import { computed, watch, ref } from "vue";
-import GIcon from "../../design/components/GIcon.vue";
-import GSheet from "../../design/components/GSheet.vue";
+import BaseIcon from "../../design/components/BaseIcon.vue";
+import BaseSheet from "../../design/components/BaseSheet.vue";
 import { toast } from "../../design/toast";
 import { downloadRoadFile } from "../../lib/download";
 import {
@@ -177,7 +177,7 @@ async function saveRoadFile() {
   align-items: center;
   justify-content: space-between;
   padding: var(--space-4) var(--space-5);
-  border-bottom: 1px solid var(--g-line);
+  border-bottom: 1px solid var(--base-line);
 }
 .share-title {
   font: var(--text-title);
@@ -188,7 +188,7 @@ async function saveRoadFile() {
   flex: 1;
   overflow-y: auto;
   padding: var(--space-4);
-  background: var(--g-bg);
+  background: var(--base-bg);
   display: flex;
   justify-content: center;
 }
@@ -209,14 +209,14 @@ async function saveRoadFile() {
   flex-direction: column;
   gap: var(--space-1);
   padding: var(--space-3);
-  border-top: 1px solid var(--g-line);
+  border-top: 1px solid var(--base-line);
 }
 .share-option {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   font: var(--text-body);
-  color: var(--g-ink);
+  color: var(--base-ink);
   background: transparent;
   border: none;
   border-radius: var(--radius-sm);
@@ -225,7 +225,7 @@ async function saveRoadFile() {
   text-align: left;
 }
 .share-option:hover {
-  background: var(--g-surface-2);
+  background: var(--base-surface-2);
 }
 .option-text {
   display: flex;
@@ -236,6 +236,6 @@ async function saveRoadFile() {
 }
 .option-text small {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 </style>

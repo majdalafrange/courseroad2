@@ -24,7 +24,7 @@
   >
     <!-- The note popover anchors to the card's main button: a
          double-click (or N) opens it, a single click opens the class. -->
-    <g-popover
+    <BasePopover
       v-model="noteOpen"
       class="card-note-anchor"
       align="start"
@@ -53,7 +53,7 @@
             >
           </span>
           <span class="card-title">{{ subject.title }}</span>
-          <g-icon
+          <BaseIcon
             v-if="note !== undefined"
             name="message"
             :size="11"
@@ -62,7 +62,7 @@
         </button>
       </template>
       <div class="note-pop" @pointerdown.stop @click.stop>
-        <g-textarea
+        <BaseTextarea
           v-model="noteDraft"
           :label="`Note on ${subject.subject_id}`"
           placeholder="Check prereqs with the professor..."
@@ -72,20 +72,20 @@
           @keydown.enter.exact.prevent="noteOpen = false"
         />
         <div class="note-actions">
-          <g-button
+          <BaseButton
             v-if="note !== undefined"
             size="sm"
             variant="ghost"
             @click="clearNote"
           >
             Remove note
-          </g-button>
-          <g-button size="sm" variant="primary" @click="noteOpen = false">
+          </BaseButton>
+          <BaseButton size="sm" variant="primary" @click="noteOpen = false">
             Done
-          </g-button>
+          </BaseButton>
         </div>
       </div>
-    </g-popover>
+    </BasePopover>
     <span :id="hintId" hidden>
       Press M to move it to another term, N to
       {{ note !== undefined ? "edit its note" : "add a note" }}, Delete to
@@ -100,10 +100,10 @@
       @pointerdown.stop
       @click.stop="removeSelf"
     >
-      <g-icon name="close" :size="11" />
+      <BaseIcon name="close" :size="11" />
     </button>
 
-    <g-popover
+    <BasePopover
       v-if="warnings.length > 0"
       v-model="warningsOpen"
       class="card-warning-anchor"
@@ -125,14 +125,14 @@
           @pointerdown.stop
           @click.stop="warningsOpen = !warningsOpen"
         >
-          <g-icon name="warn" :size="13" />
+          <BaseIcon name="warn" :size="13" />
         </button>
       </template>
       <div class="warning-pop" @pointerdown.stop>
         <!-- warning strings embed only FireRoad catalog data -->
         <!-- eslint-disable-next-line vue/no-v-html -->
         <p v-for="warning in warnings" :key="warning" v-html="warning" />
-        <g-checkbox
+        <BaseCheckbox
           class="warning-mute"
           :model-value="subject.overrideWarnings"
           @update:model-value="
@@ -141,9 +141,9 @@
           "
         >
           Hide warnings for this class
-        </g-checkbox>
+        </BaseCheckbox>
       </div>
-    </g-popover>
+    </BasePopover>
   </div>
 </template>
 
@@ -156,11 +156,11 @@ import {
   useTemplateRef,
   watch,
 } from "vue";
-import GButton from "../../design/components/GButton.vue";
-import GCheckbox from "../../design/components/GCheckbox.vue";
-import GIcon from "../../design/components/GIcon.vue";
-import GPopover from "../../design/components/GPopover.vue";
-import GTextarea from "../../design/components/GTextarea.vue";
+import BaseButton from "../../design/components/BaseButton.vue";
+import BaseCheckbox from "../../design/components/BaseCheckbox.vue";
+import BaseIcon from "../../design/components/BaseIcon.vue";
+import BasePopover from "../../design/components/BasePopover.vue";
+import BaseTextarea from "../../design/components/BaseTextarea.vue";
 import { courseColor } from "../../lib/colors";
 import { placedKey } from "../../lib/consequences";
 import type { SelectedSubject, Subject } from "../../lib/types";
@@ -379,7 +379,7 @@ function onHoverEnd() {
   display: flex;
   align-items: stretch;
   /* Solid department color (see tokens.css, course chips). */
-  background: var(--dept-color, var(--g-line-strong));
+  background: var(--dept-color, var(--base-line-strong));
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-1);
   cursor: grab;
@@ -413,7 +413,7 @@ function onHoverEnd() {
   transform: translateY(-1px);
 }
 .class-card:has(.card-body:focus-visible) {
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
 }
 .card-body:focus-visible {
   outline: none;
@@ -426,24 +426,24 @@ function onHoverEnd() {
 }
 .class-card.is-ancestor {
   box-shadow:
-    0 0 0 2px var(--g-ok),
+    0 0 0 2px var(--base-ok),
     var(--shadow-1);
 }
 .class-card.is-dependent {
   box-shadow:
-    0 0 0 2px var(--g-accent),
+    0 0 0 2px var(--base-accent),
     var(--shadow-1);
 }
 .class-card.is-move-selected {
   box-shadow:
-    0 0 0 2px var(--g-accent),
-    0 0 0 5px var(--g-accent-tint-strong);
+    0 0 0 2px var(--base-accent),
+    0 0 0 5px var(--base-accent-tint-strong);
 }
 /* Ink ring past a cell-colored gap: a green ring vanished on green cards. */
 .class-card.is-audit-lit {
   box-shadow:
-    0 0 0 2px var(--g-cell),
-    0 0 0 4px var(--g-ink);
+    0 0 0 2px var(--base-cell),
+    0 0 0 4px var(--base-ink);
 }
 
 /* The note popover's anchor wraps the card body; it takes the body's
@@ -545,8 +545,8 @@ function onHoverEnd() {
 }
 .card-remove {
   left: -9px;
-  --badge-fill: var(--g-ink);
-  color: var(--g-bg);
+  --badge-fill: var(--base-ink);
+  color: var(--base-bg);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--motion-quick) var(--ease-out);
@@ -565,16 +565,16 @@ function onHoverEnd() {
   }
 }
 .card-remove:hover {
-  --badge-fill: var(--g-danger);
-  /* --g-surface, not #fff: dark-theme danger needs the near-black
+  --badge-fill: var(--base-danger);
+  /* --base-surface, not #fff: dark-theme danger needs the near-black
      on-color (5.6:1); white on it is 1.9:1 */
-  color: var(--g-surface);
+  color: var(--base-surface);
 }
 
 .card-warning {
   right: -9px;
-  --badge-fill: var(--g-warn);
-  color: var(--g-surface); /* see .card-remove:hover; themed on-color */
+  --badge-fill: var(--base-warn);
+  color: var(--base-surface); /* see .card-remove:hover; themed on-color */
   transition: opacity var(--motion-quick) var(--ease-out);
 }
 .card-warning.is-quiet:not(:focus-visible) {
@@ -583,7 +583,7 @@ function onHoverEnd() {
 }
 .card-warning:focus-visible {
   outline: none;
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
 }
 
 /* Touch tier (tokens.css): a 44px corner disc would cover the card body
@@ -651,7 +651,7 @@ function onHoverEnd() {
 .warning-pop {
   width: 280px;
   font: var(--text-small);
-  color: var(--g-ink);
+  color: var(--base-ink);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -661,8 +661,8 @@ function onHoverEnd() {
 }
 .warning-mute {
   font: var(--text-small);
-  color: var(--g-ink-2);
-  border-top: 1px solid var(--g-line);
+  color: var(--base-ink-2);
+  border-top: 1px solid var(--base-line);
   padding-top: var(--space-2);
 }
 </style>

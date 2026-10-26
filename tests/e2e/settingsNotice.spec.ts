@@ -14,7 +14,7 @@ test("a first open points to Settings once", async ({ context, page }) => {
 
   await page.goto("/");
   await expect(
-    page.locator(".g-toast-message", {
+    page.locator(".base-toast-message", {
       hasText: "Layout and theme are in Settings",
     }),
   ).toBeVisible();
@@ -24,7 +24,7 @@ test("a first open points to Settings once", async ({ context, page }) => {
   await page.reload();
   await page.locator("#canvasScroll").waitFor();
   await expect(
-    page.locator(".g-toast-message", {
+    page.locator(".base-toast-message", {
       hasText: "Layout and theme are in Settings",
     }),
   ).toHaveCount(0);
@@ -45,7 +45,7 @@ test("an old-app user hears why the layout is classic", async ({
 
   await page.goto("/");
   await expect(
-    page.locator(".g-toast-message", {
+    page.locator(".base-toast-message", {
       hasText: "Your plan uses the classic layout",
     }),
   ).toBeVisible();
@@ -57,13 +57,13 @@ test("the notice waits for onboarding to close", async ({ context, page }) => {
 
   await expect(page.getByRole("button", { name: "Skip" })).toBeVisible();
   await expect(
-    page.locator(".g-toast-message", {
+    page.locator(".base-toast-message", {
       hasText: "Layout and theme are in Settings",
     }),
   ).toHaveCount(0);
   await page.getByRole("button", { name: "Skip" }).click();
   await expect(
-    page.locator(".g-toast-message", {
+    page.locator(".base-toast-message", {
       hasText: "Layout and theme are in Settings",
     }),
   ).toBeVisible();

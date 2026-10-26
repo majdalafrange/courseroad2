@@ -1,11 +1,11 @@
 <template>
-  <g-sheet v-model="isOpen" label="Import road" width="480px">
+  <BaseSheet v-model="isOpen" label="Import road" width="480px">
     <div class="import-sheet">
       <div class="import-head">
         <h2 class="import-title">Import a road</h2>
       </div>
 
-      <g-input
+      <BaseInput
         v-model="roadtitle"
         label="Road name"
         placeholder="Junior spring draft"
@@ -24,12 +24,12 @@
           @input="onFileChange"
         />
         <span class="import-file-label">
-          <g-icon name="file" :size="14" />
+          <BaseIcon name="file" :size="14" />
           {{ fileName ?? "Choose a .road file" }}
         </span>
       </label>
 
-      <g-textarea
+      <BaseTextarea
         v-model="inputtext"
         label="...or paste a road here"
         monospace
@@ -44,27 +44,27 @@
       </p>
 
       <div class="import-actions">
-        <g-button variant="ghost" @click="close">Cancel</g-button>
-        <g-button
+        <BaseButton variant="ghost" @click="close">Cancel</BaseButton>
+        <BaseButton
           variant="primary"
           :disabled="nameError !== undefined || inputtext === ''"
           data-cy="importRoadSubmitButton"
           @click="importRoad"
         >
           Import road
-        </g-button>
+        </BaseButton>
       </div>
     </div>
-  </g-sheet>
+  </BaseSheet>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import GButton from "../../design/components/GButton.vue";
-import GTextarea from "../../design/components/GTextarea.vue";
-import GSheet from "../../design/components/GSheet.vue";
-import GIcon from "../../design/components/GIcon.vue";
-import GInput from "../../design/components/GInput.vue";
+import BaseButton from "../../design/components/BaseButton.vue";
+import BaseTextarea from "../../design/components/BaseTextarea.vue";
+import BaseSheet from "../../design/components/BaseSheet.vue";
+import BaseIcon from "../../design/components/BaseIcon.vue";
+import BaseInput from "../../design/components/BaseInput.vue";
 import { toast } from "../../design/toast";
 import { parseRoadFile, uniqueRoadName } from "../../lib/roads";
 import type { ProgressAssertion, SelectedSubject } from "../../lib/types";
@@ -230,26 +230,26 @@ function flagBadInput() {
   align-items: center;
   gap: var(--space-2);
   font: var(--text-body);
-  color: var(--g-ink-2);
-  border: 1.5px dashed var(--g-line-strong);
+  color: var(--base-ink-2);
+  border: 1.5px dashed var(--base-line-strong);
   border-radius: var(--radius-sm);
   padding: var(--space-3);
   cursor: pointer;
   transition: border-color var(--motion-quick) var(--ease-out);
 }
 .import-file-label:hover {
-  border-color: var(--g-accent);
-  color: var(--g-ink);
+  border-color: var(--base-accent);
+  color: var(--base-ink);
 }
 
 /* The file input itself is invisible; its label is what shows focus. */
 .import-file:focus-within .import-file-label {
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
 }
 
 .import-error {
   font: var(--text-small);
-  color: var(--g-danger);
+  color: var(--base-danger);
   margin: 0;
 }
 

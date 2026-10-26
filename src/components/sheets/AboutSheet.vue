@@ -1,22 +1,22 @@
 <template>
-  <g-sheet v-model="isOpen" label="About" width="720px">
+  <BaseSheet v-model="isOpen" label="About" width="720px">
     <div class="about-content">
       <div class="about">
-        <g-wordmark size="lg" />
+        <BaseWordmark size="lg" />
         <p class="about-lede">
           CourseRoad is a student-run academic planner for MIT students. It
           allows students to plan out their degrees, test out paths for
           different majors, and view class information. CourseRoad is maintained
           by the
-          <g-link href="https://sipb.mit.edu" external
-            >Student Information Processing Board</g-link
+          <BaseLink href="https://sipb.mit.edu" external
+            >Student Information Processing Board</BaseLink
           >.
         </p>
         <p>
           It uses
-          <g-link href="https://fireroad.mit.edu" external>FireRoad</g-link>,
-          which provides the subject catalog, the requirements engine, and cloud
-          sync.
+          <BaseLink href="https://fireroad.mit.edu" external>FireRoad</BaseLink
+          >, which provides the subject catalog, the requirements engine, and
+          cloud sync.
         </p>
 
         <h2>Disclaimer</h2>
@@ -25,11 +25,11 @@
           never going to be perfect, because the audit is presented in English,
           which allows unlimited flexibility and annoying edge cases. Always
           double-check with the
-          <g-link href="https://student.mit.edu/cgi-bin/shrwsdau.sh" external
-            >official audit</g-link
+          <BaseLink href="https://student.mit.edu/cgi-bin/shrwsdau.sh" external
+            >official audit</BaseLink
           >, the
-          <g-link href="https://catalog.mit.edu/degree-charts/" external
-            >degree charts</g-link
+          <BaseLink href="https://catalog.mit.edu/degree-charts/" external
+            >degree charts</BaseLink
           >, and your department advisor.
         </p>
         <p>
@@ -42,8 +42,8 @@
         <p>
           If you would like to access the old version of CourseRoad, you can
           find it at
-          <g-link href="https://courseroad.mit.edu/" external
-            >courseroad.mit.edu</g-link
+          <BaseLink href="https://courseroad.mit.edu/" external
+            >courseroad.mit.edu</BaseLink
           >.
         </p>
 
@@ -68,25 +68,27 @@
         </ul>
         <p>
           CourseRoad is fully open source on
-          <g-link href="https://github.com/sipb/courseroad2" external
-            >GitHub</g-link
+          <BaseLink href="https://github.com/sipb/courseroad2" external
+            >GitHub</BaseLink
           >, and we gladly accept contributions. If you have any questions,
           comments, or just want to say hi, feel free to email us at
-          <g-link href="mailto:courseroad@mit.edu">courseroad@mit.edu</g-link>.
-          If you spot a requirement that's wrong, you can fix it by going to the
-          <g-link href="https://fireroad.mit.edu/requirements/" external
-            >requirements editor</g-link
+          <BaseLink href="mailto:courseroad@mit.edu"
+            >courseroad@mit.edu</BaseLink
+          >. If you spot a requirement that's wrong, you can fix it by going to
+          the
+          <BaseLink href="https://fireroad.mit.edu/requirements/" external
+            >requirements editor</BaseLink
           >.
         </p>
       </div>
     </div>
-  </g-sheet>
+  </BaseSheet>
 </template>
 
 <script setup lang="ts">
-import GSheet from "../../design/components/GSheet.vue";
-import GLink from "../../design/components/GLink.vue";
-import GWordmark from "../../design/components/GWordmark.vue";
+import BaseSheet from "../../design/components/BaseSheet.vue";
+import BaseLink from "../../design/components/BaseLink.vue";
+import BaseWordmark from "../../design/components/BaseWordmark.vue";
 
 const isOpen = defineModel<boolean>({ required: true });
 </script>
@@ -96,17 +98,17 @@ const isOpen = defineModel<boolean>({ required: true });
   overflow-y: auto;
   padding: var(--space-6);
   font: var(--text-body);
-  color: var(--g-ink);
+  color: var(--base-ink);
 }
 .about {
   max-width: 46em;
-  color: var(--g-ink);
+  color: var(--base-ink);
 }
 /* .about p is (0,1,1); this has to outrank it or the lede renders as body */
 .about p.about-lede {
   font: var(--text-heading);
   font-weight: 400;
-  color: var(--g-ink);
+  color: var(--base-ink);
   margin: var(--space-4) 0 var(--space-5);
 }
 .about h2 {
@@ -115,7 +117,7 @@ const isOpen = defineModel<boolean>({ required: true });
 }
 .about p {
   font: var(--text-body);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   margin: 0 0 var(--space-2);
 }
 /* Names in two columns where they fit, so the list doesn't outgrow the
@@ -125,7 +127,7 @@ const isOpen = defineModel<boolean>({ required: true });
   column-gap: var(--space-6);
   margin: 0 0 var(--space-3);
   padding-left: var(--space-5);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
 }
 .about li {
   margin: 0 0 var(--space-05);
@@ -133,6 +135,6 @@ const isOpen = defineModel<boolean>({ required: true });
 }
 .about-credits {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 </style>

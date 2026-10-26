@@ -6,7 +6,7 @@
       :aria-current="active === 'plan' ? 'page' : undefined"
       @click="emit('navigate', 'plan')"
     >
-      <g-icon name="map" :size="18" />
+      <BaseIcon name="map" :size="18" />
       <span>Plan</span>
     </button>
     <button
@@ -15,18 +15,18 @@
       :aria-current="active === 'progress' ? 'page' : undefined"
       @click="emit('navigate', 'progress')"
     >
-      <g-icon name="check" :size="18" />
+      <BaseIcon name="check" :size="18" />
       <span>Progress</span>
     </button>
     <button class="mobile-tab search-tab" @click="emit('search')">
-      <g-icon name="plus" :size="18" />
+      <BaseIcon name="plus" :size="18" />
       <span>Add<span class="sr-only"> classes</span></span>
     </button>
   </nav>
 </template>
 
 <script setup lang="ts">
-import GIcon from "../../design/components/GIcon.vue";
+import BaseIcon from "../../design/components/BaseIcon.vue";
 
 defineProps<{
   active: "plan" | "progress";
@@ -46,8 +46,8 @@ const emit = defineEmits<{
   right: 0;
   z-index: 50;
   display: flex;
-  background: var(--g-surface);
-  border-top: 1px solid var(--g-line);
+  background: var(--base-surface);
+  border-top: 1px solid var(--base-line);
   /* A fixed height (border included), so what reserves room for the nav
      reserves exactly this much. */
   height: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px));
@@ -60,7 +60,7 @@ const emit = defineEmits<{
   align-items: center;
   gap: var(--space-05);
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   background: transparent;
   border: none;
   justify-content: center;
@@ -73,7 +73,7 @@ const emit = defineEmits<{
   position: relative;
 }
 .mobile-tab.active {
-  color: var(--g-accent);
+  color: var(--base-accent);
   font-weight: 600;
 }
 .mobile-tab.active::before {
@@ -89,9 +89,9 @@ const emit = defineEmits<{
 }
 .mobile-tab:focus-visible {
   outline: none;
-  box-shadow: var(--g-focus-ring-inset);
+  box-shadow: var(--base-focus-ring-inset);
 }
 .search-tab {
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
 }
 </style>

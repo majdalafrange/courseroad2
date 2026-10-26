@@ -87,7 +87,7 @@ const LIGHT_THEME: PosterTheme = {
   deptOn2: DEPT_ON.light[1],
 };
 
-/* --g-mark: the wordmark tile is cardinal in both themes, so it is not part
+/* --base-mark: the wordmark tile is cardinal in both themes, so it is not part
    of PosterTheme. */
 export const MARK_TILE = "#a31f34";
 
@@ -299,7 +299,7 @@ function termBlock(
   const headerH = 44;
   const blockH = headerH + subjects.length * (cardH + cardGap) + 8;
   const parts: string[] = [];
-  // TermCell: --g-cell (not --g-surface), --radius-md (6px, not 10), and
+  // TermCell: --base-cell (not --base-surface), --radius-md (6px, not 10), and
   // prior credit sits on a dashed, transparent (not filled) box.
   parts.push(
     `<rect x="${x}" y="${y}" width="${w}" height="${blockH}" rx="6" ` +

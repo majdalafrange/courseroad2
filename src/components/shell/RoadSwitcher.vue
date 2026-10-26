@@ -1,7 +1,7 @@
 <template>
-  <g-menu v-model="open" align="start" @close-auto-focus="onMenuClosed">
+  <BaseMenu v-model="open" align="start" @close-auto-focus="onMenuClosed">
     <template #trigger>
-      <g-button
+      <BaseButton
         ref="triggerEl"
         variant="field"
         class="switch-trigger"
@@ -12,108 +12,108 @@
         <span v-if="roadIds.length > 1" class="switch-count"
           >{{ roadIds.length }} roads</span
         >
-        <g-icon name="chevronDown" :size="13" class="switch-chevron" />
-      </g-button>
+        <BaseIcon name="chevronDown" :size="13" class="switch-chevron" />
+      </BaseButton>
     </template>
 
     <div class="switch-menu">
       <div class="switch-label">
-        <g-menu-label as="span">Roads</g-menu-label>
-        <g-tooltip text="New road">
-          <g-menu-item
-            class="switch-icon-btn g-hit"
+        <BaseMenuLabel as="span">Roads</BaseMenuLabel>
+        <BaseTooltip text="New road">
+          <BaseMenuItem
+            class="switch-icon-btn base-hit"
             data-cy="addRoadButton"
             aria-label="New road"
             @select="createRoad"
           >
-            <g-icon name="plus" :size="14" />
-          </g-menu-item>
-        </g-tooltip>
+            <BaseIcon name="plus" :size="14" />
+          </BaseMenuItem>
+        </BaseTooltip>
       </div>
 
       <!-- Each road is a radio item, so the active one is announced as
            checked. Its row actions are sibling menu items (the arrow keys
            walk road, rename, duplicate, delete, next road), revealed while
            the row is hovered or one of its items is highlighted. -->
-      <g-menu-radio-group :model-value="activeRoad" @update:model-value="pick">
+      <BaseMenuRadioGroup :model-value="activeRoad" @update:model-value="pick">
         <div
           v-for="roadId in roadIds"
           :key="roadId"
           class="switch-road"
           :class="{ active: roadId === activeRoad }"
         >
-          <g-menu-radio-item
+          <BaseMenuRadioItem
             :value="roadId"
             class="road-item"
             :data-cy="'roadTab' + roadId"
           >
             <span class="road-check" aria-hidden="true"
-              ><g-icon v-if="roadId === activeRoad" name="check" :size="13"
+              ><BaseIcon v-if="roadId === activeRoad" name="check" :size="13"
             /></span>
             <span class="road-name">{{ roads[roadId].name }}</span>
             <span class="road-count" aria-hidden="true">{{
               classCount(roadId) || ""
             }}</span>
             <span class="sr-only">{{ classCountLabel(roadId) }}</span>
-          </g-menu-radio-item>
+          </BaseMenuRadioItem>
           <span class="road-actions">
-            <g-tooltip text="Rename">
-              <g-menu-item
-                class="switch-icon-btn g-hit"
+            <BaseTooltip text="Rename">
+              <BaseMenuItem
+                class="switch-icon-btn base-hit"
                 data-cy="editRoadButton"
                 :aria-label="`Rename ${roads[roadId].name}`"
                 @select="queueRename(roadId)"
               >
-                <g-icon name="pencil" :size="13" />
-              </g-menu-item>
-            </g-tooltip>
-            <g-tooltip text="Duplicate">
-              <g-menu-item
-                class="switch-icon-btn g-hit"
+                <BaseIcon name="pencil" :size="13" />
+              </BaseMenuItem>
+            </BaseTooltip>
+            <BaseTooltip text="Duplicate">
+              <BaseMenuItem
+                class="switch-icon-btn base-hit"
                 data-cy="duplicateRoadButton"
                 :aria-label="`Duplicate ${roads[roadId].name}`"
                 @select="emit('duplicate-road', roadId)"
               >
-                <g-icon name="copy" :size="13" />
-              </g-menu-item>
-            </g-tooltip>
-            <g-tooltip text="Delete">
-              <g-menu-item
-                class="switch-icon-btn g-hit"
+                <BaseIcon name="copy" :size="13" />
+              </BaseMenuItem>
+            </BaseTooltip>
+            <BaseTooltip text="Delete">
+              <BaseMenuItem
+                class="switch-icon-btn base-hit"
                 danger
                 data-cy="deleteRoadButton"
                 :aria-label="`Delete ${roads[roadId].name}`"
                 @select="emit('delete-road', roadId)"
               >
-                <g-icon name="trash" :size="13" />
-              </g-menu-item>
-            </g-tooltip>
+                <BaseIcon name="trash" :size="13" />
+              </BaseMenuItem>
+            </BaseTooltip>
           </span>
         </div>
-      </g-menu-radio-group>
+      </BaseMenuRadioGroup>
 
-      <g-menu-separator />
+      <BaseMenuSeparator />
 
-      <g-menu-item data-cy="shareRoadButton" @select="emit('open-share')">
-        <g-icon name="share" :size="14" />
+      <BaseMenuItem data-cy="shareRoadButton" @select="emit('open-share')">
+        <BaseIcon name="share" :size="14" />
         Share this road...
-      </g-menu-item>
-      <g-menu-item data-cy="importRoadButton" @select="emit('open-import')">
-        <g-icon name="import" :size="14" />
+      </BaseMenuItem>
+      <BaseMenuItem data-cy="importRoadButton" @select="emit('open-import')">
+        <BaseIcon name="import" :size="14" />
         Import a road...
-      </g-menu-item>
-      <g-menu-item
+      </BaseMenuItem>
+      <BaseMenuItem
         v-if="roadIds.length > 1"
         data-cy="compareRoadsButton"
         @select="emit('open-compare')"
       >
-        <g-icon name="map" :size="14" />
+        <BaseIcon name="map" :size="14" />
         Compare roads...
-      </g-menu-item>
+      </BaseMenuItem>
     </div>
-  </g-menu>
+  </BaseMenu>
 
-  <g-sheet
+  <BaseSheet
     v-model="renameOpen"
     label="Rename road"
     width="380px"
@@ -122,34 +122,36 @@
   >
     <form class="rename-form" @submit.prevent="commitRename">
       <h2 class="rename-title">Rename road</h2>
-      <g-input
+      <BaseInput
         v-model="renameValue"
         label="Road name"
         data-cy="renameRoadField"
       />
       <div class="rename-actions">
-        <g-button variant="ghost" @click="renameOpen = false">Cancel</g-button>
-        <g-button variant="primary" type="submit">Save</g-button>
+        <BaseButton variant="ghost" @click="renameOpen = false"
+          >Cancel</BaseButton
+        >
+        <BaseButton variant="primary" type="submit">Save</BaseButton>
       </div>
     </form>
-  </g-sheet>
+  </BaseSheet>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, useTemplateRef, watch } from "vue";
-import GButton from "../../design/components/GButton.vue";
-import GIcon from "../../design/components/GIcon.vue";
-import GInput from "../../design/components/GInput.vue";
+import BaseButton from "../../design/components/BaseButton.vue";
+import BaseIcon from "../../design/components/BaseIcon.vue";
+import BaseInput from "../../design/components/BaseInput.vue";
 import {
-  GMenu,
-  GMenuItem,
-  GMenuLabel,
-  GMenuRadioGroup,
-  GMenuRadioItem,
-  GMenuSeparator,
-} from "../../design/components/GMenu";
-import GSheet from "../../design/components/GSheet.vue";
-import GTooltip from "../../design/components/GTooltip.vue";
+  BaseMenu,
+  BaseMenuItem,
+  BaseMenuLabel,
+  BaseMenuRadioGroup,
+  BaseMenuRadioItem,
+  BaseMenuSeparator,
+} from "../../design/components/BaseMenu";
+import BaseSheet from "../../design/components/BaseSheet.vue";
+import BaseTooltip from "../../design/components/BaseTooltip.vue";
 import { toast } from "../../design/toast";
 import { otherRoadHasName } from "../../lib/roads";
 import { flatten } from "../../lib/types";
@@ -287,8 +289,8 @@ function commitRename() {
 
 <style scoped>
 /* The bare name read as a page title, so the switcher is field-shaped
-   (GButton's "field"), and the chevron says it opens a list. */
-.g-button.switch-trigger {
+   (BaseButton's "field"), and the chevron says it opens a list. */
+.base-button.switch-trigger {
   min-width: 0;
   max-width: 340px;
   font: var(--text-body-strong);
@@ -301,12 +303,12 @@ function commitRename() {
 }
 .switch-count {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   white-space: nowrap;
   flex-shrink: 0;
 }
 .switch-chevron {
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   flex-shrink: 0;
 }
 
@@ -323,11 +325,11 @@ function commitRename() {
   align-items: center;
   justify-content: space-between;
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   padding: var(--space-1) var(--space-2) var(--space-2);
 }
 
-/* Icon-sized menu items: .g-menu-item supplies the highlight and focus
+/* Icon-sized menu items: .base-menu-item supplies the highlight and focus
    states; this only sizes them. */
 .switch-icon-btn {
   justify-content: center;
@@ -335,7 +337,7 @@ function commitRename() {
   height: 22px;
   padding: 0;
   border-radius: var(--radius-xs);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 
 /* The row holds the road's radio item and, over its right end, the
@@ -352,12 +354,12 @@ function commitRename() {
   padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
 }
 .switch-road:hover .road-item:not([data-highlighted]) {
-  background: var(--g-surface-2);
-  color: var(--g-ink);
+  background: var(--base-surface-2);
+  color: var(--base-ink);
 }
 .switch-road.active .road-item {
-  background: var(--g-accent-tint);
-  color: var(--g-ink);
+  background: var(--base-accent-tint);
+  color: var(--base-ink);
   font-weight: 600;
 }
 /* A fixed slot, so every road name starts at the same x. */
@@ -365,7 +367,7 @@ function commitRename() {
   display: inline-flex;
   width: 13px;
   flex-shrink: 0;
-  color: var(--g-accent);
+  color: var(--base-accent);
 }
 .road-name {
   flex: 1;
@@ -382,7 +384,7 @@ function commitRename() {
   text-align: right;
   font: var(--text-id-small);
   font-weight: 400;
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   transition: opacity var(--motion-quick) var(--ease-out);
 }
 .road-actions {
@@ -444,7 +446,7 @@ function commitRename() {
 }
 .rename-title {
   font: var(--text-heading);
-  color: var(--g-ink);
+  color: var(--base-ink);
   margin: 0;
 }
 .rename-actions {

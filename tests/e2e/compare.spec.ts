@@ -18,7 +18,7 @@ test("compare opens from the switcher and Escape closes one layer", async ({
   const dialog = page.getByRole("dialog", { name: "Compare roads" });
   await expect(dialog).toBeVisible();
 
-  // The modal contract from GSheet: Escape closes exactly this layer.
+  // The modal contract from BaseSheet: Escape closes exactly this layer.
   await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);
   await expect(cy(page, "roadSwitcher")).toBeVisible();

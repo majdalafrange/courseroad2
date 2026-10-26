@@ -4,7 +4,7 @@
     <div class="group-items">
       <span v-if="label && leafOnly" class="group-label">{{ label }}</span>
       <template v-for="(child, index) in children" :key="index">
-        <prereq-tree
+        <PrereqTree
           v-if="isGroup(child)"
           :node="child"
           :root="false"
@@ -19,7 +19,7 @@
           @click="openLeaf(child)"
           @pointerdown="dragLeaf($event, child)"
         >
-          <g-icon
+          <BaseIcon
             v-if="child.fulfilled"
             name="check"
             :size="10"
@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import GIcon from "../../design/components/GIcon.vue";
+import BaseIcon from "../../design/components/BaseIcon.vue";
 import {
   isGroup,
   type ParsedLeaf,
@@ -143,22 +143,22 @@ export default { name: "PrereqTree" };
   max-width: 100%;
 }
 .prereq-group.is-root {
-  border: 1px solid var(--g-line);
+  border: 1px solid var(--base-line);
   border-radius: var(--radius-sm);
   padding: var(--space-2);
 }
 .prereq-group.is-nested {
-  border-left: 2px solid var(--g-line);
+  border-left: 2px solid var(--base-line);
   padding: var(--space-1) 0 var(--space-1) var(--space-3);
 }
 .prereq-group.is-nested.depth-1 {
-  border-left-color: var(--g-line-strong);
+  border-left-color: var(--base-line-strong);
 }
 
 .group-label {
   font: var(--text-small);
   font-weight: 600;
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
 }
 
 .group-items {
@@ -183,7 +183,7 @@ export default { name: "PrereqTree" };
   font: var(--text-id-small);
   color: var(--dept-on);
   height: 22px;
-  background: var(--dept-color, var(--g-line-strong));
+  background: var(--dept-color, var(--base-line-strong));
   border: none;
   border-radius: var(--radius-sm);
   padding: 0 var(--space-2);
@@ -195,7 +195,7 @@ export default { name: "PrereqTree" };
   cursor: pointer;
 }
 .prereq-chip.known:hover {
-  box-shadow: 0 0 0 1.5px var(--g-accent);
+  box-shadow: 0 0 0 1.5px var(--base-accent);
 }
 .chip-check {
   flex-shrink: 0;

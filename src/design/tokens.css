@@ -12,7 +12,7 @@
  *
  * Light is paper, garnet-led; dark is blueprint, blue-black rather than
  * neutral charcoal, where MIT silver carries every interactive state and
- * cardinal (--g-brand) is reserved for identity, so red never reads as
+ * cardinal (--base-brand) is reserved for identity, so red never reads as
  * an alert. Department colors live in departmentPalette.ts (fixed OKLCH
  * bands guarantee contrast).
  *
@@ -28,28 +28,28 @@
  *               no transform.
  *     active    background steps again + translateY(0.5px) scale(0.99)
  *               over var(--motion-instant).
- *     focus     outline: none; box-shadow: var(--g-focus-ring), or
- *               --g-focus-ring-inset where an edge would clip it.
- *     disabled  authored, never opacity: color → --g-ink-disabled,
- *               background → --g-surface-sunken, borders → --g-line.
+ *     focus     outline: none; box-shadow: var(--base-focus-ring), or
+ *               --base-focus-ring-inset where an edge would clip it.
+ *     disabled  authored, never opacity: color → --base-ink-disabled,
+ *               background → --base-surface-sunken, borders → --base-line.
  *     loading   aria-busy, pointer-events none, 12px currentColor spinner;
  *               reduced motion swaps rotation for an opacity pulse.
  *
- *   Inputs (the GInput shell; ad-hoc inputs must adopt it, not re-derive)
- *     rest      inset 0 0 0 1px var(--g-line-control): a text field's
+ *   Inputs (the BaseInput shell; ad-hoc inputs must adopt it, not re-derive)
+ *     rest      inset 0 0 0 1px var(--base-line-control): a text field's
  *               edge is how it reads as a field, so it needs 3:1
- *               (--g-line-strong is a hairline, ~1.6:1). Field-shaped
- *               buttons (GButton "field") use the same ring
- *     hover     inset ring → var(--g-ink-3); a trigger holds it while its
+ *               (--base-line-strong is a hairline, ~1.6:1). Field-shaped
+ *               buttons (BaseButton "field") use the same ring
+ *     hover     inset ring → var(--base-ink-3); a trigger holds it while its
  *               menu is open
- *     focus     inset 0 0 0 1.5px var(--g-accent), 0 0 0 3px
- *               var(--g-accent-tint); a trigger takes the Buttons ring
- *     invalid   same recipe with --g-danger / --g-danger-tint
+ *     focus     inset 0 0 0 1.5px var(--base-accent), 0 0 0 3px
+ *               var(--base-accent-tint); a trigger takes the Buttons ring
+ *     invalid   same recipe with --base-danger / --base-danger-tint
  *     disabled  sunken bg + line ring
  *
  *   Rows (menu items, palette rows, leaf/branch rows, road lists)
- *     hover --g-surface-2 (neutral lists) or --g-accent-tint (menus);
- *     selected --g-accent-tint (+ 3px accent rail where the list has one);
+ *     hover --base-surface-2 (neutral lists) or --base-accent-tint (menus);
+ *     selected --base-accent-tint (+ 3px accent rail where the list has one);
  *     no transform, no shadow.
  *
  *   Reveal-on-hover (card bubbles, row actions)
@@ -81,17 +81,17 @@
  *
  * STACKING SCALE (not CSS vars: z-index doesn't inherit, so each site
  * writes its own literal; new overlays should slot into this order):
- *   50  GPopover, MobileNav (the nav bar is fine sharing this level: any
+ *   50  BasePopover, MobileNav (the nav bar is fine sharing this level: any
  *       popover it triggers teleports to the end of <body>, so it still
  *       paints on top by document order)
- *   60  GTooltip, DetailSheet
+ *   60  BaseTooltip, DetailSheet
  *   90  CookieConsent (below every sheet; a modal always wins)
- *  100  GSheet, GDrawer, and the CommandPalette (a GSheet: opened over
+ *  100  BaseSheet, BaseDrawer, and the CommandPalette (a BaseSheet: opened over
  *       another sheet, it is later in <body>, so it paints on top)
- *  105  GSelect content (must clear a GSheet it can be nested inside)
+ *  105  BaseSelect content (must clear a BaseSheet it can be nested inside)
  *  150  the drag ghost (must clear everything it can be dragged over,
  *       short of a toast reporting a drag failure)
- *  200  GToastHost (always on top, including over an active drag)
+ *  200  BaseToastHost (always on top, including over an active drag)
  */
 
 :root {
@@ -102,8 +102,8 @@
      Written at each point of use, not a :root token (a :root-level
      --dept-rest would resolve --dept-color to its fallback once, giving
      every rail the same grey):
-       background: color-mix(in srgb, var(--dept-color, var(--g-line-strong))
-         var(--dept-rest-mix), var(--g-line-strong));
+       background: color-mix(in srgb, var(--dept-color, var(--base-line-strong))
+         var(--dept-rest-mix), var(--base-line-strong));
      interaction state is plain var(--dept-color). */
   --dept-rest-mix: 70%;
 
@@ -193,32 +193,32 @@
 
   /* drafting paper, not institute off-white: a hairline of blue keeps the
      neutrals from reading as generic warm-grey SaaS chrome. */
-  --g-bg: #eef1f3;
-  --g-surface: #ffffff;
-  --g-surface-2: #f4f6f7; /* nested panels on white */
-  --g-surface-sunken: #e5e9ec; /* wells, empty slots */
+  --base-bg: #eef1f3;
+  --base-surface: #ffffff;
+  --base-surface-2: #f4f6f7; /* nested panels on white */
+  --base-surface-sunken: #e5e9ec; /* wells, empty slots */
   /* the term-cell working surface: white objects on the drafting paper in
      light; the lifted level in dark */
-  --g-cell: #ffffff;
+  --base-cell: #ffffff;
 
-  --g-ink: #191c20;
-  --g-ink-2: #484d54;
+  --base-ink: #191c20;
+  --base-ink-2: #484d54;
   /* hints, captions; toward MIT silver. Dark enough to clear 4.5:1 at
      12.5px on every light surface, the sunken wells included (5.69 on
-     white, 5.02 on --g-bg, 4.66 on --g-surface-sunken). */
-  --g-ink-3: #62676f;
-  --g-ink-disabled: #adb2b8;
+     white, 5.02 on --base-bg, 4.66 on --base-surface-sunken). */
+  --base-ink-3: #62676f;
+  --base-ink-disabled: #adb2b8;
 
-  --g-line: #dde2e5; /* hairlines */
-  --g-line-strong: #c3c9ce;
+  --base-line: #dde2e5; /* hairlines */
+  --base-line-strong: #c3c9ce;
   /* ring for a field-shaped control that has to read as one at rest (the
      road switcher, the search field): ink-3 stepped toward the hairline,
      just past 3:1 against the header and against the field's own fill.
      dark takes less ink, since the grey carries further on blue-black */
-  --g-line-control: color-mix(
+  --base-line-control: color-mix(
     in srgb,
-    var(--g-ink-3) 70%,
-    var(--g-line-strong)
+    var(--base-ink-3) 70%,
+    var(--base-line-strong)
   );
 
   /* Plan canvas material (after the Alchemist character lattice on the
@@ -233,59 +233,59 @@
      the field. */
   --canvas-lattice: radial-gradient(
     circle at 0 0,
-    color-mix(in srgb, var(--g-line-strong) 62%, transparent) 0 1.1px,
+    color-mix(in srgb, var(--base-line-strong) 62%, transparent) 0 1.1px,
     transparent 1.6px
   );
 
   /* cardinal: MIT's brand red (#A31F34). Holds white text at 7.5:1; never
      used to mean status. */
-  --g-accent: #a31f34;
-  --g-accent-hover: #8b1a2c;
-  --g-accent-active: #731523;
-  --g-accent-tint: rgba(163, 31, 52, 0.09);
-  --g-accent-tint-strong: rgba(163, 31, 52, 0.17);
-  --g-on-accent: #ffffff;
+  --base-accent: #a31f34;
+  --base-accent-hover: #8b1a2c;
+  --base-accent-active: #731523;
+  --base-accent-tint: rgba(163, 31, 52, 0.09);
+  --base-accent-tint-strong: rgba(163, 31, 52, 0.17);
+  --base-on-accent: #ffffff;
 
   /* solid fill for the one primary action: follows the accent in light;
      dark lightens the silver so the CTA never reads as a disabled slab */
-  --g-accent-fill: var(--g-accent);
-  --g-accent-fill-hover: var(--g-accent-hover);
-  --g-accent-fill-active: var(--g-accent-active);
+  --base-accent-fill: var(--base-accent);
+  --base-accent-fill-hover: var(--base-accent-hover);
+  --base-accent-fill-active: var(--base-accent-active);
 
   /* identity cardinal (wordmark, Explore's current-term label); in light
      it is the accent */
-  --g-brand: #a31f34;
-  /* the current-term flag: white-on-cardinal. Same value as --g-brand
+  --base-brand: #a31f34;
+  /* the current-term flag: white-on-cardinal. Same value as --base-brand
      here; dark needs its own (see below), so this stays a separate token. */
-  --g-brand-flag: #a31f34;
+  --base-brand-flag: #a31f34;
 
   /* the wordmark tile. Cardinal in both themes, deliberately not overridden
      below: the mark is one fixed lockup, and the .ico beside it cannot
      follow a theme. Its white treads carry the contrast (7.5:1). */
-  --g-mark: #a31f34;
+  --base-mark: #a31f34;
 
   /* degree-progress fill: one calm tonal green; progress is not a warning,
-     so it never borrows the amber. Distinct from --g-ok (functional success
+     so it never borrows the amber. Distinct from --base-ok (functional success
      like valid drop targets) so that signal stays distinct. */
-  --g-progress: #2e6849;
-  --g-progress-tint: rgba(46, 104, 73, 0.12);
+  --base-progress: #2e6849;
+  --base-progress-tint: rgba(46, 104, 73, 0.12);
 
-  /* semantics: each clears 4.5:1 as text both on any --g-surface* and on
+  /* semantics: each clears 4.5:1 as text both on any --base-surface* and on
      its own -tint. departmentPalette.spec.ts checks department colors the
      same way. */
-  --g-ok: #1d6a2a;
-  --g-ok-tint: rgba(29, 106, 42, 0.12);
-  --g-warn: #7d5309;
-  --g-warn-tint: rgba(125, 83, 9, 0.14);
-  --g-danger: #b3261e;
-  --g-danger-tint: rgba(179, 38, 30, 0.1);
-  --g-info: #19647f;
-  --g-info-tint: rgba(25, 100, 127, 0.12);
+  --base-ok: #1d6a2a;
+  --base-ok-tint: rgba(29, 106, 42, 0.12);
+  --base-warn: #7d5309;
+  --base-warn-tint: rgba(125, 83, 9, 0.14);
+  --base-danger: #b3261e;
+  --base-danger-tint: rgba(179, 38, 30, 0.1);
+  --base-info: #19647f;
+  --base-info-tint: rgba(25, 100, 127, 0.12);
 
-  --g-focus-ring: 0 0 0 2px var(--g-bg), 0 0 0 4px var(--g-accent);
+  --base-focus-ring: 0 0 0 2px var(--base-bg), 0 0 0 4px var(--base-accent);
   /* For a focus target flush with an edge that clips, where the outer
      ring would be cut off. */
-  --g-focus-ring-inset: inset 0 0 0 2px var(--g-accent);
+  --base-focus-ring-inset: inset 0 0 0 2px var(--base-accent);
 
   --shadow-1:
     0 1px 2px rgba(26, 28, 31, 0.08), 0 0 0 1px rgba(26, 28, 31, 0.045);
@@ -302,9 +302,9 @@
 
   /* edge of floating surfaces (popovers, toasts, palette); transparent in
      light because --shadow-3's built-in ring already draws the edge */
-  --g-overlay-line: transparent;
+  --base-overlay-line: transparent;
 
-  --g-scrim: rgba(26, 28, 31, 0.4);
+  --base-scrim: rgba(26, 28, 31, 0.4);
 }
 
 /* ---------- dark: blueprint ---------- */
@@ -313,23 +313,23 @@
 
   /* Blueprint: blue-black rather than neutral charcoal, so dark mode is
      not a generic grey inversion. */
-  --g-bg: #10141b;
-  --g-surface: #171b23;
-  --g-surface-2: #1e232c;
-  --g-surface-sunken: #0b0e13;
-  --g-cell: #1e232c;
+  --base-bg: #10141b;
+  --base-surface: #171b23;
+  --base-surface-2: #1e232c;
+  --base-surface-sunken: #0b0e13;
+  --base-cell: #1e232c;
 
-  --g-ink: #ececee;
-  --g-ink-2: #b6b7bc;
-  --g-ink-3: #999ba1;
-  --g-ink-disabled: #565a61;
+  --base-ink: #ececee;
+  --base-ink-2: #b6b7bc;
+  --base-ink-3: #999ba1;
+  --base-ink-disabled: #565a61;
 
-  --g-line: #262b35;
-  --g-line-strong: #383f4c;
-  --g-line-control: color-mix(
+  --base-line: #262b35;
+  --base-line-strong: #383f4c;
+  --base-line-control: color-mix(
     in srgb,
-    var(--g-ink-3) 55%,
-    var(--g-line-strong)
+    var(--base-ink-3) 55%,
+    var(--base-line-strong)
   );
 
   /* Glyph field on blueprint: lifted just off the background, never up to
@@ -339,45 +339,45 @@
 
   /* silver workhorse: MIT gray carries every interactive state in dark,
      so the brand red is never mistaken for an alert */
-  --g-accent: #a6b2bb;
-  --g-accent-hover: #b8c2ca;
-  --g-accent-active: #94a0a9;
-  --g-accent-tint: rgba(166, 178, 187, 0.15);
-  --g-accent-tint-strong: rgba(166, 178, 187, 0.24);
-  --g-on-accent: #10141a;
+  --base-accent: #a6b2bb;
+  --base-accent-hover: #b8c2ca;
+  --base-accent-active: #94a0a9;
+  --base-accent-tint: rgba(166, 178, 187, 0.15);
+  --base-accent-tint-strong: rgba(166, 178, 187, 0.24);
+  --base-on-accent: #10141a;
 
   /* primary-action fill: the silver two steps lighter, so the one CTA is
-     lit (12.4:1 with --g-on-accent) rather than a mid-gray slab reading as
+     lit (12.4:1 with --base-on-accent) rather than a mid-gray slab reading as
      disabled */
-  --g-accent-fill: #cdd5db;
-  --g-accent-fill-hover: #dde3e8;
-  --g-accent-fill-active: #bfc9d0;
+  --base-accent-fill: #cdd5db;
+  --base-accent-fill-hover: #dde3e8;
+  --base-accent-fill-active: #bfc9d0;
 
   /* cardinal for identity only (wordmark, Explore's current-term label);
      4.66:1 on bg */
-  --g-brand: #d4586c;
-  /* darker than --g-brand: holds white text at 5.1:1, where --g-brand's
-     lighter value (tuned against --g-bg, not white-on-top) would fall short. */
-  --g-brand-flag: #c04057;
+  --base-brand: #d4586c;
+  /* darker than --base-brand: holds white text at 5.1:1, where --base-brand's
+     lighter value (tuned against --base-bg, not white-on-top) would fall short. */
+  --base-brand-flag: #c04057;
 
   /* degree-progress fill, softened so the tonal green reads on blueprint */
-  --g-progress: #74c096;
-  --g-progress-tint: rgba(116, 192, 150, 0.16);
+  --base-progress: #74c096;
+  --base-progress-tint: rgba(116, 192, 150, 0.16);
 
-  --g-ok: #69c97c;
-  --g-ok-tint: rgba(105, 201, 124, 0.16);
-  --g-warn: #d9a13f;
-  --g-warn-tint: rgba(217, 161, 63, 0.16);
+  --base-ok: #69c97c;
+  --base-ok-tint: rgba(105, 201, 124, 0.16);
+  --base-warn: #d9a13f;
+  --base-warn-tint: rgba(217, 161, 63, 0.16);
   /* a touch lighter than the light-theme pairing needs, since --danger-tint
-     on --g-surface-2 was the one dark case that didn't clear 4.5:1 with the
+     on --base-surface-2 was the one dark case that didn't clear 4.5:1 with the
      old value */
-  --g-danger: #ee7878;
-  --g-danger-tint: rgba(238, 120, 120, 0.14);
-  --g-info: #5db3d4;
-  --g-info-tint: rgba(93, 179, 212, 0.14);
+  --base-danger: #ee7878;
+  --base-danger-tint: rgba(238, 120, 120, 0.14);
+  --base-info: #5db3d4;
+  --base-info-tint: rgba(93, 179, 212, 0.14);
 
-  --g-focus-ring: 0 0 0 2px var(--g-bg), 0 0 0 4px var(--g-accent);
-  --g-focus-ring-inset: inset 0 0 0 2px var(--g-accent);
+  --base-focus-ring: 0 0 0 2px var(--base-bg), 0 0 0 4px var(--base-accent);
+  --base-focus-ring-inset: inset 0 0 0 2px var(--base-accent);
 
   --shadow-1:
     0 1px 2px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.045);
@@ -391,9 +391,9 @@
 
   /* dark leans on hairlines: shadows alone can't separate one surface
      from another, so floating surfaces get a real edge here */
-  --g-overlay-line: #383f4c;
+  --base-overlay-line: #383f4c;
 
-  --g-scrim: rgba(0, 0, 0, 0.55);
+  --base-scrim: rgba(0, 0, 0, 0.55);
 }
 
 /* Reduced motion: durations collapse, nothing depends on animation. */

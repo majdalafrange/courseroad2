@@ -152,7 +152,7 @@ describe("buildRoadPoster escaping", () => {
 
 describe("the current term matches TermCell", () => {
   // TermCell marks the current term with the Now flag alone: a neutral
-  // --g-line-strong border, ink season label, ink-3 year at full strength.
+  // --base-line-strong border, ink season label, ink-3 year at full strength.
   afterEach(() => {
     vi.useRealTimers();
   });
@@ -211,15 +211,15 @@ describe("theme mirrors of tokens.css", () => {
     Exclude<keyof PosterTheme, "deptOn" | "deptOn2">,
     string
   > = {
-    bg: "--g-bg",
-    surface: "--g-surface",
-    cell: "--g-cell",
-    line: "--g-line",
-    ink: "--g-ink",
-    ink2: "--g-ink-2",
-    ink3: "--g-ink-3",
-    lineStrong: "--g-line-strong",
-    brandFlag: "--g-brand-flag",
+    bg: "--base-bg",
+    surface: "--base-surface",
+    cell: "--base-cell",
+    line: "--base-line",
+    ink: "--base-ink",
+    ink2: "--base-ink-2",
+    ink3: "--base-ink-3",
+    lineStrong: "--base-line-strong",
+    brandFlag: "--base-brand-flag",
   };
 
   it("light theme matches the :root tokens", () => {
@@ -238,8 +238,8 @@ describe("theme mirrors of tokens.css", () => {
     }
   });
 
-  it("the wordmark tile is --g-mark and ignores the theme", () => {
-    expect(MARK_TILE).toBe(token(lightCss, "--g-mark"));
+  it("the wordmark tile is --base-mark and ignores the theme", () => {
+    expect(MARK_TILE).toBe(token(lightCss, "--base-mark"));
   });
 });
 

@@ -1,5 +1,5 @@
 <template>
-  <g-sheet v-model="dialog" label="Custom activity" width="480px">
+  <BaseSheet v-model="dialog" label="Custom activity" width="480px">
     <div class="cc-sheet">
       <header class="cc-head">
         <h2 class="cc-title">
@@ -14,14 +14,14 @@
           your units and hours, just as a class would.
         </p>
 
-        <g-input
+        <BaseInput
           v-model="form.shortTitle"
           label="Short code"
           placeholder="UROP"
           :error="shortError"
           :invalid="shortError !== undefined && touched"
         />
-        <g-input
+        <BaseInput
           v-model="form.fullTitle"
           label="Title"
           placeholder="Research in the Soft Robotics lab"
@@ -33,13 +33,13 @@
              default but submitted as zero, so an untouched form saved an
              activity that counted nothing. -->
         <div class="cc-numbers">
-          <g-number-field v-model="form.units" label="Units" :min="0" />
-          <g-number-field
+          <BaseNumberField v-model="form.units" label="Units" :min="0" />
+          <BaseNumberField
             v-model="form.inClassHours"
             label="In-class h/wk"
             :min="0"
           />
-          <g-number-field
+          <BaseNumberField
             v-model="form.outOfClassHours"
             label="Out-of-class h/wk"
             :min="0"
@@ -47,21 +47,21 @@
         </div>
 
         <span id="ccColorLabel" class="cc-label">Color</span>
-        <g-color-swatch-picker-root
+        <BaseColorSwatchPickerRoot
           v-model="pickerColor"
           class="cc-colors"
           aria-labelledby="ccColorLabel"
         >
-          <g-color-swatch-picker-item
+          <BaseColorSwatchPickerItem
             :value="DEFAULT_COLOR_VALUE"
             :color="defaultSwatchColor"
             class="cc-swatch default"
             fill-class="cc-swatch-fill"
             check-class="cc-swatch-check"
           >
-            <g-icon name="check" :size="14" />
-          </g-color-swatch-picker-item>
-          <g-color-swatch-picker-item
+            <BaseIcon name="check" :size="14" />
+          </BaseColorSwatchPickerItem>
+          <BaseColorSwatchPickerItem
             v-for="hex in SWATCH_HEXES"
             :key="hex"
             :value="hex"
@@ -69,32 +69,32 @@
             fill-class="cc-swatch-fill"
             check-class="cc-swatch-check"
           >
-            <g-icon name="check" :size="12" />
-          </g-color-swatch-picker-item>
-        </g-color-swatch-picker-root>
+            <BaseIcon name="check" :size="12" />
+          </BaseColorSwatchPickerItem>
+        </BaseColorSwatchPickerRoot>
       </div>
 
       <footer class="cc-foot">
-        <g-button variant="ghost" @click="dialog = false">Cancel</g-button>
-        <g-button variant="primary" @click="submit">
+        <BaseButton variant="ghost" @click="dialog = false">Cancel</BaseButton>
+        <BaseButton variant="primary" @click="submit">
           {{ editing !== undefined ? "Save" : "Add" }} activity
-        </g-button>
+        </BaseButton>
       </footer>
     </div>
-  </g-sheet>
+  </BaseSheet>
 </template>
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from "vue";
 import {
-  GColorSwatchPickerItem,
-  GColorSwatchPickerRoot,
-} from "../../design/components/GColorSwatchPicker";
-import GButton from "../../design/components/GButton.vue";
-import GSheet from "../../design/components/GSheet.vue";
-import GIcon from "../../design/components/GIcon.vue";
-import GInput from "../../design/components/GInput.vue";
-import GNumberField from "../../design/components/GNumberField.vue";
+  BaseColorSwatchPickerItem,
+  BaseColorSwatchPickerRoot,
+} from "../../design/components/BaseColorSwatchPicker";
+import BaseButton from "../../design/components/BaseButton.vue";
+import BaseSheet from "../../design/components/BaseSheet.vue";
+import BaseIcon from "../../design/components/BaseIcon.vue";
+import BaseInput from "../../design/components/BaseInput.vue";
+import BaseNumberField from "../../design/components/BaseNumberField.vue";
 import {
   CUSTOM_COLOR_COUNT,
   courseColor,
@@ -188,7 +188,7 @@ function submit() {
   const newClass = {
     subject_id: form.shortTitle,
     title: form.fullTitle,
-    // GNumberField's own min="0" already clamps these; null only when
+    // BaseNumberField's own min="0" already clamps these; null only when
     // the field was emptied out, hence the fallback.
     total_units: form.units ?? 0,
     in_class_hours: form.inClassHours ?? 0,
@@ -234,7 +234,7 @@ defineExpose({ openNewClass });
   align-items: center;
   justify-content: space-between;
   padding: var(--space-4) var(--space-5);
-  border-bottom: 1px solid var(--g-line);
+  border-bottom: 1px solid var(--base-line);
 }
 .cc-title {
   font: var(--text-title);
@@ -249,7 +249,7 @@ defineExpose({ openNewClass });
 }
 .cc-hint {
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   margin: 0;
 }
 .cc-numbers {
@@ -259,7 +259,7 @@ defineExpose({ openNewClass });
 }
 .cc-label {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 /* :deep(): ColorSwatchPickerRoot renders its ListboxRoot as-child onto a
    further-nested ListboxContent, a chain that (unlike a plain single-
@@ -286,7 +286,7 @@ defineExpose({ openNewClass });
 }
 .cc-swatch:focus-visible {
   outline: none;
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
 }
 .cc-swatch.default {
   width: auto;
@@ -295,7 +295,7 @@ defineExpose({ openNewClass });
   font-weight: 600;
 }
 /* ColorSwatch is unstyled; the fill sits behind the check indicator and
-   takes the item's own shape. :deep(): both are GColorSwatchPickerItem's
+   takes the item's own shape. :deep(): both are BaseColorSwatchPickerItem's
    own elements. */
 :deep(.cc-swatch-fill) {
   position: absolute;
@@ -307,14 +307,14 @@ defineExpose({ openNewClass });
   display: inline-flex;
 }
 .cc-swatch[data-state="checked"] {
-  border-color: var(--g-ink);
-  box-shadow: 0 0 0 2px var(--g-bg);
+  border-color: var(--base-ink);
+  box-shadow: 0 0 0 2px var(--base-bg);
 }
 .cc-foot {
   display: flex;
   justify-content: flex-end;
   gap: var(--space-2);
   padding: var(--space-3) var(--space-5);
-  border-top: 1px solid var(--g-line);
+  border-top: 1px solid var(--base-line);
 }
 </style>

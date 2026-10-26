@@ -1,12 +1,12 @@
 /* The Rows standard (tokens.css) for Reka's highlighted options. Unscoped,
    since the rows are Reka's and often teleported; each user imports it. */
-.g-row {
+.base-row {
   display: flex;
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
   font: var(--text-body);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   border-radius: var(--radius-sm);
   cursor: pointer;
   user-select: none;
@@ -14,33 +14,33 @@
   outline: none;
   transition: background-color var(--motion-quick) var(--ease-out);
 }
-.g-row[data-highlighted] {
-  background: var(--g-accent-tint);
-  color: var(--g-ink);
+.base-row[data-highlighted] {
+  background: var(--base-accent-tint);
+  color: var(--base-ink);
 }
 /* A row that never takes focus (a combobox's) gets no focus ring, and the
    tint alone is under 3:1, so an accent ring marks it. */
-.g-row.is-ringed[data-highlighted] {
-  box-shadow: inset 0 0 0 1.5px var(--g-accent);
+.base-row.is-ringed[data-highlighted] {
+  box-shadow: inset 0 0 0 1.5px var(--base-accent);
 }
 /* Where Reka moves real focus onto the row (menus), keyboard focus adds
    the inset ring so the tint alone never carries it. */
-.g-row:focus-visible {
-  box-shadow: var(--g-focus-ring-inset);
+.base-row:focus-visible {
+  box-shadow: var(--base-focus-ring-inset);
 }
 /* The disabled standard: authored, never opacity. */
-.g-row[data-disabled] {
-  color: var(--g-ink-disabled);
+.base-row[data-disabled] {
+  color: var(--base-ink-disabled);
   cursor: default;
 }
 /* Touch tier (tokens.css): rows are 44px targets on a phone. */
 @media (max-width: 859px) and (pointer: coarse) {
-  .g-row {
+  .base-row {
     min-height: 44px;
   }
 }
 @media (forced-colors: active) {
-  .g-row[data-highlighted] {
+  .base-row[data-highlighted] {
     outline: 2px solid Highlight;
     outline-offset: -2px;
   }

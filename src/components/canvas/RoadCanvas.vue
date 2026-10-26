@@ -4,34 +4,38 @@
     :class="{ 'is-classic': store.roadLayout === 'classic' }"
     :data-cy="'road_' + roadID"
   >
-    <transition name="banner">
+    <Transition name="banner">
       <div v-if="placing" class="placement-banner">
         <span class="placement-text">
           Placing
           <strong class="placement-id">{{ itemAdding?.subject_id }}</strong
           >. Choose a term below
         </span>
-        <g-button size="sm" variant="ghost" @click="store.cancelAddFromCard()">
+        <BaseButton
+          size="sm"
+          variant="ghost"
+          @click="store.cancelAddFromCard()"
+        >
           Cancel<span class="sep spaced">·</span
-          ><g-kbd class="placement-keys" :keys="['Esc']" />
-        </g-button>
+          ><BaseKbd class="placement-keys" :keys="['Esc']" />
+        </BaseButton>
       </div>
-    </transition>
+    </Transition>
 
-    <transition name="banner">
+    <Transition name="banner">
       <div v-if="moveSource !== null" class="placement-banner">
         <span class="placement-text">
           Moving
           <strong class="placement-id">{{ moveSourceSubjectId }}</strong
           >. Arrow keys to choose a term,
-          <g-kbd class="placement-keys" :keys="['Enter']" /> to place,
-          <g-kbd class="placement-keys" :keys="['Esc']" /> to cancel
+          <BaseKbd class="placement-keys" :keys="['Enter']" /> to place,
+          <BaseKbd class="placement-keys" :keys="['Esc']" /> to cancel
         </span>
       </div>
-    </transition>
+    </Transition>
 
     <div class="canvas-toolbar">
-      <g-popover v-model="settingsOpen" align="start" label="Class year">
+      <BasePopover v-model="settingsOpen" align="start" label="Class year">
         <template #anchor="{ triggerProps }">
           <button
             class="year-pill"
@@ -39,33 +43,33 @@
             v-bind="triggerProps"
             @click="settingsOpen = !settingsOpen"
           >
-            <g-icon name="map" :size="14" class="year-pill-icon" />
+            <BaseIcon name="map" :size="14" class="year-pill-icon" />
             <span class="year-pill-text">
               {{ termLabelNow }} <span class="sep">·</span>
               {{ yearNames[store.userYear] }}
             </span>
             <span class="sr-only">, current term</span>
-            <g-icon name="chevronDown" :size="12" class="year-pill-icon" />
+            <BaseIcon name="chevronDown" :size="12" class="year-pill-icon" />
           </button>
         </template>
         <div class="settings-pop" @click.stop>
-          <g-select
+          <BaseSelect
             label="I am a..."
             data-cy="selectClassYear"
             :model-value="store.userYear"
             :options="yearOptions"
             @update:model-value="changeYear"
           />
-          <g-checkbox
+          <BaseCheckbox
             class="settings-check"
             :model-value="showFifthYear"
             @update:model-value="setShowFifthYear"
           >
             Show a fifth year
-          </g-checkbox>
+          </BaseCheckbox>
         </div>
-      </g-popover>
-      <g-button
+      </BasePopover>
+      <BaseButton
         variant="ghost"
         size="sm"
         data-cy="hideIapToggle"
@@ -77,10 +81,10 @@
         @click="store.setHideIAP(!store.hideIAP)"
       >
         {{ store.hideIAP ? "Show IAP" : "Hide IAP" }}
-      </g-button>
+      </BaseButton>
     </div>
 
-    <term-cell
+    <TermCell
       :index="0"
       :road-i-d="roadID"
       :subjects="selectedSubjects[0]"
@@ -105,7 +109,7 @@
         <span class="year-name">{{ yearNames[year] }}</span>
         <span class="year-span">’{{ yearSpan(year) }}</span>
       </h2>
-      <term-cell
+      <TermCell
         v-for="termIndex in yearBuckets(year)"
         :key="termIndex"
         :index="termIndex"
@@ -138,12 +142,12 @@ import {
   watch,
 } from "vue";
 import TermCell from "./TermCell.vue";
-import GButton from "../../design/components/GButton.vue";
-import GCheckbox from "../../design/components/GCheckbox.vue";
-import GIcon from "../../design/components/GIcon.vue";
-import GPopover from "../../design/components/GPopover.vue";
-import GSelect from "../../design/components/GSelect.vue";
-import GKbd from "../../design/components/GKbd.vue";
+import BaseButton from "../../design/components/BaseButton.vue";
+import BaseCheckbox from "../../design/components/BaseCheckbox.vue";
+import BaseIcon from "../../design/components/BaseIcon.vue";
+import BasePopover from "../../design/components/BasePopover.vue";
+import BaseSelect from "../../design/components/BaseSelect.vue";
+import BaseKbd from "../../design/components/BaseKbd.vue";
 import { announce } from "../../design/announce";
 import {
   NUM_SEMESTERS,
@@ -515,11 +519,11 @@ void dragState;
   min-width: 0;
   font: var(--text-small);
   font-weight: 500;
-  color: var(--g-ink-2);
-  background: var(--g-surface);
+  color: var(--base-ink-2);
+  background: var(--base-surface);
   border: none;
   border-radius: var(--radius-full);
-  box-shadow: inset 0 0 0 1px var(--g-line-strong);
+  box-shadow: inset 0 0 0 1px var(--base-line-strong);
   height: 28px;
   padding: 0 var(--space-3);
   cursor: pointer;
@@ -527,7 +531,7 @@ void dragState;
     box-shadow var(--motion-quick) var(--ease-out),
     color var(--motion-quick) var(--ease-out);
 }
-/* Touch tier (tokens.css). Hide IAP beside it is a GButton and grows
+/* Touch tier (tokens.css). Hide IAP beside it is a BaseButton and grows
    on its own. */
 @media (max-width: 859px) and (pointer: coarse) {
   .year-pill {
@@ -535,12 +539,12 @@ void dragState;
   }
 }
 .year-pill:hover {
-  box-shadow: inset 0 0 0 1px var(--g-ink-3);
-  color: var(--g-ink);
+  box-shadow: inset 0 0 0 1px var(--base-ink-3);
+  color: var(--base-ink);
 }
 .year-pill:focus-visible {
   outline: none;
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
 }
 .year-pill-text {
   min-width: 0;
@@ -560,7 +564,7 @@ void dragState;
 }
 .settings-check {
   font: var(--text-body);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
 }
 
 .placement-banner {
@@ -571,8 +575,8 @@ void dragState;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  background: var(--g-ink);
-  color: var(--g-bg);
+  background: var(--base-ink);
+  color: var(--base-bg);
   border-radius: var(--radius-md);
   padding: var(--space-2) var(--space-4);
   box-shadow: var(--shadow-2);
@@ -590,8 +594,8 @@ void dragState;
   font-weight: 550;
   color: inherit;
 }
-.placement-banner :deep(.g-button) {
-  color: var(--g-bg) !important;
+.placement-banner :deep(.base-button) {
+  color: var(--base-bg) !important;
 }
 
 .banner-enter-active {
@@ -633,13 +637,13 @@ void dragState;
 }
 .year-name {
   font: var(--text-heading);
-  color: var(--g-ink);
+  color: var(--base-ink);
 }
 .year-span {
   font: var(--text-small);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 
 /* Beside the panel (860 to ~1080px windows) the year column starves IAP

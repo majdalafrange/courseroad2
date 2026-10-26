@@ -6,9 +6,11 @@
         Your roads were saved as you edited them. Reload to pick up where you
         left off.
       </p>
-      <g-button variant="primary" @click="reload">Reload CourseRoad</g-button>
+      <BaseButton variant="primary" @click="reload"
+        >Reload CourseRoad</BaseButton
+      >
     </div>
-    <router-view v-else-if="isStyleguide" />
+    <RouterView v-else-if="isStyleguide" />
     <template v-else>
       <a class="skip-link" :href="`#${mainId}`" @click.prevent="skipToMain">
         Skip to main content
@@ -21,8 +23,8 @@
           'show-progress': !isExplore && mobileView === 'progress',
         }"
       >
-        <mobile-notice v-if="isMobile" />
-        <shell-header
+        <MobileNotice v-if="isMobile" />
+        <ShellHeader
           :page-heading="pageHeading"
           @open-search="paletteOpen = true"
           @undo="doUndo"
@@ -40,41 +42,41 @@
         />
 
         <div class="shell-body">
-          <router-view />
+          <RouterView />
         </div>
 
-        <detail-sheet
+        <DetailSheet
           v-if="!isExplore && isMobile && detailOpen"
           @close="store.clearClassInfoStack()"
         >
-          <class-detail @show-plan="mobileView = 'plan'" />
-        </detail-sheet>
+          <ClassDetail @show-plan="mobileView = 'plan'" />
+        </DetailSheet>
 
-        <command-palette
+        <CommandPalette
           ref="paletteRef"
           v-model="paletteOpen"
           @action="onPaletteAction"
         />
 
-        <custom-class ref="customClassRef" />
+        <CustomClass ref="customClassRef" />
 
-        <conflict-dialog />
-        <import-dialog v-model="importOpen" @add-road="addRoad" />
-        <about-sheet v-model="aboutOpen" />
-        <settings-sheet v-model="settingsOpen" />
-        <share-sheet v-model="shareOpen" />
-        <compare-roads v-model="compareOpen" />
-        <onboarding v-model="onboardingOpen" @seed="seedFromOnboarding" />
-        <cookie-consent />
-        <mobile-nav
+        <ConflictDialog />
+        <ImportDialog v-model="importOpen" @add-road="addRoad" />
+        <AboutSheet v-model="aboutOpen" />
+        <SettingsSheet v-model="settingsOpen" />
+        <ShareSheet v-model="shareOpen" />
+        <CompareRoads v-model="compareOpen" />
+        <OnboardingSheet v-model="onboardingOpen" @seed="seedFromOnboarding" />
+        <CookieConsent />
+        <MobileNav
           v-if="isMobile"
           :active="mobileView"
           @navigate="onMobileNavigate"
           @search="paletteOpen = true"
         />
       </div>
-      <g-toast-host />
-      <g-live-region />
+      <BaseToastHost />
+      <BaseLiveRegion />
     </template>
   </div>
 </template>
@@ -100,9 +102,9 @@ import CustomClass from "./components/sheets/CustomClass.vue";
 import MobileNav from "./components/shell/MobileNav.vue";
 import MobileNotice from "./components/shell/MobileNotice.vue";
 import ShellHeader from "./components/shell/ShellHeader.vue";
-import GButton from "./design/components/GButton.vue";
-import GLiveRegion from "./design/components/GLiveRegion.vue";
-import { GToastHost } from "./design/components/GToast";
+import BaseButton from "./design/components/BaseButton.vue";
+import BaseLiveRegion from "./design/components/BaseLiveRegion.vue";
+import { BaseToastHost } from "./design/components/BaseToast";
 
 // Lazy: none of these render on first paint. CustomClass and
 // CommandPalette stay eager: both are reached through a typed ref, and
@@ -119,8 +121,8 @@ const ConflictDialog = defineAsyncComponent(
 const ImportDialog = defineAsyncComponent(
   () => import("./components/sheets/ImportDialog.vue"),
 );
-const Onboarding = defineAsyncComponent(
-  () => import("./components/sheets/Onboarding.vue"),
+const OnboardingSheet = defineAsyncComponent(
+  () => import("./components/sheets/OnboardingSheet.vue"),
 );
 const SettingsSheet = defineAsyncComponent(
   () => import("./components/sheets/SettingsSheet.vue"),
@@ -200,7 +202,7 @@ watch(
 const detailOpen = computed(() => store.classInfoStack.length > 0);
 const isExplore = computed(() => route.name === "/explore/[[road]]");
 // The styleguide is a self-contained reference page (its own header, its
-// own GToastHost) rather than part of the app.
+// own BaseToastHost) rather than part of the app.
 const isStyleguide = computed(() => route.name === "/styleguide");
 
 /* ---- page identity: title, heading, skip link ---- */
@@ -562,8 +564,8 @@ onBeforeUnmount(() => {
   height: 100dvh;
   padding: var(--space-5);
   text-align: center;
-  background: var(--g-bg);
-  color: var(--g-ink);
+  background: var(--base-bg);
+  color: var(--base-ink);
 }
 .fatal-title {
   font: var(--text-display);
@@ -572,7 +574,7 @@ onBeforeUnmount(() => {
 }
 .fatal-copy {
   font: var(--text-body);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   max-width: 420px;
   margin: 0;
 }
@@ -581,8 +583,8 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: var(--g-bg);
-  color: var(--g-ink);
+  background: var(--base-bg);
+  color: var(--base-ink);
   font: var(--text-body);
   overflow: hidden;
 }

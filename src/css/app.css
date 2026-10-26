@@ -14,8 +14,8 @@ html {
 }
 
 body {
-  background: var(--g-bg);
-  color: var(--g-ink);
+  background: var(--base-bg);
+  color: var(--base-ink);
   font-family: var(--font-text);
   margin: 0;
 }
@@ -38,10 +38,10 @@ body {
    20px icon button keeps its look. A component that positions the
    control itself keeps its own position (scoped rules win on
    specificity); relative only applies where nothing else is set. */
-.g-hit {
+.base-hit {
   position: relative;
 }
-.g-hit::before {
+.base-hit::before {
   content: "";
   position: absolute;
   top: 50%;
@@ -72,8 +72,8 @@ body {
   z-index: 210;
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
-  background: var(--g-accent-fill);
-  color: var(--g-on-accent);
+  background: var(--base-accent-fill);
+  color: var(--base-on-accent);
   font: var(--text-body-strong);
   text-decoration: none;
   transform: translateY(-200%);
@@ -81,7 +81,7 @@ body {
 .skip-link:focus {
   transform: none;
   outline: none;
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
 }
 
 #app-wrapper {
@@ -111,7 +111,7 @@ body {
   flex-direction: column;
   gap: 1px;
   /* Matches the card it was picked up from. */
-  background: var(--ghost-color, var(--g-ink-3));
+  background: var(--ghost-color, var(--base-ink-3));
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-3);
   padding: 6px 10px;
@@ -141,8 +141,8 @@ body {
   }
   30% {
     box-shadow:
-      0 0 0 2px var(--g-accent),
-      0 0 0 6px var(--g-accent-tint-strong);
+      0 0 0 2px var(--base-accent),
+      0 0 0 6px var(--base-accent-tint-strong);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -154,14 +154,14 @@ body {
 /* Quiet, consistent scrollbars. */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--g-line-strong) transparent;
+  scrollbar-color: var(--base-line-strong) transparent;
 }
 *::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 *::-webkit-scrollbar-thumb {
-  background: var(--g-line-strong);
+  background: var(--base-line-strong);
   border-radius: var(--radius-full);
 }
 *::-webkit-scrollbar-track {

@@ -1,11 +1,11 @@
 <template>
   <div v-if="!dismissed" class="mobile-notice" role="status">
-    <g-icon name="info" :size="14" class="notice-icon" />
+    <BaseIcon name="info" :size="14" class="notice-icon" />
     <span class="notice-text">
       CourseRoad works best on a laptop or desktop. Some features are hidden on
       small screens.
     </span>
-    <g-button
+    <BaseButton
       variant="ghost"
       size="xs"
       icon-only
@@ -13,15 +13,15 @@
       aria-label="Dismiss this notice"
       @click="dismiss"
     >
-      <g-icon name="close" :size="12" />
-    </g-button>
+      <BaseIcon name="close" :size="12" />
+    </BaseButton>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
-import GIcon from "../../design/components/GIcon.vue";
-import GButton from "../../design/components/GButton.vue";
+import BaseIcon from "../../design/components/BaseIcon.vue";
+import BaseButton from "../../design/components/BaseButton.vue";
 import { STORAGE_KEYS, readValue, writeValue } from "../../lib/appStorage";
 
 const dismissed = ref(
@@ -40,8 +40,8 @@ function dismiss() {
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
-  background: var(--g-info-tint);
-  color: var(--g-info);
+  background: var(--base-info-tint);
+  color: var(--base-info);
   font: var(--text-small);
   flex-shrink: 0;
 }
@@ -52,7 +52,7 @@ function dismiss() {
   flex: 1;
   min-width: 0;
 }
-/* Takes the notice's own color. Parent-prefixed to outrank GButton's
+/* Takes the notice's own color. Parent-prefixed to outrank BaseButton's
    ghost colors. */
 .mobile-notice .notice-dismiss {
   flex-shrink: 0;

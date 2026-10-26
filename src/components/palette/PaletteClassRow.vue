@@ -2,7 +2,7 @@
   <!-- One class in the palette's results (search results, favorites).
        Listeners and attrs (pointerdown for dragging, data-cy) fall through
        to the item. Styled by CommandPalette's .palette rules. -->
-  <g-combobox-item
+  <BaseComboboxItem
     :value="value"
     class="palette-row class-row"
     @select="emit('select')"
@@ -23,7 +23,7 @@
         </template>
         <template v-if="subject.rating">
           <span class="sep spaced">·</span
-          ><g-icon name="star" :size="10" class="rating-icon" /><span
+          ><BaseIcon name="star" :size="10" class="rating-icon" /><span
             class="sr-only"
             >rated</span
           >
@@ -37,18 +37,18 @@
       </span>
     </span>
     <span v-if="highlighted" class="row-place" aria-hidden="true">
-      <g-kbd :keys="['Enter']" /> open <span class="sep">·</span>
-      <g-kbd :keys="['Tab']" />
+      <BaseKbd :keys="['Enter']" /> open <span class="sep">·</span>
+      <BaseKbd :keys="['Tab']" />
       place
     </span>
-  </g-combobox-item>
+  </BaseComboboxItem>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { GComboboxItem } from "../../design/components/GCombobox";
-import GIcon from "../../design/components/GIcon.vue";
-import GKbd from "../../design/components/GKbd.vue";
+import { BaseComboboxItem } from "../../design/components/BaseCombobox";
+import BaseIcon from "../../design/components/BaseIcon.vue";
+import BaseKbd from "../../design/components/BaseKbd.vue";
 import { courseColor } from "../../lib/colors";
 import { subjectHoursLabel } from "../../lib/hours";
 import { offeredSeasonLetters } from "../../lib/offering";

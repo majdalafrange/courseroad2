@@ -34,7 +34,7 @@
     >
       <span class="term-name is-prior">Prior credit</span>
       <span class="prior-hint">Add AP, transfer, or ASE from search</span>
-      <g-icon name="plus" :size="13" class="prior-plus" />
+      <BaseIcon name="plus" :size="13" class="prior-plus" />
     </button>
 
     <header v-if="!collapsedPrior" class="term-head">
@@ -51,11 +51,11 @@
             {{ termSeason }}<span class="term-year">’{{ termYearShort }}</span>
           </template>
         </component>
-        <g-tooltip
+        <BaseTooltip
           v-if="subjects.length && index !== 0"
           text="Build this term's schedule in Hydrant"
         >
-          <g-button
+          <BaseButton
             variant="ghost"
             size="xs"
             icon-only
@@ -71,15 +71,15 @@
               :style="{ '--hydrant-mask': `url(${hydrantIcon})` }"
               aria-hidden="true"
             />
-          </g-button>
-        </g-tooltip>
+          </BaseButton>
+        </BaseTooltip>
       </div>
       <div v-if="subjects.length" class="term-stats">
         <span class="term-units" data-cy="semesterUnits"
           ><span aria-hidden="true">{{ info.totalUnits }}u</span
           ><span class="sr-only">{{ info.totalUnits }} units</span></span
         >
-        <g-tooltip placement="bottom" tap>
+        <BaseTooltip placement="bottom" tap>
           <span class="term-hours" :class="loadTone" tabindex="0"
             ><span aria-hidden="true"
               >{{ info.totalExpectedHours.toFixed(0) }}h</span
@@ -133,15 +133,15 @@
               </em>
             </div>
           </template>
-        </g-tooltip>
+        </BaseTooltip>
       </div>
-      <g-tooltip
+      <BaseTooltip
         v-if="index !== 0 && subjects.length"
         class="load-gauge-wrap"
         tap
         text="48 units is the typical load per semester."
       >
-        <g-progress
+        <BaseProgress
           class="load-gauge"
           :class="loadTone"
           fill-class="load-fill"
@@ -151,11 +151,11 @@
               `${info.totalExpectedHours.toFixed(0)} expected hours per week`
           "
         />
-      </g-tooltip>
+      </BaseTooltip>
     </header>
 
     <div v-if="!collapsedPrior" class="term-classes">
-      <class-card
+      <ClassCard
         v-for="(subject, subjIndex) in subjects"
         :key="subjectKeys[subjIndex]"
         :subject="subject"
@@ -176,7 +176,7 @@
         :aria-label="placementAriaLabel"
         @click.stop="emit('place-here', index)"
       >
-        <g-icon name="plus" :size="13" />
+        <BaseIcon name="plus" :size="13" />
         <span>{{ placementMessage }}</span>
       </button>
 
@@ -187,7 +187,7 @@
         :aria-label="`Add a class to ${termLabel}`"
         @click.stop="openPaletteForTerm"
       >
-        <g-icon name="plus" :size="13" class="term-empty-glyph" />
+        <BaseIcon name="plus" :size="13" class="term-empty-glyph" />
         <span class="term-empty-label">Add</span>
       </button>
     </div>
@@ -203,10 +203,10 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount } from "vue";
 import ClassCard from "./ClassCard.vue";
-import GIcon from "../../design/components/GIcon.vue";
-import GButton from "../../design/components/GButton.vue";
-import GProgress from "../../design/components/GProgress.vue";
-import GTooltip from "../../design/components/GTooltip.vue";
+import BaseIcon from "../../design/components/BaseIcon.vue";
+import BaseButton from "../../design/components/BaseButton.vue";
+import BaseProgress from "../../design/components/BaseProgress.vue";
+import BaseTooltip from "../../design/components/BaseTooltip.vue";
 import { semesterInformation } from "../../lib/hours";
 import { hydrantURL } from "../../lib/hydrant";
 import hydrantIcon from "../../assets/hydrant.png?w=48&format=webp&inline";
@@ -418,8 +418,8 @@ const placementAriaLabel = computed(() => {
   position: relative;
   display: flex;
   flex-direction: column;
-  background: var(--g-cell);
-  border: 1px solid var(--g-line);
+  background: var(--base-cell);
+  border: 1px solid var(--base-line);
   border-radius: var(--radius-md);
   min-height: 96px;
   transition:
@@ -429,7 +429,7 @@ const placementAriaLabel = computed(() => {
 /* The flag alone marks the current term; a cardinal ring as well would
    spend the color twice. */
 .term-cell.is-current {
-  border-color: var(--g-line-strong);
+  border-color: var(--base-line-strong);
 }
 /* Rotation and clipped bottom corners read as attached, not a floating
    badge. */
@@ -439,7 +439,7 @@ const placementAriaLabel = computed(() => {
   right: 72px;
   transform: rotate(-1.5deg);
   transform-origin: top center;
-  background: var(--g-brand-flag);
+  background: var(--base-brand-flag);
   color: #ffffff;
   font: var(--text-micro);
   font-weight: 600;
@@ -459,10 +459,10 @@ const placementAriaLabel = computed(() => {
   }
 }
 .term-cell.is-empty {
-  background: var(--g-bg);
+  background: var(--base-bg);
 }
 .term-cell.is-prior-credit {
-  background: var(--g-bg);
+  background: var(--base-bg);
   border-style: dashed;
   min-height: 64px;
 }
@@ -491,7 +491,7 @@ const placementAriaLabel = computed(() => {
 }
 .prior-hint {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   opacity: 0;
   transition: opacity var(--motion-quick) var(--ease-out);
   min-width: 0;
@@ -500,7 +500,7 @@ const placementAriaLabel = computed(() => {
   white-space: nowrap;
 }
 .prior-plus {
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   margin-left: auto;
   opacity: 0;
   transition: opacity var(--motion-quick) var(--ease-out);
@@ -514,11 +514,11 @@ const placementAriaLabel = computed(() => {
 }
 .prior-collapsed:focus-visible {
   outline: none;
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
 }
 .term-cell.is-move-target {
-  border-color: var(--g-accent);
-  box-shadow: 0 0 0 2px var(--g-accent-tint-strong);
+  border-color: var(--base-accent);
+  box-shadow: 0 0 0 2px var(--base-accent-tint-strong);
 }
 
 .term-head {
@@ -536,7 +536,7 @@ const placementAriaLabel = computed(() => {
   font: var(--text-small);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   margin: 0;
   white-space: nowrap;
 }
@@ -544,25 +544,25 @@ const placementAriaLabel = computed(() => {
   font-weight: 400;
 }
 .is-current .term-name {
-  color: var(--g-ink);
+  color: var(--base-ink);
 }
-/* --g-ink-3 at full strength: it is tuned to clear 4.5:1 at this size,
+/* --base-ink-3 at full strength: it is tuned to clear 4.5:1 at this size,
    and any opacity on top takes it under. */
 .term-year {
   margin-left: 3px;
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 /* Keeps the title row as tall as the text beside it. Parent-prefixed to
-   outrank GButton's ghost ink. */
+   outrank BaseButton's ghost ink. */
 .term-head .term-hydrant {
   margin: -4px -4px -4px 0;
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   transition:
     opacity var(--motion-quick) var(--ease-out),
     color var(--motion-quick) var(--ease-out);
 }
 .term-head .term-hydrant:hover {
-  color: var(--g-ink);
+  color: var(--base-ink);
 }
 /* One ink in both themes: the logo's two colors competed with the flag.
    Shown at rest in the current term only, elsewhere on hover or focus. */
@@ -586,7 +586,7 @@ const placementAriaLabel = computed(() => {
   font: var(--text-small);
   /* totals tick as classes move; tabular figures keep them from jittering */
   font-variant-numeric: tabular-nums;
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   margin-top: var(--space-05);
 }
 .term-hours {
@@ -595,18 +595,18 @@ const placementAriaLabel = computed(() => {
 }
 .term-hours:focus-visible {
   outline: none;
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
 }
 .term-hours.load-warn {
-  color: var(--g-warn);
+  color: var(--base-warn);
   font-weight: 600;
 }
 .term-hours.load-danger {
-  color: var(--g-danger);
+  color: var(--base-danger);
   font-weight: 600;
 }
 
-/* GTooltip's trigger is a grandchild through TooltipProvider/TooltipRoot,
+/* BaseTooltip's trigger is a grandchild through TooltipProvider/TooltipRoot,
    which render no DOM node, so it never receives this component's scope
    attribute; :deep() reaches it. Its inline-flex default let the gauge
    collapse to zero width. */
@@ -618,7 +618,7 @@ const placementAriaLabel = computed(() => {
   position: relative;
   height: 3px;
   border-radius: var(--radius-full);
-  background: var(--g-line);
+  background: var(--base-line);
   margin-top: var(--space-2);
   overflow: hidden;
 }
@@ -631,22 +631,22 @@ const placementAriaLabel = computed(() => {
   bottom: 0;
   left: 80%;
   width: 2px;
-  background: var(--g-cell);
+  background: var(--base-cell);
   z-index: 1;
 }
-/* :deep(): GProgress's own indicator, a grandchild from here. */
+/* :deep(): BaseProgress's own indicator, a grandchild from here. */
 :deep(.load-fill) {
   display: block;
   height: 100%;
   border-radius: var(--radius-full);
-  background: var(--g-ink-3);
+  background: var(--base-ink-3);
   transition: width var(--motion-standard) var(--ease-out);
 }
 .load-warn :deep(.load-fill) {
-  background: var(--g-warn);
+  background: var(--base-warn);
 }
 .load-danger :deep(.load-fill) {
-  background: var(--g-danger);
+  background: var(--base-danger);
 }
 
 .term-classes {
@@ -726,7 +726,7 @@ const placementAriaLabel = computed(() => {
   justify-content: center;
   gap: var(--space-1);
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   background: transparent;
   border: none;
   border-radius: var(--radius-sm);
@@ -752,11 +752,11 @@ const placementAriaLabel = computed(() => {
   }
 }
 .term-empty:hover {
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
 }
 .term-empty:focus-visible {
   outline: none;
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
 }
 
 /* An eligible slot stays neutral; the warn variants carry the doubt in
@@ -768,8 +768,8 @@ const placementAriaLabel = computed(() => {
   gap: var(--space-2);
   font: var(--text-small);
   font-weight: 500;
-  color: var(--g-ink-2);
-  border: 1.5px dashed var(--g-line-strong);
+  color: var(--base-ink-2);
+  border: 1.5px dashed var(--base-line-strong);
   border-radius: var(--radius-sm);
   background: transparent;
   padding: var(--space-2);
@@ -778,15 +778,15 @@ const placementAriaLabel = computed(() => {
   transition: background-color var(--motion-quick) var(--ease-out);
 }
 .place-slot:hover {
-  background: var(--g-surface-sunken);
+  background: var(--base-surface-sunken);
 }
 .place-slot.maybe,
 .place-slot.no-longer-offered,
 .place-slot.not-this-year {
-  color: var(--g-warn);
+  color: var(--base-warn);
 }
 .place-slot.unavailable {
-  color: var(--g-danger);
+  color: var(--base-danger);
 }
 
 /* drag eligibility veil */
@@ -801,31 +801,31 @@ const placementAriaLabel = computed(() => {
   padding: var(--space-2);
 }
 .drop-veil.drag-ok {
-  box-shadow: inset 0 0 0 1.5px var(--g-ok);
-  background: var(--g-ok-tint);
+  box-shadow: inset 0 0 0 1.5px var(--base-ok);
+  background: var(--base-ok-tint);
 }
 .drop-veil.drag-maybe {
-  box-shadow: inset 0 0 0 1.5px var(--g-warn);
-  background: var(--g-warn-tint);
+  box-shadow: inset 0 0 0 1.5px var(--base-warn);
+  background: var(--base-warn-tint);
 }
 .drop-veil.drag-unavailable {
-  box-shadow: inset 0 0 0 1.5px var(--g-danger);
-  background: var(--g-danger-tint);
+  box-shadow: inset 0 0 0 1.5px var(--base-danger);
+  background: var(--base-danger-tint);
 }
 .drop-veil.is-hover.drag-ok {
-  box-shadow: inset 0 0 0 2.5px var(--g-ok);
+  box-shadow: inset 0 0 0 2.5px var(--base-ok);
 }
 .drop-veil.is-hover.drag-maybe {
-  box-shadow: inset 0 0 0 2.5px var(--g-warn);
+  box-shadow: inset 0 0 0 2.5px var(--base-warn);
 }
 .drop-veil.is-hover.drag-unavailable {
-  box-shadow: inset 0 0 0 2.5px var(--g-danger);
+  box-shadow: inset 0 0 0 2.5px var(--base-danger);
 }
 .drop-hint {
   font: var(--text-small);
   font-weight: 600;
-  background: var(--g-surface);
-  color: var(--g-ink);
+  background: var(--base-surface);
+  color: var(--base-ink);
   border-radius: var(--radius-full);
   padding: var(--space-05) var(--space-3);
   box-shadow: var(--shadow-2);

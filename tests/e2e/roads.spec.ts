@@ -60,7 +60,7 @@ test("renaming a road to a name another road holds is explained", async ({
   // Reka's Toast also announces this via its own hidden live region, so
   // scope to the visible toast text rather than a page-wide text match.
   await expect(
-    page.locator(".g-toast-message", { hasText: "already exists" }),
+    page.locator(".base-toast-message", { hasText: "already exists" }),
   ).toBeVisible();
   await expect(cy(page, "roadSwitcher")).toContainText("Untitled road");
 });
@@ -107,7 +107,7 @@ test("import via paste round-trips into a new road", async ({ page }) => {
   });
   await cy(page, "roadSwitcher").click();
   await cy(page, "importRoadButton").click();
-  // GInput forwards attrs to its input, so the hook IS the input.
+  // BaseInput forwards attrs to its input, so the hook IS the input.
   await cy(page, "importRoadTitle").fill("Imported plan");
   await cy(page, "importRoadText").fill(file);
   await cy(page, "importRoadSubmitButton").click();

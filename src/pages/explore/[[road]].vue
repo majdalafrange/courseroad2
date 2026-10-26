@@ -5,7 +5,7 @@
     tabindex="-1"
     aria-label="Connections"
   >
-    <connections-toolbar v-if="store.status === 'ready'" />
+    <ConnectionsToolbar v-if="store.status === 'ready'" />
 
     <div
       class="connections-body"
@@ -24,7 +24,9 @@
           Connections needs the catalog to draw your graph. Check your network
           and try again.
         </p>
-        <g-button variant="primary" @click="store.retry()">Try again</g-button>
+        <BaseButton variant="primary" @click="store.retry()"
+          >Try again</BaseButton
+        >
       </div>
 
       <!-- cold start / empty -->
@@ -38,8 +40,8 @@
           }}
         </p>
         <div class="seed-search">
-          <g-combobox-root ref="seedCombo" :open="seedResults.length > 0">
-            <g-combobox-input
+          <BaseComboboxRoot ref="seedCombo" :open="seedResults.length > 0">
+            <BaseComboboxInput
               ref="seedInput"
               v-model="seedQuery"
               class="seed-input"
@@ -47,8 +49,8 @@
               placeholder="Search for a class to start from..."
               aria-label="Search for a starting class"
             />
-            <g-combobox-list label="Starting classes" class="seed-results">
-              <g-combobox-item
+            <BaseComboboxList label="Starting classes" class="seed-results">
+              <BaseComboboxItem
                 v-for="s in seedResults"
                 :key="s.subject_id"
                 :value="s.subject_id"
@@ -61,30 +63,30 @@
                 />
                 <span class="seed-id">{{ s.subject_id }}</span>
                 <span class="seed-title">{{ s.title }}</span>
-              </g-combobox-item>
-            </g-combobox-list>
-          </g-combobox-root>
+              </BaseComboboxItem>
+            </BaseComboboxList>
+          </BaseComboboxRoot>
           <p v-if="seedNoMatch" class="seed-empty" role="status">
             No class matches "{{ seedQuery.trim() }}". Try a subject number,
             like 6.1210, or words from the title.
           </p>
         </div>
-        <g-button
+        <BaseButton
           v-if="!roadEmpty"
           variant="ghost"
           @click="store.reseedFromRoad()"
         >
           Start from my road
-        </g-button>
+        </BaseButton>
       </div>
 
       <!-- ready -->
-      <connections-canvas v-else @open="onOpen" @add="onAdd" />
+      <ConnectionsCanvas v-else @open="onOpen" @add="onAdd" />
 
       <!-- DOM order stays canvas-then-panel (node-panel's v-if would break
            the v-else chain above if moved first); order:-1 in the stylesheet
            makes it match the audit panel. -->
-      <node-panel v-if="showPanel" @open="onOpen" @add="onAdd" />
+      <NodePanel v-if="showPanel" @open="onOpen" @add="onAdd" />
     </div>
   </main>
 </template>
@@ -102,13 +104,13 @@ import { useRoute, useRouter } from "vue-router";
 import ConnectionsToolbar from "../../components/connections/ConnectionsToolbar.vue";
 import ConnectionsCanvas from "../../components/connections/ConnectionsCanvas.vue";
 import NodePanel from "../../components/connections/NodePanel.vue";
-import GButton from "../../design/components/GButton.vue";
+import BaseButton from "../../design/components/BaseButton.vue";
 import {
-  GComboboxInput,
-  GComboboxItem,
-  GComboboxList,
-  GComboboxRoot,
-} from "../../design/components/GCombobox";
+  BaseComboboxInput,
+  BaseComboboxItem,
+  BaseComboboxList,
+  BaseComboboxRoot,
+} from "../../design/components/BaseCombobox";
 import { courseColor } from "../../lib/colors";
 import { useAppBootLoader } from "../../loaders/appBoot";
 import { SearchIndex } from "../../lib/search";
@@ -162,8 +164,8 @@ const roadEmpty = computed(() => {
 
 /* ---------- cold-start seed search ---------- */
 const seedQuery = ref("");
-const seedCombo = ref<InstanceType<typeof GComboboxRoot>>();
-const seedInput = ref<InstanceType<typeof GComboboxInput>>();
+const seedCombo = ref<InstanceType<typeof BaseComboboxRoot>>();
+const seedInput = ref<InstanceType<typeof BaseComboboxInput>>();
 const searchIndex = new SearchIndex();
 watch(
   () => courseData.subjectsInfo,
@@ -273,7 +275,7 @@ function onAdd(id: string) {
   .connections-body.panel-left :deep(.node-panel) {
     order: -1;
     border-left: none;
-    border-right: 1px solid var(--g-line);
+    border-right: 1px solid var(--base-line);
   }
 }
 
@@ -293,7 +295,7 @@ function onAdd(id: string) {
 }
 .state-text {
   font: var(--text-body);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   margin: 0;
   max-width: 420px;
 }
@@ -308,7 +310,7 @@ function onAdd(id: string) {
 .skeleton-node {
   height: 44px;
   border-radius: var(--radius-full);
-  background: var(--g-surface-2);
+  background: var(--base-surface-2);
   animation: shimmer 1.4s ease-in-out infinite;
 }
 .skeleton-node:nth-child(even) {
@@ -334,16 +336,16 @@ function onAdd(id: string) {
   height: 34px;
   padding: 0 var(--space-3);
   font: var(--text-body);
-  color: var(--g-ink);
+  color: var(--base-ink);
 }
 .seed-results {
   display: flex;
   flex-direction: column;
   margin: var(--space-2) 0 0;
   padding: var(--space-1);
-  border: 1px solid var(--g-overlay-line);
+  border: 1px solid var(--base-overlay-line);
   border-radius: var(--radius-md);
-  background: var(--g-surface);
+  background: var(--base-surface);
   box-shadow: var(--shadow-2);
   text-align: left;
   max-height: 280px;
@@ -351,7 +353,7 @@ function onAdd(id: string) {
 .seed-empty {
   margin: var(--space-2) 0 0;
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   text-align: left;
 }
 .seed-result {
@@ -365,12 +367,12 @@ function onAdd(id: string) {
 }
 .seed-id {
   font: var(--text-id-small);
-  color: var(--g-ink);
+  color: var(--base-ink);
   min-width: 64px;
 }
 .seed-title {
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

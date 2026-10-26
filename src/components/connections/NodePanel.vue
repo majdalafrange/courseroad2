@@ -5,7 +5,7 @@
     aria-label="Connections"
   >
     <!-- inline "add to a term"; discovery never leaves the graph -->
-    <term-picker v-if="store.placementRequest" />
+    <TermPicker v-if="store.placementRequest" />
 
     <div v-if="subject" class="panel-head">
       <div class="panel-ident" :style="{ '--dept-color': color }">
@@ -13,7 +13,7 @@
           <h2 class="head-id" data-cy="connectionSelectedId">
             {{ subject.subject_id }}
           </h2>
-          <g-button
+          <BaseButton
             variant="ghost"
             size="xs"
             icon-only
@@ -21,8 +21,8 @@
             aria-label="Clear selection"
             @click="store.select(undefined)"
           >
-            <g-icon name="close" :size="13" />
-          </g-button>
+            <BaseIcon name="close" :size="13" />
+          </BaseButton>
         </div>
         <p class="head-title">{{ subject.title }}</p>
       </div>
@@ -36,7 +36,7 @@
       </p>
       <div v-if="headMissing.length" class="head-missing">
         <span class="missing-label">Needs</span>
-        <g-chip
+        <BaseChip
           v-for="id in headMissing"
           :key="id"
           interactive
@@ -44,7 +44,7 @@
           @click="store.revealMissingPrereq(subject.subject_id, id)"
         >
           {{ id }}
-        </g-chip>
+        </BaseChip>
         <span v-if="headMissingApproximate" class="missing-more">+ more</span>
       </div>
       <p v-if="subject.description" class="head-desc">
@@ -53,7 +53,7 @@
       <p v-if="headMetaParts.length" class="head-meta">
         <template v-for="(part, i) in headMetaParts" :key="i"
           ><span v-if="i > 0" class="sep spaced">·</span
-          ><g-icon
+          ><BaseIcon
             v-if="part.icon"
             :name="part.icon"
             :size="10"
@@ -62,7 +62,7 @@
         >
       </p>
       <div class="head-actions">
-        <g-button
+        <BaseButton
           v-if="isOnRoad"
           size="sm"
           variant="primary"
@@ -70,45 +70,45 @@
           @click="emit('open', subject.subject_id)"
         >
           Go to it
-        </g-button>
+        </BaseButton>
         <template v-else>
-          <g-button
+          <BaseButton
             size="sm"
             variant="primary"
             @click="emit('add', subject.subject_id)"
           >
             Add to road
-          </g-button>
-          <g-button size="sm" @click="emit('open', subject.subject_id)">
+          </BaseButton>
+          <BaseButton size="sm" @click="emit('open', subject.subject_id)">
             Open
-          </g-button>
+          </BaseButton>
         </template>
-        <g-button size="sm" :title="expandTitle" @click="toggleExpand">
+        <BaseButton size="sm" :title="expandTitle" @click="toggleExpand">
           {{ expandLabel }}
-        </g-button>
-        <g-button
+        </BaseButton>
+        <BaseButton
           v-if="isExpanded && hasMore"
           size="sm"
           title="Hide the connections this node revealed"
           @click="store.collapse(store.selectedId!)"
         >
           Collapse
-        </g-button>
-        <g-button
+        </BaseButton>
+        <BaseButton
           size="sm"
           :title="pinTitle"
           @click="store.togglePin(subject.subject_id)"
         >
           {{ isPinned ? "Unpin" : "Pin" }}
-        </g-button>
-        <g-button
+        </BaseButton>
+        <BaseButton
           size="sm"
           variant="danger"
           title="Remove from graph"
           @click="store.remove(subject.subject_id)"
         >
           Remove
-        </g-button>
+        </BaseButton>
       </div>
     </div>
 
@@ -207,7 +207,7 @@
                   >
                   <span class="neighbor-meta">
                     <template v-if="n.rating">
-                      <g-icon name="star" :size="10" class="rating-icon" />
+                      <BaseIcon name="star" :size="10" class="rating-icon" />
                       {{ n.rating.toFixed(1) }}
                     </template>
                     <template v-if="n.hours">
@@ -233,7 +233,7 @@
                 </span>
               </button>
               <div class="neighbor-actions">
-                <g-button
+                <BaseButton
                   variant="ghost"
                   size="xs"
                   icon-only
@@ -241,8 +241,8 @@
                   :aria-label="`Add ${n.id} to a term`"
                   @click="emit('add', n.id)"
                 >
-                  <g-icon name="plus" :size="13" />
-                </g-button>
+                  <BaseIcon name="plus" :size="13" />
+                </BaseButton>
               </div>
             </div>
             <div
@@ -250,7 +250,7 @@
               class="neighbor-missing"
             >
               <span class="missing-label">Needs</span>
-              <g-chip
+              <BaseChip
                 v-for="id in n.readiness.missing.slice(0, 4)"
                 :key="id"
                 interactive
@@ -258,7 +258,7 @@
                 @click="store.revealMissingPrereq(n.id, id)"
               >
                 {{ id }}
-              </g-chip>
+              </BaseChip>
               <span
                 v-if="n.readiness.missing.length > 4 || n.readiness.approximate"
                 class="missing-more"
@@ -274,9 +274,9 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import GButton from "../../design/components/GButton.vue";
-import GChip from "../../design/components/GChip.vue";
-import GIcon from "../../design/components/GIcon.vue";
+import BaseButton from "../../design/components/BaseButton.vue";
+import BaseChip from "../../design/components/BaseChip.vue";
+import BaseIcon from "../../design/components/BaseIcon.vue";
 import TermPicker from "./TermPicker.vue";
 import { courseColor } from "../../lib/colors";
 import { useConnectionsStore, type NodeView } from "../../stores/connections";
@@ -294,7 +294,7 @@ const courseData = useCourseDataStore();
 const subject = computed(() => store.selectedSubject);
 const neighbors = computed<RankedNeighbor[]>(() => store.rankedNeighbors);
 const color = computed(() =>
-  subject.value ? courseColor(subject.value) : "var(--g-line)",
+  subject.value ? courseColor(subject.value) : "var(--base-line)",
 );
 
 const selectedNode = computed<NodeView | undefined>(() =>
@@ -432,8 +432,8 @@ function toggleExpand() {
   width: 384px;
   flex-shrink: 0;
   height: 100%;
-  background: var(--g-surface);
-  border-right: 1px solid var(--g-line);
+  background: var(--base-surface);
+  border-right: 1px solid var(--base-line);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -441,7 +441,7 @@ function toggleExpand() {
 .node-panel.panel-right {
   order: 1;
   border-right: none;
-  border-left: 1px solid var(--g-line);
+  border-left: 1px solid var(--base-line);
 }
 @media (max-width: 1100px) {
   .node-panel {
@@ -462,7 +462,7 @@ function toggleExpand() {
     max-height: min(60dvh, 520px);
     border-right: none;
     border-left: none;
-    border-top: 1px solid var(--g-line);
+    border-top: 1px solid var(--base-line);
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     box-shadow: var(--shadow-3);
   }
@@ -470,7 +470,7 @@ function toggleExpand() {
 
 .panel-head {
   padding: 0 var(--space-4) var(--space-3);
-  border-bottom: 1px solid var(--g-line);
+  border-bottom: 1px solid var(--base-line);
 }
 /* Solid department color header; only the id and title live in it. */
 .panel-ident {
@@ -479,7 +479,7 @@ function toggleExpand() {
   padding: var(--space-3) var(--space-4);
   margin: var(--space-4) 0 var(--space-3);
 }
-/* On the department color: parent-prefixed to outrank GButton's ghost. */
+/* On the department color: parent-prefixed to outrank BaseButton's ghost. */
 .head-id-row .head-close {
   color: var(--dept-on-2);
 }
@@ -504,11 +504,11 @@ function toggleExpand() {
 }
 .head-facts {
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   margin: var(--space-2) 0 0;
 }
 .fact-warn {
-  color: var(--g-warn);
+  color: var(--base-warn);
 }
 .head-missing {
   display: flex;
@@ -519,7 +519,7 @@ function toggleExpand() {
 }
 .head-desc {
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   margin: var(--space-2) 0 0;
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -529,18 +529,18 @@ function toggleExpand() {
 }
 .head-meta {
   font: var(--text-micro);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   margin: var(--space-1) 0 0;
 }
 
 /* an unmet prerequisite is the next hop of the exploration */
 .missing-label {
   font: var(--text-micro);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 .missing-more {
   font: var(--text-micro);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 .head-actions {
   display: flex;
@@ -559,7 +559,7 @@ function toggleExpand() {
 }
 .panel-empty-copy {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   margin: 0;
 }
 
@@ -573,15 +573,15 @@ function toggleExpand() {
   align-items: center;
   gap: var(--space-2);
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   padding: var(--space-3) var(--space-3) var(--space-2);
 }
 .section-count {
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
 }
 .panel-note {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   padding: var(--space-2) var(--space-3);
 }
 
@@ -602,7 +602,7 @@ function toggleExpand() {
 }
 .neighbor:hover,
 .neighbor.hovered {
-  background: var(--g-surface-2);
+  background: var(--base-surface-2);
 }
 .neighbor.stale {
   opacity: 0.7;
@@ -626,8 +626,8 @@ function toggleExpand() {
   flex-shrink: 0;
   background: color-mix(
     in srgb,
-    var(--dept-color, var(--g-line-strong)) var(--dept-rest-mix),
-    var(--g-line-strong)
+    var(--dept-color, var(--base-line-strong)) var(--dept-rest-mix),
+    var(--base-line-strong)
   );
   transition: background-color var(--motion-quick) var(--ease-out);
 }
@@ -635,7 +635,7 @@ function toggleExpand() {
 .neighbor.hovered .neighbor-bar,
 .anchor-row:hover .neighbor-bar,
 .anchor-row:focus-visible .neighbor-bar {
-  background: var(--dept-color, var(--g-line-strong));
+  background: var(--dept-color, var(--base-line-strong));
 }
 
 .anchor-row {
@@ -651,11 +651,11 @@ function toggleExpand() {
   transition: background-color var(--motion-quick) var(--ease-out);
 }
 .anchor-row:hover {
-  background: var(--g-surface-2);
+  background: var(--base-surface-2);
 }
 .anchor-row:focus-visible {
   outline: none;
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
 }
 .neighbor-text {
   display: flex;
@@ -670,36 +670,36 @@ function toggleExpand() {
 }
 .neighbor-id {
   font: var(--text-id-small);
-  color: var(--g-ink);
+  color: var(--base-ink);
   font-weight: 550;
 }
 /* a crossing is information; warn stays reserved for staleness */
 .cross-flag {
   font: var(--text-micro);
-  color: var(--g-info);
+  color: var(--base-info);
 }
 .oncanvas-flag {
   width: 6px;
   height: 6px;
   border-radius: var(--radius-full);
-  background: var(--g-ink-3);
+  background: var(--base-ink-3);
   flex-shrink: 0;
 }
 .neighbor-title {
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .neighbor-reason {
   font: var(--text-micro);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   margin-top: 1px;
 }
 .neighbor-meta {
   font: var(--text-micro);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 .rating-icon {
   display: inline-block;

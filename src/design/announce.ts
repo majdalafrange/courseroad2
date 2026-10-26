@@ -1,6 +1,6 @@
 /**
  * Screen-reader announcer. A single polite live region (mounted by
- * GLiveRegion) reads these messages so non-visual users hear what
+ * BaseLiveRegion) reads these messages so non-visual users hear what
  * changed: a requirement completing, a save finishing, a class placed.
  */
 

@@ -1,24 +1,24 @@
 <template>
   <div v-if="subject" class="term-picker">
     <!-- Focus starts on the first term, the likeliest choice, not Cancel. -->
-    <g-inline-dialog
+    <BaseInlineDialog
       initial-focus=".term-chip"
       :described-by="note !== undefined"
       @close="store.cancelPlacement()"
     >
       <div class="picker-head">
-        <g-inline-dialog-title as="span" class="picker-title">
+        <BaseInlineDialogTitle as="span" class="picker-title">
           Add <span class="picker-id">{{ subject.subject_id }}</span> to...
-        </g-inline-dialog-title>
-        <g-button
+        </BaseInlineDialogTitle>
+        <BaseButton
           variant="ghost"
           size="xs"
           icon-only
           aria-label="Cancel adding"
           @click="store.cancelPlacement()"
         >
-          <g-icon name="close" :size="13" />
-        </g-button>
+          <BaseIcon name="close" :size="13" />
+        </BaseButton>
       </div>
 
       <div class="picker-grid">
@@ -48,22 +48,22 @@
         >
       </p>
 
-      <g-inline-dialog-description v-if="note" as="p" class="picker-note">{{
+      <BaseInlineDialogDescription v-if="note" as="p" class="picker-note">{{
         note
-      }}</g-inline-dialog-description>
-    </g-inline-dialog>
+      }}</BaseInlineDialogDescription>
+    </BaseInlineDialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
 import {
-  GInlineDialog,
-  GInlineDialogDescription,
-  GInlineDialogTitle,
-} from "../../design/components/GInlineDialog";
-import GIcon from "../../design/components/GIcon.vue";
-import GButton from "../../design/components/GButton.vue";
+  BaseInlineDialog,
+  BaseInlineDialogDescription,
+  BaseInlineDialogTitle,
+} from "../../design/components/BaseInlineDialog";
+import BaseIcon from "../../design/components/BaseIcon.vue";
+import BaseButton from "../../design/components/BaseButton.vue";
 import {
   NUM_SEMESTERS,
   baseYear,
@@ -182,11 +182,11 @@ const note = computed(() => {
 }
 .picker-title {
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
 }
 .picker-id {
   font-weight: 600;
-  color: var(--g-ink);
+  color: var(--base-ink);
 }
 
 .picker-grid {
@@ -199,10 +199,10 @@ const note = computed(() => {
   min-height: 24px;
   font: var(--text-micro);
   padding: var(--space-1) var(--space-05);
-  border: 1px solid var(--g-line);
+  border: 1px solid var(--base-line);
   border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   cursor: pointer;
   white-space: nowrap;
   transition:
@@ -216,19 +216,19 @@ const note = computed(() => {
 .term-chip.k-no-longer-offered,
 .term-chip.k-unavailable {
   border-style: dashed;
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 .term-chip.k-unavailable {
-  border-color: var(--g-danger);
+  border-color: var(--base-danger);
 }
 .term-chip.k-ok:hover,
 .term-chip.k-maybe:hover,
 .term-chip.k-not-this-year:hover,
 .term-chip.k-no-longer-offered:hover,
 .term-chip.k-unavailable:hover {
-  background: var(--g-accent-tint);
-  border-color: var(--g-accent);
-  color: var(--g-ink);
+  background: var(--base-accent-tint);
+  border-color: var(--base-accent);
+  color: var(--base-ink);
 }
 /* Touch tier (tokens.css). */
 @media (max-width: 859px) and (pointer: coarse) {
@@ -242,7 +242,7 @@ const note = computed(() => {
   gap: var(--space-1) var(--space-3);
   margin: var(--space-2) 0 0;
   font: var(--text-micro);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 .legend-entry {
   display: inline-flex;
@@ -252,7 +252,7 @@ const note = computed(() => {
 .legend-dash {
   width: 14px;
   height: 10px;
-  border: 1px dashed var(--g-ink-3);
+  border: 1px dashed var(--base-ink-3);
   border-radius: var(--radius-xs);
 }
 .legend-entry .early-dot {
@@ -264,13 +264,13 @@ const note = computed(() => {
   height: 4px;
   margin-left: var(--space-05);
   border-radius: var(--radius-full);
-  background: var(--g-info);
+  background: var(--base-info);
   vertical-align: middle;
 }
 
 .picker-note {
   font: var(--text-micro);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   margin: var(--space-2) 0 0;
 }
 </style>

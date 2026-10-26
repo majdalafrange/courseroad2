@@ -8,14 +8,14 @@
       >
     </div>
 
-    <g-toggle-group-root
+    <BaseToggleGroupRoot
       class="toolbar-center"
       aria-label="Edge filters"
       :model-value="shownLayers"
       @update:model-value="setShownLayers"
     >
-      <g-toggle-group-item value="prereq" as-child>
-        <g-button
+      <BaseToggleGroupItem value="prereq" as-child>
+        <BaseButton
           size="sm"
           variant="ghost"
           class="legend-item t-prereq"
@@ -23,37 +23,37 @@
         >
           <span class="swatch" aria-hidden="true" />
           <span class="legend-text">Prerequisite</span>
-        </g-button>
-      </g-toggle-group-item>
-      <g-toggle-group-item value="labels" as-child>
-        <g-button
+        </BaseButton>
+      </BaseToggleGroupItem>
+      <BaseToggleGroupItem value="labels" as-child>
+        <BaseButton
           size="sm"
           variant="ghost"
           class="legend-item"
           :title="`${store.showRowLabels ? 'Hide' : 'Show'} row labels`"
         >
           <span class="legend-text">Labels</span>
-        </g-button>
-      </g-toggle-group-item>
-    </g-toggle-group-root>
+        </BaseButton>
+      </BaseToggleGroupItem>
+    </BaseToggleGroupRoot>
 
     <div class="toolbar-right">
-      <g-button size="sm" variant="ghost" @click="store.tidy()">
+      <BaseButton size="sm" variant="ghost" @click="store.tidy()">
         Arrange view
-      </g-button>
+      </BaseButton>
       <!-- One keeps the starting subjects, the other replaces them; the
            names say which. -->
-      <g-button size="sm" variant="ghost" @click="store.reset()">
+      <BaseButton size="sm" variant="ghost" @click="store.reset()">
         Remove unpinned classes
-      </g-button>
-      <g-button
+      </BaseButton>
+      <BaseButton
         size="sm"
         variant="ghost"
         data-cy="connectionsReseed"
         @click="store.reseedFromRoad()"
       >
         Full Reset
-      </g-button>
+      </BaseButton>
     </div>
   </div>
 </template>
@@ -61,10 +61,10 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import {
-  GToggleGroupItem,
-  GToggleGroupRoot,
-} from "../../design/components/GToggleGroup";
-import GButton from "../../design/components/GButton.vue";
+  BaseToggleGroupItem,
+  BaseToggleGroupRoot,
+} from "../../design/components/BaseToggleGroup";
+import BaseButton from "../../design/components/BaseButton.vue";
 import { useConnectionsStore } from "../../stores/connections";
 
 const store = useConnectionsStore();
@@ -105,15 +105,15 @@ const seedParts = computed((): string[] => {
   justify-content: space-between;
   gap: var(--space-4);
   padding: var(--space-2) var(--space-4);
-  border-bottom: 1px solid var(--g-line);
-  background: var(--g-surface);
+  border-bottom: 1px solid var(--base-line);
+  background: var(--base-surface);
   flex-wrap: wrap;
 }
 /* The mode switch in the header already names the surface; the left slot
    states what the graph was seeded from. */
 .seed-label {
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 
 .toolbar-center {
@@ -127,10 +127,10 @@ const seedParts = computed((): string[] => {
   align-items: center;
   gap: var(--space-1);
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   background: transparent;
   /* outlined at rest: these are toggles and should read as controls */
-  border: 1px solid var(--g-line-strong);
+  border: 1px solid var(--base-line-strong);
   border-radius: var(--radius-full);
   padding: var(--space-05) var(--space-2);
   cursor: pointer;
@@ -139,32 +139,32 @@ const seedParts = computed((): string[] => {
     border-color var(--motion-quick) var(--ease-out),
     color var(--motion-quick) var(--ease-out);
 }
-/* :not(:disabled) matches GButton's own hover selector's specificity
+/* :not(:disabled) matches BaseButton's own hover selector's specificity
    (.v-ghost:hover:not(:disabled)) so this neutral wash wins over its
    accent-tint one, rather than losing to a plain .legend-item:hover. */
 .legend-item:hover:not(:disabled) {
-  background: var(--g-surface-2);
+  background: var(--base-surface-2);
 }
 .legend-item:focus-visible {
   outline: none;
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
 }
 /* On is filled, off is an empty outline: the two states have to differ
    by more than a shade of grey. data-state is the toggle group's. */
 .legend-item[data-state="on"] {
-  color: var(--g-ink);
-  background: var(--g-surface-sunken);
+  color: var(--base-ink);
+  background: var(--base-surface-sunken);
 }
 .legend-item[data-state="on"]:hover:not(:disabled) {
-  background: var(--g-line);
+  background: var(--base-line);
 }
 .legend-item[data-state="off"] {
-  color: var(--g-ink-3);
-  border-color: var(--g-line);
+  color: var(--base-ink-3);
+  border-color: var(--base-line);
 }
 .legend-item[data-state="off"] .legend-text {
   text-decoration: line-through;
-  text-decoration-color: var(--g-ink-3);
+  text-decoration-color: var(--base-ink-3);
 }
 .legend-item[data-state="off"] .swatch {
   filter: grayscale(1);
@@ -175,10 +175,10 @@ const seedParts = computed((): string[] => {
   height: 0;
   border-top-width: 2.5px;
   border-top-style: solid;
-  border-color: var(--swatch-color, var(--g-ink-3));
+  border-color: var(--swatch-color, var(--base-ink-3));
 }
 .t-prereq {
-  --swatch-color: var(--g-ink-2); /* matches GraphEdge's prereq color */
+  --swatch-color: var(--base-ink-2); /* matches GraphEdge's prereq color */
 }
 
 .toolbar-right {

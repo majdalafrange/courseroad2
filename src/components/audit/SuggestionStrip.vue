@@ -6,9 +6,9 @@
     <div class="strip-head">
       <div class="strip-title">
         <span class="strip-label">Suggestions</span>
-        <g-popover v-model="infoOpen" label="How suggestions are produced">
+        <BasePopover v-model="infoOpen" label="How suggestions are produced">
           <template #anchor="{ toggle, triggerProps }">
-            <g-button
+            <BaseButton
               variant="ghost"
               size="xs"
               icon-only
@@ -17,24 +17,24 @@
               v-bind="triggerProps"
               @click="toggle"
             >
-              <g-icon name="notice" :size="13" />
-            </g-button>
+              <BaseIcon name="notice" :size="13" />
+            </BaseButton>
           </template>
           <p class="strip-explain">
             These are the subjects with the best course evaluations that satisfy
             an unsatisfied requirement and are offered next term.
           </p>
-        </g-popover>
+        </BasePopover>
       </div>
-      <g-button
+      <BaseButton
         variant="ghost"
         size="xs"
         icon-only
         aria-label="Dismiss suggestions"
         @click="dismiss"
       >
-        <g-icon name="close" :size="12" />
-      </g-button>
+        <BaseIcon name="close" :size="12" />
+      </BaseButton>
     </div>
     <div
       v-for="suggestion in suggestions.slice(0, 2)"
@@ -61,19 +61,19 @@
         >
           <span class="sc-id">{{ candidate.subject.subject_id }}</span>
           <span v-if="candidate.rating" class="sc-rating"
-            ><g-icon name="star" :size="10" />{{
+            ><BaseIcon name="star" :size="10" />{{
               candidate.rating.toFixed(1)
             }}</span
           >
         </button>
-        <g-button
+        <BaseButton
           variant="link"
           size="sm"
           :aria-label="`See all classes for: ${suggestion.headline}`"
           @click="emit('see-all', suggestion.tokens)"
         >
           See all
-        </g-button>
+        </BaseButton>
       </div>
     </div>
   </div>
@@ -81,9 +81,9 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import GIcon from "../../design/components/GIcon.vue";
-import GButton from "../../design/components/GButton.vue";
-import GPopover from "../../design/components/GPopover.vue";
+import BaseIcon from "../../design/components/BaseIcon.vue";
+import BaseButton from "../../design/components/BaseButton.vue";
+import BasePopover from "../../design/components/BasePopover.vue";
 import { courseColor } from "../../lib/colors";
 import { buildSuggestions } from "../../lib/suggestions";
 import type { Subject } from "../../lib/types";
@@ -152,7 +152,7 @@ function dismiss() {
 .suggestion-strip {
   padding-bottom: var(--space-3);
   margin-bottom: var(--space-3);
-  border-bottom: 1px solid var(--g-line);
+  border-bottom: 1px solid var(--base-line);
 }
 .strip-head {
   display: flex;
@@ -168,12 +168,12 @@ function dismiss() {
 .strip-label {
   /* a label, not an action */
   font: var(--text-small);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 .strip-explain {
   max-width: 320px;
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   margin: 0;
 }
 
@@ -182,11 +182,11 @@ function dismiss() {
 }
 .suggestion-headline {
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   margin: 0 0 var(--space-2);
 }
 .suggestion-term {
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
 }
 .suggestion-classes {
   display: flex;
@@ -201,7 +201,7 @@ function dismiss() {
   font: var(--text-id-small);
   color: var(--dept-on);
   height: 22px;
-  background: var(--dept-color, var(--g-line-strong));
+  background: var(--dept-color, var(--base-line-strong));
   border: none;
   border-radius: var(--radius-sm);
   padding: 0 var(--space-2);
@@ -209,12 +209,12 @@ function dismiss() {
   transition: box-shadow var(--motion-quick) var(--ease-out);
 }
 .suggestion-class:hover {
-  box-shadow: 0 0 0 1.5px var(--g-accent);
+  box-shadow: 0 0 0 1.5px var(--base-accent);
 }
 /* focus comes back here when a detail opened from the chip closes */
 .suggestion-class:focus-visible {
   outline: none;
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
 }
 .sc-rating {
   display: inline-flex;

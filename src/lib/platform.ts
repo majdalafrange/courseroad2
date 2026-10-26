@@ -12,19 +12,19 @@ export function isMac(): boolean {
 }
 
 /** Flat "⌘K"/"Ctrl+K" string for plain-text contexts (toasts) that can't
- *  hold real <kbd> markup; GKbd + shortcutKeys is the markup version. */
+ *  hold real <kbd> markup; BaseKbd + shortcutKeys is the markup version. */
 export function shortcutLabel(key: string): string {
   const { keys, joiner } = shortcutKeys(key);
   return keys.join(joiner);
 }
 
-/** The individual keys and the text between them, for <g-kbd :keys>. */
+/** The individual keys and the text between them, for <BaseKbd :keys>. */
 export interface ShortcutKeys {
   keys: string[];
   joiner: string;
 }
 
-/** Same shortcut, split into parts a <g-kbd> can nest one <kbd> per key
+/** Same shortcut, split into parts a <BaseKbd> can nest one <kbd> per key
  *  around (the HTML spec's own convention for a combination). */
 export function shortcutKeys(key: string): ShortcutKeys {
   return isMac()

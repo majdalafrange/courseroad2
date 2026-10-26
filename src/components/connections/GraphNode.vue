@@ -37,7 +37,7 @@
         <div class="node-headline">
           <span class="node-id">{{ node.id }}</span>
           <span v-if="node.pinned" class="node-flag" title="Pinned"
-            ><g-icon name="pin" :size="11" /><span class="sr-only"
+            ><BaseIcon name="pin" :size="11" /><span class="sr-only"
               >, pinned</span
             ></span
           >
@@ -67,7 +67,7 @@
         @dblclick.stop
         @click.stop="emit('toggle')"
       >
-        <g-icon
+        <BaseIcon
           :name="node.expanded && !node.hasMore ? 'minus' : 'plus'"
           :size="12"
         />
@@ -78,7 +78,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import GIcon from "../../design/components/GIcon.vue";
+import BaseIcon from "../../design/components/BaseIcon.vue";
 import {
   NODE_HEIGHT,
   NODE_HEIGHT_COMPACT,
@@ -216,14 +216,14 @@ function onKeydown(event: KeyboardEvent) {
   align-items: stretch;
   width: 100%;
   height: 100%;
-  background: var(--g-surface);
+  background: var(--base-surface);
   /* the outline carries the department; it rests mixed toward the
      hairline and takes full chroma on interaction (--dept-rest recipe) */
   border: 1.5px solid
     color-mix(
       in srgb,
-      var(--dept-color, var(--g-line-strong)) var(--dept-rest-mix),
-      var(--g-line-strong)
+      var(--dept-color, var(--base-line-strong)) var(--dept-rest-mix),
+      var(--base-line-strong)
     );
   /* a card, cut like the plan's; edge trimming reads NODE_RADIUS */
   border-radius: var(--radius-md);
@@ -241,7 +241,7 @@ function onKeydown(event: KeyboardEvent) {
    full chroma and lifts the card */
 .node:hover,
 .node.hovered {
-  border-color: var(--dept-color, var(--g-line-strong));
+  border-color: var(--dept-color, var(--base-line-strong));
   box-shadow: var(--shadow-2);
 }
 /* outside the emphasized neighborhood: recede, never move */
@@ -250,20 +250,20 @@ function onKeydown(event: KeyboardEvent) {
 }
 .node:focus-visible {
   outline: none;
-  box-shadow: var(--g-focus-ring);
+  box-shadow: var(--base-focus-ring);
 }
 /* a starting point carries the tint alone; the fact is encoded once.
    Neutral at rest; cardinal is kept for the current term. */
 .node.anchor {
-  background: color-mix(in srgb, var(--g-ink) 8%, var(--g-surface));
+  background: color-mix(in srgb, var(--base-ink) 8%, var(--base-surface));
 }
 /* selection rings the card from outside with a gap, so the accent and
-   the department outline never blend (the --g-focus-ring construction) */
+   the department outline never blend (the --base-focus-ring construction) */
 .node.focused {
-  border-color: var(--dept-color, var(--g-line-strong));
+  border-color: var(--dept-color, var(--base-line-strong));
   box-shadow:
-    0 0 0 1.5px var(--g-bg),
-    0 0 0 3.5px var(--g-accent),
+    0 0 0 1.5px var(--base-bg),
+    0 0 0 3.5px var(--base-accent),
     var(--shadow-2);
 }
 .node.stale {
@@ -290,19 +290,19 @@ function onKeydown(event: KeyboardEvent) {
 }
 .node-id {
   font: var(--text-id-small);
-  color: var(--g-ink);
+  color: var(--base-ink);
   font-weight: 550;
 }
 /* A pin, not a cardinal dot: the panel's dot already means "on the graph",
    and cardinal is kept for the current term and the primary action. */
 .node-flag {
   display: inline-flex;
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   flex-shrink: 0;
 }
 .node-title {
   font: var(--text-small);
-  color: var(--g-ink-2);
+  color: var(--base-ink-2);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -311,14 +311,14 @@ function onKeydown(event: KeyboardEvent) {
    into a clipped fourth line */
 .node-facts {
   font: var(--text-micro);
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   margin-top: 1px;
 }
 .fact-warn {
-  color: var(--g-warn);
+  color: var(--base-warn);
 }
 
 /* round, like the chips: a small control, not a card */
@@ -331,18 +331,18 @@ function onKeydown(event: KeyboardEvent) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--g-line);
+  border: 1px solid var(--base-line);
   border-radius: var(--radius-full);
   background: transparent;
-  color: var(--g-ink-3);
+  color: var(--base-ink-3);
   font: var(--text-id-small);
   cursor: pointer;
   transition: background-color var(--motion-quick) var(--ease-out);
 }
 .node-expand:hover {
-  background: var(--g-accent-tint);
-  border-color: var(--g-accent);
-  color: var(--g-accent);
+  background: var(--base-accent-tint);
+  border-color: var(--base-accent);
+  color: var(--base-accent);
 }
 
 /* Entrance for freshly revealed nodes: settle in from the revealer,
