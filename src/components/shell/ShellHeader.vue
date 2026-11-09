@@ -5,7 +5,11 @@
          nothing on the page sits outside one. -->
     <h1 class="sr-only">{{ pageHeading }}</h1>
     <div class="header-left">
-      <RouterLink to="/road" class="header-brand" aria-label="CourseRoad home">
+      <RouterLink
+        :to="homeLink"
+        class="header-brand"
+        aria-label="CourseRoad home"
+      >
         <BaseWordmark size="sm" />
       </RouterLink>
       <span class="header-sep" aria-hidden="true" />
@@ -256,6 +260,10 @@ const auth = useAuthStore();
 const route = useRoute();
 
 const isExplore = computed(() => route.meta.mode === "explore");
+const homeLink = computed(() => ({
+  name: "/(app)/road/[[road]]" as const,
+  params: { road: store.activeRoad || undefined },
+}));
 const moreOpen = ref(false);
 
 const feedbackFormUrl = "https://forms.gle/VAY3E7RbjmUrw3ww5";

@@ -275,20 +275,48 @@ watch(
     } else if (newRoad !== "") {
       auditStore.updateFulfillment(store.fulfillmentNeeded);
     }
-    // The URL's :road segment follows the store under whichever mode
-    // prefix is active, so switching roads while exploring stays on
-    // /explore.
-    if (newRoad !== "" && !auth.justLoaded) {
-      const name = route.name;
-      if (
-        name === "/(app)/road/[[road]]" ||
-        name === "/(app)/explore/[[road]]"
-      ) {
-        void router.push({ name, params: { road: newRoad } });
-      }
-    }
+    syncUrlToRoad();
     auth.justLoaded = false;
   },
+);
+
+/* ---- URL and active road stay in step ---- */
+const routeRoad = computed(() =>
+  "road" in route.params ? route.params.road : undefined,
+);
+
+/** Keeps the current mode (Plan or Explore) and the query. */
+function syncUrlToRoad() {
+  const name = route.name;
+  const target = store.activeRoad;
+  const current = routeRoad.value;
+  if (
+    target === "" ||
+    current === target ||
+    (name !== "/(app)/road/[[road]]" && name !== "/(app)/explore/[[road]]")
+  ) {
+    return;
+  }
+  // Filling in a missing or stale id replaces; only a switch between two
+  // real roads earns a history entry.
+  const location = { name, params: { road: target }, query: route.query };
+  void (current === undefined || !(current in store.roads)
+    ? router.replace(location)
+    : router.push(location));
+}
+
+// Back and Forward move the URL; the store follows. An id the store doesn't
+// hold yet (a logged-in road still loading) waits for the store instead.
+watch(
+  routeRoad,
+  (road) => {
+    if (road === undefined) {
+      syncUrlToRoad();
+    } else if (road in store.roads && road !== store.activeRoad) {
+      store.setActiveRoad(road);
+    }
+  },
+  { immediate: true },
 );
 
 /** Route palette actions to their shell behaviors. */

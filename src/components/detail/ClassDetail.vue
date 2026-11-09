@@ -447,10 +447,9 @@ const emit = defineEmits<{
 /** Seed Connections from this subject (the highest-intent entry point). */
 function exploreFromHere() {
   if (subject.value !== undefined) {
-    const path =
-      store.activeRoad !== "" ? `/explore/${store.activeRoad}` : "/explore";
     void router.push({
-      path,
+      name: "/(app)/explore/[[road]]",
+      params: { road: store.activeRoad || undefined },
       query: { from: subject.value.subject_id },
     });
   }

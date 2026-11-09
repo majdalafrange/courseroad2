@@ -92,7 +92,11 @@ export const useAppBootLoader = defineBasicLoader(async (to) => {
     // Missing or unknown id on /road rewrites to the road shown. /explore
     // skips this so a stale id does not bounce the student out of
     // exploring.
-    void router.replace({ path: `/road/${store.activeRoad}` });
+    void router.replace({
+      name: "/(app)/road/[[road]]",
+      params: { road: store.activeRoad },
+      query: to.query,
+    });
   }
 
   auditStore.updateFulfillment("all");
