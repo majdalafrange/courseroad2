@@ -25,6 +25,7 @@
         </v-container>
       </v-card>
     </v-dialog>
+    <beta-banner />
     <v-app-bar app fixed dense :elevation="2">
       <road-tabs
         slot="extension"
@@ -207,6 +208,7 @@
       v-show="searchOpen"
       id="searchMenuCard"
       class="elevation-8"
+      :style="{ top: 37 + $vuetify.application.bar + 'px' }"
       @click.native="$event.stopPropagation()"
     >
       <class-search
@@ -292,6 +294,7 @@ import ClassInfo from "./../components/ClassInfo.vue";
 import ImportExport from "./../components/ImportExport.vue";
 import ThemeToggler from "./../components/ThemeToggler.vue";
 import About from "./../components/About.vue";
+import BetaBanner from "./../components/BetaBanner.vue";
 
 const DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss.SSS000Z";
 
@@ -307,6 +310,7 @@ export default {
     "import-export": ImportExport,
     "theme-toggler": ThemeToggler,
     about: About,
+    "beta-banner": BetaBanner,
   },
   data: function () {
     return {
@@ -636,7 +640,6 @@ export default {
 <style scoped>
 #searchMenuCard {
   position: fixed;
-  top: 37px;
   right: 24px;
   z-index: 100;
   overflow: hidden;
