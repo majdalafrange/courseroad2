@@ -203,6 +203,8 @@ watch(
         roadIds.value.find((id) => id !== store.activeRoad) ?? store.activeRoad;
     }
   },
+  // The shell lazy-loads this sheet, so a slow chunk can mount it open.
+  { immediate: true },
 );
 
 const contentsA = computed(() => roads.value[roadA.value]?.contents);
