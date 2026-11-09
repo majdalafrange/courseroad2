@@ -1,9 +1,7 @@
 /**
- * The one-time boot sequence for the road/explore route: restore
- * persisted state, resolve the active road from the URL, gate first-run
- * onboarding. A data loader attached to those pages, rather than App.vue's
- * onMounted, because only that runs after the initial navigation has
- * resolved. Not lazy: everything downstream needs the resolved road.
+ * One-time boot for the (app) routes: restore state, resolve the road from
+ * the URL, gate onboarding. A loader, since only a loader runs after the
+ * initial navigation resolves; not lazy, since everything needs the road.
  */
 import { ref } from "vue";
 import { defineBasicLoader } from "vue-router/experimental";
@@ -26,10 +24,10 @@ import { useAuditStore } from "../stores/audit";
 import { useAuthStore } from "../stores/auth";
 import { useCourseDataStore } from "../stores/courseData";
 
-/** App.vue watches this rather than calling the loader itself, which
- * only gets a resolved `to` by being attached to the road/explore pages. */
+/** The shell watches this rather than calling the loader itself, which
+ * only gets a resolved `to` by being attached to a route. */
 export const shouldOpenOnboarding = ref(false);
-/** The one-time pointer to Settings, shown by App.vue. */
+/** The one-time pointer to Settings, shown by the shell. */
 export const shouldShowSettingsNotice = ref(false);
 
 // route.params is a union across every page (only /road and /explore
@@ -51,7 +49,7 @@ export const useAppBootLoader = defineBasicLoader(async (to) => {
   const auth = useAuthStore();
   const auditStore = useAuditStore();
   const router = useRouter();
-  const isExplore = to.name === "/explore/[[road]]";
+  const isExplore = to.meta.mode === "explore";
 
   // A stored version that differs resets local state. An absent one is
   // stamped without a reset: the stamp is written only on consented boots,

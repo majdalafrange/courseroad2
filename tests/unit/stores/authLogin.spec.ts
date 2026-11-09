@@ -67,7 +67,7 @@ describe("auth.attemptLogin (OAuth callback)", () => {
     expect(mocks.fetchToken).toHaveBeenCalledWith("abc123");
     expect(mocks.replace).toHaveBeenCalledOnce();
     const target = mocks.replace.mock.calls[0][0];
-    expect(target.name).toBe("/road/[[road]]");
+    expect(target.name).toBe("/(app)/road/[[road]]");
     expect(target.query).toEqual({ demo: "1" });
 
     await vi.waitFor(() => expect(auth.loggedIn).toBe(true));

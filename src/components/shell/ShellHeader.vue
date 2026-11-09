@@ -255,7 +255,7 @@ const store = useCourseDataStore();
 const auth = useAuthStore();
 const route = useRoute();
 
-const isExplore = computed(() => route.name === "/explore/[[road]]");
+const isExplore = computed(() => route.meta.mode === "explore");
 const moreOpen = ref(false);
 
 const feedbackFormUrl = "https://forms.gle/VAY3E7RbjmUrw3ww5";

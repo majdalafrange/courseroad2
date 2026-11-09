@@ -645,7 +645,9 @@ const demoMenu = ref(false);
 const demoSheet = ref(false);
 const demoInline = ref(false);
 const demoImport = ref("");
-const searchKeys = shortcutKeys("K");
+// A computed, not a plain const: vue-tsc 3.3 loses the `.value` assertion
+// for a plain const this deep in the template (TS2339).
+const searchKeys = computed(() => shortcutKeys("K"));
 
 const primitives = [
   {
@@ -705,6 +707,9 @@ function demoUndoToast() {
 }
 
 function noop() {}
+
+// Outside the (app) shell, which sets the title for every other page.
+document.title = "Styleguide | CourseRoad";
 
 const principles = [
   {

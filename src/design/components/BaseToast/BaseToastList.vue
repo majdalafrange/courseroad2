@@ -34,13 +34,13 @@ import {
   ToastTitle,
   useToastManager,
 } from "reka-ui";
-import BaseIcon from "../BaseIcon.vue";
+import BaseIcon, { type IconName } from "../BaseIcon.vue";
 import type { ToastData } from "../../toast.ts";
 
 const { toasts } = useToastManager<ToastData>();
 
 /* The tone in shape as well as color; a neutral toast has none. */
-const TONE_ICON: Partial<Record<ToastData["variant"], string>> = {
+const TONE_ICON: Partial<Record<ToastData["variant"], IconName>> = {
   ok: "check",
   warn: "warn",
   danger: "notice",

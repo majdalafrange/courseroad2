@@ -2,7 +2,11 @@
   <aside
     class="progress-panel"
     aria-label="Degree progress"
-    :class="{ 'panel-right': store.panelSide === 'right' }"
+    :class="{
+      'panel-right': store.panelSide === 'right',
+      'is-mobile': isMobile,
+      'pane-hidden': isMobile && mobileView === 'plan',
+    }"
   >
     <!-- The stack holds the audit and the detail that covers it; the
          footer stays outside so it is never covered. -->
@@ -71,7 +75,13 @@
     </div>
   </aside>
 
-  <div class="shell-main">
+  <div
+    class="shell-main"
+    :class="{
+      'is-mobile': isMobile,
+      'pane-hidden': isMobile && mobileView === 'progress',
+    }"
+  >
     <main id="canvasScroll" class="canvas" tabindex="-1" aria-label="Road">
       <!-- The glyph field sizes to the plan, not the viewport, so it
            scrolls with the cards instead of sitting still behind them. -->
@@ -101,7 +111,7 @@
           <!-- On a phone the panel is the Progress tab, not a side. -->
           <p class="empty-copy">
             Place it in a term, or add a major or minor
-            {{ isMobile ? "under Progress" : `on the ${store.panelSide}` }}
+            {{ isMobile ? "under Progress" : `on the ${panelSide}` }}
             to see what's left.
           </p>
           <div class="empty-actions">
@@ -116,11 +126,23 @@
           :key="activeRoad"
           :selected-subjects="roads[activeRoad].contents.selectedSubjects"
           :road-i-d="activeRoad"
-          @change-year="auth.changeSemester($event)"
+          @change-year="changeYear"
         />
       </div>
     </main>
   </div>
+
+  <!-- Below 860px the detail is a bottom sheet over the whole shell, so a
+       palette result is visible from either pane. -->
+  <DetailSheet v-if="isMobile && detailOpen" @close="closeDetail">
+    <ClassDetail @show-plan="mobileView = 'plan'" />
+  </DetailSheet>
+  <MobileNav
+    v-if="isMobile"
+    :active="mobileView"
+    @navigate="mobileView = $event"
+    @search="focusSearch"
+  />
 </template>
 
 <script setup lang="ts">
@@ -133,30 +155,49 @@ import {
   watch,
 } from "vue";
 
-import AuditPanel from "../../components/audit/AuditPanel.vue";
-import ClassDetail from "../../components/detail/ClassDetail.vue";
-import CanvasGlyphs from "../../components/canvas/CanvasGlyphs.vue";
-import RoadCanvas from "../../components/canvas/RoadCanvas.vue";
-import BaseButton from "../../design/components/BaseButton.vue";
-import BaseLink from "../../design/components/BaseLink.vue";
-import BaseIcon from "../../design/components/BaseIcon.vue";
-import BasePopover from "../../design/components/BasePopover.vue";
-import { useIsMobile } from "../../composables/useIsMobile";
-import { useAppBootLoader } from "../../loaders/appBoot";
-import { useSubjectsLoader } from "../../loaders/courseData";
-import { flatten } from "../../lib/types";
-import { clearAuditOrigin, returnToAuditOrigin } from "../../stores/auditFocus";
-import { requestPalette } from "../../stores/palette";
-import { useAuthStore } from "../../stores/auth";
-import { useCourseDataStore } from "../../stores/courseData";
+import AuditPanel from "../../../components/audit/AuditPanel.vue";
+import ClassDetail from "../../../components/detail/ClassDetail.vue";
+import DetailSheet from "../../../components/detail/DetailSheet.vue";
+import MobileNav from "../../../components/shell/MobileNav.vue";
+import CanvasGlyphs from "../../../components/canvas/CanvasGlyphs.vue";
+import RoadCanvas from "../../../components/canvas/RoadCanvas.vue";
+import BaseButton from "../../../design/components/BaseButton.vue";
+import BaseLink from "../../../design/components/BaseLink.vue";
+import BaseIcon from "../../../design/components/BaseIcon.vue";
+import BasePopover from "../../../design/components/BasePopover.vue";
+import { useIsMobile } from "../../../composables/useIsMobile";
+import { useSubjectsLoader } from "../../../loaders/courseData";
+import { flatten } from "../../../lib/types";
+import {
+  clearAuditOrigin,
+  returnToAuditOrigin,
+} from "../../../stores/auditFocus";
+import { requestPalette } from "../../../stores/palette";
+import { useAuthStore } from "../../../stores/auth";
+import { useCourseDataStore } from "../../../stores/courseData";
 
-useAppBootLoader();
+definePage({
+  meta: { mode: "plan", mainId: "canvasScroll" },
+});
+
 const store = useCourseDataStore();
 const auth = useAuthStore();
 const isMobile = useIsMobile();
 const { error: subjectsError, refetch: refetchSubjects } = useSubjectsLoader();
 
 const footLinksOpen = ref(false);
+/** Which pane shows below 860px; MobileNav switches it. */
+const mobileView = ref<"plan" | "progress">("plan");
+
+// Store reads in the template go through these: vue-tsc 3.3 loses its
+// `.value` assertion for a plain const deep in a template (TS2339).
+const panelSide = computed(() => store.panelSide);
+function changeYear(year: number) {
+  auth.changeSemester(year);
+}
+function closeDetail() {
+  store.clearClassInfoStack();
+}
 
 const roads = computed(() => store.roads);
 const activeRoad = computed(() => store.activeRoad);
@@ -184,13 +225,14 @@ watch(detailOpen, (open) => {
     void nextTick(returnToAuditOrigin);
   }
 });
-// Arming placement closes the detail: the student is headed for the
-// canvas, not back to the audit. Keyed on the arming itself, so a detail
-// opened while placement waits still returns focus when it closes.
+// Arming placement shows the Plan pane and closes the detail. Keyed on the
+// arming, so a detail opened while placement waits still returns focus.
 watch(
   () => store.addingFromCard,
   (adding) => {
     if (adding) {
+      mobileView.value = "plan";
+      store.clearClassInfoStack();
       clearAuditOrigin();
     }
   },
@@ -413,13 +455,9 @@ function focusSearch() {
   }
 }
 
-/* The ancestor classes below (.shell, .is-mobile, .show-plan,
-   .show-progress) live on App.vue's shell wrapper; only the rightmost
-   class in each selector needs to belong to this component for scoped
-   CSS to still match it there. */
 @media (max-width: 859px) {
-  .shell.is-mobile .shell-main,
-  .shell.is-mobile .progress-panel {
+  .shell-main.is-mobile,
+  .progress-panel.is-mobile {
     width: 100%;
     height: auto;
     flex: 1;
@@ -427,7 +465,7 @@ function focusSearch() {
     border-right: none;
     border-left: none;
   }
-  .shell.is-mobile .canvas {
+  .shell-main.is-mobile .canvas {
     --canvas-pad-top: var(--space-3);
     --canvas-pad-x: var(--space-3);
     --canvas-pad-bottom: calc(
@@ -436,18 +474,13 @@ function focusSearch() {
     );
     padding: var(--canvas-pad-top) var(--canvas-pad-x) var(--canvas-pad-bottom);
   }
-  .shell.is-mobile .progress-panel {
+  .progress-panel.is-mobile {
     padding-bottom: calc(
       var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px)
     );
   }
-  /* Show one pane at a time; MobileNav switches. The class detail is not
-     part of this trade: below 860px it renders in DetailSheet, over the
-     whole shell, so a palette result is visible from either pane. */
-  .shell.is-mobile.show-plan .progress-panel {
-    display: none;
-  }
-  .shell.is-mobile.show-progress .shell-main {
+  /* One pane at a time; MobileNav switches. */
+  .pane-hidden {
     display: none;
   }
 }

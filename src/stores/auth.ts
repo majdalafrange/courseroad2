@@ -358,7 +358,7 @@ export const useAuthStore = defineStore("auth", {
       if (code !== null) {
         queryObject.delete("code");
         void useRouter().replace({
-          name: "/road/[[road]]",
+          name: "/(app)/road/[[road]]",
           params: { road: useCourseDataStore().activeRoad },
           query: Object.fromEntries(queryObject),
         });

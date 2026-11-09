@@ -19,10 +19,7 @@ import { cookies } from "./cookies";
 import { sanitizeRoadMap } from "./persistedStore";
 
 /** Cosmetic "already seen it" flags. Worst case they hide a one-off notice. */
-const STRING_KEYS = [
-  STORAGE_KEYS.hasOnboarded,
-  STORAGE_KEYS.dismissedAndroidWarning,
-] as const;
+const STRING_KEYS = [STORAGE_KEYS.hasOnboarded] as const;
 
 /**
  * Copy legacy cookie state into localStorage, once (guarded by a marker).

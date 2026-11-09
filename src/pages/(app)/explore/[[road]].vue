@@ -101,27 +101,27 @@ import {
   watch,
 } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import ConnectionsToolbar from "../../components/connections/ConnectionsToolbar.vue";
-import ConnectionsCanvas from "../../components/connections/ConnectionsCanvas.vue";
-import NodePanel from "../../components/connections/NodePanel.vue";
-import BaseButton from "../../design/components/BaseButton.vue";
+import ConnectionsToolbar from "../../../components/connections/ConnectionsToolbar.vue";
+import ConnectionsCanvas from "../../../components/connections/ConnectionsCanvas.vue";
+import NodePanel from "../../../components/connections/NodePanel.vue";
+import BaseButton from "../../../design/components/BaseButton.vue";
 import {
   BaseComboboxInput,
   BaseComboboxItem,
   BaseComboboxList,
   BaseComboboxRoot,
-} from "../../design/components/BaseCombobox";
-import { courseColor } from "../../lib/colors";
-import { useAppBootLoader } from "../../loaders/appBoot";
-import { SearchIndex } from "../../lib/search";
-import { flatten, type Subject } from "../../lib/types";
-import { useCourseDataStore } from "../../stores/courseData";
-import { useConnectionsStore } from "../../stores/connections";
-import { useIsMobile } from "../../composables/useIsMobile";
+} from "../../../design/components/BaseCombobox";
+import { courseColor } from "../../../lib/colors";
+import { SearchIndex } from "../../../lib/search";
+import { flatten, type Subject } from "../../../lib/types";
+import { useCourseDataStore } from "../../../stores/courseData";
+import { useConnectionsStore } from "../../../stores/connections";
+import { useIsMobile } from "../../../composables/useIsMobile";
 
-// Attaches useAppBootLoader to this route (see loaders/appBoot.ts); the
-// catalog is covered by App.vue's useSubjectsLoader().
-useAppBootLoader();
+definePage({
+  meta: { mode: "explore", mainId: "exploreMain" },
+});
+
 const route = useRoute();
 const router = useRouter();
 const courseData = useCourseDataStore();
@@ -147,7 +147,7 @@ watch(
   (mobile) => {
     if (mobile) {
       router.replace({
-        name: "/road/[[road]]",
+        name: "/(app)/road/[[road]]",
         params: { road: courseData.activeRoad },
       });
     }
@@ -237,7 +237,7 @@ const showPanel = computed(() => {
 function onOpen(id: string) {
   courseData.pushClassStack(id);
   void router.push({
-    name: "/road/[[road]]",
+    name: "/(app)/road/[[road]]",
     params: { road: courseData.activeRoad },
   });
 }

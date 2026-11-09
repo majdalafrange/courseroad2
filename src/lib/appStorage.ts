@@ -27,7 +27,6 @@ export const STORAGE_KEYS = {
   hasOnboarded: "hasOnboarded",
   /** Set once the "you can configure this in Settings" toast has shown. */
   seenSettingsNotice: "seenSettingsNotice",
-  dismissedAndroidWarning: "dismissedAndroidWarning",
   dismissedMobileNotice: "dismissedMobileNotice",
   hideIAP: "hideIAP",
   showFifthYear: "showFifthYear",

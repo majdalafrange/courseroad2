@@ -61,6 +61,7 @@ export default defineConfig(({ mode }) => ({
       // imports them, so vue-router's route scanner picks them up as
       // that route's data loader without a page hand-writing the export.
       experimental: { autoExportsDataLoaders: "src/loaders/**/*" },
+      dts: "src/route-map.d.ts",
     }),
     vue(),
     cspMeta(mode),
